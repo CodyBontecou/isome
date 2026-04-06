@@ -226,6 +226,31 @@ struct ExportService {
 
         presenter.present(activityVC, animated: true)
     }
+    
+    // MARK: - Direct Export to Default Folder
+    
+    /// Export visits directly to the default export folder
+    /// - Returns: The URL where the file was saved
+    @MainActor
+    static func exportToDefaultFolder(visits: [Visit], format: ExportFormat) throws -> URL {
+        let data: Data
+        switch format {
+        case .json:
+            data = try exportToJSON(visits: visits)
+        case .csv:
+            data = exportToCSV(visits: visits)
+        case .markdown:
+            data = exportToMarkdown(visits: visits)
+        }
+        
+        let fileName = "location_tracker_visits_\(formattedDate()).\(format.fileExtension)"
+        
+        guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
+            throw ExportFolderError.noDefaultFolder
+        }
+        
+        return savedURL
+    }
 }
 
 // MARK: - Location Points Export (for continuous tracking data)
@@ -409,5 +434,28 @@ extension ExportService {
         }
         
         presenter.present(activityVC, animated: true)
+    }
+    
+    /// Export location points directly to the default export folder
+    /// - Returns: The URL where the file was saved
+    @MainActor
+    static func exportLocationPointsToDefaultFolder(points: [LocationPoint], format: ExportFormat) throws -> URL {
+        let data: Data
+        switch format {
+        case .json:
+            data = try exportLocationPointsToJSON(points: points)
+        case .csv:
+            data = exportLocationPointsToCSV(points: points)
+        case .markdown:
+            data = exportLocationPointsToMarkdown(points: points)
+        }
+        
+        let fileName = "location_points_export_\(formattedDate()).\(format.fileExtension)"
+        
+        guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
+            throw ExportFolderError.noDefaultFolder
+        }
+        
+        return savedURL
     }
 }

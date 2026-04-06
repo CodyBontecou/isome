@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		A1000001212F000100000001 /* LocationTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* LocationTrackerApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
@@ -103,6 +104,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5F000001212F000000000001 /* ExportFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFolderManager.swift; sourceTree = "<group>"; };
 		919034FA4C91A43201D0CF80 /* TrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* LocationTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocationTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -270,6 +272,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000007212F000000000007 /* ExportService.swift */,
+				5F000001212F000000000001 /* ExportFolderManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -494,6 +497,7 @@
 				A100001C212F00010000001C /* SharedLocationData.swift in Sources */,
 				C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */,
 				90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */,
+				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

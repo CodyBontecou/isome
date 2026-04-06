@@ -1,17 +1,25 @@
 import SwiftUI
 import SwiftData
 import ActivityKit
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
+    @StateObject private var exportFolderManager = ExportFolderManager.shared
     @State private var showingExportOptions = false
     @State private var showingLocationPointsExportOptions = false
     @State private var showingClearConfirmation = false
+    @State private var showingFolderPicker = false
+    @State private var showingClearFolderConfirmation = false
+    @State private var exportSuccessMessage: String?
+    @State private var showingExportSuccess = false
     @State private var exportFormat: ExportFormat = .json
     
     // Default tracking settings
     @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
+    @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
         NavigationStack {
@@ -19,23 +27,22 @@ struct SettingsView: View {
                 trackingSection
                 continuousTrackingSection
                 defaultsSection
+                exportFolderSection
                 exportSection
                 dataSection
+                onboardingSection
                 aboutSection
             }
             .navigationTitle("Settings")
             .confirmationDialog("Export Format", isPresented: $showingExportOptions) {
                 Button("JSON") {
-                    exportFormat = .json
-                    viewModel.exportVisits(format: .json)
+                    exportVisits(format: .json)
                 }
                 Button("CSV") {
-                    exportFormat = .csv
-                    viewModel.exportVisits(format: .csv)
+                    exportVisits(format: .csv)
                 }
                 Button("Markdown") {
-                    exportFormat = .markdown
-                    viewModel.exportVisits(format: .markdown)
+                    exportVisits(format: .markdown)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
@@ -43,13 +50,13 @@ struct SettingsView: View {
             }
             .confirmationDialog("Export Format", isPresented: $showingLocationPointsExportOptions) {
                 Button("JSON") {
-                    viewModel.exportLocationPoints(format: .json)
+                    exportLocationPoints(format: .json)
                 }
                 Button("CSV") {
-                    viewModel.exportLocationPoints(format: .csv)
+                    exportLocationPoints(format: .csv)
                 }
                 Button("Markdown") {
-                    viewModel.exportLocationPoints(format: .markdown)
+                    exportLocationPoints(format: .markdown)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
@@ -62,6 +69,28 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("This will permanently delete all visit data and location points. This action cannot be undone.")
+            }
+            .alert("Remove Default Folder?", isPresented: $showingClearFolderConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Remove", role: .destructive) {
+                    exportFolderManager.clearDefaultFolder()
+                }
+            } message: {
+                Text("Exports will use the share sheet instead of saving directly to a folder.")
+            }
+            .alert("Export Complete", isPresented: $showingExportSuccess) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let message = exportSuccessMessage {
+                    Text(message)
+                }
+            }
+            .sheet(isPresented: $showingFolderPicker) {
+                FolderPicker { url in
+                    if let url = url {
+                        exportFolderManager.setDefaultFolder(url)
+                    }
+                }
             }
         }
     }
@@ -228,6 +257,48 @@ struct SettingsView: View {
         }
     }
     
+    // MARK: - Export Folder Section
+    
+    private var exportFolderSection: some View {
+        Section {
+            if let folderName = exportFolderManager.selectedFolderName {
+                HStack {
+                    Label(folderName, systemImage: "folder.fill")
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Button {
+                        showingFolderPicker = true
+                    } label: {
+                        Text("Change")
+                            .font(.subheadline)
+                    }
+                }
+                
+                Toggle("Auto-save to folder", isOn: $useDefaultExportFolder)
+                
+                Button(role: .destructive) {
+                    showingClearFolderConfirmation = true
+                } label: {
+                    Label("Remove Default Folder", systemImage: "folder.badge.minus")
+                }
+            } else {
+                Button {
+                    showingFolderPicker = true
+                } label: {
+                    Label("Select Export Folder", systemImage: "folder.badge.plus")
+                }
+            }
+        } header: {
+            Text("Default Export Folder")
+        } footer: {
+            if exportFolderManager.hasDefaultFolder {
+                Text("Exports will be saved directly to this folder when auto-save is enabled.")
+            } else {
+                Text("Set a default folder to save exports automatically without using the share sheet.")
+            }
+        }
+    }
+    
     // MARK: - Export Section
 
     private var exportSection: some View {
@@ -256,7 +327,41 @@ struct SettingsView: View {
         } header: {
             Text("Data Export")
         } footer: {
-            Text("Export visits or time-series location points with precise timestamps as JSON, CSV, or Markdown.")
+            if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+                Text("Files will be saved to \(exportFolderManager.selectedFolderName ?? "your folder").")
+            } else {
+                Text("Export visits or time-series location points as JSON, CSV, or Markdown.")
+            }
+        }
+    }
+    
+    // MARK: - Export Helpers
+    
+    private func exportVisits(format: ExportFormat) {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            do {
+                let url = try ExportService.exportToDefaultFolder(visits: viewModel.allVisits, format: format)
+                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                showingExportSuccess = true
+            } catch {
+                viewModel.exportError = error.localizedDescription
+            }
+        } else {
+            viewModel.exportVisits(format: format)
+        }
+    }
+    
+    private func exportLocationPoints(format: ExportFormat) {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            do {
+                let url = try ExportService.exportLocationPointsToDefaultFolder(points: viewModel.locationPoints, format: format)
+                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                showingExportSuccess = true
+            } catch {
+                viewModel.exportError = error.localizedDescription
+            }
+        } else {
+            viewModel.exportLocationPoints(format: format)
         }
     }
 
@@ -285,6 +390,22 @@ struct SettingsView: View {
             }
         } header: {
             Text("Data Management")
+        }
+    }
+
+    // MARK: - Onboarding Section
+
+    private var onboardingSection: some View {
+        Section {
+            Button {
+                hasCompletedOnboarding = false
+            } label: {
+                Label("Show Onboarding Again", systemImage: "sparkles")
+            }
+        } header: {
+            Text("Onboarding")
+        } footer: {
+            Text("Replay the onboarding flow to revisit app tips and permission setup guidance.")
         }
     }
 
@@ -318,4 +439,39 @@ struct SettingsView: View {
         modelContext: try! ModelContainer(for: Visit.self).mainContext,
         locationManager: LocationManager()
     ))
+}
+
+// MARK: - Folder Picker
+
+struct FolderPicker: UIViewControllerRepresentable {
+    let onFolderSelected: (URL?) -> Void
+    
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.folder])
+        picker.delegate = context.coordinator
+        picker.allowsMultipleSelection = false
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onFolderSelected: onFolderSelected)
+    }
+    
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let onFolderSelected: (URL?) -> Void
+        
+        init(onFolderSelected: @escaping (URL?) -> Void) {
+            self.onFolderSelected = onFolderSelected
+        }
+        
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            onFolderSelected(urls.first)
+        }
+        
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            onFolderSelected(nil)
+        }
+    }
 }
