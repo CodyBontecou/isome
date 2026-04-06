@@ -7,7 +7,7 @@ struct LocationMapView: View {
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
     @State private var showTravelPath = true
-    @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
@@ -21,6 +21,9 @@ struct LocationMapView: View {
         NavigationStack {
             ZStack {
                 Map(position: $cameraPosition, selection: $selectedVisit) {
+                    // Current user location
+                    UserAnnotation()
+
                     // Travel path from location points
                     if showTravelPath && !filteredPoints.isEmpty {
                         let coordinates = filteredPoints.map { $0.coordinate }
@@ -49,11 +52,11 @@ struct LocationMapView: View {
                 // Date range info overlay
                 VStack {
                     HStack {
-                        Spacer()
                         DateRangeChip(range: viewModel.mapDateRange)
                             .onTapGesture {
                                 showingFilters = true
                             }
+                        Spacer()
                     }
                     .padding()
 
