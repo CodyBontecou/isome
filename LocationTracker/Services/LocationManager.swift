@@ -3,6 +3,7 @@ import CoreLocation
 import SwiftData
 import Combine
 import ActivityKit
+import WidgetKit
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
@@ -33,6 +34,7 @@ final class LocationManager: NSObject, ObservableObject {
     
     // Current location name for Live Activity
     private var currentLocationName: String?
+    private var currentAddress: String?
     private var lastGeocodedLocation: CLLocation?
 
     override init() {
@@ -101,6 +103,7 @@ final class LocationManager: NSObject, ObservableObject {
         isTrackingEnabled = true
         UserDefaults.standard.set(isTrackingEnabled, forKey: "isTrackingEnabled")
         updateTrackingState()
+        syncDataToWatch()
     }
 
     func stopTracking() {
@@ -108,6 +111,7 @@ final class LocationManager: NSObject, ObservableObject {
         isContinuousTrackingEnabled = false
         UserDefaults.standard.set(isTrackingEnabled, forKey: "isTrackingEnabled")
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
+        syncDataToWatch()
     }
 
     private func updateTrackingState() {
@@ -174,6 +178,7 @@ final class LocationManager: NSObject, ObservableObject {
         if isTrackingEnabled {
             updateTrackingState()
         }
+        syncDataToWatch()
     }
 
     private func updateContinuousTracking() {
@@ -239,6 +244,7 @@ final class LocationManager: NSObject, ObservableObject {
             }
 
             try context.save()
+            syncDataToWatch()
         } catch {
             lastError = "Failed to save visit: \(error.localizedDescription)"
         }
@@ -257,6 +263,8 @@ final class LocationManager: NSObject, ObservableObject {
             try context.save()
             // Notify observers that new data is available
             locationPointsSavedCount += 1
+            // Sync to watch widget (throttled by WidgetKit)
+            syncDataToWatch()
         } catch {
             lastError = "Failed to save location point: \(error.localizedDescription)"
         }
@@ -302,9 +310,65 @@ final class LocationManager: NSObject, ObservableObject {
         do {
             let result = try await geocodingService.reverseGeocode(location: location)
             currentLocationName = result.name ?? result.address
+            currentAddress = result.address
         } catch {
             // Keep the previous location name on error
         }
+    }
+    
+    // MARK: - Watch Widget Data Sync
+    
+    /// Syncs current tracking state and today's stats to the shared App Group for the watch widget
+    func syncDataToWatch() {
+        guard let context = modelContext else { return }
+        
+        // Get today's date range
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: Date())
+        let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
+        
+        // Fetch today's visits
+        let visitsPredicate = #Predicate<Visit> { visit in
+            visit.arrivedAt >= startOfToday && visit.arrivedAt < endOfToday
+        }
+        let visitsDescriptor = FetchDescriptor<Visit>(predicate: visitsPredicate)
+        let todayVisits = (try? context.fetch(visitsDescriptor)) ?? []
+        
+        // Fetch today's location points
+        let pointsPredicate = #Predicate<LocationPoint> { point in
+            point.timestamp >= startOfToday && point.timestamp < endOfToday
+        }
+        let pointsDescriptor = FetchDescriptor<LocationPoint>(
+            predicate: pointsPredicate,
+            sortBy: [SortDescriptor(\.timestamp)]
+        )
+        let todayPoints = (try? context.fetch(pointsDescriptor)) ?? []
+        
+        // Calculate total distance from today's points
+        var totalDistance: Double = 0
+        for i in 1..<todayPoints.count {
+            totalDistance += todayPoints[i].distance(to: todayPoints[i-1])
+        }
+        
+        // Create shared data
+        let sharedData = SharedLocationData(
+            isTrackingEnabled: isTrackingEnabled,
+            isContinuousTrackingEnabled: isContinuousTrackingEnabled,
+            currentLocationName: currentLocationName,
+            currentAddress: currentAddress,
+            lastLatitude: currentLocation?.coordinate.latitude,
+            lastLongitude: currentLocation?.coordinate.longitude,
+            lastUpdateTime: Date(),
+            todayVisitsCount: todayVisits.count,
+            todayDistanceMeters: totalDistance,
+            todayPointsCount: todayPoints.count,
+            continuousTrackingStartTime: continuousTrackingStartTime,
+            continuousTrackingAutoOffHours: continuousTrackingAutoOffHours > 0 ? continuousTrackingAutoOffHours : nil
+        )
+        
+        // Save to App Group and reload widget timelines
+        sharedData.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

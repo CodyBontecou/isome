@@ -246,6 +246,21 @@ final class LocationViewModel {
             exportError = error.localizedDescription
         }
     }
+    
+    func exportLocationPoints(format: ExportFormat, dateRange: ClosedRange<Date>? = nil) {
+        let pointsToExport: [LocationPoint]
+        if let range = dateRange {
+            pointsToExport = locationPointsInDateRange(range)
+        } else {
+            pointsToExport = locationPoints
+        }
+        
+        do {
+            try ExportService.shareLocationPoints(points: pointsToExport, format: format)
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
 
     // MARK: - Clear Data
 

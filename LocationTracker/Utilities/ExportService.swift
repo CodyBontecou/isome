@@ -235,30 +235,57 @@ extension ExportService {
         let latitude: Double
         let longitude: Double
         let timestamp: String
+        let timestampUnix: Double
         let altitude: Double?
         let speed: Double?
+        let course: Double?
         let horizontalAccuracy: Double
+        let verticalAccuracy: Double?
     }
 
     struct LocationPointsExportData: Codable {
         let exportDate: String
+        let totalPoints: Int
+        let dateRange: DateRangeInfo?
         let points: [ExportableLocationPoint]
+        
+        struct DateRangeInfo: Codable {
+            let earliest: String
+            let latest: String
+            let durationSeconds: Double
+        }
     }
 
     static func exportLocationPointsToJSON(points: [LocationPoint]) throws -> Data {
-        let exportablePoints = points.map { point in
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        
+        let exportablePoints = sortedPoints.map { point in
             ExportableLocationPoint(
                 latitude: point.latitude,
                 longitude: point.longitude,
                 timestamp: iso8601Formatter.string(from: point.timestamp),
+                timestampUnix: point.timestamp.timeIntervalSince1970,
                 altitude: point.altitude,
                 speed: point.speed,
-                horizontalAccuracy: point.horizontalAccuracy
+                course: nil,
+                horizontalAccuracy: point.horizontalAccuracy,
+                verticalAccuracy: nil
+            )
+        }
+        
+        var dateRangeInfo: LocationPointsExportData.DateRangeInfo? = nil
+        if let first = sortedPoints.first, let last = sortedPoints.last {
+            dateRangeInfo = LocationPointsExportData.DateRangeInfo(
+                earliest: iso8601Formatter.string(from: first.timestamp),
+                latest: iso8601Formatter.string(from: last.timestamp),
+                durationSeconds: last.timestamp.timeIntervalSince(first.timestamp)
             )
         }
 
         let exportData = LocationPointsExportData(
             exportDate: iso8601Formatter.string(from: Date()),
+            totalPoints: exportablePoints.count,
+            dateRange: dateRangeInfo,
             points: exportablePoints
         )
 
@@ -266,5 +293,121 @@ extension ExportService {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
         return try encoder.encode(exportData)
+    }
+    
+    static func exportLocationPointsToCSV(points: [LocationPoint]) -> Data {
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        
+        var csvString = "timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy\n"
+        
+        for point in sortedPoints {
+            let timestamp = iso8601Formatter.string(from: point.timestamp)
+            let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
+            let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
+            let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
+            
+            let row = "\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy)\n"
+            csvString.append(row)
+        }
+        
+        return csvString.data(using: .utf8) ?? Data()
+    }
+    
+    static func exportLocationPointsToMarkdown(points: [LocationPoint]) -> Data {
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        
+        var md = "# Location Points Export\n\n"
+        md += "**Export Date:** \(formattedDateReadable())\n\n"
+        md += "**Total Points:** \(sortedPoints.count)\n\n"
+        
+        if let first = sortedPoints.first, let last = sortedPoints.last {
+            let duration = last.timestamp.timeIntervalSince(first.timestamp)
+            let hours = Int(duration) / 3600
+            let minutes = (Int(duration) % 3600) / 60
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .medium
+            
+            md += "**Time Range:** \(dateFormatter.string(from: first.timestamp)) → \(dateFormatter.string(from: last.timestamp))\n\n"
+            md += "**Duration:** \(hours)h \(minutes)m\n\n"
+        }
+        
+        md += "---\n\n"
+        
+        // Group by date
+        let grouped = Dictionary(grouping: sortedPoints) { point in
+            Calendar.current.startOfDay(for: point.timestamp)
+        }
+        
+        let sortedDates = grouped.keys.sorted()
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .full
+        dateFormatter.timeStyle = .none
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .medium
+        
+        for date in sortedDates {
+            guard let dayPoints = grouped[date] else { continue }
+            let sortedDayPoints = dayPoints.sorted { $0.timestamp < $1.timestamp }
+            
+            md += "## \(dateFormatter.string(from: date))\n\n"
+            md += "| Time | Lat | Lon | Speed | Altitude |\n"
+            md += "|------|-----|-----|-------|----------|\n"
+            
+            for point in sortedDayPoints {
+                let time = timeFormatter.string(from: point.timestamp)
+                let lat = String(format: "%.6f", point.latitude)
+                let lon = String(format: "%.6f", point.longitude)
+                let speed = point.speed.map { String(format: "%.1f m/s", $0) } ?? "-"
+                let altitude = point.altitude.map { String(format: "%.1f m", $0) } ?? "-"
+                
+                md += "| \(time) | \(lat) | \(lon) | \(speed) | \(altitude) |\n"
+            }
+            
+            md += "\n"
+        }
+        
+        return md.data(using: .utf8) ?? Data()
+    }
+    
+    @MainActor
+    static func shareLocationPoints(points: [LocationPoint], format: ExportFormat, from viewController: UIViewController? = nil) throws {
+        let data: Data
+        switch format {
+        case .json:
+            data = try exportLocationPointsToJSON(points: points)
+        case .csv:
+            data = exportLocationPointsToCSV(points: points)
+        case .markdown:
+            data = exportLocationPointsToMarkdown(points: points)
+        }
+        
+        let fileName = "location_points_export_\(formattedDate()).\(format.fileExtension)"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+        try data.write(to: tempURL)
+        
+        let activityVC = UIActivityViewController(
+            activityItems: [tempURL],
+            applicationActivities: nil
+        )
+        
+        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController else {
+            return
+        }
+        
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        presenter.present(activityVC, animated: true)
     }
 }

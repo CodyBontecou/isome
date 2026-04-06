@@ -5,6 +5,7 @@ import ActivityKit
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @State private var showingExportOptions = false
+    @State private var showingLocationPointsExportOptions = false
     @State private var showingClearConfirmation = false
     @State private var exportFormat: ExportFormat = .json
     
@@ -38,7 +39,21 @@ struct SettingsView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("Choose export format")
+                Text("Choose export format for visits")
+            }
+            .confirmationDialog("Export Format", isPresented: $showingLocationPointsExportOptions) {
+                Button("JSON") {
+                    viewModel.exportLocationPoints(format: .json)
+                }
+                Button("CSV") {
+                    viewModel.exportLocationPoints(format: .csv)
+                }
+                Button("Markdown") {
+                    viewModel.exportLocationPoints(format: .markdown)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Choose export format for location points")
             }
             .alert("Clear All Data?", isPresented: $showingClearConfirmation) {
                 Button("Cancel", role: .cancel) {}
@@ -221,16 +236,27 @@ struct SettingsView: View {
                 showingExportOptions = true
             } label: {
                 HStack {
-                    Label("Export All Data", systemImage: "square.and.arrow.up")
+                    Label("Export Visits", systemImage: "mappin.and.ellipse")
                     Spacer()
                     Text("\(viewModel.allVisits.count) visits")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Button {
+                showingLocationPointsExportOptions = true
+            } label: {
+                HStack {
+                    Label("Export Location Points", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
+                    Spacer()
+                    Text("\(viewModel.locationPoints.count) points")
                         .foregroundStyle(.secondary)
                 }
             }
         } header: {
             Text("Data Export")
         } footer: {
-            Text("Export visits as JSON or CSV to save or share your location history.")
+            Text("Export visits or time-series location points with precise timestamps as JSON, CSV, or Markdown.")
         }
     }
 
