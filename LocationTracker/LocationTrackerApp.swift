@@ -28,6 +28,9 @@ struct LocationTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -45,6 +48,18 @@ struct LocationTrackerApp: App {
             }
         }
     }
+    
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "locationtracker" else { return }
+        
+        switch url.host {
+        case "stop":
+            // Stop continuous tracking
+            NotificationCenter.default.post(name: .stopContinuousTracking, object: nil)
+        default:
+            break
+        }
+    }
 }
 
 // MARK: - Notification Names
@@ -52,4 +67,5 @@ struct LocationTrackerApp: App {
 extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
+    static let stopContinuousTracking = Notification.Name("stopContinuousTracking")
 }

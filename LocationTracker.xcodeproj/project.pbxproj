@@ -16,16 +16,47 @@
 		A1000007212F000100000007 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000007212F000000000007 /* ExportService.swift */; };
 		A1000008212F000100000008 /* LocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000008212F000000000008 /* LocationViewModel.swift */; };
 		A1000009212F000100000009 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000009212F000000000009 /* TodayView.swift */; };
-		A100000A212F00010000000A /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000A212F00000000000A /* HistoryView.swift */; };
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
 		A100000C212F00010000000C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000C212F00000000000C /* SettingsView.swift */; };
 		A100000D212F00010000000D /* VisitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000D212F00000000000D /* VisitDetailView.swift */; };
 		A100000E212F00010000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E212F00000000000E /* Assets.xcassets */; };
 		A100000F212F00010000000F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000F212F00000000000F /* Preview Assets.xcassets */; };
 		A1000019212F000100000019 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019212F000000000019 /* AppDelegate.swift */; };
+		A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
+		A100001B212F00010000001B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B212F00000000001B /* LiveActivityManager.swift */; };
+		A2000001212F000100000001 /* LocationTrackerWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001212F000000000001 /* LocationTrackerWidgetBundle.swift */; };
+		A2000002212F000100000002 /* LocationTrackerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002212F000000000002 /* LocationTrackerLiveActivity.swift */; };
+		A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
+		A2000004212F000100000004 /* LocationTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A2000000212F000000000000 /* LocationTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919034FA4C91A43201D0CF80 /* TrackingView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A2000010212F000000000010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2FFFFFA212EFFFFFFFF0000;
+			remoteInfo = LocationTrackerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A2000011212F000000000011 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A2000004212F000100000004 /* LocationTrackerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		919034FA4C91A43201D0CF80 /* TrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* LocationTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocationTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* LocationTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTrackerApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -36,7 +67,6 @@
 		A1000007212F000000000007 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
 		A1000008212F000000000008 /* LocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewModel.swift; sourceTree = "<group>"; };
 		A1000009212F000000000009 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
-		A100000A212F00000000000A /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		A100000C212F00000000000C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A100000D212F00000000000D /* VisitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitDetailView.swift; sourceTree = "<group>"; };
@@ -44,10 +74,23 @@
 		A100000F212F00000000000F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000019212F000000000019 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A100001A212F00000000001A /* LocationActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationActivityAttributes.swift; sourceTree = "<group>"; };
+		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		A2000000212F000000000000 /* LocationTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LocationTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000001212F000000000001 /* LocationTrackerWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTrackerWidgetBundle.swift; sourceTree = "<group>"; };
+		A2000002212F000000000002 /* LocationTrackerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTrackerLiveActivity.swift; sourceTree = "<group>"; };
+		A2000003212F000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A1FFFFFE212EFFFFFFFF0001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2FFFFFE212EFFFFFFFF0001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -69,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				A1FFFFFA212EFFFFFFFF0001 /* LocationTracker */,
+				A2FFFFFA212EFFFFFFFF0001 /* LocationTrackerWidget */,
 				A1FFFFF9212EFFFFFFFF0002 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000000212F000000000000 /* LocationTracker.app */,
+				A2000000212F000000000000 /* LocationTrackerWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,6 +148,7 @@
 			children = (
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
+				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -112,6 +158,7 @@
 			children = (
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
+				A100001B212F00000000001B /* LiveActivityManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -121,10 +168,10 @@
 			children = (
 				A1000002212F000000000002 /* ContentView.swift */,
 				A1000009212F000000000009 /* TodayView.swift */,
-				A100000A212F00000000000A /* HistoryView.swift */,
 				A100000B212F00000000000B /* MapView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
+				919034FA4C91A43201D0CF80 /* TrackingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -145,6 +192,16 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		A2FFFFFA212EFFFFFFFF0001 /* LocationTrackerWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A2000001212F000000000001 /* LocationTrackerWidgetBundle.swift */,
+				A2000002212F000000000002 /* LocationTrackerLiveActivity.swift */,
+				A2000003212F000000000003 /* Info.plist */,
+			);
+			path = LocationTrackerWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -155,15 +212,34 @@
 				A1FFFFFB212EFFFFFFFF0001 /* Sources */,
 				A1FFFFFE212EFFFFFFFF0001 /* Frameworks */,
 				A1FFFFFC212EFFFFFFFF0002 /* Resources */,
+				A2000011212F000000000011 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A2000012212F000000000012 /* PBXTargetDependency */,
 			);
 			name = LocationTracker;
 			productName = LocationTracker;
 			productReference = A1000000212F000000000000 /* LocationTracker.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A2FFFFFA212EFFFFFFFF0000 /* LocationTrackerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "LocationTrackerWidgetExtension" */;
+			buildPhases = (
+				A2FFFFFB212EFFFFFFFF0001 /* Sources */,
+				A2FFFFFE212EFFFFFFFF0001 /* Frameworks */,
+				A2FFFFFC212EFFFFFFFF0002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LocationTrackerWidgetExtension;
+			productName = LocationTrackerWidgetExtension;
+			productReference = A2000000212F000000000000 /* LocationTrackerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -176,6 +252,9 @@
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					A1FFFFFA212EFFFFFFFF0000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					A2FFFFFA212EFFFFFFFF0000 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -194,6 +273,7 @@
 			projectRoot = "";
 			targets = (
 				A1FFFFFA212EFFFFFFFF0000 /* LocationTracker */,
+				A2FFFFFA212EFFFFFFFF0000 /* LocationTrackerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -205,6 +285,13 @@
 			files = (
 				A100000F212F00010000000F /* Preview Assets.xcassets in Resources */,
 				A100000E212F00010000000E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2FFFFFC212EFFFFFFFF0002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,14 +312,34 @@
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A1000009212F000100000009 /* TodayView.swift in Sources */,
-				A100000A212F00010000000A /* HistoryView.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
+				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
+				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,
+				C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2FFFFFB212EFFFFFFFF0001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2000001212F000100000001 /* LocationTrackerWidgetBundle.swift in Sources */,
+				A2000002212F000100000002 /* LocationTrackerLiveActivity.swift in Sources */,
+				A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A2000012212F000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2FFFFFA212EFFFFFFFF0000 /* LocationTrackerWidgetExtension */;
+			targetProxy = A2000010212F000000000010 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000015212F000000000015 /* Debug */ = {
@@ -420,6 +527,58 @@
 			};
 			name = Release;
 		};
+		A2000017212F000000000017 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LocationTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Location Tracker Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.LocationTracker.Widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A2000018212F000000000018 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LocationTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Location Tracker Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.LocationTracker.Widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -437,6 +596,15 @@
 			buildConfigurations = (
 				A1000017212F000000000017 /* Debug */,
 				A1000018212F000000000018 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "LocationTrackerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2000017212F000000000017 /* Debug */,
+				A2000018212F000000000018 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

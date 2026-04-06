@@ -4,11 +4,13 @@ import UIKit
 enum ExportFormat {
     case json
     case csv
+    case markdown
 
     var fileExtension: String {
         switch self {
         case .json: return "json"
         case .csv: return "csv"
+        case .markdown: return "md"
         }
     }
 
@@ -16,6 +18,7 @@ enum ExportFormat {
         switch self {
         case .json: return "application/json"
         case .csv: return "text/csv"
+        case .markdown: return "text/markdown"
         }
     }
 }
@@ -98,6 +101,79 @@ struct ExportService {
         return field
     }
 
+    // MARK: - Markdown Export
+
+    static func exportToMarkdown(visits: [Visit]) -> Data {
+        var md = "# Location Tracker Export\n\n"
+        md += "**Export Date:** \(formattedDateReadable())\n\n"
+        md += "**Total Visits:** \(visits.count)\n\n"
+        md += "---\n\n"
+
+        // Group visits by date
+        let grouped = Dictionary(grouping: visits) { visit in
+            Calendar.current.startOfDay(for: visit.arrivedAt)
+        }
+
+        let sortedDates = grouped.keys.sorted(by: >)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .full
+        dateFormatter.timeStyle = .none
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+
+        for date in sortedDates {
+            guard let dayVisits = grouped[date] else { continue }
+
+            md += "## \(dateFormatter.string(from: date))\n\n"
+
+            for visit in dayVisits.sorted(by: { $0.arrivedAt < $1.arrivedAt }) {
+                let locationName = visit.locationName ?? "Unknown Location"
+                let arrivedTime = timeFormatter.string(from: visit.arrivedAt)
+
+                md += "### \(locationName)\n\n"
+                md += "- **Arrived:** \(arrivedTime)\n"
+
+                if let departedAt = visit.departedAt {
+                    md += "- **Departed:** \(timeFormatter.string(from: departedAt))\n"
+                }
+
+                if let duration = visit.durationMinutes {
+                    let hours = Int(duration) / 60
+                    let minutes = Int(duration) % 60
+                    if hours > 0 {
+                        md += "- **Duration:** \(hours)h \(minutes)m\n"
+                    } else {
+                        md += "- **Duration:** \(minutes)m\n"
+                    }
+                }
+
+                if let address = visit.address, !address.isEmpty {
+                    md += "- **Address:** \(address)\n"
+                }
+
+                md += "- **Coordinates:** \(String(format: "%.6f", visit.latitude)), \(String(format: "%.6f", visit.longitude))\n"
+
+                if let notes = visit.notes, !notes.isEmpty {
+                    md += "\n> \(notes)\n"
+                }
+
+                md += "\n"
+            }
+        }
+
+        return md.data(using: .utf8) ?? Data()
+    }
+
+    private static func formattedDateReadable() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .short
+        return formatter.string(from: Date())
+    }
+
     // MARK: - Share/Save
 
     static func createTemporaryFile(data: Data, format: ExportFormat) throws -> URL {
@@ -122,6 +198,8 @@ struct ExportService {
             data = try exportToJSON(visits: visits)
         case .csv:
             data = exportToCSV(visits: visits)
+        case .markdown:
+            data = exportToMarkdown(visits: visits)
         }
 
         let fileURL = try createTemporaryFile(data: data, format: format)

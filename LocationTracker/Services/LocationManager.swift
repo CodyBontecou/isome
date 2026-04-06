@@ -2,6 +2,7 @@ import Foundation
 import CoreLocation
 import SwiftData
 import Combine
+import ActivityKit
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
@@ -18,10 +19,21 @@ final class LocationManager: NSObject, ObservableObject {
 
     // Continuous tracking timer
     private var continuousTrackingTimer: Timer?
-    private var continuousTrackingStartTime: Date?
+    @Published var continuousTrackingStartTime: Date?
 
     // Geocoding service
     private let geocodingService = GeocodingService()
+    
+    // Publisher for data changes (fires when new location points are saved)
+    @Published var locationPointsSavedCount: Int = 0
+    
+    // Live Activity manager
+    private let liveActivityManager = LiveActivityManager.shared
+    @Published var isLiveActivityEnabled: Bool = true
+    
+    // Current location name for Live Activity
+    private var currentLocationName: String?
+    private var lastGeocodedLocation: CLLocation?
 
     override init() {
         super.init()
@@ -39,6 +51,17 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         authorizationStatus = locationManager.authorizationStatus
+        
+        // Listen for stop tracking notification from Live Activity
+        NotificationCenter.default.addObserver(
+            forName: .stopContinuousTracking,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.disableContinuousTracking()
+            }
+        }
     }
 
     func setModelContext(_ context: ModelContext) {
@@ -110,6 +133,14 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = 10 // Update every 10 meters
         locationManager.startUpdatingLocation()
+        
+        // Start Live Activity
+        if isLiveActivityEnabled {
+            let autoOffSeconds = continuousTrackingAutoOffHours > 0 
+                ? Int(continuousTrackingAutoOffHours * 3600) 
+                : nil
+            liveActivityManager.startActivity(mode: .continuous, autoOffSeconds: autoOffSeconds)
+        }
 
         // Set auto-off timer (skip if set to "Never" which is 0)
         continuousTrackingTimer?.invalidate()
@@ -133,6 +164,11 @@ final class LocationManager: NSObject, ObservableObject {
         continuousTrackingStartTime = nil
 
         locationManager.stopUpdatingLocation()
+        
+        // End Live Activity
+        Task {
+            await liveActivityManager.endActivity()
+        }
 
         // Resume normal tracking if still enabled
         if isTrackingEnabled {
@@ -219,6 +255,8 @@ final class LocationManager: NSObject, ObservableObject {
 
         do {
             try context.save()
+            // Notify observers that new data is available
+            locationPointsSavedCount += 1
         } catch {
             lastError = "Failed to save location point: \(error.localizedDescription)"
         }
@@ -249,6 +287,25 @@ final class LocationManager: NSObject, ObservableObject {
         visit.geocodingCompleted = false
         await geocodeVisit(visit)
     }
+    
+    // MARK: - Live Activity Geocoding
+    
+    private func geocodeForLiveActivity(location: CLLocation) async {
+        // Throttle geocoding - only geocode if we've moved more than 50 meters
+        if let lastLocation = lastGeocodedLocation {
+            let distance = location.distance(from: lastLocation)
+            guard distance > 50 else { return }
+        }
+        
+        lastGeocodedLocation = location
+        
+        do {
+            let result = try await geocodingService.reverseGeocode(location: location)
+            currentLocationName = result.name ?? result.address
+        } catch {
+            // Keep the previous location name on error
+        }
+    }
 }
 
 // MARK: - CLLocationManagerDelegate
@@ -276,6 +333,23 @@ extension LocationManager: CLLocationManagerDelegate {
 
             if isContinuousTrackingEnabled {
                 saveLocationPoint(location)
+                
+                // Geocode location for Live Activity (throttled to avoid too many requests)
+                await geocodeForLiveActivity(location: location)
+                
+                // Update Live Activity
+                let remainingSeconds: Int?
+                if let remaining = continuousTrackingRemainingTime {
+                    remainingSeconds = Int(remaining)
+                } else {
+                    remainingSeconds = nil
+                }
+                liveActivityManager.updateActivity(
+                    location: location,
+                    locationName: currentLocationName,
+                    remainingSeconds: remainingSeconds,
+                    mode: .continuous
+                )
             }
         }
     }

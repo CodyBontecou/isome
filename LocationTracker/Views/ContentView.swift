@@ -12,12 +12,12 @@ struct ContentView: View {
                 TabView {
                     TodayView(viewModel: viewModel)
                         .tabItem {
-                            Label("Today", systemImage: "clock.fill")
+                            Label("Data", systemImage: "list.bullet")
                         }
 
-                    HistoryView(viewModel: viewModel)
+                    TrackingView(viewModel: viewModel)
                         .tabItem {
-                            Label("History", systemImage: "calendar")
+                            Label("Track", systemImage: "location.fill")
                         }
 
                     LocationMapView(viewModel: viewModel)

@@ -1,17 +1,23 @@
 import SwiftUI
 import SwiftData
+import ActivityKit
 
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @State private var showingExportOptions = false
     @State private var showingClearConfirmation = false
     @State private var exportFormat: ExportFormat = .json
+    
+    // Default tracking settings
+    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
+    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
 
     var body: some View {
         NavigationStack {
             Form {
                 trackingSection
                 continuousTrackingSection
+                defaultsSection
                 exportSection
                 dataSection
                 aboutSection
@@ -25,6 +31,10 @@ struct SettingsView: View {
                 Button("CSV") {
                     exportFormat = .csv
                     viewModel.exportVisits(format: .csv)
+                }
+                Button("Markdown") {
+                    exportFormat = .markdown
+                    viewModel.exportVisits(format: .markdown)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
@@ -97,11 +107,11 @@ struct SettingsView: View {
     private var permissionStatusColor: Color {
         switch viewModel.locationManager.authorizationStatus {
         case .authorizedAlways:
-            return .green
+            return .blue
         case .authorizedWhenInUse:
-            return .orange
+            return .blue.opacity(0.7)
         case .denied, .restricted:
-            return .red
+            return .blue.opacity(0.5)
         default:
             return .secondary
         }
@@ -126,10 +136,39 @@ struct SettingsView: View {
                     if viewModel.locationManager.isContinuousTrackingEnabled {
                         Text("Recording high-accuracy location")
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.blue)
                     }
                 }
             }
+            
+            // Live Activity Status
+            HStack {
+                Text("Live Activity")
+                Spacer()
+                if ActivityAuthorizationInfo().areActivitiesEnabled {
+                    if LiveActivityManager.shared.isActivityActive {
+                        Text("Active")
+                            .foregroundStyle(.green)
+                    } else {
+                        Text("Ready")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Text("Disabled in Settings")
+                        .foregroundStyle(.orange)
+                }
+            }
+            
+            if !ActivityAuthorizationInfo().areActivitiesEnabled {
+                Button("Enable Live Activities") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .font(.caption)
+            }
+            
+
 
             Picker("Auto-off Duration", selection: Binding(
                 get: { viewModel.locationManager.continuousTrackingAutoOffHours },
@@ -151,15 +190,29 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Image(systemName: "battery.25")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.blue)
                     Text("High battery usage")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.blue)
                 }
                 Text("Continuous tracking records your exact path between visits. Use sparingly.")
             }
         }
     }
 
+    // MARK: - Defaults Section
+    
+    private var defaultsSection: some View {
+        Section {
+            Toggle("Enable Location Tracking by Default", isOn: $defaultLocationTrackingEnabled)
+            
+            Toggle("Use Continuous Tracking Mode", isOn: $defaultContinuousTracking)
+        } header: {
+            Text("Tracking Defaults")
+        } footer: {
+            Text("These settings control the default behavior when starting tracking from the Track tab.")
+        }
+    }
+    
     // MARK: - Export Section
 
     private var exportSection: some View {

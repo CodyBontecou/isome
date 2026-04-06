@@ -7,7 +7,11 @@ struct LocationMapView: View {
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
     @State private var showTravelPath = true
+    @State private var showPointMarkers = true
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    
+    // Minimum distance in meters between points to show as markers
+    private let minimumPointDistance: Double = 50
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
@@ -15,6 +19,23 @@ struct LocationMapView: View {
 
     var filteredPoints: [LocationPoint] {
         viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+    }
+    
+    var spacedPoints: [LocationPoint] {
+        guard !filteredPoints.isEmpty else { return [] }
+        
+        var result: [LocationPoint] = [filteredPoints[0]]
+        
+        for point in filteredPoints.dropFirst() {
+            if let lastPoint = result.last {
+                let distance = lastPoint.distance(to: point)
+                if distance >= minimumPointDistance {
+                    result.append(point)
+                }
+            }
+        }
+        
+        return result
     }
 
     var body: some View {
@@ -29,6 +50,21 @@ struct LocationMapView: View {
                         let coordinates = filteredPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(.blue.opacity(0.5), lineWidth: 3)
+                    }
+                    
+                    // Point markers (spaced apart)
+                    if showPointMarkers {
+                        ForEach(spacedPoints) { point in
+                            Annotation("", coordinate: point.coordinate) {
+                                Circle()
+                                    .fill(.blue)
+                                    .frame(width: 8, height: 8)
+                                    .overlay {
+                                        Circle()
+                                            .stroke(.white, lineWidth: 1.5)
+                                    }
+                            }
+                        }
                     }
 
                     // Visit markers
@@ -76,6 +112,10 @@ struct LocationMapView: View {
 
                         Toggle(isOn: $showTravelPath) {
                             Label("Show Travel Path", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
+                        }
+                        
+                        Toggle(isOn: $showPointMarkers) {
+                            Label("Show Point Markers", systemImage: "circle.fill")
                         }
 
                         Button {

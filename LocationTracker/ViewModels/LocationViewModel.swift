@@ -16,7 +16,6 @@ final class LocationViewModel {
     var todayLocationPoints: [LocationPoint] = []
 
     // UI State
-    var selectedDate: Date = Date()
     var mapDateRange: ClosedRange<Date> = Date().addingTimeInterval(-86400 * 7)...Date()
     var showingExportSheet = false
     var showingClearConfirmation = false
@@ -30,6 +29,15 @@ final class LocationViewModel {
         locationManager.setModelContext(modelContext)
 
         loadData()
+        
+        // Observe location manager for new data points and reload when they're saved
+        locationManager.$locationPointsSavedCount
+            .dropFirst() // Skip initial value
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.loadTodayLocationPoints()
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Data Loading
@@ -111,7 +119,56 @@ final class LocationViewModel {
         todayVisits.first { $0.isCurrentVisit }
     }
 
-    // Today's tracking stats
+    // Session-specific location points (only points from current tracking session)
+    var sessionLocationPoints: [LocationPoint] {
+        guard let sessionStart = locationManager.continuousTrackingStartTime else {
+            return []
+        }
+        return todayLocationPoints.filter { $0.timestamp >= sessionStart }
+    }
+
+    // Session tracking stats
+    var sessionTrackingDuration: TimeInterval {
+        guard let sessionStart = locationManager.continuousTrackingStartTime else { return 0 }
+        return Date().timeIntervalSince(sessionStart)
+    }
+
+    var sessionDistanceTraveled: Double {
+        let points = sessionLocationPoints
+        guard points.count > 1 else { return 0 }
+        var total: Double = 0
+        for i in 1..<points.count {
+            let prev = points[i-1]
+            let curr = points[i]
+            total += prev.distance(to: curr)
+        }
+        return total
+    }
+
+    var formattedSessionTrackingDuration: String {
+        let totalSeconds = Int(sessionTrackingDuration)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        
+        if minutes < 60 {
+            return String(format: "%d:%02d", minutes, seconds)
+        } else {
+            let hours = minutes / 60
+            let mins = minutes % 60
+            return String(format: "%d:%02d:%02d", hours, mins, seconds)
+        }
+    }
+
+    var formattedSessionDistance: String {
+        if sessionDistanceTraveled < 1000 {
+            return "\(Int(sessionDistanceTraveled)) m"
+        } else {
+            let km = sessionDistanceTraveled / 1000
+            return String(format: "%.1f km", km)
+        }
+    }
+
+    // Today's tracking stats (kept for other views)
     var todayTrackingDuration: TimeInterval {
         guard let first = todayLocationPoints.first,
               let last = todayLocationPoints.last else { return 0 }
@@ -152,49 +209,12 @@ final class LocationViewModel {
         }
     }
 
-    var visitsGroupedByDay: [(Date, [Visit])] {
-        let calendar = Calendar.current
-        let grouped = Dictionary(grouping: allVisits) { visit in
-            calendar.startOfDay(for: visit.arrivedAt)
-        }
-
-        return grouped.sorted { $0.key > $1.key }
-    }
-
-    func visits(for date: Date) -> [Visit] {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-
-        return allVisits.filter { visit in
-            calendar.startOfDay(for: visit.arrivedAt) == startOfDay
-        }.sorted { $0.arrivedAt < $1.arrivedAt }
-    }
-
     func visitsInDateRange(_ range: ClosedRange<Date>) -> [Visit] {
         allVisits.filter { range.contains($0.arrivedAt) }
     }
 
     func locationPointsInDateRange(_ range: ClosedRange<Date>) -> [LocationPoint] {
         locationPoints.filter { range.contains($0.timestamp) }
-    }
-
-    func totalDuration(for visits: [Visit]) -> TimeInterval {
-        visits.compactMap { $0.durationMinutes }.reduce(0, +) * 60
-    }
-
-    func formattedTotalDuration(for visits: [Visit]) -> String {
-        let totalMinutes = visits.compactMap { $0.durationMinutes }.reduce(0, +)
-
-        if totalMinutes < 60 {
-            return "\(Int(totalMinutes)) min"
-        } else {
-            let hours = Int(totalMinutes / 60)
-            let minutes = Int(totalMinutes.truncatingRemainder(dividingBy: 60))
-            if minutes == 0 {
-                return "\(hours)h"
-            }
-            return "\(hours)h \(minutes)m"
-        }
     }
 
     // MARK: - Visit Management
