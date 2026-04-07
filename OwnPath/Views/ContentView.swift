@@ -189,20 +189,10 @@ private struct OnboardingView: View {
             description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
             useAppIcon: true
         ) {
-            VStack(spacing: 14) {
-                HStack(spacing: 16) {
-                    ForEach(0..<3, id: \.self) { index in
-                        OnboardingSignalColumn(delay: Double(index) * 0.16)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
-
-                VStack(spacing: 10) {
-                    OnboardingChecklistRow(icon: "mappin.and.ellipse", text: "Auto-detect places you visit")
-                    OnboardingChecklistRow(icon: "point.topleft.down.to.point.bottomright.curvepath", text: "Capture detailed routes when needed")
-                    OnboardingChecklistRow(icon: "lock.shield.fill", text: "Keep all location data on-device")
-                }
+            VStack(spacing: 10) {
+                OnboardingChecklistRow(icon: "mappin.and.ellipse", text: "Auto-detect places you visit")
+                OnboardingChecklistRow(icon: "point.topleft.down.to.point.bottomright.curvepath", text: "Capture detailed routes when needed")
+                OnboardingChecklistRow(icon: "lock.shield.fill", text: "Keep all location data on-device")
             }
         }
     }
@@ -211,26 +201,26 @@ private struct OnboardingView: View {
         LocationOnboardingPageView(
             icon: "square.grid.2x2.fill",
             eyebrow: "Core Features",
-            title: "BUILT FOR CLARITY",
-            description: "Everything is designed to stay glanceable and battery-aware, while still giving you deep context when you need it."
+            title: "KEY FEATURES",
+            description: "Glanceable, battery-aware, and deeply contextual when you need it."
         ) {
             VStack(spacing: 12) {
                 OnboardingFeatureCard(
                     icon: "house.and.flag.fill",
                     title: "Visit timeline",
-                    description: "See where you arrived, how long you stayed, and what changed throughout the day."
+                    description: "Arrivals, durations, and changes throughout your day."
                 )
 
                 OnboardingFeatureCard(
                     icon: "map.fill",
                     title: "Path visualization",
-                    description: "Review movement with start and end markers plus optional route points."
+                    description: "Routes with start and end markers plus optional detail points."
                 )
 
                 OnboardingFeatureCard(
                     icon: "square.and.arrow.up",
                     title: "Flexible exports",
-                    description: "Export visits and points in JSON, CSV, or Markdown whenever you need."
+                    description: "JSON, CSV, or Markdown — whenever you need it."
                 )
             }
         }
@@ -251,7 +241,7 @@ private struct OnboardingView: View {
                         .foregroundStyle(OnboardingPalette.textPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text("Choosing \"Always\" unlocks reliable background tracking and automatic visit detection.")
+                    Text("\"Always\" enables background tracking and automatic visit detection.")
                         .font(.onboardingBody)
                         .foregroundStyle(OnboardingPalette.textSecondary)
                         .multilineTextAlignment(.center)
@@ -278,22 +268,6 @@ private struct OnboardingView: View {
                 }
 
                 permissionActionCard
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("DEFAULT TRACKING")
-                        .font(.onboardingMicro)
-                        .tracking(1.8)
-                        .foregroundStyle(OnboardingPalette.textMuted)
-
-                    Toggle("Enable visit tracking by default", isOn: $defaultLocationTrackingEnabled)
-                        .tint(OnboardingPalette.accent)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
-
-                    Toggle("Use high-accuracy mode by default", isOn: $defaultContinuousTracking)
-                        .tint(OnboardingPalette.accent)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
-                }
-                .onboardingCard()
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 14)
@@ -313,6 +287,7 @@ private struct OnboardingView: View {
                 Text("Start by choosing \"Allow While Using App\" in the system prompt.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Button {
                     locationManager.requestWhenInUseAuthorization()
@@ -335,6 +310,7 @@ private struct OnboardingView: View {
                 Text("Upgrade to \"Always Allow\" so visit detection continues when the app is closed.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Button {
                     locationManager.requestAlwaysAuthorization()
@@ -357,6 +333,7 @@ private struct OnboardingView: View {
                 Text("In iPhone Settings, choose OwnPath → Location → Always.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Button {
                     openSettings()
@@ -429,6 +406,7 @@ private struct OnboardingView: View {
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
                     .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
             }
         }
@@ -571,6 +549,7 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 10)
             }
 
@@ -640,6 +619,7 @@ private struct OnboardingStatusRow: View {
                 Text(subtitle)
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 0)
@@ -688,6 +668,7 @@ private struct OnboardingChecklistRow: View {
             Text(text)
                 .font(.onboardingCaption)
                 .foregroundStyle(OnboardingPalette.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
         }
