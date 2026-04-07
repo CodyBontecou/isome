@@ -14,6 +14,7 @@ struct SharedLocationData: Codable {
     var todayPointsCount: Int
     var continuousTrackingStartTime: Date?
     var continuousTrackingAutoOffHours: Double?
+    var usesMetricDistanceUnits: Bool? = nil
     
     static let appGroupIdentifier = "group.com.bontecou.OwnPath"
     private static let userDefaultsKey = "sharedLocationData"
@@ -50,7 +51,8 @@ struct SharedLocationData: Codable {
             todayDistanceMeters: 0,
             todayPointsCount: 0,
             continuousTrackingStartTime: nil,
-            continuousTrackingAutoOffHours: nil
+            continuousTrackingAutoOffHours: nil,
+            usesMetricDistanceUnits: true
         )
     }
 }
@@ -62,11 +64,23 @@ extension SharedLocationData {
         currentLocationName ?? currentAddress ?? "Unknown"
     }
     
+    var prefersMetricDistanceUnits: Bool {
+        usesMetricDistanceUnits ?? true
+    }
+
     var formattedDistance: String {
-        if todayDistanceMeters >= 1000 {
-            return String(format: "%.1f km", todayDistanceMeters / 1000)
+        if prefersMetricDistanceUnits {
+            if todayDistanceMeters >= 1000 {
+                return String(format: "%.1f km", todayDistanceMeters / 1000)
+            }
+            return String(format: "%.0f m", todayDistanceMeters)
         }
-        return String(format: "%.0f m", todayDistanceMeters)
+
+        let miles = todayDistanceMeters / 1609.344
+        if miles < 0.1 {
+            return String(format: "%.0f ft", todayDistanceMeters * 3.28084)
+        }
+        return String(format: "%.1f mi", miles)
     }
     
     var trackingStatus: String {

@@ -1,6 +1,8 @@
 import ActivityKit
 import Foundation
 import CoreLocation
+import MapKit
+import UIKit
 
 /// Manages the Live Activity for location tracking
 @MainActor
@@ -15,6 +17,20 @@ final class LiveActivityManager: ObservableObject {
     private var locationsRecorded: Int = 0
     private var totalDistance: Double = 0
     private var lastLocation: CLLocation?
+    private var currentTrackingMode: LocationActivityAttributes.ContentState.TrackingMode = .visits
+    private var currentLocationName: String?
+    private var currentRemainingSeconds: Int?
+    private var trackedCoordinates: [CLLocationCoordinate2D] = []
+    private var mapSnapshotVersion: Int = 0
+    private var isGeneratingSnapshot = false
+
+    private var usesMetricDistanceUnits: Bool {
+        let key = "usesMetricDistanceUnits"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: key)
+    }
     
     private init() {}
     
@@ -49,7 +65,12 @@ final class LiveActivityManager: ObservableObject {
         locationsRecorded = 0
         totalDistance = 0
         lastLocation = nil
-        
+        currentTrackingMode = mode
+        currentLocationName = nil
+        currentRemainingSeconds = autoOffSeconds
+        trackedCoordinates = []
+        mapSnapshotVersion = 0
+
         let attributes = LocationActivityAttributes(startTime: startTime!)
         let initialState = LocationActivityAttributes.ContentState(
             trackingMode: mode,
@@ -57,7 +78,9 @@ final class LiveActivityManager: ObservableObject {
             locationsRecorded: 0,
             distanceTraveled: 0,
             remainingSeconds: autoOffSeconds,
-            lastUpdate: Date()
+            lastUpdate: Date(),
+            usesMetricDistanceUnits: usesMetricDistanceUnits,
+            mapSnapshotVersion: 0
         )
         
         print("🟢 Requesting Live Activity...")
@@ -94,15 +117,29 @@ final class LiveActivityManager: ObservableObject {
             }
             lastLocation = newLocation
             locationsRecorded += 1
+            trackedCoordinates.append(newLocation.coordinate)
+
+            // Generate map snapshot (throttled — every 5 points or first point)
+            if trackedCoordinates.count == 1 || trackedCoordinates.count % 5 == 0 {
+                generateMapSnapshot()
+            }
         }
         
+        currentTrackingMode = mode
+        if let locationName {
+            currentLocationName = locationName
+        }
+        currentRemainingSeconds = remainingSeconds
+
         let updatedState = LocationActivityAttributes.ContentState(
-            trackingMode: mode,
-            locationName: locationName,
+            trackingMode: currentTrackingMode,
+            locationName: currentLocationName,
             locationsRecorded: locationsRecorded,
             distanceTraveled: totalDistance,
-            remainingSeconds: remainingSeconds,
-            lastUpdate: Date()
+            remainingSeconds: currentRemainingSeconds,
+            lastUpdate: Date(),
+            usesMetricDistanceUnits: usesMetricDistanceUnits,
+            mapSnapshotVersion: mapSnapshotVersion
         )
         
         Task {
@@ -122,7 +159,9 @@ final class LiveActivityManager: ObservableObject {
             locationsRecorded: locationsRecorded,
             distanceTraveled: totalDistance,
             remainingSeconds: nil,
-            lastUpdate: Date()
+            lastUpdate: Date(),
+            usesMetricDistanceUnits: usesMetricDistanceUnits,
+            mapSnapshotVersion: mapSnapshotVersion
         )
         
         await activity.end(
@@ -133,9 +172,149 @@ final class LiveActivityManager: ObservableObject {
         currentActivity = nil
         isActivityActive = false
         startTime = nil
+        currentTrackingMode = .visits
+        currentLocationName = nil
+        currentRemainingSeconds = nil
         print("Ended Live Activity")
     }
+
+    /// Forces a Live Activity redraw after the distance unit preference changes.
+    func refreshDistanceUnitPreference() {
+        guard currentActivity != nil else { return }
+        updateActivity(
+            location: nil,
+            locationName: currentLocationName,
+            remainingSeconds: currentRemainingSeconds,
+            mode: currentTrackingMode
+        )
+    }
     
+    // MARK: - Map Snapshot
+
+    /// URL for the map snapshot in the shared App Group container
+    static var mapSnapshotURL: URL? {
+        FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.OwnPath")?
+            .appendingPathComponent("map_snapshot.png")
+    }
+
+    private func generateMapSnapshot() {
+        guard !isGeneratingSnapshot, trackedCoordinates.count >= 1 else { return }
+        isGeneratingSnapshot = true
+
+        let coordinates = trackedCoordinates
+
+        Task.detached { [weak self] in
+            let snapshotImage = await Self.renderMapSnapshot(coordinates: coordinates)
+
+            await MainActor.run {
+                guard let self else { return }
+                self.isGeneratingSnapshot = false
+
+                guard let image = snapshotImage,
+                      let data = image.pngData(),
+                      let url = Self.mapSnapshotURL else { return }
+
+                do {
+                    try data.write(to: url, options: .atomic)
+                    self.mapSnapshotVersion += 1
+                    // Push the updated version to the Live Activity
+                    self.updateActivity(location: nil, mode: self.currentTrackingMode)
+                } catch {
+                    print("❌ Failed to write map snapshot: \(error)")
+                }
+            }
+        }
+    }
+
+    private static func renderMapSnapshot(coordinates: [CLLocationCoordinate2D]) async -> UIImage? {
+        guard !coordinates.isEmpty else { return nil }
+
+        // Calculate region to fit all points with padding
+        var minLat = coordinates[0].latitude
+        var maxLat = coordinates[0].latitude
+        var minLon = coordinates[0].longitude
+        var maxLon = coordinates[0].longitude
+
+        for coord in coordinates {
+            minLat = min(minLat, coord.latitude)
+            maxLat = max(maxLat, coord.latitude)
+            minLon = min(minLon, coord.longitude)
+            maxLon = max(maxLon, coord.longitude)
+        }
+
+        let centerLat = (minLat + maxLat) / 2
+        let centerLon = (minLon + maxLon) / 2
+        let spanLat = max((maxLat - minLat) * 1.5, 0.002)
+        let spanLon = max((maxLon - minLon) * 1.5, 0.002)
+
+        let region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
+            span: MKCoordinateSpan(latitudeDelta: spanLat, longitudeDelta: spanLon)
+        )
+
+        let options = MKMapSnapshotter.Options()
+        options.region = region
+        options.size = CGSize(width: 340, height: 120)
+        options.scale = UIScreen.main.scale
+        options.mapType = .standard
+        options.traitCollection = UITraitCollection(userInterfaceStyle: .dark)
+
+        let snapshotter = MKMapSnapshotter(options: options)
+
+        do {
+            let snapshot = try await snapshotter.start()
+
+            let renderer = UIGraphicsImageRenderer(size: options.size)
+            let image = renderer.image { ctx in
+                // Draw the map
+                snapshot.image.draw(at: .zero)
+
+                // Draw the path line
+                if coordinates.count >= 2 {
+                    let path = UIBezierPath()
+                    for (i, coord) in coordinates.enumerated() {
+                        let point = snapshot.point(for: coord)
+                        if i == 0 {
+                            path.move(to: point)
+                        } else {
+                            path.addLine(to: point)
+                        }
+                    }
+
+                    UIColor.systemBlue.setStroke()
+                    path.lineWidth = 3
+                    path.lineCapStyle = .round
+                    path.lineJoinStyle = .round
+                    path.stroke()
+                }
+
+                // Draw current position dot
+                if let lastCoord = coordinates.last {
+                    let point = snapshot.point(for: lastCoord)
+                    let dotSize: CGFloat = 10
+                    let dotRect = CGRect(
+                        x: point.x - dotSize / 2,
+                        y: point.y - dotSize / 2,
+                        width: dotSize,
+                        height: dotSize
+                    )
+                    UIColor.systemBlue.setFill()
+                    UIBezierPath(ovalIn: dotRect).fill()
+                    UIColor.white.setStroke()
+                    let strokePath = UIBezierPath(ovalIn: dotRect)
+                    strokePath.lineWidth = 2
+                    strokePath.stroke()
+                }
+            }
+
+            return image
+        } catch {
+            print("❌ Map snapshot failed: \(error)")
+            return nil
+        }
+    }
+
     /// End all Live Activities (useful for cleanup)
     func endAllActivities() async {
         for activity in Activity<LocationActivityAttributes>.activities {
@@ -143,5 +322,8 @@ final class LiveActivityManager: ObservableObject {
         }
         currentActivity = nil
         isActivityActive = false
+        currentTrackingMode = .visits
+        currentLocationName = nil
+        currentRemainingSeconds = nil
     }
 }

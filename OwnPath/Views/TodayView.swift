@@ -9,6 +9,7 @@ struct TodayView: View {
 
     @AppStorage("todayPointsSortOption") private var sortOptionRaw = PointSortOption.newestFirst.rawValue
     @AppStorage("todayPointsGroupingOption") private var groupingOptionRaw = PointGroupingOption.tripSegments.rawValue
+    @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
 
     private let tripGapThreshold: TimeInterval = 20 * 60
     private let fixedSegmentDuration: TimeInterval = 2 * 60 * 60
@@ -294,11 +295,18 @@ struct TodayView: View {
     }
 
     private func formatDistance(_ meters: Double) -> String {
-        if meters < 1000 {
-            return "\(Int(meters))m"
+        if usesMetricDistanceUnits {
+            if meters < 1000 {
+                return "\(Int(meters.rounded())) m"
+            }
+            return String(format: "%.1f km", meters / 1000)
         }
 
-        return String(format: "%.2fkm", meters / 1000)
+        let miles = meters / 1609.344
+        if miles < 0.1 {
+            return String(format: "%.0f ft", meters * 3.28084)
+        }
+        return String(format: "%.1f mi", miles)
     }
 }
 

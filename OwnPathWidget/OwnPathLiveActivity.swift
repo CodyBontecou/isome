@@ -1,6 +1,7 @@
 import ActivityKit
 import WidgetKit
 import SwiftUI
+import UIKit
 
 struct OwnPathLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -38,7 +39,13 @@ struct OwnPathLiveActivity: Widget {
                         }
                         HStack(spacing: 12) {
                             Label("\(context.state.locationsRecorded)", systemImage: "mappin")
-                            Label(formatDistance(context.state.distanceTraveled), systemImage: "figure.walk")
+                            Label(
+                                formatDistance(
+                                    context.state.distanceTraveled,
+                                    usesMetricDistanceUnits: context.state.usesMetricDistanceUnits ?? true
+                                ),
+                                systemImage: "figure.walk"
+                            )
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -75,11 +82,19 @@ struct OwnPathLiveActivity: Widget {
         return "\(minutes)m"
     }
     
-    private func formatDistance(_ meters: Double) -> String {
-        if meters >= 1000 {
-            return String(format: "%.1f km", meters / 1000)
+    private func formatDistance(_ meters: Double, usesMetricDistanceUnits: Bool) -> String {
+        if usesMetricDistanceUnits {
+            if meters >= 1000 {
+                return String(format: "%.1f km", meters / 1000)
+            }
+            return String(format: "%.0f m", meters)
         }
-        return String(format: "%.0f m", meters)
+
+        let miles = meters / 1609.344
+        if miles < 0.1 {
+            return String(format: "%.0f ft", meters * 3.28084)
+        }
+        return String(format: "%.1f mi", miles)
     }
 }
 
@@ -93,9 +108,12 @@ struct LockScreenView: View {
             HStack(spacing: 16) {
                 // Left: Icon and mode
                 VStack(spacing: 4) {
-                    Image(systemName: context.state.trackingMode == .continuous ? "location.fill" : "mappin.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(.blue)
+                    Image("AppIconImage")
+                        .resizable()
+                        .renderingMode(.original)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                        .clipShape(RoundedRectangle(cornerRadius: 9))
                     Text(context.state.trackingMode.rawValue)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -115,7 +133,13 @@ struct LockScreenView: View {
                     
                     HStack(spacing: 16) {
                         Label("\(context.state.locationsRecorded) pts", systemImage: "mappin")
-                        Label(formatDistance(context.state.distanceTraveled), systemImage: "figure.walk")
+                        Label(
+                            formatDistance(
+                                context.state.distanceTraveled,
+                                usesMetricDistanceUnits: context.state.usesMetricDistanceUnits ?? true
+                            ),
+                            systemImage: "figure.walk"
+                        )
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -145,6 +169,17 @@ struct LockScreenView: View {
                 .frame(width: 70)
             }
             
+            // Map snapshot
+            if context.state.mapSnapshotVersion > 0, let snapshot = Self.loadMapSnapshot() {
+                Image(uiImage: snapshot)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .id(context.state.mapSnapshotVersion)
+            }
+
             // Stop Tracking Button
             Link(destination: URL(string: "ownpath://stop")!) {
                 HStack {
@@ -163,6 +198,16 @@ struct LockScreenView: View {
         .activitySystemActionForegroundColor(.white)
     }
     
+    private static func loadMapSnapshot() -> UIImage? {
+        guard let url = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.OwnPath")?
+            .appendingPathComponent("map_snapshot.png"),
+              let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
     private func formatTime(_ seconds: Int) -> String {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
@@ -171,12 +216,20 @@ struct LockScreenView: View {
         }
         return "\(minutes)m"
     }
-    
-    private func formatDistance(_ meters: Double) -> String {
-        if meters >= 1000 {
-            return String(format: "%.1f km", meters / 1000)
+
+    private func formatDistance(_ meters: Double, usesMetricDistanceUnits: Bool) -> String {
+        if usesMetricDistanceUnits {
+            if meters >= 1000 {
+                return String(format: "%.1f km", meters / 1000)
+            }
+            return String(format: "%.0f m", meters)
         }
-        return String(format: "%.0f m", meters)
+
+        let miles = meters / 1609.344
+        if miles < 0.1 {
+            return String(format: "%.0f ft", meters * 3.28084)
+        }
+        return String(format: "%.1f mi", miles)
     }
 }
 

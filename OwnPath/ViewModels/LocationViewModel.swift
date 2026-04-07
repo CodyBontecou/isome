@@ -160,12 +160,7 @@ final class LocationViewModel {
     }
 
     var formattedSessionDistance: String {
-        if sessionDistanceTraveled < 1000 {
-            return "\(Int(sessionDistanceTraveled)) m"
-        } else {
-            let km = sessionDistanceTraveled / 1000
-            return String(format: "%.1f km", km)
-        }
+        formatDistance(sessionDistanceTraveled)
     }
 
     // Today's tracking stats (kept for other views)
@@ -201,12 +196,30 @@ final class LocationViewModel {
     }
 
     var formattedTodayDistance: String {
-        if todayDistanceTraveled < 1000 {
-            return "\(Int(todayDistanceTraveled)) m"
-        } else {
-            let km = todayDistanceTraveled / 1000
-            return String(format: "%.1f km", km)
+        formatDistance(todayDistanceTraveled)
+    }
+
+    private var usesMetricDistanceUnits: Bool {
+        let key = "usesMetricDistanceUnits"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
         }
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
+    private func formatDistance(_ meters: Double) -> String {
+        if usesMetricDistanceUnits {
+            if meters < 1000 {
+                return "\(Int(meters.rounded())) m"
+            }
+            return String(format: "%.1f km", meters / 1000)
+        }
+
+        let miles = meters / 1609.344
+        if miles < 0.1 {
+            return String(format: "%.0f ft", meters * 3.28084)
+        }
+        return String(format: "%.1f mi", miles)
     }
 
     func visitsInDateRange(_ range: ClosedRange<Date>) -> [Visit] {

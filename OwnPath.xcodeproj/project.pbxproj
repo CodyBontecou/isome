@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		A1000001212F000100000001 /* OwnPathApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* OwnPathApp.swift */; };
@@ -31,6 +32,7 @@
 		A2000002212F000100000002 /* OwnPathLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002212F000000000002 /* OwnPathLiveActivity.swift */; };
 		A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
 		A2000004212F000100000004 /* OwnPathWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A2000000212F000000000000 /* OwnPathWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A2000005212F000100000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000005212F000000000005 /* Assets.xcassets */; };
 		A3000001212F000100000001 /* OwnPathWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000001212F000000000001 /* OwnPathWatchApp.swift */; };
 		A3000002212F000100000002 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000002212F000000000002 /* WatchContentView.swift */; };
 		A3000003212F000100000003 /* WatchAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3000003212F000000000003 /* WatchAssets.xcassets */; };
@@ -41,9 +43,18 @@
 		A4000003212F000100000003 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
 		A4000004212F000100000004 /* OwnPathWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* OwnPathWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919034FA4C91A43201D0CF80 /* TrackingView.swift */; };
+		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
+		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		70D695B013200C010FB259D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1FFFFFA212EFFFFFFFF0000;
+			remoteInfo = OwnPath;
+		};
 		A2000010212F000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
@@ -104,7 +115,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2E1B75491004BD3A7D223DB3 /* OwnPathTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OwnPathTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		5F000001212F000000000001 /* ExportFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFolderManager.swift; sourceTree = "<group>"; };
+		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
 		919034FA4C91A43201D0CF80 /* TrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* OwnPath.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OwnPath.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +145,8 @@
 		A2000000212F000000000000 /* OwnPathWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OwnPathWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001212F000000000001 /* OwnPathWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWidgetBundle.swift; sourceTree = "<group>"; };
 		A2000002212F000000000002 /* OwnPathLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathLiveActivity.swift; sourceTree = "<group>"; };
+		A2000005212F000000000005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A2000006212F000000000006 /* OwnPathWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OwnPathWidget.entitlements; sourceTree = "<group>"; };
 		A2000003212F000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A3000000212F000000000000 /* OwnPathWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OwnPathWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3000001212F000000000001 /* OwnPathWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWatchApp.swift; sourceTree = "<group>"; };
@@ -143,6 +159,7 @@
 		A4000002212F000000000002 /* OwnPathWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWatchWidget.swift; sourceTree = "<group>"; };
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4000004212F000000000004 /* OwnPathWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OwnPathWatchWidget.entitlements; sourceTree = "<group>"; };
+		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,9 +191,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D2F6DFFFA34A7401EF703341 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4362F7285B97503148012780 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5D13E0A973DE83648CCDCF76 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		6C56D277F7A90AC5E53EA483 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5D13E0A973DE83648CCDCF76 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A1000011212F000000000011 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,6 +235,8 @@
 				A4FFFFFA212EFFFFFFFF0001 /* OwnPathWatchWidget */,
 				A5FFFFFA212EFFFFFFFF0001 /* Shared */,
 				A1FFFFF9212EFFFFFFFF0002 /* Products */,
+				6C56D277F7A90AC5E53EA483 /* Frameworks */,
+				AD8A47404A1FA6D94EF61780 /* OwnPathTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -204,6 +247,7 @@
 				A2000000212F000000000000 /* OwnPathWidgetExtension.appex */,
 				A3000000212F000000000000 /* OwnPathWatch.app */,
 				A4000000212F000000000000 /* OwnPathWatchWidgetExtension.appex */,
+				2E1B75491004BD3A7D223DB3 /* OwnPathTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -282,6 +326,8 @@
 			children = (
 				A2000001212F000000000001 /* OwnPathWidgetBundle.swift */,
 				A2000002212F000000000002 /* OwnPathLiveActivity.swift */,
+				A2000005212F000000000005 /* Assets.xcassets */,
+				A2000006212F000000000006 /* OwnPathWidget.entitlements */,
 				A2000003212F000000000003 /* Info.plist */,
 			);
 			path = OwnPathWidget;
@@ -316,6 +362,16 @@
 				A100001C212F00000000001C /* SharedLocationData.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		AD8A47404A1FA6D94EF61780 /* OwnPathTests */ = {
+			isa = PBXGroup;
+			children = (
+				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
+				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
+			);
+			name = OwnPathTests;
+			path = OwnPathTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -395,6 +451,24 @@
 			productReference = A4000000212F000000000000 /* OwnPathWatchWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AA73D16C4130069D72314CAC /* OwnPathTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "OwnPathTests" */;
+			buildPhases = (
+				B74D71912096B01D0B4CFA18 /* Sources */,
+				D2F6DFFFA34A7401EF703341 /* Frameworks */,
+				B6465826AD0E80F59CAB45E9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0B296FF4FE6B89E3287D145C /* PBXTargetDependency */,
+			);
+			name = OwnPathTests;
+			productName = OwnPathTests;
+			productReference = 2E1B75491004BD3A7D223DB3 /* OwnPathTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -436,6 +510,7 @@
 				A2FFFFFA212EFFFFFFFF0000 /* OwnPathWidgetExtension */,
 				A3FFFFFA212EFFFFFFFF0000 /* OwnPathWatch */,
 				A4FFFFFA212EFFFFFFFF0000 /* OwnPathWatchWidgetExtension */,
+				AA73D16C4130069D72314CAC /* OwnPathTests */,
 			);
 		};
 /* End PBXProject section */
@@ -454,6 +529,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2000005212F000100000005 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +542,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A4FFFFFC212EFFFFFFFF0002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6465826AD0E80F59CAB45E9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -531,9 +614,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B74D71912096B01D0B4CFA18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
+				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0B296FF4FE6B89E3287D145C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OwnPath;
+			target = A1FFFFFA212EFFFFFFFF0000 /* OwnPath */;
+			targetProxy = 70D695B013200C010FB259D6 /* PBXContainerItemProxy */;
+		};
 		A2000012212F000000000012 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A2FFFFFA212EFFFFFFFF0000 /* OwnPathWidgetExtension */;
@@ -552,6 +650,43 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		272510C4946ACEA961BBCFE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.OwnPathTests;
+				PRODUCT_NAME = OwnPathTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OwnPath.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OwnPath";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7A89BB2D0AF6528008A176D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.OwnPathTests;
+				PRODUCT_NAME = OwnPathTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OwnPath.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OwnPath";
+			};
+			name = Debug;
+		};
 		A1000015212F000000000015 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -688,7 +823,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPath/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -721,7 +856,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPath/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -746,6 +881,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = OwnPathWidget/OwnPathWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -772,6 +908,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = OwnPathWidget/OwnPathWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -803,7 +940,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPathWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.OwnPath;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -832,7 +969,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPathWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.OwnPath;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -861,7 +998,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPathWatchWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -890,7 +1027,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwnPathWatchWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "OwnPath";
+				INFOPLIST_KEY_CFBundleDisplayName = OwnPath;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -912,6 +1049,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "OwnPathTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				272510C4946ACEA961BBCFE7 /* Release */,
+				7A89BB2D0AF6528008A176D5 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A1000013212F000000000013 /* Build configuration list for PBXProject "OwnPath" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

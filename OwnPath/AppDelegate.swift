@@ -9,6 +9,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // Install crash handler to capture crash info for debugging
+        NSSetUncaughtExceptionHandler { exception in
+            let info = """
+            CRASH: \(exception.name.rawValue)
+            REASON: \(exception.reason ?? "unknown")
+            STACK: \(exception.callStackSymbols.joined(separator: "\n"))
+            """
+            UserDefaults.standard.set(info, forKey: "lastCrashLog")
+            UserDefaults.standard.synchronize()
+        }
+
         // Check if app was launched due to a location event
         if let locationKey = launchOptions?[.location] as? Bool, locationKey {
             // App was launched in background due to location event

@@ -38,6 +38,14 @@ final class LocationManager: NSObject, ObservableObject {
     private var currentAddress: String?
     private var lastGeocodedLocation: CLLocation?
 
+    private var usesMetricDistanceUnits: Bool {
+        let key = "usesMetricDistanceUnits"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
     override init() {
         super.init()
         locationManager.delegate = self
@@ -113,10 +121,22 @@ final class LocationManager: NSObject, ObservableObject {
     }
 
     func stopTracking() {
+        // Clean up continuous tracking state first
+        if isContinuousTrackingEnabled {
+            continuousTrackingTimer?.invalidate()
+            continuousTrackingTimer = nil
+            Task {
+                await liveActivityManager.endActivity()
+            }
+        }
+        continuousTrackingStartTime = nil
+
         isTrackingEnabled = false
         isContinuousTrackingEnabled = false
         UserDefaults.standard.set(isTrackingEnabled, forKey: "isTrackingEnabled")
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
+
+        updateTrackingState()
         syncDataToWatch()
     }
 
@@ -369,12 +389,18 @@ final class LocationManager: NSObject, ObservableObject {
             todayDistanceMeters: totalDistance,
             todayPointsCount: todayPoints.count,
             continuousTrackingStartTime: continuousTrackingStartTime,
-            continuousTrackingAutoOffHours: continuousTrackingAutoOffHours > 0 ? continuousTrackingAutoOffHours : nil
+            continuousTrackingAutoOffHours: continuousTrackingAutoOffHours > 0 ? continuousTrackingAutoOffHours : nil,
+            usesMetricDistanceUnits: usesMetricDistanceUnits
         )
         
         // Save to App Group and reload widget timelines
         sharedData.save()
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    func refreshDistanceUnitPreference() {
+        syncDataToWatch()
+        liveActivityManager.refreshDistanceUnitPreference()
     }
 }
 

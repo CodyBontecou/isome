@@ -20,6 +20,7 @@ struct SettingsView: View {
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
 
     var body: some View {
         NavigationStack {
@@ -27,6 +28,7 @@ struct SettingsView: View {
                 trackingSection
                 continuousTrackingSection
                 defaultsSection
+                unitsSection
                 exportFolderSection
                 exportSection
                 dataSection
@@ -91,6 +93,9 @@ struct SettingsView: View {
                         exportFolderManager.setDefaultFolder(url)
                     }
                 }
+            }
+            .onChange(of: usesMetricDistanceUnits) { _, _ in
+                viewModel.locationManager.refreshDistanceUnitPreference()
             }
         }
     }
@@ -255,6 +260,22 @@ struct SettingsView: View {
                 }
                 Text("Continuous tracking records your exact path between visits. Use sparingly.")
             }
+        }
+    }
+
+    // MARK: - Units Section
+
+    private var unitsSection: some View {
+        Section {
+            Picker("Distance", selection: $usesMetricDistanceUnits) {
+                Text("Metric").tag(true)
+                Text("US Standard").tag(false)
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text("Units")
+        } footer: {
+            Text("Choose how distance values are shown throughout the app, widgets, and Live Activity.")
         }
     }
 

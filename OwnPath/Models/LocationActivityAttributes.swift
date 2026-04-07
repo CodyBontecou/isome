@@ -18,6 +18,10 @@ struct LocationActivityAttributes: ActivityAttributes {
         var remainingSeconds: Int?
         /// Last update timestamp
         var lastUpdate: Date
+        /// Preferred distance units (true = metric, false = US standard)
+        var usesMetricDistanceUnits: Bool? = nil
+        /// Incremented when a new map snapshot is available in the App Group container
+        var mapSnapshotVersion: Int = 0
         
         enum TrackingMode: String, Codable, Hashable {
             case visits = "Visits"

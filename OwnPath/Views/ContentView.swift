@@ -7,14 +7,23 @@ struct ContentView: View {
     @State private var viewModel: LocationViewModel?
     @State private var locationManager: LocationManager?
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var crashLog: String?
+    @State private var pendingTrackingStart = false
 
     var body: some View {
         Group {
             if let viewModel = viewModel {
                 if hasCompletedOnboarding {
                     MainTabView(viewModel: viewModel)
+                        .onAppear {
+                            if pendingTrackingStart {
+                                pendingTrackingStart = false
+                                startTrackingFromOnboarding(viewModel: viewModel)
+                            }
+                        }
                 } else {
-                    OnboardingView(viewModel: viewModel) {
+                    OnboardingView(viewModel: viewModel) { shouldStartTracking in
+                        pendingTrackingStart = shouldStartTracking
                         hasCompletedOnboarding = true
                     }
                 }
@@ -43,6 +52,41 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
             viewModel?.loadData()
+        }
+        .onAppear {
+            if let log = UserDefaults.standard.string(forKey: "lastCrashLog") {
+                crashLog = log
+                UserDefaults.standard.removeObject(forKey: "lastCrashLog")
+            }
+        }
+        .alert("Previous Crash Detected", isPresented: Binding(
+            get: { crashLog != nil },
+            set: { if !$0 { crashLog = nil } }
+        )) {
+            Button("Copy to Clipboard") {
+                UIPasteboard.general.string = crashLog
+                crashLog = nil
+            }
+            Button("Dismiss", role: .cancel) { crashLog = nil }
+        } message: {
+            Text(crashLog ?? "")
+        }
+    }
+
+    private func startTrackingFromOnboarding(viewModel: LocationViewModel) {
+        let defaults = UserDefaults.standard
+        let enableTracking = defaults.object(forKey: "defaultLocationTrackingEnabled") == nil
+            ? true
+            : defaults.bool(forKey: "defaultLocationTrackingEnabled")
+        let enableContinuous = defaults.object(forKey: "defaultContinuousTracking") == nil
+            ? true
+            : defaults.bool(forKey: "defaultContinuousTracking")
+
+        if enableTracking {
+            viewModel.startTracking()
+        }
+        if enableContinuous {
+            viewModel.enableContinuousTracking()
         }
     }
 }
@@ -77,7 +121,7 @@ private struct MainTabView: View {
 
 private struct OnboardingView: View {
     let viewModel: LocationViewModel
-    let onComplete: () -> Void
+    let onComplete: (Bool) -> Void
 
     @ObservedObject private var locationManager: LocationManager
 
@@ -89,7 +133,7 @@ private struct OnboardingView: View {
 
     private let pageCount = 4
 
-    init(viewModel: LocationViewModel, onComplete: @escaping () -> Void) {
+    init(viewModel: LocationViewModel, onComplete: @escaping (Bool) -> Void) {
         self.viewModel = viewModel
         self.onComplete = onComplete
         _locationManager = ObservedObject(initialValue: viewModel.locationManager)
@@ -139,10 +183,11 @@ private struct OnboardingView: View {
 
     private var welcomePage: some View {
         LocationOnboardingPageView(
-            icon: "location.north.line.fill",
+            icon: "",
             eyebrow: "Welcome",
             title: "OWNPATH",
-            description: "A calm, private timeline of where your day takes you — always on-device and in your control."
+            description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
+            useAppIcon: true
         ) {
             VStack(spacing: 14) {
                 HStack(spacing: 16) {
@@ -460,17 +505,8 @@ private struct OnboardingView: View {
     }
 
     private func completeOnboarding() {
-        if startTrackingWhenDone && locationManager.hasLocationPermission {
-            if defaultLocationTrackingEnabled {
-                viewModel.startTracking()
-            }
-
-            if defaultContinuousTracking {
-                viewModel.enableContinuousTracking()
-            }
-        }
-
-        onComplete()
+        let shouldStartTracking = startTrackingWhenDone && locationManager.hasLocationPermission
+        onComplete(shouldStartTracking)
     }
 
     private func openSettings() {
@@ -484,24 +520,38 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
     let eyebrow: String
     let title: String
     let description: String
+    var useAppIcon: Bool = false
     @ViewBuilder let accentContent: () -> AccentContent
 
     var body: some View {
         VStack(spacing: 26) {
             Spacer(minLength: 20)
 
-            ZStack {
-                Circle()
-                    .fill(OnboardingPalette.cardSoft)
+            if useAppIcon,
+               let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
+               let primary = icons["CFBundlePrimaryIcon"] as? [String: Any],
+               let iconFiles = primary["CFBundleIconFiles"] as? [String],
+               let iconName = iconFiles.last,
+               let uiImage = UIImage(named: iconName) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 102, height: 102)
-                    .overlay {
-                        Circle()
-                            .stroke(OnboardingPalette.border, lineWidth: 1)
-                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(OnboardingPalette.cardSoft)
+                        .frame(width: 102, height: 102)
+                        .overlay {
+                            Circle()
+                                .stroke(OnboardingPalette.border, lineWidth: 1)
+                        }
 
-                Image(systemName: icon)
-                    .font(.system(size: 36, weight: .light))
-                    .foregroundStyle(OnboardingPalette.accent)
+                    Image(systemName: icon)
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundStyle(OnboardingPalette.accent)
+                }
             }
 
             VStack(spacing: 12) {
