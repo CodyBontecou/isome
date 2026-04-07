@@ -208,18 +208,7 @@ final class LocationViewModel {
     }
 
     private func formatDistance(_ meters: Double) -> String {
-        if usesMetricDistanceUnits {
-            if meters < 1000 {
-                return "\(Int(meters.rounded())) m"
-            }
-            return String(format: "%.1f km", meters / 1000)
-        }
-
-        let miles = meters / 1609.344
-        if miles < 0.1 {
-            return String(format: "%.0f ft", meters * 3.28084)
-        }
-        return String(format: "%.1f mi", miles)
+        DistanceFormatter.format(meters: meters, usesMetric: usesMetricDistanceUnits)
     }
 
     func visitsInDateRange(_ range: ClosedRange<Date>) -> [Visit] {

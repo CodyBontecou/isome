@@ -83,18 +83,7 @@ struct OwnPathLiveActivity: Widget {
     }
     
     private func formatDistance(_ meters: Double, usesMetricDistanceUnits: Bool) -> String {
-        if usesMetricDistanceUnits {
-            if meters >= 1000 {
-                return String(format: "%.1f km", meters / 1000)
-            }
-            return String(format: "%.0f m", meters)
-        }
-
-        let miles = meters / 1609.344
-        if miles < 0.1 {
-            return String(format: "%.0f ft", meters * 3.28084)
-        }
-        return String(format: "%.1f mi", miles)
+        DistanceFormatter.format(meters: meters, usesMetric: usesMetricDistanceUnits)
     }
 }
 
@@ -102,7 +91,7 @@ struct OwnPathLiveActivity: Widget {
 
 struct LockScreenView: View {
     let context: ActivityViewContext<LocationActivityAttributes>
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Left: Metadata
@@ -119,9 +108,9 @@ struct LockScreenView: View {
 
                 // Stats
                 Label(
-                    formatDistance(
-                        context.state.distanceTraveled,
-                        usesMetricDistanceUnits: context.state.usesMetricDistanceUnits ?? true
+                    DistanceFormatter.format(
+                        meters: context.state.distanceTraveled,
+                        usesMetric: context.state.usesMetricDistanceUnits ?? true
                     ),
                     systemImage: "figure.walk"
                 )
@@ -174,7 +163,7 @@ struct LockScreenView: View {
         .activityBackgroundTint(.black.opacity(0.8))
         .activitySystemActionForegroundColor(.white)
     }
-    
+
     private static func loadMapSnapshot() -> UIImage? {
         guard let url = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.OwnPath")?
@@ -192,21 +181,6 @@ struct LockScreenView: View {
             return "\(hours)h \(minutes)m"
         }
         return "\(minutes)m"
-    }
-
-    private func formatDistance(_ meters: Double, usesMetricDistanceUnits: Bool) -> String {
-        if usesMetricDistanceUnits {
-            if meters >= 1000 {
-                return String(format: "%.1f km", meters / 1000)
-            }
-            return String(format: "%.0f m", meters)
-        }
-
-        let miles = meters / 1609.344
-        if miles < 0.1 {
-            return String(format: "%.0f ft", meters * 3.28084)
-        }
-        return String(format: "%.1f mi", miles)
     }
 }
 
