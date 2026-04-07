@@ -104,93 +104,70 @@ struct LockScreenView: View {
     let context: ActivityViewContext<LocationActivityAttributes>
     
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 16) {
-                // Left: Icon and mode
-                VStack(spacing: 4) {
-                    Image("AppIconImage")
-                        .resizable()
-                        .renderingMode(.original)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: 9))
-                    Text(context.state.trackingMode.rawValue)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+        HStack(spacing: 12) {
+            // Left: Metadata
+            VStack(alignment: .leading, spacing: 8) {
+                // Location name
+                if let name = context.state.locationName {
+                    Text(name)
+                        .font(.title3.weight(.semibold))
+                        .lineLimit(1)
+                } else {
+                    Text("Tracking")
+                        .font(.title3.weight(.semibold))
                 }
-                .frame(width: 60)
-                
-                // Center: Location and stats
-                VStack(alignment: .leading, spacing: 4) {
-                    if let name = context.state.locationName {
-                        Text(name)
-                            .font(.headline)
-                            .lineLimit(1)
-                    } else {
-                        Text("Tracking Location")
-                            .font(.headline)
-                    }
-                    
-                    HStack(spacing: 16) {
-                        Label("\(context.state.locationsRecorded) pts", systemImage: "mappin")
-                        Label(
-                            formatDistance(
-                                context.state.distanceTraveled,
-                                usesMetricDistanceUnits: context.state.usesMetricDistanceUnits ?? true
-                            ),
-                            systemImage: "figure.walk"
-                        )
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                // Stats
+                Label(
+                    formatDistance(
+                        context.state.distanceTraveled,
+                        usesMetricDistanceUnits: context.state.usesMetricDistanceUnits ?? true
+                    ),
+                    systemImage: "figure.walk"
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+                // Timer
+                if let remaining = context.state.remainingSeconds {
+                    Text(formatTime(remaining))
+                        .font(.title2)
+                        .monospacedDigit()
+                        .foregroundStyle(.orange)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Text(context.attributes.startTime, style: .timer)
+                        .font(.title2)
+                        .monospacedDigit()
+                        .frame(maxWidth: .infinity)
                 }
-                
-                Spacer()
-                
-                // Right: Timer or duration
-                VStack(alignment: .trailing, spacing: 4) {
-                    if let remaining = context.state.remainingSeconds {
-                        Text(formatTime(remaining))
-                            .font(.title3)
-                            .monospacedDigit()
-                            .foregroundStyle(.orange)
-                        Text("remaining")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    } else {
-                        Text(context.attributes.startTime, style: .timer)
-                            .font(.title3)
-                            .monospacedDigit()
-                        Text("elapsed")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+
+                Spacer(minLength: 0)
+
+                // Stop button
+                Link(destination: URL(string: "ownpath://stop")!) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "stop.circle.fill")
+                        Text("Stop")
                     }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.red.opacity(0.8), in: RoundedRectangle(cornerRadius: 8))
                 }
-                .frame(width: 70)
             }
-            
-            // Map snapshot
+
+            Spacer(minLength: 0)
+
+            // Right: Square map snapshot
             if context.state.mapSnapshotVersion > 0, let snapshot = Self.loadMapSnapshot() {
                 Image(uiImage: snapshot)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 160, height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .id(context.state.mapSnapshotVersion)
-            }
-
-            // Stop Tracking Button
-            Link(destination: URL(string: "ownpath://stop")!) {
-                HStack {
-                    Image(systemName: "stop.circle.fill")
-                    Text("Stop Tracking")
-                }
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(.red.opacity(0.8), in: RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding()
