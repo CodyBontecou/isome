@@ -461,14 +461,14 @@ private struct OnboardingView: View {
 
     private var primaryButtonTitle: String {
         if selectedPage == pageCount - 1 {
-            return "Get Started"
+            return String(localized: "Get Started")
         }
 
         if selectedPage == 2 && locationManager.authorizationStatus == .notDetermined {
-            return "Skip"
+            return String(localized: "Skip")
         }
 
-        return "Next"
+        return String(localized: "Next")
     }
 
     private func handlePrimaryAction() {
@@ -859,17 +859,17 @@ private extension CLAuthorizationStatus {
     var onboardingLabel: String {
         switch self {
         case .notDetermined:
-            return "Not requested"
+            return String(localized: "Not requested")
         case .restricted:
-            return "Restricted"
+            return String(localized: "Restricted")
         case .denied:
-            return "Denied"
+            return String(localized: "Denied")
         case .authorizedWhenInUse:
-            return "While using"
+            return String(localized: "While using")
         case .authorizedAlways:
-            return "Always allowed"
+            return String(localized: "Always allowed")
         @unknown default:
-            return "Unknown"
+            return String(localized: "Unknown")
         }
     }
 

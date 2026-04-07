@@ -61,7 +61,7 @@ struct SharedLocationData: Codable {
 
 extension SharedLocationData {
     var displayLocationName: String {
-        currentLocationName ?? currentAddress ?? "Unknown"
+        currentLocationName ?? currentAddress ?? String(localized: "Unknown")
     }
     
     var prefersMetricDistanceUnits: Bool {
@@ -69,27 +69,16 @@ extension SharedLocationData {
     }
 
     var formattedDistance: String {
-        if prefersMetricDistanceUnits {
-            if todayDistanceMeters >= 1000 {
-                return String(format: "%.1f km", todayDistanceMeters / 1000)
-            }
-            return String(format: "%.0f m", todayDistanceMeters)
-        }
-
-        let miles = todayDistanceMeters / 1609.344
-        if miles < 0.1 {
-            return String(format: "%.0f ft", todayDistanceMeters * 3.28084)
-        }
-        return String(format: "%.1f mi", miles)
+        DistanceFormatter.format(meters: todayDistanceMeters, usesMetric: prefersMetricDistanceUnits)
     }
     
     var trackingStatus: String {
         if isContinuousTrackingEnabled {
-            return "Continuous"
+            return String(localized: "Continuous")
         } else if isTrackingEnabled {
-            return "Visits"
+            return String(localized: "Visits")
         } else {
-            return "Off"
+            return String(localized: "Off")
         }
     }
     

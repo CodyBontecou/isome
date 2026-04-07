@@ -123,6 +123,8 @@ final class LocationManager: NSObject, ObservableObject {
     func stopTracking() {
         // Clean up continuous tracking state first
         if isContinuousTrackingEnabled {
+            // Track usage for paywall
+            UsageTracker.shared.sessionEnded()
             continuousTrackingTimer?.invalidate()
             continuousTrackingTimer = nil
             Task {
@@ -156,6 +158,9 @@ final class LocationManager: NSObject, ObservableObject {
     func enableContinuousTracking() {
         guard hasLocationPermission else { return }
 
+        // Track usage for paywall
+        UsageTracker.shared.sessionStarted()
+
         isContinuousTrackingEnabled = true
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingStartTime = Date()
@@ -187,6 +192,9 @@ final class LocationManager: NSObject, ObservableObject {
     }
 
     func disableContinuousTracking() {
+        // Track usage for paywall
+        UsageTracker.shared.sessionEnded()
+
         isContinuousTrackingEnabled = false
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingTimer?.invalidate()

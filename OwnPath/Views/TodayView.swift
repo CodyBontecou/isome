@@ -38,21 +38,27 @@ struct TodayView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if !viewModel.locationManager.hasLocationPermission {
-                    PermissionRequestView(locationManager: viewModel.locationManager)
-                } else if viewModel.locationPoints.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Data Points", systemImage: "location.slash")
-                    } description: {
-                        Text("Location points will appear here as they're tracked.")
+            ZStack {
+                TE.surface.ignoresSafeArea()
+
+                Group {
+                    if !viewModel.locationManager.hasLocationPermission {
+                        PermissionRequestView(locationManager: viewModel.locationManager)
+                    } else if viewModel.locationPoints.isEmpty {
+                        emptyState
+                    } else {
+                        pointsList
                     }
-                } else {
-                    pointsList
                 }
             }
-            .navigationTitle(groupingOption == .none ? "All Points" : "Segments")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(groupingOption == .none ? "ALL POINTS" : "SEGMENTS")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(3)
+                        .foregroundStyle(TE.textMuted)
+                }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
                         Section("Sort") {
@@ -62,7 +68,6 @@ struct TodayView: View {
                                 }
                             }
                         }
-
                         Section("Categorize") {
                             Picker("Group", selection: groupingOptionBinding) {
                                 ForEach(PointGroupingOption.allCases) { option in
@@ -71,12 +76,16 @@ struct TodayView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
+                        Image(systemName: "line.3.horizontal.decrease")
+                            .font(.system(size: 14, weight: .medium, design: .monospaced))
+                            .foregroundStyle(TE.textPrimary)
                     }
-
-                    Text("\(viewModel.locationPoints.count) points")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("\(viewModel.locationPoints.count) PTS")
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .tracking(1)
+                        .foregroundStyle(TE.textMuted)
                 }
             }
             .onAppear {
@@ -96,40 +105,155 @@ struct TodayView: View {
         }
     }
 
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            Image(systemName: "location.slash")
+                .font(.system(size: 32, weight: .light, design: .monospaced))
+                .foregroundStyle(TE.textMuted.opacity(0.5))
+
+            Text("NO DATA POINTS")
+                .font(TE.mono(.caption, weight: .semibold))
+                .tracking(2)
+                .foregroundStyle(TE.textMuted)
+
+            Text("Location points will appear here as they're tracked.")
+                .font(TE.mono(.caption2, weight: .regular))
+                .foregroundStyle(TE.textMuted.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            Spacer()
+        }
+    }
+
+    // MARK: - Points List
+
     private var pointsList: some View {
-        List {
-            if groupingOption == .none {
-                ForEach(sortedPoints) { point in
-                    pointRow(point)
-                }
-            } else {
-                ForEach(sectionedPoints) { section in
-                    Section {
-                        ForEach(orderedPoints(for: section.points)) { point in
-                            pointRow(point)
-                        }
-                    } header: {
-                        PointSectionHeader(
-                            title: section.title,
-                            subtitle: section.subtitle,
-                            onShowMap: {
-                                selectedSegmentMap = segmentSelection(for: section)
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                if groupingOption == .none {
+                    TECard {
+                        VStack(spacing: 0) {
+                            ForEach(Array(sortedPoints.enumerated()), id: \.element.id) { index, point in
+                                pointRow(point, isLast: index == sortedPoints.count - 1)
                             }
-                        )
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                } else {
+                    ForEach(sectionedPoints) { section in
+                        VStack(spacing: 0) {
+                            sectionHeader(section)
+
+                            TECard {
+                                VStack(spacing: 0) {
+                                    let ordered = orderedPoints(for: section.points)
+                                    ForEach(Array(ordered.enumerated()), id: \.element.id) { index, point in
+                                        pointRow(point, isLast: index == ordered.count - 1)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
                     }
                 }
             }
+            .padding(.bottom, 16)
         }
-        .listStyle(.insetGrouped)
     }
 
-    private func pointRow(_ point: LocationPoint) -> some View {
-        LocationPointRow(point: point)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                selectedPoint = point
+    // MARK: - Section Header
+
+    private func sectionHeader(_ section: LocationPointSectionData) -> some View {
+        HStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(section.title.uppercased())
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+
+                Text(section.subtitle.uppercased())
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .tracking(0.5)
+                    .foregroundStyle(TE.textMuted)
             }
+
+            Spacer(minLength: 8)
+
+            Button {
+                selectedSegmentMap = segmentSelection(for: section)
+            } label: {
+                HStack(spacing: 4) {
+                    Text("MAP")
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 8, weight: .bold))
+                }
+                .foregroundStyle(TE.accent)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 8)
     }
+
+    // MARK: - Point Row
+
+    private func pointRow(_ point: LocationPoint, isLast: Bool) -> some View {
+        Button {
+            selectedPoint = point
+        } label: {
+            VStack(spacing: 0) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(point.timestamp.formatted(date: .abbreviated, time: .standard))
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textPrimary)
+
+                        HStack(spacing: 8) {
+                            Text(String(format: "%.5f, %.5f", point.latitude, point.longitude))
+                                .font(TE.mono(.caption2, weight: .regular))
+                                .foregroundStyle(TE.textMuted)
+
+                            Text("±\(Int(point.horizontalAccuracy))m")
+                                .font(TE.mono(.caption2, weight: .regular))
+                                .foregroundStyle(TE.textMuted.opacity(0.6))
+                        }
+                    }
+
+                    Spacer()
+
+                    if let speed = point.speed, speed > 0 {
+                        Text(String(format: "%.1f m/s", speed))
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.accent)
+                    }
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(TE.textMuted.opacity(0.4))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+
+                if !isLast {
+                    Divider()
+                        .background(TE.border)
+                        .padding(.leading, 16)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Data helpers
 
     private func segmentSelection(for section: LocationPointSectionData) -> SegmentMapSelection {
         SegmentMapSelection(
@@ -295,20 +419,11 @@ struct TodayView: View {
     }
 
     private func formatDistance(_ meters: Double) -> String {
-        if usesMetricDistanceUnits {
-            if meters < 1000 {
-                return "\(Int(meters.rounded())) m"
-            }
-            return String(format: "%.1f km", meters / 1000)
-        }
-
-        let miles = meters / 1609.344
-        if miles < 0.1 {
-            return String(format: "%.0f ft", meters * 3.28084)
-        }
-        return String(format: "%.1f mi", miles)
+        DistanceFormatter.format(meters: meters, usesMetric: usesMetricDistanceUnits)
     }
 }
+
+// MARK: - Supporting Types
 
 private enum PointSortOption: String, CaseIterable, Identifiable {
     case newestFirst
@@ -319,9 +434,9 @@ private enum PointSortOption: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .newestFirst:
-            return "Newest First"
+            return String(localized: "Newest First")
         case .oldestFirst:
-            return "Oldest First"
+            return String(localized: "Oldest First")
         }
     }
 }
@@ -337,13 +452,13 @@ private enum PointGroupingOption: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .none:
-            return "No Grouping"
+            return String(localized: "No Grouping")
         case .tripSegments:
-            return "Trips"
+            return String(localized: "Trips")
         case .twoHourSegments:
-            return "2-Hour Segments"
+            return String(localized: "2-Hour Segments")
         case .day:
-            return "By Day"
+            return String(localized: "By Day")
         }
     }
 }
@@ -362,38 +477,7 @@ private struct SegmentMapSelection: Identifiable {
     let points: [LocationPoint]
 }
 
-private struct PointSectionHeader: View {
-    let title: String
-    let subtitle: String
-    let onShowMap: (() -> Void)?
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .textCase(nil)
-
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textCase(nil)
-            }
-
-            Spacer(minLength: 8)
-
-            if let onShowMap {
-                Button(action: onShowMap) {
-                    Label("Map", systemImage: "map")
-                        .font(.caption.weight(.semibold))
-                        .textCase(nil)
-                }
-                .buttonStyle(.borderless)
-            }
-        }
-        .padding(.vertical, 4)
-    }
-}
+// MARK: - Segment Map Detail
 
 private struct SegmentMapDetailView: View {
     @Environment(\.dismiss) private var dismiss
@@ -404,17 +488,21 @@ private struct SegmentMapDetailView: View {
             SessionPathMapView(points: selection.points)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(selection.title)
-                    .font(.subheadline.weight(.semibold))
+                Text(selection.title.uppercased())
+                    .font(TE.mono(.caption, weight: .semibold))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
 
-                Text(selection.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(selection.subtitle.uppercased())
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .tracking(0.5)
+                    .foregroundStyle(TE.textMuted)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .background(.ultraThinMaterial)
+            .background(TE.surface)
         }
+        .background(TE.surface)
         .navigationTitle("Segment Map")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -422,10 +510,13 @@ private struct SegmentMapDetailView: View {
                 Button("Done") {
                     dismiss()
                 }
+                .font(TE.mono(.caption, weight: .semibold))
             }
         }
     }
 }
+
+// MARK: - Point Detail
 
 struct PointDetailView: View {
     let point: LocationPoint
@@ -444,7 +535,7 @@ struct PointDetailView: View {
         Map(position: $cameraPosition) {
             Annotation("", coordinate: point.coordinate) {
                 Circle()
-                    .fill(.blue)
+                    .fill(TE.accent)
                     .frame(width: 20, height: 20)
                     .overlay {
                         Circle()
@@ -462,34 +553,37 @@ struct PointDetailView: View {
             VStack(spacing: 8) {
                 HStack {
                     Text(String(format: "%.6f, %.6f", point.latitude, point.longitude))
-                        .font(.footnote.monospaced())
+                        .font(TE.mono(.caption, weight: .medium))
+                        .foregroundStyle(TE.textPrimary)
                     Spacer()
                     Text("±\(Int(point.horizontalAccuracy))m")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(TE.mono(.caption2, weight: .regular))
+                        .foregroundStyle(TE.textMuted)
                 }
                 if let speed = point.speed, speed > 0 {
                     HStack {
-                        Text(String(format: "Speed: %.1f m/s", speed))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                        Text(String(format: "SPEED  %.1f M/S", speed))
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
                         Spacer()
                     }
                 }
                 if let altitude = point.altitude {
                     HStack {
-                        Text(String(format: "Altitude: %.1f m", altitude))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                        Text(String(format: "ALT  %.1f M", altitude))
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
                         Spacer()
                     }
                 }
             }
-            .padding()
-            .background(.ultraThinMaterial)
+            .padding(16)
+            .background(TE.surface)
         }
     }
 }
+
+// MARK: - Location Point Row
 
 struct LocationPointRow: View {
     let point: LocationPoint
@@ -497,76 +591,115 @@ struct LocationPointRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(point.timestamp.formatted(date: .abbreviated, time: .standard))
-                .font(.headline.monospaced())
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textPrimary)
 
             HStack {
                 Text(String(format: "%.6f, %.6f", point.latitude, point.longitude))
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .foregroundStyle(TE.textMuted)
 
                 Spacer()
 
                 if let speed = point.speed, speed > 0 {
                     Text(String(format: "%.1f m/s", speed))
-                        .font(.caption)
-                        .foregroundStyle(.blue)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(TE.accent)
                 }
 
                 Text("±\(Int(point.horizontalAccuracy))m")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .foregroundStyle(TE.textMuted.opacity(0.6))
             }
         }
         .padding(.vertical, 2)
     }
 }
 
+// MARK: - Permission Request
+
 struct PermissionRequestView: View {
     @ObservedObject var locationManager: LocationManager
 
     var body: some View {
         VStack(spacing: 24) {
+            Spacer()
+
             Image(systemName: "location.circle")
-                .font(.system(size: 60))
-                .foregroundStyle(.blue)
+                .font(.system(size: 48, weight: .light))
+                .foregroundStyle(TE.accent)
 
-            Text("Location Access Required")
-                .font(.title2)
-                .fontWeight(.semibold)
+            VStack(spacing: 8) {
+                Text("LOCATION ACCESS")
+                    .font(TE.mono(.caption, weight: .bold))
+                    .tracking(2)
+                    .foregroundStyle(TE.textPrimary)
 
-            Text("OwnPath needs access to your location to record the places you visit throughout the day.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal)
+                Text("OwnPath needs access to your location to record the places you visit throughout the day.")
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .foregroundStyle(TE.textMuted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
 
             if locationManager.authorizationStatus == .denied {
                 VStack(spacing: 16) {
-                    Text("Location access was denied. Please enable it in Settings.")
-                        .font(.callout)
-                        .foregroundStyle(.orange)
-                        .multilineTextAlignment(.center)
+                    Text("LOCATION ACCESS DENIED")
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1)
+                        .foregroundStyle(TE.warning)
 
-                    Button("Open Settings") {
+                    Button {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             UIApplication.shared.open(url)
                         }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text("OPEN SETTINGS")
+                                .font(TE.mono(.caption, weight: .bold))
+                                .tracking(1.5)
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 10, weight: .bold))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(TE.accent)
+                        )
                     }
-                    .buttonStyle(.borderedProminent)
                 }
             } else {
                 VStack(spacing: 12) {
-                    Button("Allow Always") {
+                    Button {
                         locationManager.requestAlwaysAuthorization()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text("ALLOW ALWAYS")
+                                .font(TE.mono(.caption, weight: .bold))
+                                .tracking(1.5)
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 10, weight: .bold))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(TE.accent)
+                        )
                     }
-                    .buttonStyle(.borderedProminent)
 
-                    Text("\"Always\" permission enables background tracking")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("\"ALWAYS\" ENABLES BACKGROUND TRACKING")
+                        .font(TE.mono(.caption2, weight: .regular))
+                        .tracking(0.5)
+                        .foregroundStyle(TE.textMuted)
                 }
             }
+
+            Spacer()
         }
-        .padding()
     }
 }
 

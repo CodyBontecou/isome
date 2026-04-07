@@ -10,6 +10,7 @@
 		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
+		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
 		A1000001212F000100000001 /* OwnPathApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* OwnPathApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
@@ -25,9 +26,14 @@
 		A100000E212F00010000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E212F00000000000E /* Assets.xcassets */; };
 		A100000F212F00010000000F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000F212F00000000000F /* Preview Assets.xcassets */; };
 		A1000019212F000100000019 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019212F000000000019 /* AppDelegate.swift */; };
+		A100001F212F00010000001F /* TEDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001F212F00000000001F /* TEDesign.swift */; };
 		A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
 		A100001B212F00010000001B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B212F00000000001B /* LiveActivityManager.swift */; };
 		A100001C212F00010000001C /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
+		A100001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
+		A300001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
+		A400001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
+		A200001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
 		A2000001212F000100000001 /* OwnPathWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001212F000000000001 /* OwnPathWidgetBundle.swift */; };
 		A2000002212F000100000002 /* OwnPathLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002212F000000000002 /* OwnPathLiveActivity.swift */; };
 		A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
@@ -42,9 +48,16 @@
 		A4000002212F000100000002 /* OwnPathWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000002212F000000000002 /* OwnPathWatchWidget.swift */; };
 		A4000003212F000100000003 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
 		A4000004212F000100000004 /* OwnPathWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* OwnPathWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */; };
 		C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919034FA4C91A43201D0CF80 /* TrackingView.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
+		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
+		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
+		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
+		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
+		B2000008212F000100000008 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000004212F000000000004 /* Localizable.xcstrings */; };
+		B2000009212F000100000009 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000005212F000000000005 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,8 +130,10 @@
 /* Begin PBXFileReference section */
 		2E1B75491004BD3A7D223DB3 /* OwnPathTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OwnPathTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		5F000001212F000000000001 /* ExportFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFolderManager.swift; sourceTree = "<group>"; };
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
+		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		919034FA4C91A43201D0CF80 /* TrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* OwnPath.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OwnPath.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,16 +153,18 @@
 		A100000F212F00000000000F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000019212F000000000019 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A100001F212F00000000001F /* TEDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEDesign.swift; sourceTree = "<group>"; };
 		A100001A212F00000000001A /* LocationActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationActivityAttributes.swift; sourceTree = "<group>"; };
 		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		A100001C212F00000000001C /* SharedLocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
+		A100001D212F00000000001E /* DistanceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceFormatter.swift; sourceTree = "<group>"; };
 		A100001D212F00000000001D /* OwnPath.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OwnPath.entitlements; sourceTree = "<group>"; };
 		A2000000212F000000000000 /* OwnPathWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OwnPathWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001212F000000000001 /* OwnPathWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWidgetBundle.swift; sourceTree = "<group>"; };
 		A2000002212F000000000002 /* OwnPathLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathLiveActivity.swift; sourceTree = "<group>"; };
+		A2000003212F000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2000005212F000000000005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2000006212F000000000006 /* OwnPathWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OwnPathWidget.entitlements; sourceTree = "<group>"; };
-		A2000003212F000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A3000000212F000000000000 /* OwnPathWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OwnPathWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3000001212F000000000001 /* OwnPathWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWatchApp.swift; sourceTree = "<group>"; };
 		A3000002212F000000000002 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchContentView.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -159,7 +176,13 @@
 		A4000002212F000000000002 /* OwnPathWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OwnPathWatchWidget.swift; sourceTree = "<group>"; };
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4000004212F000000000004 /* OwnPathWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OwnPathWatchWidget.entitlements; sourceTree = "<group>"; };
+		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
+		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B1000004212F000000000004 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B1000005212F000000000005 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,6 +280,7 @@
 			children = (
 				A1000001212F000000000001 /* OwnPathApp.swift */,
 				A1000019212F000000000019 /* AppDelegate.swift */,
+				A100001F212F00000000001F /* TEDesign.swift */,
 				A1000010212F000000000010 /* Info.plist */,
 				A100001D212F00000000001D /* OwnPath.entitlements */,
 				A1FFFFFB212EFFFFFFFF0003 /* Models */,
@@ -266,6 +290,8 @@
 				A1FFFFFF212EFFFFFFFF0007 /* Utilities */,
 				A100000E212F00000000000E /* Assets.xcassets */,
 				A1000011212F000000000011 /* Preview Content */,
+				B1000001212F000000000001 /* Localizable.xcstrings */,
+				B1000002212F000000000002 /* InfoPlist.xcstrings */,
 			);
 			path = OwnPath;
 			sourceTree = "<group>";
@@ -286,6 +312,8 @@
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
+				DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */,
+				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -300,6 +328,7 @@
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				919034FA4C91A43201D0CF80 /* TrackingView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
+				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -329,6 +358,7 @@
 				A2000005212F000000000005 /* Assets.xcassets */,
 				A2000006212F000000000006 /* OwnPathWidget.entitlements */,
 				A2000003212F000000000003 /* Info.plist */,
+				B1000003212F000000000003 /* Localizable.xcstrings */,
 			);
 			path = OwnPathWidget;
 			sourceTree = "<group>";
@@ -341,6 +371,7 @@
 				A3000003212F000000000003 /* WatchAssets.xcassets */,
 				A3000004212F000000000004 /* WatchInfo.plist */,
 				A3000005212F000000000005 /* OwnPathWatch.entitlements */,
+				B1000004212F000000000004 /* Localizable.xcstrings */,
 			);
 			path = OwnPathWatch;
 			sourceTree = "<group>";
@@ -352,6 +383,7 @@
 				A4000002212F000000000002 /* OwnPathWatchWidget.swift */,
 				A4000003212F000000000003 /* WatchWidgetInfo.plist */,
 				A4000004212F000000000004 /* OwnPathWatchWidget.entitlements */,
+				B1000005212F000000000005 /* Localizable.xcstrings */,
 			);
 			path = OwnPathWatchWidget;
 			sourceTree = "<group>";
@@ -360,6 +392,7 @@
 			isa = PBXGroup;
 			children = (
 				A100001C212F00000000001C /* SharedLocationData.swift */,
+				A100001D212F00000000001E /* DistanceFormatter.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -522,6 +555,8 @@
 			files = (
 				A100000F212F00010000000F /* Preview Assets.xcassets in Resources */,
 				A100000E212F00010000000E /* Assets.xcassets in Resources */,
+				B2000005212F000100000005 /* Localizable.xcstrings in Resources */,
+				B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +565,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2000005212F000100000005 /* Assets.xcassets in Resources */,
+				B2000007212F000100000007 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -538,6 +574,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3000003212F000100000003 /* WatchAssets.xcassets in Resources */,
+				B2000008212F000100000008 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,6 +582,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2000009212F000100000009 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +602,7 @@
 			files = (
 				A1000001212F000100000001 /* OwnPathApp.swift in Sources */,
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
+				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
@@ -578,9 +617,13 @@
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
 				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,
 				A100001C212F00010000001C /* SharedLocationData.swift in Sources */,
+				A100001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 				C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */,
 				90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */,
 				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
+				97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */,
+				BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */,
+				DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -591,6 +634,7 @@
 				A2000001212F000100000001 /* OwnPathWidgetBundle.swift in Sources */,
 				A2000002212F000100000002 /* OwnPathLiveActivity.swift in Sources */,
 				A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */,
+				A200001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -601,6 +645,7 @@
 				A3000001212F000100000001 /* OwnPathWatchApp.swift in Sources */,
 				A3000002212F000100000002 /* WatchContentView.swift in Sources */,
 				A3000004212F000100000004 /* SharedLocationData.swift in Sources */,
+				A300001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -611,6 +656,7 @@
 				A4000001212F000100000001 /* OwnPathWatchWidgetBundle.swift in Sources */,
 				A4000002212F000100000002 /* OwnPathWatchWidget.swift in Sources */,
 				A4000003212F000100000003 /* SharedLocationData.swift in Sources */,
+				A400001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
