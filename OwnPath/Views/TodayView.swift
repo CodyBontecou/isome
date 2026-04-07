@@ -6,6 +6,7 @@ struct TodayView: View {
     @Bindable var viewModel: LocationViewModel
     @State private var selectedPoint: LocationPoint?
     @State private var selectedSegmentMap: SegmentMapSelection?
+    @State private var expandedSections: Set<String> = []
 
     @AppStorage("todayPointsSortOption") private var sortOptionRaw = PointSortOption.newestFirst.rawValue
     @AppStorage("todayPointsGroupingOption") private var groupingOptionRaw = PointGroupingOption.tripSegments.rawValue
@@ -150,15 +151,18 @@ struct TodayView: View {
                         VStack(spacing: 0) {
                             sectionHeader(section)
 
-                            TECard {
-                                VStack(spacing: 0) {
-                                    let ordered = orderedPoints(for: section.points)
-                                    ForEach(Array(ordered.enumerated()), id: \.element.id) { index, point in
-                                        pointRow(point, isLast: index == ordered.count - 1)
+                            if expandedSections.contains(section.id) {
+                                TECard {
+                                    VStack(spacing: 0) {
+                                        let ordered = orderedPoints(for: section.points)
+                                        ForEach(Array(ordered.enumerated()), id: \.element.id) { index, point in
+                                            pointRow(point, isLast: index == ordered.count - 1)
+                                        }
                                     }
                                 }
+                                .padding(.horizontal, 16)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
                             }
-                            .padding(.horizontal, 16)
                         }
                     }
                 }
@@ -171,17 +175,35 @@ struct TodayView: View {
 
     private func sectionHeader(_ section: LocationPointSectionData) -> some View {
         HStack(alignment: .center, spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(section.title.uppercased())
-                    .font(TE.mono(.caption2, weight: .semibold))
-                    .tracking(1)
-                    .foregroundStyle(TE.textPrimary)
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    if expandedSections.contains(section.id) {
+                        expandedSections.remove(section.id)
+                    } else {
+                        expandedSections.insert(section.id)
+                    }
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.textMuted)
+                        .rotationEffect(.degrees(expandedSections.contains(section.id) ? 90 : 0))
 
-                Text(section.subtitle.uppercased())
-                    .font(TE.mono(.caption2, weight: .regular))
-                    .tracking(0.5)
-                    .foregroundStyle(TE.textMuted)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(section.title.uppercased())
+                            .font(TE.mono(.caption2, weight: .semibold))
+                            .tracking(1)
+                            .foregroundStyle(TE.textPrimary)
+
+                        Text(section.subtitle.uppercased())
+                            .font(TE.mono(.caption2, weight: .regular))
+                            .tracking(0.5)
+                            .foregroundStyle(TE.textMuted)
+                    }
+                }
             }
+            .buttonStyle(.plain)
 
             Spacer(minLength: 8)
 
