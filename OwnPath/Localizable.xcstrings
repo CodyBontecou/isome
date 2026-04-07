@@ -50,6 +50,18 @@
             "state": "translated",
             "value": "访问详情"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detalles de la visita"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट विवरण"
+          }
         }
       }
     },
@@ -101,6 +113,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "删除此访问？"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar esta visita?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस विजिट को हटाएं?"
           }
         }
       }
@@ -154,6 +178,18 @@
             "state": "translated",
             "value": "取消"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रद्द करें"
+          }
         }
       }
     },
@@ -205,6 +241,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "删除"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हटाएं"
           }
         }
       }
@@ -258,6 +306,18 @@
             "state": "translated",
             "value": "此访问将被永久删除。"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta visita será eliminada permanentemente."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह विजिट स्थायी रूप से हटा दिया जाएगा।"
+          }
         }
       }
     },
@@ -309,6 +369,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पूर्ण"
           }
         }
       }
@@ -362,6 +434,18 @@
             "state": "translated",
             "value": "现在"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अब"
+          }
         }
       }
     },
@@ -413,6 +497,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "已到达"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegada"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पहुंचा"
           }
         }
       }
@@ -466,6 +562,18 @@
             "state": "translated",
             "value": "已离开"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रस्थान किया"
+          }
         }
       }
     },
@@ -517,6 +625,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍在此处"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún aquí"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभी भी यहां"
           }
         }
       }
@@ -570,6 +690,18 @@
             "state": "translated",
             "value": "时长"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duración"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अवधि"
+          }
         }
       }
     },
@@ -621,6 +753,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "备注"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नोट्स"
           }
         }
       }
@@ -674,6 +818,18 @@
             "state": "translated",
             "value": "添加有关此访问的备注..."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade notas sobre esta visita..."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस विजिट के बारे में नोट्स जोड़ें..."
+          }
         }
       }
     },
@@ -725,6 +881,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "在地图中打开"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir en Maps"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maps में खोलें"
           }
         }
       }
@@ -778,6 +946,18 @@
             "state": "translated",
             "value": "删除访问"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar visita"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट हटाएं"
+          }
         }
       }
     },
@@ -829,6 +1009,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "开始"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicio"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरुआत"
           }
         }
       }
@@ -882,6 +1074,18 @@
             "state": "translated",
             "value": "当前"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actual"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वर्तमान"
+          }
         }
       }
     },
@@ -933,6 +1137,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "地图"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मानचित्र"
           }
         }
       }
@@ -986,6 +1202,18 @@
             "state": "translated",
             "value": "会话开始"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicio de sesión"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेशन शुरुआत"
+          }
         }
       }
     },
@@ -1037,6 +1265,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "日期范围"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rango de fechas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तारीख की सीमा"
           }
         }
       }
@@ -1090,6 +1330,18 @@
             "state": "translated",
             "value": "显示行进路径"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar ruta de viaje"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यात्रा पथ दिखाएं"
+          }
         }
       }
     },
@@ -1141,6 +1393,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "显示活跃会话"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar sesión activa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सक्रिय सेशन दिखाएं"
           }
         }
       }
@@ -1194,6 +1458,18 @@
             "state": "translated",
             "value": "显示点标记"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar marcadores de puntos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बिंदु मार्कर दिखाएं"
+          }
         }
       }
     },
@@ -1245,6 +1521,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "显示起点/终点标记"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar marcadores de inicio/fin"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरुआत/अंत मार्कर दिखाएं"
           }
         }
       }
@@ -1298,6 +1586,18 @@
             "state": "translated",
             "value": "适应活跃会话"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar sesión activa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सक्रिय सेशन को फिट करें"
+          }
         }
       }
     },
@@ -1349,6 +1649,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "适应所有访问"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar todas las visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी विजिट को फिट करें"
           }
         }
       }
@@ -1402,6 +1714,18 @@
             "state": "translated",
             "value": "快速选择"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selección rápida"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "त्वरित चयन"
+          }
         }
       }
     },
@@ -1453,6 +1777,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "今天"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoy"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आज"
           }
         }
       }
@@ -1506,6 +1842,18 @@
             "state": "translated",
             "value": "最近7天"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Últimos 7 días"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिछले 7 दिन"
+          }
         }
       }
     },
@@ -1557,6 +1905,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近30天"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Últimos 30 días"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिछले 30 दिन"
           }
         }
       }
@@ -1610,6 +1970,18 @@
             "state": "translated",
             "value": "全部时间"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo el tiempo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी समय"
+          }
         }
       }
     },
@@ -1661,6 +2033,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "自定义范围"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rango personalizado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कस्टम रेंज"
           }
         }
       }
@@ -1714,6 +2098,18 @@
             "state": "translated",
             "value": "从"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "से"
+          }
         }
       }
     },
@@ -1765,6 +2161,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "至"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasta"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "को"
           }
         }
       }
@@ -1818,6 +2226,18 @@
             "state": "translated",
             "value": "按日期筛选"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrar por fecha"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तारीख के अनुसार फ़िल्टर करें"
+          }
         }
       }
     },
@@ -1869,6 +2289,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "应用"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लागू करें"
           }
         }
       }
@@ -1922,6 +2354,18 @@
             "state": "translated",
             "value": "免费额度已用完"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Límite gratuito alcanzado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मुक्त सीमा तक पहुंच गई"
+          }
         }
       }
     },
@@ -1967,6 +2411,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vous avez utilisé vos 10 heures de suivi gratuit. Déverrouillez le suivi illimité avec un achat unique."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has utilizado tus 10 horas de seguimiento gratuito. Desbloquea el seguimiento ilimitado con una compra única."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपने अपने 10 घंटे की मुक्त ट्रैकिंग का उपयोग कर लिया है। एक बार की खरीद के साथ अनंत ट्रैकिंग को अनलॉक करें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您已用完10小时的免费跟踪时间。一次性购买即可解锁无限跟踪。"
           }
         }
       }
@@ -2014,6 +2476,24 @@
             "state": "translated",
             "value": "Suivi illimité à jamais"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguimiento ilimitado para siempre"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा के लिए अनंत ट्रैकिंग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "永久无限跟踪"
+          }
         }
       }
     },
@@ -2059,6 +2539,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Paiement unique, sans abonnement"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pago único, sin suscripción"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एकबारी भुगतान, कोई सदस्यता नहीं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次性付款，无订阅"
           }
         }
       }
@@ -2106,6 +2604,24 @@
             "state": "translated",
             "value": "Toujours 100 % privé et sur l'appareil"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún 100% privado y en el dispositivo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभी भी 100% निजी और डिवाइस पर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍保持100%隐私且本地处理"
+          }
         }
       }
     },
@@ -2151,6 +2667,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déverrouiller OwnPath — [PRICE]"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquea OwnPath — [PRICE]"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath को अनलॉक करें — [PRICE]"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁OwnPath — [PRICE]"
           }
         }
       }
@@ -2198,6 +2732,24 @@
             "state": "translated",
             "value": "Chargement..."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando..."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लोड हो रहा है..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载中..."
+          }
         }
       }
     },
@@ -2243,6 +2795,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restaurer l'achat"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar compra"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खरीद को पुनर्स्थापित करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复购买"
           }
         }
       }
@@ -2290,6 +2860,24 @@
             "state": "translated",
             "value": "Crash précédent détecté"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se detectó un fallo anterior"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिछली क्रैश का पता चला"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测到上次崩溃"
+          }
         }
       }
     },
@@ -2335,6 +2923,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copier dans le presse-papiers"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar al portapapeles"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड पर कॉपी करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制到剪贴板"
           }
         }
       }
@@ -2382,6 +2988,24 @@
             "state": "translated",
             "value": "Fermer"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खारिज करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
         }
       }
     },
@@ -2427,6 +3051,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Données"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据"
           }
         }
       }
@@ -2474,6 +3116,24 @@
             "state": "translated",
             "value": "Suivi"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रैक करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟踪"
+          }
         }
       }
     },
@@ -2519,6 +3179,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réglages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuración"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
           }
         }
       }
@@ -2566,6 +3244,24 @@
             "state": "translated",
             "value": "Bienvenue"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वागत है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欢迎"
+          }
         }
       }
     },
@@ -2608,6 +3304,24 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "OWNPATH"
@@ -2658,6 +3372,24 @@
             "state": "translated",
             "value": "Une chronologie calme et privée de vos déplacements quotidiens — toujours sur votre appareil et sous votre contrôle."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una línea de tiempo tranquila y privada de adónde te lleva tu día — siempre en tu dispositivo y bajo tu control."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके दिन की एक शांत, निजी समयरेखा — हमेशा आपके डिवाइस पर और आपके नियंत्रण में।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一个平静、私密的日程时间线，记录您今天去过的地方——始终在您的设备上，完全由您掌控。"
+          }
         }
       }
     },
@@ -2703,6 +3435,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Détecter automatiquement les lieux visités"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detecta automáticamente los lugares que visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके द्वारा देखे गए स्थानों को स्वतः पहचानें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动检测您访问的地点"
           }
         }
       }
@@ -2750,6 +3500,24 @@
             "state": "translated",
             "value": "Capturer les itinéraires détaillés au besoin"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura rutas detalladas cuando sea necesario"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आवश्यकता पड़ने पर विस्तृत मार्ग कैप्चर करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在需要时捕捉详细路线"
+          }
         }
       }
     },
@@ -2795,6 +3563,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conserver toutes les données de localisation sur l'appareil"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén todos los datos de ubicación en el dispositivo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी स्थान डेटा डिवाइस पर रखें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将所有位置数据保留在设备上"
           }
         }
       }
@@ -2842,6 +3628,24 @@
             "state": "translated",
             "value": "Fonctionnalités principales"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Características principales"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मुख्य विशेषताएं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核心功能"
+          }
         }
       }
     },
@@ -2887,6 +3691,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "FONCTIONNALITÉS PRINCIPALES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CARACTERÍSTICAS PRINCIPALES"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मुख्य विशेषताएं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要功能"
           }
         }
       }
@@ -2934,6 +3756,24 @@
             "state": "translated",
             "value": "Lisible d'un coup d'œil, économe en batterie et détaillé quand vous en avez besoin."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De un vistazo, consciente de la batería, y profundamente contextual cuando lo necesites."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक नजर में देखने योग्य, बैटरी-जागरूक, और जब आपको इसकी आवश्यकता हो तो गहराई से संदर्भपूर्ण।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一眼易知，省电高效，需要时深度上下文。"
+          }
         }
       }
     },
@@ -2979,6 +3819,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chronologie des visites"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cronología de visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट समयरेखा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问时间线"
           }
         }
       }
@@ -3026,6 +3884,24 @@
             "state": "translated",
             "value": "Arrivées, durées et changements tout au long de votre journée."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegadas, duraciones y cambios a lo largo de tu día."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके पूरे दिन में आगमन, अवधि और परिवर्तन।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全天的到达时间、停留时长和变化。"
+          }
         }
       }
     },
@@ -3071,6 +3947,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Visualisation du trajet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visualización de rutas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पथ दृश्यकरण"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路径可视化"
           }
         }
       }
@@ -3118,6 +4012,24 @@
             "state": "translated",
             "value": "Itinéraires avec marqueurs de début et fin, plus des points de détail optionnels."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rutas con marcadores de inicio y fin más puntos de detalle opcionales."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरुआत और अंत मार्कर के साथ मार्ग, साथ ही वैकल्पिक विवरण बिंदु।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "带有起点和终点标记的路线，加上可选的详细点。"
+          }
         }
       }
     },
@@ -3163,6 +4075,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exports flexibles"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportaciones flexibles"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लचकदार निर्यात"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "灵活导出"
           }
         }
       }
@@ -3210,6 +4140,24 @@
             "state": "translated",
             "value": "JSON, CSV ou Markdown — quand vous en avez besoin."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON, CSV o Markdown — cuando lo necesites."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON, CSV, या Markdown — जब भी आपको इसकी आवश्यकता हो।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON、CSV或Markdown——随时可用。"
+          }
         }
       }
     },
@@ -3256,6 +4204,24 @@
             "state": "translated",
             "value": "CONFIGURATION DES AUTORISATIONS"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONFIGURACIÓN DE PERMISOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनुमति सेटअप"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限设置"
+          }
         }
       }
     },
@@ -3301,6 +4267,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "AUTORISER L'ACCÈS EN ARRIÈRE-PLAN"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PERMITIR ACCESO EN SEGUNDO PLANO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पृष्ठभूमि पहुंच को अनुमति दें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许后台访问"
           }
         }
       }
@@ -3394,6 +4378,24 @@
             "state": "translated",
             "value": "Accès à la localisation"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso a la ubicación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान पहुंच"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置访问"
+          }
         }
       }
     },
@@ -3440,6 +4442,24 @@
             "state": "translated",
             "value": "Suivi en arrière-plan"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguimiento en segundo plano"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पृष्ठभूमि ट्रैकिंग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台跟踪"
+          }
         }
       }
     },
@@ -3485,6 +4505,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prêt pour la détection permanente des visites"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo para la detección de visitas siempre activa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा चालू विजिट का पता लगाने के लिए तैयार"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备好进行始终开启的访问检测"
           }
         }
       }
@@ -3578,6 +4616,24 @@
             "state": "translated",
             "value": "ÉTAPE 1 SUR 2"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASO 1 DE 2"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चरण 1 में से 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "步骤1，共2步"
+          }
         }
       }
     },
@@ -3670,6 +4726,24 @@
             "state": "translated",
             "value": "Autoriser l'accès à la localisation"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir acceso a la ubicación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान पहुंच को अनुमति दें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许位置访问"
+          }
         }
       }
     },
@@ -3715,6 +4789,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ÉTAPE 2 SUR 2"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASO 2 DE 2"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चरण 2 में से 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "步骤2，共2步"
           }
         }
       }
@@ -3808,6 +4900,24 @@
             "state": "translated",
             "value": "Passer à Toujours autoriser"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar a Siempre permitir"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा अनुमति दें में अपग्रेड करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级为始终允许"
+          }
         }
       }
     },
@@ -3853,6 +4963,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "L'ACCÈS À LA LOCALISATION EST DÉSACTIVÉ"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EL ACCESO A LA UBICACIÓN ESTÁ DESACTIVADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान पहुंच बंद है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置访问已关闭"
           }
         }
       }
@@ -3900,6 +5028,24 @@
             "state": "translated",
             "value": "Dans les Réglages de l'iPhone, choisissez OwnPath → Localisation → Toujours."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Configuración del iPhone, elige OwnPath → Ubicación → Siempre."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone सेटिंग्स में, OwnPath → स्थान → हमेशा चुनें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在iPhone设置中，选择OwnPath → 位置 → 始终。"
+          }
         }
       }
     },
@@ -3945,6 +5091,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvrir les réglages de l'iPhone"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Configuración del iPhone"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone सेटिंग्स खोलें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开iPhone设置"
           }
         }
       }
@@ -3992,6 +5156,24 @@
             "state": "translated",
             "value": "Parfait — les autorisations sont entièrement configurées."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfecto — los permisos están completamente configurados."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बिल्कुल — अनुमतियां पूरी तरह से कॉन्फ़िगर की गई हैं।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完美——权限已完全配置。"
+          }
         }
       }
     },
@@ -4037,6 +5219,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prêt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तैयार"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备好"
           }
         }
       }
@@ -4084,6 +5284,24 @@
             "state": "translated",
             "value": "TOUT EST PRÊT"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESTÁ TODO LISTO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आप सभी सेट हैं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一切就绪"
+          }
         }
       }
     },
@@ -4129,6 +5347,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Commencez maintenant ou affinez le comportement du suivi plus tard dans les Réglages."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comienza ahora o ajusta el comportamiento de seguimiento más tarde en Configuración."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभी शुरू करें, या सेटिंग्स में बाद में ट्रैकिंग व्यवहार को बेहतर ढंग से समायोजित करें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即开始，或稍后在设置中微调跟踪行为。"
           }
         }
       }
@@ -4176,6 +5412,24 @@
             "state": "translated",
             "value": "Autorisation de localisation"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permiso de ubicación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान अनुमति"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置权限"
+          }
         }
       }
     },
@@ -4221,6 +5475,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mode par défaut"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo predeterminado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट मोड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认模式"
           }
         }
       }
@@ -4274,6 +5546,18 @@
             "state": "translated",
             "value": "连续"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निरंतर"
+          }
         }
       }
     },
@@ -4319,6 +5603,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Visites uniquement"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल विजिट"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅访问"
           }
         }
       }
@@ -4366,6 +5668,24 @@
             "state": "translated",
             "value": "Confidentialité"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गोपनीयता"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私"
+          }
         }
       }
     },
@@ -4411,6 +5731,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stocké sur l'appareil"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almacenado en el dispositivo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिवाइस पर संग्रहीत"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储在设备上"
           }
         }
       }
@@ -4458,6 +5796,24 @@
             "state": "translated",
             "value": "Commencer le suivi immédiatement"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comienza el seguimiento inmediatamente"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तुरंत ट्रैकिंग शुरू करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即开始跟踪"
+          }
         }
       }
     },
@@ -4503,6 +5859,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vous pouvez accorder l'autorisation plus tard à partir de l'onglet Réglages."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes conceder permiso más tarde desde la pestaña Configuración."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आप सेटिंग्स टैब से बाद में अनुमति दे सकते हैं।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您可以稍后从设置选项卡授予权限。"
           }
         }
       }
@@ -4550,6 +5924,24 @@
             "state": "translated",
             "value": "RETOUR"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ATRÁS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वापस"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
+          }
         }
       }
     },
@@ -4595,6 +5987,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Commencer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empezar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरू करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始使用"
           }
         }
       }
@@ -4642,6 +6052,24 @@
             "state": "translated",
             "value": "Ignorer"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "छोड़ें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
         }
       }
     },
@@ -4687,6 +6115,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suivant"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiente"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अगला"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步"
           }
         }
       }
@@ -4734,6 +6180,24 @@
             "state": "translated",
             "value": "Non demandé"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No solicitado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनुरोधित नहीं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未请求"
+          }
         }
       }
     },
@@ -4779,6 +6243,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restreint"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restringido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रतिबंधित"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受限"
           }
         }
       }
@@ -4826,6 +6308,24 @@
             "state": "translated",
             "value": "Refusé"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denegado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अस्वीकृत"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拒绝"
+          }
         }
       }
     },
@@ -4871,6 +6371,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pendant l'utilisation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mientras se usa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उपयोग करते समय"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用中"
           }
         }
       }
@@ -4918,6 +6436,24 @@
             "state": "translated",
             "value": "Toujours autorisé"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siempre permitido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा अनुमति दी"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "始终允许"
+          }
         }
       }
     },
@@ -4963,6 +6499,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inconnu"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconocido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अज्ञात"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
           }
         }
       }
@@ -5010,6 +6564,24 @@
             "state": "translated",
             "value": "ACTIF"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACTIVO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सक्रिय"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃"
+          }
         }
       }
     },
@@ -5055,6 +6627,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "VEILLE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EN ESPERA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रतीक्षा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命"
           }
         }
       }
@@ -5102,6 +6692,24 @@
             "state": "translated",
             "value": "ÉCOULÉ"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIEMPO TRANSCURRIDO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बीता हुआ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已用时间"
+          }
         }
       }
     },
@@ -5147,6 +6755,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DIST"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIST"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दूरी"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "距离"
           }
         }
       }
@@ -5194,6 +6820,24 @@
             "state": "translated",
             "value": "PTS"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PTS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अंक"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点数"
+          }
         }
       }
     },
@@ -5236,6 +6880,24 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--:--:--"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--:--:--"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--:--:--"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "--:--:--"
@@ -5286,6 +6948,24 @@
             "state": "translated",
             "value": "PRÊT À SUIVRE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LISTO PARA SEGUIR"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रैक करने के लिए तैयार"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备跟踪"
+          }
         }
       }
     },
@@ -5332,6 +7012,24 @@
             "state": "translated",
             "value": "ARRÊTER"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DETENER"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोकें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止"
+          }
         }
       }
     },
@@ -5341,6 +7039,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "START"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INICIAR"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरू करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始"
           }
         }
       }
@@ -5388,6 +7104,24 @@
             "state": "translated",
             "value": "HAUTE PRÉCISION"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALTA PRECISIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उच्च सटीकता"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高精度"
+          }
         }
       }
     },
@@ -5397,6 +7131,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "CONTINUOUS MODE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODO CONTINUO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निरंतर मोड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续模式"
           }
         }
       }
@@ -5444,6 +7196,24 @@
             "state": "translated",
             "value": "MODE VISITE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODO VISITA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट मोड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问模式"
+          }
         }
       }
     },
@@ -5489,6 +7259,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "UTILISATION"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उपयोग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用"
           }
         }
       }
@@ -5536,6 +7324,24 @@
             "state": "translated",
             "value": "DÉVERROUILLER"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DESBLOQUEAR"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनलॉक करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁"
+          }
         }
       }
     },
@@ -5581,6 +7387,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "TOUS LES POINTS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TODOS LOS PUNTOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी अंक"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有点"
           }
         }
       }
@@ -5628,6 +7452,24 @@
             "state": "translated",
             "value": "SEGMENTS"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEGMENTOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खंड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分段"
+          }
         }
       }
     },
@@ -5673,6 +7515,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trier"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordenar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सॉर्ट करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序"
           }
         }
       }
@@ -5720,6 +7580,24 @@
             "state": "translated",
             "value": "Catégoriser"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categorizar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वर्गीकृत करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分类"
+          }
         }
       }
     },
@@ -5765,6 +7643,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "AUCUN POINT DE DONNÉES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIN PUNTOS DE DATOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई डेटा बिंदु नहीं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无数据点"
           }
         }
       }
@@ -5812,6 +7708,24 @@
             "state": "translated",
             "value": "Les points de localisation apparaîtront ici au fur et à mesure du suivi."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los puntos de ubicación aparecerán aquí a medida que se registren."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान बिंदु यहां दिखाई देंगे जैसे-जैसे उन्हें ट्रैक किया जाता है।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置点将在跟踪时出现在此处。"
+          }
         }
       }
     },
@@ -5839,6 +7753,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "CARTE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MAPA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मानचित्र"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地图"
           }
         }
       }
@@ -5886,6 +7818,24 @@
             "state": "translated",
             "value": "Carte des segments"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa de segmento"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खंड मानचित्र"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分段地图"
+          }
         }
       }
     },
@@ -5931,6 +7881,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plus récent en premier"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más reciente primero"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सबसे नया पहले"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新优先"
           }
         }
       }
@@ -5978,6 +7946,24 @@
             "state": "translated",
             "value": "Plus ancien en premier"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más antiguo primero"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सबसे पुराना पहले"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最旧优先"
+          }
         }
       }
     },
@@ -6023,6 +8009,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sans groupement"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin agrupación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई समूह नहीं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无分组"
           }
         }
       }
@@ -6070,6 +8074,24 @@
             "state": "translated",
             "value": "Trajets"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viajes"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यात्राएं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行程"
+          }
         }
       }
     },
@@ -6115,6 +8137,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Segments de 2 heures"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segmentos de 2 horas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 घंटे के खंड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2小时分段"
           }
         }
       }
@@ -6162,6 +8202,24 @@
             "state": "translated",
             "value": "Par jour"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por día"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दिन के अनुसार"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按天"
+          }
         }
       }
     },
@@ -6207,6 +8265,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trajet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viaje"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यात्रा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行程"
           }
         }
       }
@@ -6254,6 +8330,24 @@
             "state": "translated",
             "value": "Segment de 2 heures"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segmento de 2 horas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 घंटे का खंड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2小时分段"
+          }
         }
       }
     },
@@ -6299,6 +8393,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "0 point"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 puntos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 अंक"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0个点"
           }
         }
       }
@@ -6346,6 +8458,24 @@
             "state": "translated",
             "value": "ACCÈS À LA LOCALISATION"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACCESO A LA UBICACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान पहुंच"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置访问"
+          }
         }
       }
     },
@@ -6391,6 +8521,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "OwnPath a besoin d'accéder à votre localisation pour enregistrer les lieux visités tout au long de la journée."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath necesita acceso a tu ubicación para registrar los lugares que visitas a lo largo del día."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath को आपके द्वारा पूरे दिन देखे गए स्थानों को रिकॉर्ड करने के लिए आपकी स्थिति तक पहुंच की आवश्यकता है।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath需要访问您的位置以记录您全天访问的地点。"
           }
         }
       }
@@ -6438,6 +8586,24 @@
             "state": "translated",
             "value": "ACCÈS À LA LOCALISATION REFUSÉ"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACCESO A LA UBICACIÓN DENEGADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान पहुंच अस्वीकृत"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置访问被拒绝"
+          }
         }
       }
     },
@@ -6484,6 +8650,24 @@
             "state": "translated",
             "value": "OUVRIR LES RÉGLAGES"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ABRIR CONFIGURACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स खोलें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开设置"
+          }
         }
       }
     },
@@ -6529,6 +8713,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "TOUJOURS AUTORISER"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PERMITIR SIEMPRE"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा अनुमति दें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "始终允许"
           }
         }
       }
@@ -6632,6 +8834,24 @@
             "state": "translated",
             "value": "Format d'export"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formato de exportación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात प्रारूप"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出格式"
+          }
         }
       }
     },
@@ -6674,6 +8894,24 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "JSON"
@@ -6724,6 +8962,24 @@
             "state": "translated",
             "value": "CSV"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV"
+          }
         }
       }
     },
@@ -6766,6 +9022,24 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markdown"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markdown"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markdown"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "Markdown"
@@ -6816,6 +9090,24 @@
             "state": "translated",
             "value": "Choisir le format d'export pour les visites"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige el formato de exportación para visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट के लिए निर्यात प्रारूप चुनें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择访问的导出格式"
+          }
         }
       }
     },
@@ -6861,6 +9153,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisir le format d'export pour les points de localisation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige el formato de exportación para puntos de ubicación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान बिंदुओं के लिए निर्यात प्रारूप चुनें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择位置点的导出格式"
           }
         }
       }
@@ -6908,6 +9218,24 @@
             "state": "translated",
             "value": "Effacer toutes les données ?"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Borrar todos los datos?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी डेटा साफ करें?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有数据？"
+          }
         }
       }
     },
@@ -6953,6 +9281,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cela supprimera définitivement toutes les données de visite et les points de localisation. Cette action ne peut pas être annulée."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto eliminará permanentemente todos los datos de visita y puntos de ubicación. Esta acción no se puede deshacer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह सभी विजिट डेटा और स्थान बिंदुओं को स्थायी रूप से हटा देगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता है।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这将永久删除所有访问数据和位置点。此操作无法撤销。"
           }
         }
       }
@@ -7000,6 +9346,24 @@
             "state": "translated",
             "value": "Supprimer le dossier par défaut ?"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar carpeta predeterminada?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट फ़ोल्डर को हटाएं?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除默认文件夹？"
+          }
         }
       }
     },
@@ -7045,6 +9409,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Supprimer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हटाएं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
           }
         }
       }
@@ -7092,6 +9474,24 @@
             "state": "translated",
             "value": "Les exports utiliseront le menu de partage au lieu de sauvegarder directement dans un dossier."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las exportaciones usarán la hoja de compartir en lugar de guardar directamente en una carpeta."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात साझा शीट का उपयोग करेंगे, सीधे फ़ोल्डर में सहेजने के बजाय।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出将使用共享表，而不是直接保存到文件夹。"
+          }
         }
       }
     },
@@ -7137,6 +9537,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Export terminé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportación completada"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात पूर्ण"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出完成"
           }
         }
       }
@@ -7184,6 +9602,24 @@
             "state": "translated",
             "value": "OK"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ठीक है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好的"
+          }
         }
       }
     },
@@ -7229,6 +9665,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "OWNPATH PRO"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH PRO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH प्रो"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OWNPATH专业版"
           }
         }
       }
@@ -7276,6 +9730,24 @@
             "state": "translated",
             "value": "SUIVI ILLIMITÉ"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEGUIMIENTO ILIMITADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनंत ट्रैकिंग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无限跟踪"
+          }
         }
       }
     },
@@ -7322,6 +9794,24 @@
             "state": "translated",
             "value": "ACHETÉ"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COMPRADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खरीदा गया"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已购买"
+          }
         }
       }
     },
@@ -7367,6 +9857,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DÉVERROUILLER ILLIMITÉ"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DESBLOQUEAR ILIMITADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनंत को अनलॉक करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁无限"
           }
         }
       }
@@ -7424,6 +9932,24 @@
             "state": "translated",
             "value": "Gratuit pour vos 10 premières heures. Achat unique pour une utilisation illimitée."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratis para tus primeras 10 horas. Compra única para uso ilimitado."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपके पहले 10 घंटे के लिए मुक्त। असीमित उपयोग के लिए एकबारी खरीद।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前10小时免费。一次性购买即可无限使用。"
+          }
         }
       }
     },
@@ -7469,6 +9995,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "SUIVI DE LOCALISATION"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEGUIMIENTO DE UBICACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान ट्रैकिंग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置跟踪"
           }
         }
       }
@@ -7516,6 +10060,24 @@
             "state": "translated",
             "value": "SUIVI"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEGUIMIENTO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रैकिंग"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟踪"
+          }
         }
       }
     },
@@ -7561,6 +10123,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "AUTORISATION"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PERMISO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनुमति"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限"
           }
         }
       }
@@ -7608,6 +10188,24 @@
             "state": "translated",
             "value": "La surveillance des visites enregistre les lieux visités. Les changements de localisation importants fournissent une trace entre les visites."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El monitoreo de visitas registra los lugares que visitas. Los cambios significativos de ubicación proporcionan un rastro entre visitas."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट निगरानी आपके द्वारा देखे गए स्थानों को ट्रैक करती है। महत्वपूर्ण स्थान परिवर्तन विजिट के बीच एक पथ प्रदान करते हैं।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问监测跟踪您访问的地点。重大位置变化提供访问间的足迹。"
+          }
         }
       }
     },
@@ -7653,6 +10251,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non défini"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No establecido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेट नहीं किया गया"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未设置"
           }
         }
       }
@@ -7700,6 +10316,24 @@
             "state": "translated",
             "value": "Pendant l'utilisation"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mientras se usa"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उपयोग में"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用中"
+          }
         }
       }
     },
@@ -7745,6 +10379,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toujours"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siempre"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हमेशा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "始终"
           }
         }
       }
@@ -7792,6 +10444,24 @@
             "state": "translated",
             "value": "MODE HAUTE PRÉCISION"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODO DE ALTA PRECISIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उच्च-सटीकता मोड"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高精度模式"
+          }
         }
       }
     },
@@ -7837,6 +10507,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ACTIVITÉ EN DIRECT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACTIVIDAD EN VIVO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लाइव गतिविधि"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动"
           }
         }
       }
@@ -7884,6 +10572,24 @@
             "state": "translated",
             "value": "PRÊT"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LISTO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तैयार"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备好"
+          }
         }
       }
     },
@@ -7929,6 +10635,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DÉSACTIVÉ"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DESHABILITADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अक्षम"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已禁用"
           }
         }
       }
@@ -7976,6 +10700,24 @@
             "state": "translated",
             "value": "ARRÊT AUTOMATIQUE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APAGADO AUTOMÁTICO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वतः बंद"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动关闭"
+          }
         }
       }
     },
@@ -8021,6 +10763,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "30 min"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 मिनट"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30分钟"
           }
         }
       }
@@ -8068,6 +10828,24 @@
             "state": "translated",
             "value": "1 h"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1h"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 घंटा"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1小时"
+          }
         }
       }
     },
@@ -8113,6 +10891,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "2 h"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2h"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 घंटे"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2小时"
           }
         }
       }
@@ -8160,6 +10956,24 @@
             "state": "translated",
             "value": "4 h"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4h"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 घंटे"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4小时"
+          }
         }
       }
     },
@@ -8205,6 +11019,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "8 h"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8h"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8 घंटे"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8小时"
           }
         }
       }
@@ -8252,6 +11084,24 @@
             "state": "translated",
             "value": "Jamais"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nunca"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कभी नहीं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从不"
+          }
         }
       }
     },
@@ -8297,6 +11147,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "FILTRE DE DISTANCE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FILTRO DE DISTANCIA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दूरी फ़िल्टर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "距离过滤"
           }
         }
       }
@@ -8344,6 +11212,24 @@
             "state": "translated",
             "value": "5 m"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5米"
+          }
         }
       }
     },
@@ -8389,6 +11275,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "10 m"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10米"
           }
         }
       }
@@ -8436,6 +11340,24 @@
             "state": "translated",
             "value": "25 m"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25米"
+          }
         }
       }
     },
@@ -8481,6 +11403,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "50 m"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50米"
           }
         }
       }
@@ -8528,6 +11468,24 @@
             "state": "translated",
             "value": "100 m"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100米"
+          }
         }
       }
     },
@@ -8573,6 +11531,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "200 m"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200m"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200 मीटर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "200米"
           }
         }
       }
@@ -8620,6 +11596,24 @@
             "state": "translated",
             "value": "Consommation élevée de batterie. Enregistre votre trajet exact entre les visites."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alto uso de batería. Registra tu ruta exacta entre visitas."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उच्च बैटरी उपयोग। विजिट के बीच आपके सटीक पथ को रिकॉर्ड करता है।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高电池消耗。记录您访问间的精确路径。"
+          }
         }
       }
     },
@@ -8665,6 +11659,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "PARAMÈTRES PAR DÉFAUT DU SUIVI"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VALORES PREDETERMINADOS DE SEGUIMIENTO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रैकिंग डिफ़ॉल्ट"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟踪默认值"
           }
         }
       }
@@ -8712,6 +11724,24 @@
             "state": "translated",
             "value": "LOCALISATION AU DÉMARRAGE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UBICACIÓN AL INICIO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शुरुआत पर स्थान"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动时位置"
+          }
         }
       }
     },
@@ -8757,6 +11787,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Comportement par défaut lors du démarrage du suivi à partir de l'onglet Suivi."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comportamiento predeterminado al iniciar el seguimiento desde la pestaña Seguir."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रैक टैब से ट्रैकिंग शुरू करते समय डिफ़ॉल्ट व्यवहार।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从跟踪选项卡开始跟踪时的默认行为。"
           }
         }
       }
@@ -8804,6 +11852,24 @@
             "state": "translated",
             "value": "UNITÉS"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNIDADES"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इकाइयां"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单位"
+          }
         }
       }
     },
@@ -8849,6 +11915,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "MÉTRIQUE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MÉTRICO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मेट्रिक"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公制"
           }
         }
       }
@@ -8896,6 +11980,24 @@
             "state": "translated",
             "value": "SYSTÈME US"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESTÁNDAR DE EE.UU."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यूएस मानक"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美国标准"
+          }
         }
       }
     },
@@ -8941,6 +12043,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Valeurs de distance affichées partout dans l'app, les widgets et l'Activité en direct."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valores de distancia mostrados en toda la app, widgets y Actividad en vivo."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऐप, विजेट और लाइव गतिविधि में दूरी मान दिखाए गए।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用、小部件和实时活动中显示的距离值。"
           }
         }
       }
@@ -8988,6 +12108,24 @@
             "state": "translated",
             "value": "DOSSIER D'EXPORT"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CARPETA DE EXPORTACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात फ़ोल्डर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出文件夹"
+          }
         }
       }
     },
@@ -9034,6 +12172,24 @@
             "state": "translated",
             "value": "MODIFIER"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAMBIAR"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बदलें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改"
+          }
         }
       }
     },
@@ -9079,6 +12235,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ENREGISTREMENT AUTOMATIQUE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GUARDADO AUTOMÁTICO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वतः सहेजें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动保存"
           }
         }
       }
@@ -9154,6 +12328,24 @@
             "state": "translated",
             "value": "SÉLECTIONNER UN DOSSIER"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SELECCIONAR CARPETA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ोल्डर चुनें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择文件夹"
+          }
         }
       }
     },
@@ -9199,6 +12391,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Définissez un dossier par défaut pour sauvegarder les exports sans le menu de partage."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Establece una carpeta predeterminada para guardar exportaciones sin la hoja de compartir."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "साझा शीट के बिना निर्यात को सहेजने के लिए एक डिफ़ॉल्ट फ़ोल्डर सेट करें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置默认文件夹以保存导出，无需共享表。"
           }
         }
       }
@@ -9246,6 +12456,24 @@
             "state": "translated",
             "value": "EXPORT DE DONNÉES"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORTACIÓN DE DATOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटा निर्यात"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据导出"
+          }
         }
       }
     },
@@ -9291,6 +12519,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "EXPORTER LES VISITES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORTAR VISITAS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट निर्यात करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出访问"
           }
         }
       }
@@ -9338,6 +12584,24 @@
             "state": "translated",
             "value": "EXPORTER LES POINTS"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORTAR PUNTOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बिंदुओं को निर्यात करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出点"
+          }
         }
       }
     },
@@ -9383,6 +12647,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exporter en JSON, CSV ou Markdown."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporta como JSON, CSV o Markdown."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON, CSV, या Markdown के रूप में निर्यात करें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出为JSON、CSV或Markdown。"
           }
         }
       }
@@ -9458,6 +12740,24 @@
             "state": "translated",
             "value": "VISITES"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VISITAS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问"
+          }
         }
       }
     },
@@ -9503,6 +12803,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "POINTS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PUNTOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बिंदु"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点"
           }
         }
       }
@@ -9550,6 +12868,24 @@
             "state": "translated",
             "value": "EFFACER TOUTES LES DONNÉES"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BORRAR TODOS LOS DATOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी डेटा साफ करें"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有数据"
+          }
         }
       }
     },
@@ -9595,6 +12931,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "GUIDE DE DÉMARRAGE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INCORPORACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभिविन्यास"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入门"
           }
         }
       }
@@ -9642,6 +12996,24 @@
             "state": "translated",
             "value": "REJOUER LE GUIDE DE DÉMARRAGE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REPETIR INCORPORACIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभिविन्यास दोहराएं"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新播放入门"
+          }
         }
       }
     },
@@ -9687,6 +13059,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "À PROPOS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ACERCA DE"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "के बारे में"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
           }
         }
       }
@@ -9734,6 +13124,24 @@
             "state": "translated",
             "value": "VERSION"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VERSIÓN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संस्करण"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
         }
       }
     },
@@ -9776,6 +13184,24 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.0.0"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.0.0"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.0.0"
+          }
+        },
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "1.0.0"
@@ -9826,6 +13252,24 @@
             "state": "translated",
             "value": "STOCKAGE"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALMACENAMIENTO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भंडारण"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储"
+          }
         }
       }
     },
@@ -9872,6 +13316,24 @@
             "state": "translated",
             "value": "SUR L'APPAREIL UNIQUEMENT"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOLO EN EL DISPOSITIVO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल डिवाइस पर"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅设备本地"
+          }
         }
       }
     },
@@ -9917,6 +13379,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toutes les données sont stockées localement. Jamais téléchargées sur un serveur."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los datos se almacenan localmente. Nunca se carga a ningún servidor."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी डेटा स्थानीय रूप से संग्रहीत। कभी भी किसी सर्वर पर अपलोड नहीं किया गया।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有数据本地存储。从不上传到任何服务器。"
           }
         }
       }
@@ -9970,6 +13450,18 @@
             "state": "translated",
             "value": "访问"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visitas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विजिट"
+          }
         }
       }
     },
@@ -10015,6 +13507,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Désactivé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desactivado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बंद"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
           }
         }
       }
@@ -10062,6 +13572,24 @@
             "state": "translated",
             "value": "Impossible de charger le produit : [ERROR]"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al cargar producto: [ERROR]"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उत्पाद लोड करने में विफल: [ERROR]"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载产品失败：[ERROR]"
+          }
         }
       }
     },
@@ -10107,6 +13635,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Produit non disponible"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Producto no disponible"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उत्पाद उपलब्ध नहीं है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "产品不可用"
           }
         }
       }
@@ -10154,6 +13700,24 @@
             "state": "translated",
             "value": "L'achat est en attente d'approbation"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La compra está pendiente de aprobación"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खरीद मंजूरी के लिए लंबित है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "购买待批准"
+          }
         }
       }
     },
@@ -10199,6 +13763,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "L'achat a échoué : [ERROR]"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compra fallida: [ERROR]"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खरीद विफल: [ERROR]"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "购买失败：[ERROR]"
           }
         }
       }
@@ -10246,6 +13828,24 @@
             "state": "translated",
             "value": "La restauration a échoué : [ERROR]"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restauración fallida: [ERROR]"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पुनर्स्थापन विफल: [ERROR]"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复失败：[ERROR]"
+          }
         }
       }
     },
@@ -10291,6 +13891,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun achat précédent trouvé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró compra anterior"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई पिछली खरीद नहीं मिली"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到之前的购买"
           }
         }
       }
