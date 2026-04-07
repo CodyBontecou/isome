@@ -161,7 +161,7 @@ struct TodayView: View {
                                     }
                                 }
                                 .padding(.horizontal, 16)
-                                .transition(.opacity.combined(with: .move(edge: .top)))
+                                .transition(.opacity)
                             }
                         }
                     }

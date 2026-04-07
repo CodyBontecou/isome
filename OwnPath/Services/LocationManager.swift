@@ -46,6 +46,14 @@ final class LocationManager: NSObject, ObservableObject {
         return UserDefaults.standard.bool(forKey: key)
     }
 
+    private var allowNetworkGeocoding: Bool {
+        let key = "allowNetworkGeocoding"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
     override init() {
         super.init()
         locationManager.delegate = self
@@ -308,6 +316,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     private func geocodeVisit(_ visit: Visit) async {
         guard !visit.geocodingCompleted else { return }
+        guard allowNetworkGeocoding else { return }
 
         let location = CLLocation(latitude: visit.latitude, longitude: visit.longitude)
 
@@ -333,6 +342,8 @@ final class LocationManager: NSObject, ObservableObject {
     // MARK: - Live Activity Geocoding
     
     private func geocodeForLiveActivity(location: CLLocation) async {
+        guard allowNetworkGeocoding else { return }
+
         // Throttle geocoding - only geocode if we've moved more than 50 meters
         if let lastLocation = lastGeocodedLocation {
             let distance = location.distance(from: lastLocation)

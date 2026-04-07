@@ -28,6 +28,7 @@ struct SettingsView: View {
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
+    @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
 
     var body: some View {
         NavigationStack {
@@ -239,7 +240,7 @@ struct SettingsView: View {
                     }
 
                     if !viewModel.locationManager.hasAlwaysPermission {
-                        TERow(showDivider: false) {
+                        TERow {
                             settingsButton("OPEN SETTINGS", icon: "arrow.up.right") {
                                 if let url = URL(string: UIApplication.openSettingsURLString) {
                                     UIApplication.shared.open(url)
@@ -247,11 +248,15 @@ struct SettingsView: View {
                             }
                         }
                     }
+
+                    TERow(showDivider: false) {
+                        settingsToggle("LOCATION NAMES", isOn: $allowNetworkGeocoding)
+                    }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Visit monitoring tracks places you visit. Significant location changes provides a trail between visits.")
+            TESectionFooter(text: "Visit monitoring tracks places you visit. Significant location changes provides a trail between visits. Location names are looked up when available.")
         }
     }
 
