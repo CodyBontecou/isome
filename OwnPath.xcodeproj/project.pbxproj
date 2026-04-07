@@ -18,6 +18,7 @@
 		A1000005212F000100000005 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005212F000000000005 /* LocationManager.swift */; };
 		A1000006212F000100000006 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006212F000000000006 /* GeocodingService.swift */; };
 		A1000007212F000100000007 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000007212F000000000007 /* ExportService.swift */; };
+		A1000020212F000100000020 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000020212F000000000020 /* ImportService.swift */; };
 		A1000008212F000100000008 /* LocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000008212F000000000008 /* LocationViewModel.swift */; };
 		A1000009212F000100000009 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000009212F000000000009 /* TodayView.swift */; };
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
@@ -144,6 +145,7 @@
 		A1000005212F000000000005 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		A1000006212F000000000006 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		A1000007212F000000000007 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		A1000020212F000000000020 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		A1000008212F000000000008 /* LocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewModel.swift; sourceTree = "<group>"; };
 		A1000009212F000000000009 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000007212F000000000007 /* ExportService.swift */,
+				A1000020212F000000000020 /* ImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 			);
 			path = Utilities;
@@ -533,6 +536,15 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
+				es,
+				hi,
+				ar,
+				bn,
+				"pt-BR",
+				ru,
+				ja,
+				fr,
 			);
 			mainGroup = A1FFFFF8212EFFFFFFFF0000;
 			productRefGroup = A1FFFFF9212EFFFFFFFF0002 /* Products */;
@@ -609,6 +621,7 @@
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
+				A1000020212F000100000020 /* ImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A1000009212F000100000009 /* TodayView.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,

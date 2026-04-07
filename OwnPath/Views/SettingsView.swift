@@ -17,6 +17,11 @@ struct SettingsView: View {
     @State private var exportSuccessMessage: String?
     @State private var showingExportSuccess = false
     @State private var exportFormat: ExportFormat = .json
+    @State private var showingImportPicker = false
+    @State private var importResultMessage: String?
+    @State private var showingImportResult = false
+    @State private var importErrorMessage: String?
+    @State private var showingImportError = false
 
     @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
@@ -38,6 +43,7 @@ struct SettingsView: View {
                         unitsSection
                         exportFolderSection
                         exportSection
+                        importSection
                         dataSection
                         onboardingSection
                         aboutSection
@@ -88,6 +94,27 @@ struct SettingsView: View {
                 if let message = exportSuccessMessage {
                     Text(message)
                 }
+            }
+            .alert("Import Complete", isPresented: $showingImportResult) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let message = importResultMessage {
+                    Text(message)
+                }
+            }
+            .alert("Import Failed", isPresented: $showingImportError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let message = importErrorMessage {
+                    Text(message)
+                }
+            }
+            .fileImporter(
+                isPresented: $showingImportPicker,
+                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText],
+                allowsMultipleSelection: false
+            ) { result in
+                handleImportResult(result)
             }
             .sheet(isPresented: $showingFolderPicker) {
                 FolderPicker { url in
@@ -541,6 +568,27 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Import Section
+
+    private var importSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "DATA IMPORT")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: false) {
+                        settingsButton("IMPORT FILE", icon: "square.and.arrow.down") {
+                            showingImportPicker = true
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Import visits or points from a previously exported JSON, CSV, or Markdown file.")
+        }
+    }
+
     // MARK: - Data Section
 
     private var dataSection: some View {
@@ -692,6 +740,24 @@ struct SettingsView: View {
             }
         } else {
             viewModel.exportVisits(format: format)
+        }
+    }
+
+    private func handleImportResult(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            do {
+                let importResult = try viewModel.importData(from: url)
+                importResultMessage = importResult.summary
+                showingImportResult = true
+            } catch {
+                importErrorMessage = error.localizedDescription
+                showingImportError = true
+            }
+        case .failure(let error):
+            importErrorMessage = error.localizedDescription
+            showingImportError = true
         }
     }
 

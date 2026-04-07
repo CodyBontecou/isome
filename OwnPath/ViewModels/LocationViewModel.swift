@@ -264,6 +264,53 @@ final class LocationViewModel {
         }
     }
 
+    // MARK: - Import
+
+    func importData(from url: URL) throws -> ImportResult {
+        guard url.startAccessingSecurityScopedResource() else {
+            throw ImportError.invalidData("Cannot access file")
+        }
+        defer { url.stopAccessingSecurityScopedResource() }
+
+        guard let format = ImportService.detectFormat(url: url) else {
+            throw ImportError.unsupportedFormat
+        }
+
+        let data = try Data(contentsOf: url)
+        let result = try ImportService.importFile(data: data, format: format)
+
+        for imported in result.visits {
+            let visit = Visit(
+                latitude: imported.latitude,
+                longitude: imported.longitude,
+                arrivedAt: imported.arrivedAt,
+                departedAt: imported.departedAt,
+                locationName: imported.locationName,
+                address: imported.address,
+                notes: imported.notes,
+                geocodingCompleted: imported.locationName != nil || imported.address != nil
+            )
+            modelContext.insert(visit)
+        }
+
+        for imported in result.points {
+            let point = LocationPoint(
+                latitude: imported.latitude,
+                longitude: imported.longitude,
+                timestamp: imported.timestamp,
+                altitude: imported.altitude,
+                speed: imported.speed,
+                horizontalAccuracy: imported.horizontalAccuracy
+            )
+            modelContext.insert(point)
+        }
+
+        try modelContext.save()
+        loadData()
+
+        return ImportResult(visitCount: result.visits.count, pointCount: result.points.count)
+    }
+
     // MARK: - Clear Data
 
     func clearAllData() {

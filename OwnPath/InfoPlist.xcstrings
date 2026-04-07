@@ -1,28 +1,26 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "NSLocationAlwaysAndWhenInUseUsageDescription" : {
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "OwnPath uses your location to automatically detect places you visit and record your path throughout the day. Always access enables background visit detection."
+  "sourceLanguage": "en",
+  "strings": {
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath uses your location to automatically detect places you visit and record your path throughout the day. Always access enables background visit detection."
           }
         }
       }
     },
-    "NSLocationWhenInUseUsageDescription" : {
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "OwnPath uses your location to detect places you visit and show your current position on the map."
+    "NSLocationWhenInUseUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OwnPath uses your location to detect places you visit and show your current position on the map."
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
