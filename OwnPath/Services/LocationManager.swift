@@ -347,19 +347,19 @@ final class LocationManager: NSObject, ObservableObject {
     /// Syncs current tracking state and today's stats to the shared App Group for the watch widget
     func syncDataToWatch() {
         guard let context = modelContext else { return }
-        
+
         // Get today's date range
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
         let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
-        
+
         // Fetch today's visits
         let visitsPredicate = #Predicate<Visit> { visit in
             visit.arrivedAt >= startOfToday && visit.arrivedAt < endOfToday
         }
         let visitsDescriptor = FetchDescriptor<Visit>(predicate: visitsPredicate)
         let todayVisits = (try? context.fetch(visitsDescriptor)) ?? []
-        
+
         // Fetch today's location points
         let pointsPredicate = #Predicate<LocationPoint> { point in
             point.timestamp >= startOfToday && point.timestamp < endOfToday
@@ -369,13 +369,15 @@ final class LocationManager: NSObject, ObservableObject {
             sortBy: [SortDescriptor(\.timestamp)]
         )
         let todayPoints = (try? context.fetch(pointsDescriptor)) ?? []
-        
+
         // Calculate total distance from today's points
         var totalDistance: Double = 0
-        for i in 1..<todayPoints.count {
-            totalDistance += todayPoints[i].distance(to: todayPoints[i-1])
+        if todayPoints.count > 1 {
+            for i in 1..<todayPoints.count {
+                totalDistance += todayPoints[i].distance(to: todayPoints[i-1])
+            }
         }
-        
+
         // Create shared data
         let sharedData = SharedLocationData(
             isTrackingEnabled: isTrackingEnabled,
@@ -392,7 +394,7 @@ final class LocationManager: NSObject, ObservableObject {
             continuousTrackingAutoOffHours: continuousTrackingAutoOffHours > 0 ? continuousTrackingAutoOffHours : nil,
             usesMetricDistanceUnits: usesMetricDistanceUnits
         )
-        
+
         // Save to App Group and reload widget timelines
         sharedData.save()
         WidgetCenter.shared.reloadAllTimelines()
