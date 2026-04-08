@@ -185,7 +185,7 @@ private struct OnboardingView: View {
         LocationOnboardingPageView(
             icon: "",
             eyebrow: "Welcome",
-            title: "OWNPATH",
+            title: "SPOTTED",
             description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
             useAppIcon: true
         ) {

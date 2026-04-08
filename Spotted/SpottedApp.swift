@@ -50,7 +50,7 @@ struct SpottedApp: App {
     }
     
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "ownpath" else { return }
+        guard url.scheme == "spotted" else { return }
         
         switch url.host {
         case "stop":

@@ -134,7 +134,7 @@ struct LockScreenView: View {
                 Spacer(minLength: 0)
 
                 // Stop button
-                Link(destination: URL(string: "ownpath://stop")!) {
+                Link(destination: URL(string: "spotted://stop")!) {
                     HStack(spacing: 4) {
                         Image(systemName: "stop.circle.fill")
                         Text("Stop")

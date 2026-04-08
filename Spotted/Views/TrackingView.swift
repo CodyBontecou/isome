@@ -70,7 +70,7 @@ struct TrackingView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("OWNPATH")
+                    Text("SPOTTED")
                         .font(TE.mono(.caption, weight: .bold))
                         .tracking(3)
                         .foregroundStyle(TE.textMuted)

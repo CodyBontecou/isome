@@ -10,7 +10,7 @@
         <dict>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>ownpath</string>
+                <string>spotted</string>
             </array>
             <key>CFBundleURLName</key>
             <string>com.bontecou.Spotted</string>
