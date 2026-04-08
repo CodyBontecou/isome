@@ -3265,66 +3265,66 @@
         }
       }
     },
-    "OWNPATH": {
+    "SPOTTED": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH"
+            "value": "SPOTTED"
           }
         }
       }
@@ -9623,66 +9623,66 @@
         }
       }
     },
-    "OWNPATH PRO": {
+    "SPOTTED PRO": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH PRO"
+            "value": "SPOTTED PRO"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH प्रो"
+            "value": "SPOTTED प्रो"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OWNPATH专业版"
+            "value": "SPOTTED专业版"
           }
         }
       }
