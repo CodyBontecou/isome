@@ -16,7 +16,7 @@ struct SharedLocationData: Codable {
     var continuousTrackingAutoOffHours: Double?
     var usesMetricDistanceUnits: Bool? = nil
     
-    static let appGroupIdentifier = "group.com.bontecou.OwnPath"
+    static let appGroupIdentifier = "group.com.bontecou.Spotted"
     private static let userDefaultsKey = "sharedLocationData"
     
     /// Save to shared App Group UserDefaults
