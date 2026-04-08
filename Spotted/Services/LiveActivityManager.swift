@@ -230,26 +230,13 @@ final class LiveActivityManager: ObservableObject {
     private static func renderMapSnapshot(coordinates: [CLLocationCoordinate2D]) async -> UIImage? {
         guard !coordinates.isEmpty else { return nil }
 
-        // Calculate region to fit all points with padding
-        var minLat = coordinates[0].latitude
-        var maxLat = coordinates[0].latitude
-        var minLon = coordinates[0].longitude
-        var maxLon = coordinates[0].longitude
-
-        for coord in coordinates {
-            minLat = min(minLat, coord.latitude)
-            maxLat = max(maxLat, coord.latitude)
-            minLon = min(minLon, coord.longitude)
-            maxLon = max(maxLon, coord.longitude)
-        }
-
-        let centerLat = (minLat + maxLat) / 2
-        let centerLon = (minLon + maxLon) / 2
-        let spanLat = max((maxLat - minLat) * 1.5, 0.002)
-        let spanLon = max((maxLon - minLon) * 1.5, 0.002)
+        // Center on current (latest) location
+        let current = coordinates.last!
+        let spanLat: CLLocationDegrees = 0.005
+        let spanLon: CLLocationDegrees = 0.005
 
         let region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
+            center: current,
             span: MKCoordinateSpan(latitudeDelta: spanLat, longitudeDelta: spanLon)
         )
 
