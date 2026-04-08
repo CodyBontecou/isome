@@ -1,9 +1,13 @@
 import SwiftUI
 import SwiftData
+import StoreKit
 
 @main
 struct SpottedApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State private var sessionStart: Date?
+    @AppStorage("hasRequestedReview") private var hasRequestedReview = false
+    @AppStorage("cumulativeUsageSeconds") private var cumulativeUsageSeconds: Double = 0
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -36,12 +40,16 @@ struct SpottedApp: App {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
             case .active:
-                // App became active - refresh data
+                sessionStart = Date()
+                requestReviewIfEligible()
                 NotificationCenter.default.post(name: .appDidBecomeActive, object: nil)
             case .inactive:
                 break
             case .background:
-                // App entered background - ensure data is saved
+                if let start = sessionStart {
+                    cumulativeUsageSeconds += Date().timeIntervalSince(start)
+                    sessionStart = nil
+                }
                 NotificationCenter.default.post(name: .appDidEnterBackground, object: nil)
             @unknown default:
                 break
@@ -49,6 +57,17 @@ struct SpottedApp: App {
         }
     }
     
+    private func requestReviewIfEligible() {
+        guard !hasRequestedReview, cumulativeUsageSeconds >= 1800 else { return }
+        hasRequestedReview = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if let scene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                AppStore.requestReview(in: scene)
+            }
+        }
+    }
+
     private func handleDeepLink(_ url: URL) {
         guard url.scheme == "spotted" else { return }
         

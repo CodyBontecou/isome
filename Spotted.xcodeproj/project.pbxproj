@@ -53,6 +53,9 @@
 		C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919034FA4C91A43201D0CF80 /* TrackingView.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
 		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
+		E1000001212F000100000001 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000001212F000000000001 /* AppInfo.swift */; };
+		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
+		E1000003212F000100000003 /* LogViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000003212F000000000003 /* LogViewerView.swift */; };
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
 		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
@@ -136,6 +139,9 @@
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
 		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		919034FA4C91A43201D0CF80 /* TrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
+		E1000001212F000000000001 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		E1000002212F000000000002 /* LogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogManager.swift; sourceTree = "<group>"; };
+		E1000003212F000000000003 /* LogViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* Spotted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spotted.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* SpottedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedApp.swift; sourceTree = "<group>"; };
@@ -316,6 +322,7 @@
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
 				DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */,
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
+				E1000002212F000000000002 /* LogManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -331,6 +338,7 @@
 				919034FA4C91A43201D0CF80 /* TrackingView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
+				E1000003212F000000000003 /* LogViewerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -349,6 +357,7 @@
 				A1000007212F000000000007 /* ExportService.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
+				E1000001212F000000000001 /* AppInfo.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -637,6 +646,9 @@
 				97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */,
 				BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */,
 				DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */,
+				E1000001212F000100000001 /* AppInfo.swift in Sources */,
+				E1000002212F000100000002 /* LogManager.swift in Sources */,
+				E1000003212F000100000003 /* LogViewerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

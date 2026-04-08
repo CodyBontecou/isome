@@ -4332,6 +4332,24 @@
             "state": "translated",
             "value": "« Toujours » active le suivi en arrière-plan et la détection automatique des visites."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Siempre\" habilita el seguimiento en segundo plano y la detección automática de visitas."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"हमेशा\" बैकग्राउंड ट्रैकिंग और स्वचालित विज़िट पहचान सक्षम करता है।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"始终\"启用后台跟踪和自动访问检测。"
+          }
         }
       }
     },
@@ -4570,6 +4588,24 @@
             "state": "translated",
             "value": "Nécessite « Toujours autoriser » pour les meilleurs résultats"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesita \"Permitir siempre\" para mejores resultados"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सर्वोत्तम परिणामों के लिए \"हमेशा अनुमति दें\" आवश्यक है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要\"始终允许\"以获得最佳效果"
+          }
         }
       }
     },
@@ -4679,6 +4715,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Commencez par choisir « Autoriser pendant l'utilisation de l'app » dans le système d'invite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comience eligiendo \"Permitir mientras se usa la app\" en el aviso del sistema."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सिस्टम प्रॉम्प्ट में \"ऐप उपयोग करते समय अनुमति दें\" चुनकर शुरू करें।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首先在系统提示中选择\"使用App时允许\"。"
           }
         }
       }
@@ -4853,6 +4907,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passer à « Toujours autoriser » pour que la détection des visites continue quand l'app est fermée."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualice a \"Permitir siempre\" para que la detección de visitas continúe cuando la app esté cerrada."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"हमेशा अनुमति दें\" में अपग्रेड करें ताकि ऐप बंद होने पर भी विज़िट पहचान जारी रहे।"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级到\"始终允许\"以便在应用关闭时继续检测访问。"
           }
         }
       }
@@ -7058,6 +7130,42 @@
             "state": "translated",
             "value": "开始"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابدأ"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "শুরু"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DÉMARRER"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INICIAR"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СТАРТ"
+          }
         }
       }
     },
@@ -7149,6 +7257,42 @@
           "stringUnit": {
             "state": "translated",
             "value": "连续模式"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الوضع المستمر"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ক্রমাগত মোড"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODE CONTINU"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連続モード"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODO CONTÍNUO"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "НЕПРЕРЫВНЫЙ РЕЖИМ"
           }
         }
       }
@@ -7771,6 +7915,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "地图"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الخريطة"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "মানচিত্র"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MAPA"
           }
         }
       }
@@ -8778,6 +8940,24 @@
             "state": "translated",
             "value": "« TOUJOURS » ACTIVE LE SUIVI EN ARRIÈRE-PLAN"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"SIEMPRE\" HABILITA EL SEGUIMIENTO EN SEGUNDO PLANO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"हमेशा\" बैकग्राउंड ट्रैकिंग सक्षम करता है"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"始终\"启用后台跟踪"
+          }
         }
       }
     },
@@ -8787,6 +8967,60 @@
           "stringUnit": {
             "state": "translated",
             "value": "SETTINGS"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإعدادات"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "সেটিংস"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AJUSTES"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RÉGLAGES"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONFIGURAÇÕES"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "НАСТРОЙКИ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
           }
         }
       }
@@ -9885,6 +10119,60 @@
           "stringUnit": {
             "state": "translated",
             "value": "RESTORE PURCHASE"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استعادة الشراء"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ক্রয় পুনরুদ্ধার"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTAURAR COMPRA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTAURER L'ACHAT"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खरीदारी पुनर्स्थापित करें"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を復元"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESTAURAR COMPRA"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ВОССТАНОВИТЬ ПОКУПКУ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复购买"
           }
         }
       }
@@ -12282,6 +12570,42 @@
             "state": "translated",
             "value": "SUPPRIMER LE DOSSIER"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة المجلد"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ফোল্ডার সরান"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ELIMINAR CARPETA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ोल्डर हटाएं"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REMOVER PASTA"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除文件夹"
+          }
         }
       }
     },
@@ -12693,6 +13017,42 @@
           "stringUnit": {
             "state": "translated",
             "value": "DONNÉES"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البيانات"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ডেটা"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DATOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटा"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DADOS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据"
           }
         }
       }

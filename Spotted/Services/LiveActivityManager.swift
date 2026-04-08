@@ -43,13 +43,17 @@ final class LiveActivityManager: ObservableObject {
     
     /// Start a new Live Activity for location tracking
     func startActivity(mode: LocationActivityAttributes.ContentState.TrackingMode, autoOffSeconds: Int?) {
+        #if DEBUG
         print("🟡 LiveActivityManager.startActivity called")
         print("   areActivitiesEnabled: \(areActivitiesEnabled)")
         print("   Existing activities count: \(Activity<LocationActivityAttributes>.activities.count)")
-        
+        #endif
+
         guard areActivitiesEnabled else {
+            #if DEBUG
             print("❌ Live Activities are not enabled in device Settings")
             print("   Go to Settings > Spotted > Live Activities")
+            #endif
             return
         }
         
@@ -83,10 +87,12 @@ final class LiveActivityManager: ObservableObject {
             mapSnapshotVersion: 0
         )
         
+        #if DEBUG
         print("🟢 Requesting Live Activity...")
         print("   mode: \(mode)")
         print("   autoOffSeconds: \(String(describing: autoOffSeconds))")
-        
+        #endif
+
         do {
             let activity = try Activity.request(
                 attributes: attributes,
@@ -95,9 +101,13 @@ final class LiveActivityManager: ObservableObject {
             )
             currentActivity = activity
             isActivityActive = true
+            #if DEBUG
             print("✅ Started Live Activity: \(activity.id)")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Failed to start Live Activity: \(error)")
+            #endif
         }
     }
     
@@ -175,7 +185,9 @@ final class LiveActivityManager: ObservableObject {
         currentTrackingMode = .visits
         currentLocationName = nil
         currentRemainingSeconds = nil
+        #if DEBUG
         print("Ended Live Activity")
+        #endif
     }
 
     /// Forces a Live Activity redraw after the distance unit preference changes.
@@ -221,7 +233,9 @@ final class LiveActivityManager: ObservableObject {
                     // Push the updated version to the Live Activity
                     self.updateActivity(location: nil, mode: self.currentTrackingMode)
                 } catch {
+                    #if DEBUG
                     print("❌ Failed to write map snapshot: \(error)")
+                    #endif
                 }
             }
         }
@@ -297,7 +311,9 @@ final class LiveActivityManager: ObservableObject {
 
             return image
         } catch {
+            #if DEBUG
             print("❌ Map snapshot failed: \(error)")
+            #endif
             return nil
         }
     }

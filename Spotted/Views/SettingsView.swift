@@ -47,6 +47,7 @@ struct SettingsView: View {
                         importSection
                         dataSection
                         onboardingSection
+                        supportSection
                         aboutSection
                     }
                     .padding(.bottom, 32)
@@ -656,6 +657,41 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Support Section
+
+    private var supportSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "SUPPORT")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: false) {
+                        NavigationLink {
+                            LogViewerView()
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "doc.text.magnifyingglass")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text("VIEW LOGS")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(TE.accent.opacity(0.5))
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "View app activity logs for troubleshooting.")
+        }
+    }
+
     // MARK: - About Section
 
     private var aboutSection: some View {
@@ -671,13 +707,13 @@ struct SettingsView: View {
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
-                            Text("1.0.0")
+                            Text(AppInfo.versionDisplay)
                                 .font(TE.mono(.caption2, weight: .medium))
                                 .foregroundStyle(TE.textMuted)
                         }
                     }
 
-                    TERow(showDivider: false) {
+                    TERow {
                         HStack {
                             Text("STORAGE")
                                 .font(TE.mono(.caption, weight: .medium))
@@ -690,11 +726,71 @@ struct SettingsView: View {
                                 .foregroundStyle(TE.textMuted)
                         }
                     }
+
+                    TERow {
+                        settingsButton("SEND FEEDBACK", icon: "envelope") {
+                            sendFeedbackEmail()
+                        }
+                    }
+
+                    TERow {
+                        Link(destination: URL(string: "https://spotted.isolated.tech/privacy")!) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "hand.raised")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text("PRIVACY POLICY")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(TE.accent.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    TERow(showDivider: false) {
+                        Link(destination: URL(string: "https://spotted.isolated.tech/terms")!) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "doc.text")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text("TERMS OF SERVICE")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(TE.accent.opacity(0.5))
+                            }
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 16)
 
             TESectionFooter(text: "All data stored locally. Never uploaded to any server.")
+        }
+    }
+
+    // MARK: - Feedback Email
+
+    private func sendFeedbackEmail() {
+        let subject = "Spotted Feedback"
+        let footer = """
+
+        ---
+        App: Spotted \(AppInfo.versionDisplay)
+        Platform: \(AppInfo.platformDisplay)
+        Device: \(AppInfo.deviceModel)
+        """
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? subject
+        let encodedBody = footer.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? footer
+        if let url = URL(string: "mailto:cody@isolated.tech?subject=\(encodedSubject)&body=\(encodedBody)") {
+            UIApplication.shared.open(url)
         }
     }
 
