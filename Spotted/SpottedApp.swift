@@ -3,7 +3,7 @@ import SwiftData
 import StoreKit
 
 @main
-struct SpottedApp: App {
+struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var sessionStart: Date?
     @AppStorage("hasRequestedReview") private var hasRequestedReview = false
@@ -69,7 +69,7 @@ struct SpottedApp: App {
     }
 
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "spotted" else { return }
+        guard url.scheme == "isome" else { return }
         
         switch url.host {
         case "stop":

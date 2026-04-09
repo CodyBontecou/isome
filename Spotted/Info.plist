@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+
     <key>NSSupportsLiveActivities</key>
     <true/>
     
@@ -10,18 +13,18 @@
         <dict>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>spotted</string>
+                <string>isome</string>
             </array>
             <key>CFBundleURLName</key>
-            <string>com.bontecou.Spotted</string>
+            <string>com.bontecou.isome</string>
         </dict>
     </array>
     
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Spotted needs always-on location access to automatically record the places you visit throughout the day, even when the app is in the background. This enables visit detection and travel tracking.</string>
+    <string>iso.me needs always-on location access to automatically record the places you visit throughout the day, even when the app is in the background. This enables visit detection and travel tracking.</string>
 
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Spotted needs location access to show your current location and record visits when the app is open.</string>
+    <string>iso.me needs location access to show your current location and record visits when the app is open.</string>
 
     <key>UIBackgroundModes</key>
     <array>
@@ -30,7 +33,7 @@
 
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
-        <string>com.bontecou.Spotted.refresh</string>
+        <string>com.bontecou.isome.refresh</string>
     </array>
 </dict>
 </plist>

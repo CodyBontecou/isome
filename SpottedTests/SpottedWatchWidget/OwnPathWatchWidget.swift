@@ -3,9 +3,9 @@ import SwiftUI
 
 // MARK: - Timeline Provider
 
-struct SpottedProvider: TimelineProvider {
-    func placeholder(in context: Context) -> SpottedEntry {
-        SpottedEntry(
+struct IsoMeProvider: TimelineProvider {
+    func placeholder(in context: Context) -> IsoMeEntry {
+        IsoMeEntry(
             date: Date(),
             data: SharedLocationData(
                 isTrackingEnabled: true,
@@ -24,15 +24,15 @@ struct SpottedProvider: TimelineProvider {
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SpottedEntry) -> Void) {
+    func getSnapshot(in context: Context, completion: @escaping (IsoMeEntry) -> Void) {
         let data = SharedLocationData.load() ?? .empty
-        let entry = SpottedEntry(date: Date(), data: data)
+        let entry = IsoMeEntry(date: Date(), data: data)
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<SpottedEntry>) -> Void) {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<IsoMeEntry>) -> Void) {
         let data = SharedLocationData.load() ?? .empty
-        let entry = SpottedEntry(date: Date(), data: data)
+        let entry = IsoMeEntry(date: Date(), data: data)
         
         // Refresh every 15 minutes or sooner if tracking is active
         let refreshInterval: TimeInterval = data.isContinuousTrackingEnabled ? 300 : 900
@@ -45,22 +45,22 @@ struct SpottedProvider: TimelineProvider {
 
 // MARK: - Timeline Entry
 
-struct SpottedEntry: TimelineEntry {
+struct IsoMeEntry: TimelineEntry {
     let date: Date
     let data: SharedLocationData
 }
 
 // MARK: - Widget Definition
 
-struct SpottedWatchWidget: Widget {
-    let kind: String = "SpottedWatchWidget"
+struct IsoMeWatchWidget: Widget {
+    let kind: String = "IsoMeWatchWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: SpottedProvider()) { entry in
-            SpottedWidgetEntryView(entry: entry)
+        StaticConfiguration(kind: kind, provider: IsoMeProvider()) { entry in
+            IsoMeWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Spotted")
+        .configurationDisplayName("iso.me")
         .description("View your tracking status and today's stats.")
         .supportedFamilies([
             .accessoryCircular,
@@ -73,9 +73,9 @@ struct SpottedWatchWidget: Widget {
 
 // MARK: - Widget Views
 
-struct SpottedWidgetEntryView: View {
+struct IsoMeWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
-    let entry: SpottedEntry
+    let entry: IsoMeEntry
     
     var body: some View {
         switch family {
@@ -266,9 +266,9 @@ struct CornerWidgetView: View {
 // MARK: - Previews
 
 #Preview("Circular - Active", as: .accessoryCircular) {
-    SpottedWatchWidget()
+    IsoMeWatchWidget()
 } timeline: {
-    SpottedEntry(date: .now, data: SharedLocationData(
+    IsoMeEntry(date: .now, data: SharedLocationData(
         isTrackingEnabled: true,
         isContinuousTrackingEnabled: true,
         currentLocationName: "Coffee Shop",
@@ -285,9 +285,9 @@ struct CornerWidgetView: View {
 }
 
 #Preview("Rectangular - Active", as: .accessoryRectangular) {
-    SpottedWatchWidget()
+    IsoMeWatchWidget()
 } timeline: {
-    SpottedEntry(date: .now, data: SharedLocationData(
+    IsoMeEntry(date: .now, data: SharedLocationData(
         isTrackingEnabled: true,
         isContinuousTrackingEnabled: true,
         currentLocationName: "Coffee Shop",
@@ -304,9 +304,9 @@ struct CornerWidgetView: View {
 }
 
 #Preview("Inline - Visits", as: .accessoryInline) {
-    SpottedWatchWidget()
+    IsoMeWatchWidget()
 } timeline: {
-    SpottedEntry(date: .now, data: SharedLocationData(
+    IsoMeEntry(date: .now, data: SharedLocationData(
         isTrackingEnabled: true,
         isContinuousTrackingEnabled: false,
         currentLocationName: nil,
@@ -323,9 +323,9 @@ struct CornerWidgetView: View {
 }
 
 #Preview("Corner - Off", as: .accessoryCorner) {
-    SpottedWatchWidget()
+    IsoMeWatchWidget()
 } timeline: {
-    SpottedEntry(date: .now, data: SharedLocationData(
+    IsoMeEntry(date: .now, data: SharedLocationData(
         isTrackingEnabled: false,
         isContinuousTrackingEnabled: false,
         currentLocationName: nil,

@@ -52,7 +52,7 @@ final class LiveActivityManager: ObservableObject {
         guard areActivitiesEnabled else {
             #if DEBUG
             print("❌ Live Activities are not enabled in device Settings")
-            print("   Go to Settings > Spotted > Live Activities")
+            print("   Go to Settings > iso.me > Live Activities")
             #endif
             return
         }
@@ -206,7 +206,7 @@ final class LiveActivityManager: ObservableObject {
     /// URL for the map snapshot in the shared App Group container
     static var mapSnapshotURL: URL? {
         FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.Spotted")?
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.isome")?
             .appendingPathComponent("map_snapshot.png")
     }
 

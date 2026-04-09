@@ -8,7 +8,7 @@ enum ImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return "Unsupported file format. Please use JSON, CSV, or Markdown files exported from Spotted."
+            return "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me."
         case .invalidData(let detail):
             return "Invalid data: \(detail)"
         case .parsingFailed(let detail):
@@ -91,8 +91,8 @@ struct ImportService {
             }
         case .markdown:
             if let text = String(data: data, encoding: .utf8) {
-                if text.contains("# Spotted Location Points Export") { return .locationPoints }
-                if text.contains("# Spotted Export") { return .visits }
+                if text.contains("# iso.me Location Points Export") { return .locationPoints }
+                if text.contains("# iso.me Export") { return .visits }
             }
         }
         return .visits

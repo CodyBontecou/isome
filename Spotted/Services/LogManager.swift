@@ -26,7 +26,7 @@ final class LogManager: ObservableObject {
 
     @Published private(set) var entries: [LogEntry] = []
     private let maxEntries = 500
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.bontecou.Spotted", category: "app")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.bontecou.isome", category: "app")
 
     private init() {}
 

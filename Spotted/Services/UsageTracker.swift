@@ -9,8 +9,8 @@ final class UsageTracker: ObservableObject {
     /// Free usage limit in seconds (10 hours)
     static let freeUsageLimitSeconds: TimeInterval = 10 * 3600
 
-    private let keychainKey = "com.bontecou.Spotted.cumulativeTrackingSeconds"
-    private let sessionStartKey = "com.bontecou.Spotted.sessionStartDate"
+    private let keychainKey = "com.bontecou.isome.cumulativeTrackingSeconds"
+    private let sessionStartKey = "com.bontecou.isome.sessionStartDate"
 
     /// Accumulated seconds from previous sessions (persisted in Keychain)
     @Published private(set) var storedSeconds: TimeInterval = 0

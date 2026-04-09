@@ -104,7 +104,7 @@ struct ExportService {
     // MARK: - Markdown Export
 
     static func exportToMarkdown(visits: [Visit]) -> Data {
-        var md = "# Spotted Export\n\n"
+        var md = "# iso.me Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Visits:** \(visits.count)\n\n"
         md += "---\n\n"
@@ -177,7 +177,7 @@ struct ExportService {
     // MARK: - Share/Save
 
     static func createTemporaryFile(data: Data, format: ExportFormat) throws -> URL {
-        let fileName = "spotted_export_\(formattedDate()).\(format.fileExtension)"
+        let fileName = "isome_export_\(formattedDate()).\(format.fileExtension)"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
 
         try data.write(to: tempURL)
@@ -243,7 +243,7 @@ struct ExportService {
             data = exportToMarkdown(visits: visits)
         }
         
-        let fileName = "spotted_visits_\(formattedDate()).\(format.fileExtension)"
+        let fileName = "isome_visits_\(formattedDate()).\(format.fileExtension)"
         
         guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
             throw ExportFolderError.noDefaultFolder
@@ -341,7 +341,7 @@ extension ExportService {
     static func exportLocationPointsToMarkdown(points: [LocationPoint]) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
         
-        var md = "# Spotted Location Points Export\n\n"
+        var md = "# iso.me Location Points Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Points:** \(sortedPoints.count)\n\n"
         
@@ -411,7 +411,7 @@ extension ExportService {
             data = exportLocationPointsToMarkdown(points: points)
         }
         
-        let fileName = "spotted_location_points_export_\(formattedDate()).\(format.fileExtension)"
+        let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try data.write(to: tempURL)
         
@@ -450,7 +450,7 @@ extension ExportService {
             data = exportLocationPointsToMarkdown(points: points)
         }
         
-        let fileName = "spotted_location_points_export_\(formattedDate()).\(format.fileExtension)"
+        let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
         
         guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
             throw ExportFolderError.noDefaultFolder

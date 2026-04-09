@@ -330,7 +330,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("In iPhone Settings, choose Spotted → Location → Always.")
+                Text("In iPhone Settings, choose iso.me → Location → Always.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)

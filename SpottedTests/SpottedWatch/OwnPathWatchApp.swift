@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct SpottedWatchApp: App {
+struct IsoMeWatchApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

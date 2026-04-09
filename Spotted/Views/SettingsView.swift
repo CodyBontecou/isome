@@ -734,7 +734,7 @@ struct SettingsView: View {
                     }
 
                     TERow {
-                        Link(destination: URL(string: "https://spotted.isolated.tech/privacy")!) {
+                        Link(destination: URL(string: "https://isome.isolated.tech/privacy")!) {
                             HStack(spacing: 8) {
                                 Image(systemName: "hand.raised")
                                     .font(.system(size: 12, weight: .medium))
@@ -752,7 +752,7 @@ struct SettingsView: View {
                     }
 
                     TERow(showDivider: false) {
-                        Link(destination: URL(string: "https://spotted.isolated.tech/terms")!) {
+                        Link(destination: URL(string: "https://isome.isolated.tech/terms")!) {
                             HStack(spacing: 8) {
                                 Image(systemName: "doc.text")
                                     .font(.system(size: 12, weight: .medium))
@@ -779,11 +779,11 @@ struct SettingsView: View {
     // MARK: - Feedback Email
 
     private func sendFeedbackEmail() {
-        let subject = "Spotted Feedback"
+        let subject = "iso.me Feedback"
         let footer = """
 
         ---
-        App: Spotted \(AppInfo.versionDisplay)
+        App: iso.me \(AppInfo.versionDisplay)
         Platform: \(AppInfo.platformDisplay)
         Device: \(AppInfo.deviceModel)
         """

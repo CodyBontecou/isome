@@ -3,7 +3,7 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
-struct SpottedLiveActivity: Widget {
+struct IsoMeLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LocationActivityAttributes.self) { context in
             // Lock Screen / StandBy UI
@@ -134,7 +134,7 @@ struct LockScreenView: View {
                 Spacer(minLength: 0)
 
                 // Stop button
-                Link(destination: URL(string: "spotted://stop")!) {
+                Link(destination: URL(string: "isome://stop")!) {
                     HStack(spacing: 4) {
                         Image(systemName: "stop.circle.fill")
                         Text("Stop")
@@ -166,7 +166,7 @@ struct LockScreenView: View {
 
     private static func loadMapSnapshot() -> UIImage? {
         guard let url = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.Spotted")?
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.bontecou.isome")?
             .appendingPathComponent("map_snapshot.png"),
               let data = try? Data(contentsOf: url) else {
             return nil
@@ -187,7 +187,7 @@ struct LockScreenView: View {
 // MARK: - Preview
 
 #Preview("Lock Screen", as: .content, using: LocationActivityAttributes(startTime: .now)) {
-    SpottedLiveActivity()
+    IsoMeLiveActivity()
 } contentStates: {
     LocationActivityAttributes.ContentState(
         trackingMode: .continuous,

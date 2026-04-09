@@ -7,7 +7,7 @@ import StoreKit
 final class StoreManager: ObservableObject {
     static let shared = StoreManager()
 
-    nonisolated static let lifetimeProductID = "com.bontecou.Spotted.lifetime"
+    nonisolated static let lifetimeProductID = "com.bontecou.isome.lifetime"
 
     @Published private(set) var product: Product?
     @Published private(set) var isPurchased: Bool = false

@@ -53,7 +53,7 @@ struct PaywallView: View {
                             ProgressView()
                                 .tint(.white)
                         } else if let product = storeManager.product {
-                            Text("Unlock Spotted — \(product.displayPrice)")
+                            Text("Unlock iso.me — \(product.displayPrice)")
                                 .font(.headline)
                         } else {
                             Text("Loading...")

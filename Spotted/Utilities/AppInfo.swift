@@ -23,7 +23,7 @@ enum AppInfo {
 
     static var fullDeviceInfo: String {
         """
-        App: Spotted \(versionDisplay)
+        App: iso.me \(versionDisplay)
         Platform: \(platformDisplay)
         Device: \(deviceModel)
         """

@@ -657,7 +657,7 @@ struct PermissionRequestView: View {
                     .tracking(2)
                     .foregroundStyle(TE.textPrimary)
 
-                Text("Spotted needs access to your location to record the places you visit throughout the day.")
+                Text("iso.me needs access to your location to record the places you visit throughout the day.")
                     .font(TE.mono(.caption2, weight: .regular))
                     .foregroundStyle(TE.textMuted)
                     .multilineTextAlignment(.center)
