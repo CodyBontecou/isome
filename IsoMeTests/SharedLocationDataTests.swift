@@ -1,5 +1,5 @@
 import XCTest
-@testable import Spotted
+@testable import IsoMe
 
 final class SharedLocationDataTests: XCTestCase {
 
