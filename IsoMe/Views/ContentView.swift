@@ -284,7 +284,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("Start by choosing \"Allow While Using App\" in the system prompt.")
+                Text("iso.me uses your location to detect places you visit and trace your daily path.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -292,7 +292,7 @@ private struct OnboardingView: View {
                 Button {
                     locationManager.requestWhenInUseAuthorization()
                 } label: {
-                    Label("Allow Location Access", systemImage: "location.fill")
+                    Label("Continue", systemImage: "location.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(OnboardingPrimaryButtonStyle())
@@ -307,7 +307,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("Upgrade to \"Always Allow\" so visit detection continues when the app is closed.")
+                Text("Background visit detection requires extended location access so iso.me keeps recording when the app is closed.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -315,7 +315,7 @@ private struct OnboardingView: View {
                 Button {
                     locationManager.requestAlwaysAuthorization()
                 } label: {
-                    Label("Upgrade to Always Allow", systemImage: "arrow.up.forward.app.fill")
+                    Label("Continue", systemImage: "arrow.up.forward.app.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(OnboardingPrimaryButtonStyle())

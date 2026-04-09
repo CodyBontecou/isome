@@ -698,7 +698,7 @@ struct PermissionRequestView: View {
                         locationManager.requestAlwaysAuthorization()
                     } label: {
                         HStack(spacing: 8) {
-                            Text("ALLOW ALWAYS")
+                            Text("CONTINUE")
                                 .font(TE.mono(.caption, weight: .bold))
                                 .tracking(1.5)
                             Image(systemName: "arrow.right")
@@ -713,7 +713,7 @@ struct PermissionRequestView: View {
                         )
                     }
 
-                    Text("\"ALWAYS\" ENABLES BACKGROUND TRACKING")
+                    Text("BACKGROUND VISIT DETECTION REQUIRES THIS")
                         .font(TE.mono(.caption2, weight: .regular))
                         .tracking(0.5)
                         .foregroundStyle(TE.textMuted)
