@@ -1,6 +1,6 @@
 import XCTest
 import CoreLocation
-@testable import Spotted
+@testable import IsoMe
 
 /// Tests that the LocationManager tracking lifecycle is correct:
 /// starting, stopping, and restarting should leave no stale state.
