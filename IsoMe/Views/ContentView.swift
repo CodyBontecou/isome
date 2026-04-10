@@ -185,7 +185,7 @@ private struct OnboardingView: View {
         LocationOnboardingPageView(
             icon: "",
             eyebrow: "Welcome",
-            title: "SPOTTED",
+            title: "ISO.ME",
             description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
             useAppIcon: true
         ) {
@@ -235,13 +235,13 @@ private struct OnboardingView: View {
                         .tracking(2.2)
                         .foregroundStyle(OnboardingPalette.textMuted)
 
-                    Text("ALLOW BACKGROUND ACCESS")
+                    Text("BACKGROUND VISIT DETECTION")
                         .font(.onboardingTitle)
                         .tracking(1.2)
                         .foregroundStyle(OnboardingPalette.textPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text("\"Always\" enables background tracking and automatic visit detection.")
+                    Text("Background visit detection lets iso.me keep recording when the app is closed.")
                         .font(.onboardingBody)
                         .foregroundStyle(OnboardingPalette.textSecondary)
                         .multilineTextAlignment(.center)
@@ -261,7 +261,7 @@ private struct OnboardingView: View {
                         title: "Background tracking",
                         subtitle: locationManager.hasAlwaysPermission
                             ? "Ready for always-on visit detection"
-                            : "Needs \"Always Allow\" for best results",
+                            : "Needs extended location access",
                         icon: locationManager.hasAlwaysPermission ? "checkmark.shield.fill" : "exclamationmark.shield.fill",
                         color: locationManager.hasAlwaysPermission ? OnboardingPalette.success : OnboardingPalette.warning
                     )
@@ -330,7 +330,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("In iPhone Settings, choose iso.me → Location → Always.")
+                Text("Grant location access in iPhone Settings → iso.me → Location.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)

@@ -11,7 +11,7 @@
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
-		A1000001212F000100000001 /* SpottedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* SpottedApp.swift */; };
+		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
 		A1000004212F000100000004 /* LocationPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004212F000000000004 /* LocationPoint.swift */; };
@@ -35,20 +35,20 @@
 		A300001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
 		A400001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
 		A200001E212F00010000001E /* DistanceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001D212F00000000001E /* DistanceFormatter.swift */; };
-		A2000001212F000100000001 /* SpottedWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001212F000000000001 /* SpottedWidgetBundle.swift */; };
-		A2000002212F000100000002 /* SpottedLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002212F000000000002 /* SpottedLiveActivity.swift */; };
+		A2000001212F000100000001 /* IsoMeWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001212F000000000001 /* IsoMeWidgetBundle.swift */; };
+		A2000002212F000100000002 /* IsoMeLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002212F000000000002 /* IsoMeLiveActivity.swift */; };
 		A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
-		A2000004212F000100000004 /* SpottedWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A2000000212F000000000000 /* SpottedWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A2000004212F000100000004 /* IsoMeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A2000000212F000000000000 /* IsoMeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A2000005212F000100000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000005212F000000000005 /* Assets.xcassets */; };
-		A3000001212F000100000001 /* SpottedWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000001212F000000000001 /* SpottedWatchApp.swift */; };
+		A3000001212F000100000001 /* IsoMeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000001212F000000000001 /* IsoMeWatchApp.swift */; };
 		A3000002212F000100000002 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000002212F000000000002 /* WatchContentView.swift */; };
 		A3000003212F000100000003 /* WatchAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3000003212F000000000003 /* WatchAssets.xcassets */; };
 		A3000004212F000100000004 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
-		A3000005212F000100000005 /* SpottedWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A3000000212F000000000000 /* SpottedWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A4000001212F000100000001 /* SpottedWatchWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000001212F000000000001 /* SpottedWatchWidgetBundle.swift */; };
-		A4000002212F000100000002 /* SpottedWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000002212F000000000002 /* SpottedWatchWidget.swift */; };
+		A3000005212F000100000005 /* IsoMeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A3000000212F000000000000 /* IsoMeWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A4000001212F000100000001 /* IsoMeWatchWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000001212F000000000001 /* IsoMeWatchWidgetBundle.swift */; };
+		A4000002212F000100000002 /* IsoMeWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000002212F000000000002 /* IsoMeWatchWidget.swift */; };
 		A4000003212F000100000003 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
-		A4000004212F000100000004 /* SpottedWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* SpottedWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A4000004212F000100000004 /* IsoMeWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */; };
 		C8C04B8E5D0FA07EBAE466ED /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919034FA4C91A43201D0CF80 /* TrackingView.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
@@ -70,28 +70,28 @@
 			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A1FFFFFA212EFFFFFFFF0000;
-			remoteInfo = Spotted;
+			remoteInfo = IsoMe;
 		};
 		A2000010212F000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A2FFFFFA212EFFFFFFFF0000;
-			remoteInfo = SpottedWidgetExtension;
+			remoteInfo = IsoMeWidgetExtension;
 		};
 		A3000010212F000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A3FFFFFA212EFFFFFFFF0000;
-			remoteInfo = SpottedWatch;
+			remoteInfo = IsoMeWatch;
 		};
 		A4000010212F000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A4FFFFFA212EFFFFFFFF0000;
-			remoteInfo = SpottedWatchWidgetExtension;
+			remoteInfo = IsoMeWatchWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -102,7 +102,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A2000004212F000100000004 /* SpottedWidgetExtension.appex in Embed Foundation Extensions */,
+				A2000004212F000100000004 /* IsoMeWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -113,7 +113,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				A3000005212F000100000005 /* SpottedWatch.app in Embed Watch Content */,
+				A3000005212F000100000005 /* IsoMeWatch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -124,7 +124,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A4000004212F000100000004 /* SpottedWatchWidgetExtension.appex in Embed Foundation Extensions */,
+				A4000004212F000100000004 /* IsoMeWatchWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -132,7 +132,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2E1B75491004BD3A7D223DB3 /* SpottedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpottedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IsoMeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		5F000001212F000000000001 /* ExportFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFolderManager.swift; sourceTree = "<group>"; };
@@ -143,8 +143,8 @@
 		E1000002212F000000000002 /* LogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogManager.swift; sourceTree = "<group>"; };
 		E1000003212F000000000003 /* LogViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
-		A1000000212F000000000000 /* Spotted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spotted.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1000001212F000000000001 /* SpottedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedApp.swift; sourceTree = "<group>"; };
+		A1000000212F000000000000 /* IsoMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000003212F000000000003 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		A1000004212F000000000004 /* LocationPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPoint.swift; sourceTree = "<group>"; };
@@ -166,24 +166,24 @@
 		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		A100001C212F00000000001C /* SharedLocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
 		A100001D212F00000000001E /* DistanceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceFormatter.swift; sourceTree = "<group>"; };
-		A100001D212F00000000001D /* Spotted.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Spotted.entitlements; sourceTree = "<group>"; };
-		A2000000212F000000000000 /* SpottedWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SpottedWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		A2000001212F000000000001 /* SpottedWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedWidgetBundle.swift; sourceTree = "<group>"; };
-		A2000002212F000000000002 /* SpottedLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedLiveActivity.swift; sourceTree = "<group>"; };
+		A100001D212F00000000001D /* IsoMe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMe.entitlements; sourceTree = "<group>"; };
+		A2000000212F000000000000 /* IsoMeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IsoMeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000001212F000000000001 /* IsoMeWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWidgetBundle.swift; sourceTree = "<group>"; };
+		A2000002212F000000000002 /* IsoMeLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeLiveActivity.swift; sourceTree = "<group>"; };
 		A2000003212F000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2000005212F000000000005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A2000006212F000000000006 /* SpottedWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpottedWidget.entitlements; sourceTree = "<group>"; };
-		A3000000212F000000000000 /* SpottedWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpottedWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A3000001212F000000000001 /* SpottedWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedWatchApp.swift; sourceTree = "<group>"; };
+		A2000006212F000000000006 /* IsoMeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWidget.entitlements; sourceTree = "<group>"; };
+		A3000000212F000000000000 /* IsoMeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3000001212F000000000001 /* IsoMeWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchApp.swift; sourceTree = "<group>"; };
 		A3000002212F000000000002 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchContentView.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A3000003212F000000000003 /* WatchAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = WatchAssets.xcassets; path = Assets.xcassets; sourceTree = "<group>"; };
 		A3000004212F000000000004 /* WatchInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchInfo.plist; path = Info.plist; sourceTree = "<group>"; };
-		A3000005212F000000000005 /* SpottedWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpottedWatch.entitlements; sourceTree = "<group>"; };
-		A4000000212F000000000000 /* SpottedWatchWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SpottedWatchWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		A4000001212F000000000001 /* SpottedWatchWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedWatchWidgetBundle.swift; sourceTree = "<group>"; };
-		A4000002212F000000000002 /* SpottedWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpottedWatchWidget.swift; sourceTree = "<group>"; };
+		A3000005212F000000000005 /* IsoMeWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatch.entitlements; sourceTree = "<group>"; };
+		A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IsoMeWatchWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4000001212F000000000001 /* IsoMeWatchWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchWidgetBundle.swift; sourceTree = "<group>"; };
+		A4000002212F000000000002 /* IsoMeWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchWidget.swift; sourceTree = "<group>"; };
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
-		A4000004212F000000000004 /* SpottedWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpottedWatchWidget.entitlements; sourceTree = "<group>"; };
+		A4000004212F000000000004 /* IsoMeWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatchWidget.entitlements; sourceTree = "<group>"; };
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -260,37 +260,37 @@
 		A1FFFFF8212EFFFFFFFF0000 = {
 			isa = PBXGroup;
 			children = (
-				A1FFFFFA212EFFFFFFFF0001 /* Spotted */,
-				A2FFFFFA212EFFFFFFFF0001 /* SpottedWidget */,
-				A3FFFFFA212EFFFFFFFF0001 /* SpottedWatch */,
-				A4FFFFFA212EFFFFFFFF0001 /* SpottedWatchWidget */,
+				A1FFFFFA212EFFFFFFFF0001 /* IsoMe */,
+				A2FFFFFA212EFFFFFFFF0001 /* IsoMeWidget */,
+				A3FFFFFA212EFFFFFFFF0001 /* IsoMeWatch */,
+				A4FFFFFA212EFFFFFFFF0001 /* IsoMeWatchWidget */,
 				A5FFFFFA212EFFFFFFFF0001 /* Shared */,
 				A1FFFFF9212EFFFFFFFF0002 /* Products */,
 				6C56D277F7A90AC5E53EA483 /* Frameworks */,
-				AD8A47404A1FA6D94EF61780 /* SpottedTests */,
+				AD8A47404A1FA6D94EF61780 /* IsoMeTests */,
 			);
 			sourceTree = "<group>";
 		};
 		A1FFFFF9212EFFFFFFFF0002 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1000000212F000000000000 /* Spotted.app */,
-				A2000000212F000000000000 /* SpottedWidgetExtension.appex */,
-				A3000000212F000000000000 /* SpottedWatch.app */,
-				A4000000212F000000000000 /* SpottedWatchWidgetExtension.appex */,
-				2E1B75491004BD3A7D223DB3 /* SpottedTests.xctest */,
+				A1000000212F000000000000 /* IsoMe.app */,
+				A2000000212F000000000000 /* IsoMeWidgetExtension.appex */,
+				A3000000212F000000000000 /* IsoMeWatch.app */,
+				A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */,
+				2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1FFFFFA212EFFFFFFFF0001 /* Spotted */ = {
+		A1FFFFFA212EFFFFFFFF0001 /* IsoMe */ = {
 			isa = PBXGroup;
 			children = (
-				A1000001212F000000000001 /* SpottedApp.swift */,
+				A1000001212F000000000001 /* IsoMeApp.swift */,
 				A1000019212F000000000019 /* AppDelegate.swift */,
 				A100001F212F00000000001F /* TEDesign.swift */,
 				A1000010212F000000000010 /* Info.plist */,
-				A100001D212F00000000001D /* Spotted.entitlements */,
+				A100001D212F00000000001D /* IsoMe.entitlements */,
 				A1FFFFFB212EFFFFFFFF0003 /* Models */,
 				A1FFFFFC212EFFFFFFFF0004 /* Services */,
 				A1FFFFFD212EFFFFFFFF0005 /* Views */,
@@ -301,7 +301,7 @@
 				B1000001212F000000000001 /* Localizable.xcstrings */,
 				B1000002212F000000000002 /* InfoPlist.xcstrings */,
 			);
-			path = Spotted;
+			path = IsoMe;
 			sourceTree = "<group>";
 		};
 		A1FFFFFB212EFFFFFFFF0003 /* Models */ = {
@@ -362,42 +362,42 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
-		A2FFFFFA212EFFFFFFFF0001 /* SpottedWidget */ = {
+		A2FFFFFA212EFFFFFFFF0001 /* IsoMeWidget */ = {
 			isa = PBXGroup;
 			children = (
-				A2000001212F000000000001 /* SpottedWidgetBundle.swift */,
-				A2000002212F000000000002 /* SpottedLiveActivity.swift */,
+				A2000001212F000000000001 /* IsoMeWidgetBundle.swift */,
+				A2000002212F000000000002 /* IsoMeLiveActivity.swift */,
 				A2000005212F000000000005 /* Assets.xcassets */,
-				A2000006212F000000000006 /* SpottedWidget.entitlements */,
+				A2000006212F000000000006 /* IsoMeWidget.entitlements */,
 				A2000003212F000000000003 /* Info.plist */,
 				B1000003212F000000000003 /* Localizable.xcstrings */,
 			);
-			path = SpottedWidget;
+			path = IsoMeWidget;
 			sourceTree = "<group>";
 		};
-		A3FFFFFA212EFFFFFFFF0001 /* SpottedWatch */ = {
+		A3FFFFFA212EFFFFFFFF0001 /* IsoMeWatch */ = {
 			isa = PBXGroup;
 			children = (
-				A3000001212F000000000001 /* SpottedWatchApp.swift */,
+				A3000001212F000000000001 /* IsoMeWatchApp.swift */,
 				A3000002212F000000000002 /* WatchContentView.swift */,
 				A3000003212F000000000003 /* WatchAssets.xcassets */,
 				A3000004212F000000000004 /* WatchInfo.plist */,
-				A3000005212F000000000005 /* SpottedWatch.entitlements */,
+				A3000005212F000000000005 /* IsoMeWatch.entitlements */,
 				B1000004212F000000000004 /* Localizable.xcstrings */,
 			);
-			path = SpottedWatch;
+			path = IsoMeWatch;
 			sourceTree = "<group>";
 		};
-		A4FFFFFA212EFFFFFFFF0001 /* SpottedWatchWidget */ = {
+		A4FFFFFA212EFFFFFFFF0001 /* IsoMeWatchWidget */ = {
 			isa = PBXGroup;
 			children = (
-				A4000001212F000000000001 /* SpottedWatchWidgetBundle.swift */,
-				A4000002212F000000000002 /* SpottedWatchWidget.swift */,
+				A4000001212F000000000001 /* IsoMeWatchWidgetBundle.swift */,
+				A4000002212F000000000002 /* IsoMeWatchWidget.swift */,
 				A4000003212F000000000003 /* WatchWidgetInfo.plist */,
-				A4000004212F000000000004 /* SpottedWatchWidget.entitlements */,
+				A4000004212F000000000004 /* IsoMeWatchWidget.entitlements */,
 				B1000005212F000000000005 /* Localizable.xcstrings */,
 			);
-			path = SpottedWatchWidget;
+			path = IsoMeWatchWidget;
 			sourceTree = "<group>";
 		};
 		A5FFFFFA212EFFFFFFFF0001 /* Shared */ = {
@@ -409,22 +409,22 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		AD8A47404A1FA6D94EF61780 /* SpottedTests */ = {
+		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 			);
-			name = SpottedTests;
-			path = SpottedTests;
+			name = IsoMeTests;
+			path = IsoMeTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1FFFFFA212EFFFFFFFF0000 /* Spotted */ = {
+		A1FFFFFA212EFFFFFFFF0000 /* IsoMe */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1000014212F000000000014 /* Build configuration list for PBXNativeTarget "Spotted" */;
+			buildConfigurationList = A1000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMe" */;
 			buildPhases = (
 				A1FFFFFB212EFFFFFFFF0001 /* Sources */,
 				A1FFFFFE212EFFFFFFFF0001 /* Frameworks */,
@@ -438,14 +438,14 @@
 				A2000012212F000000000012 /* PBXTargetDependency */,
 				A3000012212F000000000012 /* PBXTargetDependency */,
 			);
-			name = Spotted;
-			productName = Spotted;
-			productReference = A1000000212F000000000000 /* Spotted.app */;
+			name = IsoMe;
+			productName = IsoMe;
+			productReference = A1000000212F000000000000 /* IsoMe.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A2FFFFFA212EFFFFFFFF0000 /* SpottedWidgetExtension */ = {
+		A2FFFFFA212EFFFFFFFF0000 /* IsoMeWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWidgetExtension" */;
+			buildConfigurationList = A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWidgetExtension" */;
 			buildPhases = (
 				A2FFFFFB212EFFFFFFFF0001 /* Sources */,
 				A2FFFFFE212EFFFFFFFF0001 /* Frameworks */,
@@ -455,14 +455,14 @@
 			);
 			dependencies = (
 			);
-			name = SpottedWidgetExtension;
-			productName = SpottedWidgetExtension;
-			productReference = A2000000212F000000000000 /* SpottedWidgetExtension.appex */;
+			name = IsoMeWidgetExtension;
+			productName = IsoMeWidgetExtension;
+			productReference = A2000000212F000000000000 /* IsoMeWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		A3FFFFFA212EFFFFFFFF0000 /* SpottedWatch */ = {
+		A3FFFFFA212EFFFFFFFF0000 /* IsoMeWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A3000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWatch" */;
+			buildConfigurationList = A3000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWatch" */;
 			buildPhases = (
 				A3FFFFFB212EFFFFFFFF0001 /* Sources */,
 				A3FFFFFE212EFFFFFFFF0001 /* Frameworks */,
@@ -474,14 +474,14 @@
 			dependencies = (
 				A4000012212F000000000012 /* PBXTargetDependency */,
 			);
-			name = SpottedWatch;
-			productName = SpottedWatch;
-			productReference = A3000000212F000000000000 /* SpottedWatch.app */;
+			name = IsoMeWatch;
+			productName = IsoMeWatch;
+			productReference = A3000000212F000000000000 /* IsoMeWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A4FFFFFA212EFFFFFFFF0000 /* SpottedWatchWidgetExtension */ = {
+		A4FFFFFA212EFFFFFFFF0000 /* IsoMeWatchWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A4000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWatchWidgetExtension" */;
+			buildConfigurationList = A4000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWatchWidgetExtension" */;
 			buildPhases = (
 				A4FFFFFB212EFFFFFFFF0001 /* Sources */,
 				A4FFFFFE212EFFFFFFFF0001 /* Frameworks */,
@@ -491,14 +491,14 @@
 			);
 			dependencies = (
 			);
-			name = SpottedWatchWidgetExtension;
-			productName = SpottedWatchWidgetExtension;
-			productReference = A4000000212F000000000000 /* SpottedWatchWidgetExtension.appex */;
+			name = IsoMeWatchWidgetExtension;
+			productName = IsoMeWatchWidgetExtension;
+			productReference = A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		AA73D16C4130069D72314CAC /* SpottedTests */ = {
+		AA73D16C4130069D72314CAC /* IsoMeTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "SpottedTests" */;
+			buildConfigurationList = 09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "IsoMeTests" */;
 			buildPhases = (
 				B74D71912096B01D0B4CFA18 /* Sources */,
 				D2F6DFFFA34A7401EF703341 /* Frameworks */,
@@ -509,9 +509,9 @@
 			dependencies = (
 				0B296FF4FE6B89E3287D145C /* PBXTargetDependency */,
 			);
-			name = SpottedTests;
-			productName = SpottedTests;
-			productReference = 2E1B75491004BD3A7D223DB3 /* SpottedTests.xctest */;
+			name = IsoMeTests;
+			productName = IsoMeTests;
+			productReference = 2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -538,7 +538,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1000013212F000000000013 /* Build configuration list for PBXProject "Spotted" */;
+			buildConfigurationList = A1000013212F000000000013 /* Build configuration list for PBXProject "IsoMe" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -560,11 +560,11 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1FFFFFA212EFFFFFFFF0000 /* Spotted */,
-				A2FFFFFA212EFFFFFFFF0000 /* SpottedWidgetExtension */,
-				A3FFFFFA212EFFFFFFFF0000 /* SpottedWatch */,
-				A4FFFFFA212EFFFFFFFF0000 /* SpottedWatchWidgetExtension */,
-				AA73D16C4130069D72314CAC /* SpottedTests */,
+				A1FFFFFA212EFFFFFFFF0000 /* IsoMe */,
+				A2FFFFFA212EFFFFFFFF0000 /* IsoMeWidgetExtension */,
+				A3FFFFFA212EFFFFFFFF0000 /* IsoMeWatch */,
+				A4FFFFFA212EFFFFFFFF0000 /* IsoMeWatchWidgetExtension */,
+				AA73D16C4130069D72314CAC /* IsoMeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -621,7 +621,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000001212F000100000001 /* SpottedApp.swift in Sources */,
+				A1000001212F000100000001 /* IsoMeApp.swift in Sources */,
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
@@ -656,8 +656,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2000001212F000100000001 /* SpottedWidgetBundle.swift in Sources */,
-				A2000002212F000100000002 /* SpottedLiveActivity.swift in Sources */,
+				A2000001212F000100000001 /* IsoMeWidgetBundle.swift in Sources */,
+				A2000002212F000100000002 /* IsoMeLiveActivity.swift in Sources */,
 				A2000003212F000100000003 /* LocationActivityAttributes.swift in Sources */,
 				A200001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
@@ -667,7 +667,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3000001212F000100000001 /* SpottedWatchApp.swift in Sources */,
+				A3000001212F000100000001 /* IsoMeWatchApp.swift in Sources */,
 				A3000002212F000100000002 /* WatchContentView.swift in Sources */,
 				A3000004212F000100000004 /* SharedLocationData.swift in Sources */,
 				A300001E212F00010000001E /* DistanceFormatter.swift in Sources */,
@@ -678,8 +678,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A4000001212F000100000001 /* SpottedWatchWidgetBundle.swift in Sources */,
-				A4000002212F000100000002 /* SpottedWatchWidget.swift in Sources */,
+				A4000001212F000100000001 /* IsoMeWatchWidgetBundle.swift in Sources */,
+				A4000002212F000100000002 /* IsoMeWatchWidget.swift in Sources */,
 				A4000003212F000100000003 /* SharedLocationData.swift in Sources */,
 				A400001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
@@ -699,23 +699,23 @@
 /* Begin PBXTargetDependency section */
 		0B296FF4FE6B89E3287D145C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = Spotted;
-			target = A1FFFFFA212EFFFFFFFF0000 /* Spotted */;
+			name = IsoMe;
+			target = A1FFFFFA212EFFFFFFFF0000 /* IsoMe */;
 			targetProxy = 70D695B013200C010FB259D6 /* PBXContainerItemProxy */;
 		};
 		A2000012212F000000000012 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A2FFFFFA212EFFFFFFFF0000 /* SpottedWidgetExtension */;
+			target = A2FFFFFA212EFFFFFFFF0000 /* IsoMeWidgetExtension */;
 			targetProxy = A2000010212F000000000010 /* PBXContainerItemProxy */;
 		};
 		A3000012212F000000000012 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A3FFFFFA212EFFFFFFFF0000 /* SpottedWatch */;
+			target = A3FFFFFA212EFFFFFFFF0000 /* IsoMeWatch */;
 			targetProxy = A3000010212F000000000010 /* PBXContainerItemProxy */;
 		};
 		A4000012212F000000000012 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A4FFFFFA212EFFFFFFFF0000 /* SpottedWatchWidgetExtension */;
+			target = A4FFFFFA212EFFFFFFFF0000 /* IsoMeWatchWidgetExtension */;
 			targetProxy = A4000010212F000000000010 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -732,10 +732,10 @@
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isomeTests;
-				PRODUCT_NAME = SpottedTests;
+				PRODUCT_NAME = IsoMeTests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Spotted.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Spotted";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IsoMe.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IsoMe";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -751,10 +751,10 @@
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isomeTests;
-				PRODUCT_NAME = SpottedTests;
+				PRODUCT_NAME = IsoMeTests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Spotted.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Spotted";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IsoMe.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IsoMe";
 			};
 			name = Debug;
 		};
@@ -887,13 +887,13 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Spotted/Spotted.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_ASSET_PATHS = "\"Spotted/Preview Content\"";
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Spotted/Info.plist;
+				INFOPLIST_FILE = IsoMe/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -920,13 +920,13 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Spotted/Spotted.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_ASSET_PATHS = "\"Spotted/Preview Content\"";
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Spotted/Info.plist;
+				INFOPLIST_FILE = IsoMe/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -952,11 +952,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = SpottedWidget/SpottedWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWidget/Info.plist;
+				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -979,11 +979,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = SpottedWidget/SpottedWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWidget/Info.plist;
+				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1006,11 +1006,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SpottedWatch/SpottedWatch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWatch/Info.plist;
+				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.isome;
@@ -1035,11 +1035,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SpottedWatch/SpottedWatch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWatch/Info.plist;
+				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.isome;
@@ -1064,11 +1064,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = SpottedWatchWidget/SpottedWatchWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWatchWidget/Info.plist;
+				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1093,11 +1093,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = SpottedWatchWidget/SpottedWatchWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SpottedWatchWidget/Info.plist;
+				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1120,7 +1120,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "SpottedTests" */ = {
+		09B7BE97A5B04B11F26142E1 /* Build configuration list for PBXNativeTarget "IsoMeTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				272510C4946ACEA961BBCFE7 /* Release */,
@@ -1129,7 +1129,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1000013212F000000000013 /* Build configuration list for PBXProject "Spotted" */ = {
+		A1000013212F000000000013 /* Build configuration list for PBXProject "IsoMe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000015212F000000000015 /* Debug */,
@@ -1138,7 +1138,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1000014212F000000000014 /* Build configuration list for PBXNativeTarget "Spotted" */ = {
+		A1000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000017212F000000000017 /* Debug */,
@@ -1147,7 +1147,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWidgetExtension" */ = {
+		A2000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A2000017212F000000000017 /* Debug */,
@@ -1156,7 +1156,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A3000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWatch" */ = {
+		A3000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A3000017212F000000000017 /* Debug */,
@@ -1165,7 +1165,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A4000014212F000000000014 /* Build configuration list for PBXNativeTarget "SpottedWatchWidgetExtension" */ = {
+		A4000014212F000000000014 /* Build configuration list for PBXNativeTarget "IsoMeWatchWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A4000017212F000000000017 /* Debug */,
