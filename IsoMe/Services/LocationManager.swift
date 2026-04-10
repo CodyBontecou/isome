@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import CoreMotion
 import SwiftData
 import Combine
 import ActivityKit
@@ -33,6 +34,11 @@ final class LocationManager: NSObject, ObservableObject {
     private let liveActivityManager = LiveActivityManager.shared
     @Published var isLiveActivityEnabled: Bool = true
     
+    // Activity detection
+    private let activityDetectionManager = ActivityDetectionManager.shared
+    @Published var autoStartOnActivity: Bool = false
+    @Published var wasAutoStarted: Bool = false
+
     // Current location name for Live Activity
     private var currentLocationName: String?
     private var currentAddress: String?
@@ -74,8 +80,13 @@ final class LocationManager: NSObject, ObservableObject {
             distanceFilter = 10.0
         }
 
+        autoStartOnActivity = UserDefaults.standard.bool(forKey: "autoStartOnActivity")
+
         authorizationStatus = locationManager.authorizationStatus
-        
+
+        // Set up activity detection for auto-start
+        setupActivityDetection()
+
         // Listen for stop tracking notification from Live Activity
         NotificationCenter.default.addObserver(
             forName: .stopContinuousTracking,
@@ -154,10 +165,14 @@ final class LocationManager: NSObject, ObservableObject {
         if isTrackingEnabled && hasLocationPermission {
             locationManager.startMonitoringVisits()
             locationManager.startMonitoringSignificantLocationChanges()
+            if autoStartOnActivity {
+                activityDetectionManager.startMonitoring()
+            }
         } else {
             locationManager.stopMonitoringVisits()
             locationManager.stopMonitoringSignificantLocationChanges()
             locationManager.stopUpdatingLocation()
+            activityDetectionManager.stopMonitoring()
         }
     }
 
@@ -203,6 +218,7 @@ final class LocationManager: NSObject, ObservableObject {
         // Track usage for paywall
         UsageTracker.shared.sessionEnded()
 
+        wasAutoStarted = false
         isContinuousTrackingEnabled = false
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingTimer?.invalidate()
@@ -339,6 +355,67 @@ final class LocationManager: NSObject, ObservableObject {
         await geocodeVisit(visit)
     }
     
+    // MARK: - Activity Detection (Auto-Start)
+
+    private func setupActivityDetection() {
+        activityDetectionManager.onActivityStarted = { [weak self] activity in
+            Task { @MainActor in
+                self?.handleActivityDetected(activity)
+            }
+        }
+        activityDetectionManager.onActivityStopped = { [weak self] in
+            Task { @MainActor in
+                self?.handleActivityStopped()
+            }
+        }
+
+        // Start monitoring if auto-start is enabled and tracking is on
+        if autoStartOnActivity && isTrackingEnabled {
+            activityDetectionManager.startMonitoring()
+        }
+    }
+
+    func setAutoStartOnActivity(_ enabled: Bool) {
+        autoStartOnActivity = enabled
+        UserDefaults.standard.set(enabled, forKey: "autoStartOnActivity")
+
+        if enabled && isTrackingEnabled {
+            activityDetectionManager.startMonitoring()
+        } else if !enabled {
+            activityDetectionManager.stopMonitoring()
+        }
+    }
+
+    private func handleActivityDetected(_ activity: CMMotionActivity) {
+        guard autoStartOnActivity,
+              isTrackingEnabled,
+              !isContinuousTrackingEnabled else { return }
+
+        wasAutoStarted = true
+        enableContinuousTracking()
+    }
+
+    private func handleActivityStopped() {
+        guard wasAutoStarted, isContinuousTrackingEnabled else { return }
+
+        wasAutoStarted = false
+        disableContinuousTracking()
+    }
+
+    /// Check activity on background wake (called from significant location change)
+    private func checkActivityOnWake() {
+        guard autoStartOnActivity,
+              isTrackingEnabled,
+              !isContinuousTrackingEnabled else { return }
+
+        Task {
+            guard let activity = await activityDetectionManager.queryCurrentActivity() else { return }
+            if ActivityDetectionManager.isActiveActivity(activity) {
+                handleActivityDetected(activity)
+            }
+        }
+    }
+
     // MARK: - Live Activity Geocoding
     
     private func geocodeForLiveActivity(location: CLLocation) async {
@@ -447,6 +524,11 @@ extension LocationManager: CLLocationManagerDelegate {
         Task { @MainActor in
             guard let location = locations.last else { return }
             currentLocation = location
+
+            // On significant location change (not continuous), check if we should auto-start
+            if !isContinuousTrackingEnabled {
+                checkActivityOnWake()
+            }
 
             if isContinuousTrackingEnabled {
                 saveLocationPoint(location)

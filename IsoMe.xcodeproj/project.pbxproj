@@ -11,6 +11,7 @@
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
+		AD000001212F000100000001 /* ActivityDetectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD000001212F000000000001 /* ActivityDetectionManager.swift */; };
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
@@ -184,6 +185,7 @@
 		A4000002212F000000000002 /* IsoMeWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchWidget.swift; sourceTree = "<group>"; };
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4000004212F000000000004 /* IsoMeWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatchWidget.entitlements; sourceTree = "<group>"; };
+		AD000001212F000000000001 /* ActivityDetectionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActivityDetectionManager.swift; sourceTree = "<group>"; };
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -317,6 +319,7 @@
 		A1FFFFFC212EFFFFFFFF0004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AD000001212F000000000001 /* ActivityDetectionManager.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
@@ -644,6 +647,7 @@
 				90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */,
 				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
 				97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */,
+				AD000001212F000100000001 /* ActivityDetectionManager.swift in Sources */,
 				BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */,
 				DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */,
 				E1000001212F000100000001 /* AppInfo.swift in Sources */,
