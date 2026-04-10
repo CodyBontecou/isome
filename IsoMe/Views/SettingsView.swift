@@ -25,6 +25,7 @@ struct SettingsView: View {
 
     @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
+    @AppStorage("autoStartOnActivity") private var autoStartOnActivity = false
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
@@ -408,14 +409,24 @@ struct SettingsView: View {
                         settingsToggle("LOCATION ON START", isOn: $defaultLocationTrackingEnabled)
                     }
 
-                    TERow(showDivider: false) {
+                    TERow {
                         settingsToggle("CONTINUOUS MODE", isOn: $defaultContinuousTracking)
+                    }
+
+                    TERow(showDivider: false) {
+                        settingsToggle("AUTO-START ON ACTIVITY", isOn: Binding(
+                            get: { autoStartOnActivity },
+                            set: { newValue in
+                                autoStartOnActivity = newValue
+                                viewModel.locationManager.setAutoStartOnActivity(newValue)
+                            }
+                        ))
                     }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Default behavior when starting tracking from the Track tab.")
+            TESectionFooter(text: "Auto-start begins continuous tracking when driving or exercising is detected.")
         }
     }
 
