@@ -652,12 +652,12 @@ struct PermissionRequestView: View {
                 .foregroundStyle(TE.accent)
 
             VStack(spacing: 8) {
-                Text("LOCATION ACCESS")
+                Text("VISIT DETECTION")
                     .font(TE.mono(.caption, weight: .bold))
                     .tracking(2)
                     .foregroundStyle(TE.textPrimary)
 
-                Text("iso.me needs access to your location to record the places you visit throughout the day.")
+                Text("iso.me detects the places you visit and builds a private timeline of your day.")
                     .font(TE.mono(.caption2, weight: .regular))
                     .foregroundStyle(TE.textMuted)
                     .multilineTextAlignment(.center)
