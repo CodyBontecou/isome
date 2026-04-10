@@ -138,7 +138,7 @@ struct SettingsView: View {
 
     private var purchaseSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "SPOTTED PRO")
+            TESectionHeader(title: "ISO.ME PRO")
 
             TECard {
                 VStack(spacing: 0) {
