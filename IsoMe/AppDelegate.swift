@@ -1,5 +1,6 @@
 import UIKit
 import CoreLocation
+import UserNotifications
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     // Shared location manager instance for background launches
@@ -25,6 +26,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             // App was launched in background due to location event
             // The LocationManager will be initialized and will receive the pending events
             print("App launched from location event")
+        }
+
+        // Re-register HealthKit workout observer for background delivery
+        // (must be set up on every launch for background delivery to work)
+        if UserDefaults.standard.bool(forKey: "autoStartOnWorkout") {
+            HealthKitWorkoutObserver.shared.startObserving()
         }
 
         return true

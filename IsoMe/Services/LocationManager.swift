@@ -5,6 +5,7 @@ import SwiftData
 import Combine
 import ActivityKit
 import WidgetKit
+import UserNotifications
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
@@ -38,6 +39,14 @@ final class LocationManager: NSObject, ObservableObject {
     private let activityDetectionManager = ActivityDetectionManager.shared
     @Published var autoStartOnActivity: Bool = false
     @Published var wasAutoStarted: Bool = false
+
+    // HealthKit workout observer
+    private let healthKitObserver = HealthKitWorkoutObserver.shared
+    @Published var autoStartOnWorkout: Bool = false
+
+    // Distance-based trigger
+    private let dailyDistanceTracker = DailyDistanceTracker.shared
+    @Published var autoStartOnDistance: Bool = false
 
     // Current location name for Live Activity
     private var currentLocationName: String?
@@ -81,11 +90,19 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         autoStartOnActivity = UserDefaults.standard.bool(forKey: "autoStartOnActivity")
+        autoStartOnWorkout = UserDefaults.standard.bool(forKey: "autoStartOnWorkout")
+        autoStartOnDistance = UserDefaults.standard.bool(forKey: "autoStartOnDistance")
 
         authorizationStatus = locationManager.authorizationStatus
 
+        // Request notification permission for auto-start/stop alerts
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+
         // Set up activity detection for auto-start
         setupActivityDetection()
+
+        // Set up HealthKit workout observer
+        setupHealthKitObserver()
 
         // Listen for stop tracking notification from Live Activity
         NotificationCenter.default.addObserver(
@@ -168,11 +185,15 @@ final class LocationManager: NSObject, ObservableObject {
             if autoStartOnActivity {
                 activityDetectionManager.startMonitoring()
             }
+            if autoStartOnWorkout {
+                healthKitObserver.startObserving()
+            }
         } else {
             locationManager.stopMonitoringVisits()
             locationManager.stopMonitoringSignificantLocationChanges()
             locationManager.stopUpdatingLocation()
             activityDetectionManager.stopMonitoring()
+            healthKitObserver.stopObserving()
         }
     }
 
@@ -393,13 +414,100 @@ final class LocationManager: NSObject, ObservableObject {
 
         wasAutoStarted = true
         enableContinuousTracking()
+
+        let reason: String
+        if activity.automotive { reason = "driving detected" }
+        else if activity.cycling { reason = "cycling detected" }
+        else if activity.running { reason = "running detected" }
+        else { reason = "walking detected" }
+        sendAutoStartNotification(reason: reason)
     }
 
     private func handleActivityStopped() {
         guard wasAutoStarted, isContinuousTrackingEnabled else { return }
 
-        wasAutoStarted = false
+        sendAutoStopNotification()
         disableContinuousTracking()
+    }
+
+    // MARK: - HealthKit Workout Observer (Auto-Start)
+
+    private func setupHealthKitObserver() {
+        healthKitObserver.onWorkoutDetected = { [weak self] in
+            Task { @MainActor in
+                self?.handleWorkoutDetected()
+            }
+        }
+
+        if autoStartOnWorkout && isTrackingEnabled {
+            healthKitObserver.startObserving()
+        }
+    }
+
+    func setAutoStartOnWorkout(_ enabled: Bool) {
+        if enabled {
+            Task {
+                let authorized = await healthKitObserver.requestAuthorization()
+                autoStartOnWorkout = authorized
+                UserDefaults.standard.set(authorized, forKey: "autoStartOnWorkout")
+                if authorized && isTrackingEnabled {
+                    healthKitObserver.startObserving()
+                }
+            }
+        } else {
+            autoStartOnWorkout = false
+            UserDefaults.standard.set(false, forKey: "autoStartOnWorkout")
+            healthKitObserver.stopObserving()
+        }
+    }
+
+    private func handleWorkoutDetected() {
+        guard autoStartOnWorkout,
+              isTrackingEnabled,
+              !isContinuousTrackingEnabled else { return }
+
+        wasAutoStarted = true
+        enableContinuousTracking()
+        sendAutoStartNotification(reason: "workout detected")
+    }
+
+    // MARK: - Distance-Based Trigger (Auto-Start)
+
+    func setAutoStartOnDistance(_ enabled: Bool) {
+        autoStartOnDistance = enabled
+        UserDefaults.standard.set(enabled, forKey: "autoStartOnDistance")
+    }
+
+    private func handleDistanceThresholdExceeded() {
+        guard autoStartOnDistance,
+              isTrackingEnabled,
+              !isContinuousTrackingEnabled else { return }
+
+        wasAutoStarted = true
+        enableContinuousTracking()
+        sendAutoStartNotification(reason: "above-average travel detected")
+    }
+
+    // MARK: - Auto-Start Notifications
+
+    private func sendAutoStartNotification(reason: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Recording Started"
+        content.body = "\(reason.prefix(1).uppercased() + reason.dropFirst()) — continuous tracking enabled"
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: "autoStart-\(UUID().uuidString)", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    private func sendAutoStopNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Recording Stopped"
+        content.body = "Activity ended — continuous tracking disabled"
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: "autoStop-\(UUID().uuidString)", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 
     /// Check activity on background wake (called from significant location change)
@@ -525,9 +633,17 @@ extension LocationManager: CLLocationManagerDelegate {
             guard let location = locations.last else { return }
             currentLocation = location
 
+            // Record location for daily distance history
+            dailyDistanceTracker.recordLocation(location)
+
             // On significant location change (not continuous), check if we should auto-start
             if !isContinuousTrackingEnabled {
                 checkActivityOnWake()
+
+                // Check distance-based trigger
+                if autoStartOnDistance, dailyDistanceTracker.isAboveAverage() {
+                    handleDistanceThresholdExceeded()
+                }
             }
 
             if isContinuousTrackingEnabled {
