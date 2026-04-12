@@ -26,6 +26,7 @@ struct SettingsView: View {
     @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
     @AppStorage("autoStartOnActivity") private var autoStartOnActivity = false
+    @AppStorage("autoStartOnDistance") private var autoStartOnDistance = false
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
@@ -413,7 +414,7 @@ struct SettingsView: View {
                         settingsToggle("CONTINUOUS MODE", isOn: $defaultContinuousTracking)
                     }
 
-                    TERow(showDivider: false) {
+                    TERow {
                         settingsToggle("AUTO-START ON ACTIVITY", isOn: Binding(
                             get: { autoStartOnActivity },
                             set: { newValue in
@@ -422,11 +423,28 @@ struct SettingsView: View {
                             }
                         ))
                     }
+
+                    TERow {
+                        settingsToggle("AUTO-START ON WORKOUT", isOn: Binding(
+                            get: { viewModel.locationManager.autoStartOnWorkout },
+                            set: { viewModel.locationManager.setAutoStartOnWorkout($0) }
+                        ))
+                    }
+
+                    TERow(showDivider: false) {
+                        settingsToggle("AUTO-START ON DISTANCE", isOn: Binding(
+                            get: { autoStartOnDistance },
+                            set: { newValue in
+                                autoStartOnDistance = newValue
+                                viewModel.locationManager.setAutoStartOnDistance(newValue)
+                            }
+                        ))
+                    }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Auto-start begins continuous tracking when driving or exercising is detected.")
+            TESectionFooter(text: "Auto-start begins continuous tracking when motion activity, an Apple Watch workout, or above-average daily travel is detected.")
         }
     }
 
