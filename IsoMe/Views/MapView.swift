@@ -5,8 +5,11 @@ import SwiftData
 struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
+    @ObservedObject private var usageTracker = UsageTracker.shared
+    @ObservedObject private var storeManager = StoreManager.shared
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
+    @State private var showingPaywall = false
     @State private var showTravelPath = true
     @State private var showPointMarkers = true
     @State private var showStartEndMarkers = true
@@ -16,10 +19,25 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
-    
+    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
+    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
+
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
         self.locationManager = viewModel.locationManager
+    }
+
+    private var isTracking: Bool {
+        locationManager.isContinuousTrackingEnabled ||
+        (!defaultContinuousTracking && locationManager.isTrackingEnabled)
+    }
+
+    private var isContinuousTracking: Bool {
+        locationManager.isContinuousTrackingEnabled
+    }
+
+    private var isLockedOut: Bool {
+        usageTracker.hasExceededFreeLimit && !storeManager.isPurchased
     }
     
     // Minimum distance in meters between points to show as markers
@@ -150,6 +168,40 @@ struct LocationMapView: View {
                     MapScaleView()
                 }
 
+                // Top liquid-glass tracking controls
+                VStack(spacing: 8) {
+                    MapTrackingControlPill(
+                        viewModel: viewModel,
+                        locationManager: locationManager,
+                        isTracking: isTracking,
+                        isContinuousTracking: isContinuousTracking,
+                        onPrimaryTap: handleTrackingTap
+                    )
+
+                    if isContinuousTracking,
+                       let remaining = locationManager.continuousTrackingRemainingTime {
+                        MapAutoOffPill(remaining: remaining)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    if !isTracking && !storeManager.isPurchased {
+                        MapUsagePill(
+                            usageTracker: usageTracker,
+                            isLockedOut: isLockedOut,
+                            onTap: {
+                                if isLockedOut { showingPaywall = true }
+                            }
+                        )
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
+
                 // Bottom liquid-glass filter bar
                 VStack {
                     Spacer()
@@ -187,6 +239,12 @@ struct LocationMapView: View {
             .sheet(item: $selectedVisit) { visit in
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView(storeManager: storeManager)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .freeLimitReached)) { _ in
+                showingPaywall = true
             }
             .onAppear {
                 viewModel.loadAllVisits()
@@ -230,6 +288,270 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
+    }
+
+    private func handleTrackingTap() {
+        if isLockedOut {
+            showingPaywall = true
+            return
+        }
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            if isTracking {
+                if isContinuousTracking {
+                    viewModel.disableContinuousTracking()
+                }
+                viewModel.stopTracking()
+            } else {
+                if defaultLocationTrackingEnabled {
+                    viewModel.startTracking()
+                }
+                if defaultContinuousTracking {
+                    viewModel.enableContinuousTracking()
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Tracking Control Pills
+
+struct MapTrackingControlPill: View {
+    @Bindable var viewModel: LocationViewModel
+    @ObservedObject var locationManager: LocationManager
+    let isTracking: Bool
+    let isContinuousTracking: Bool
+    let onPrimaryTap: () -> Void
+
+    @State private var pulseOpacity: Double = 1.0
+
+    var body: some View {
+        HStack(spacing: 10) {
+            statusBlock
+
+            Spacer(minLength: 6)
+
+            if isTracking {
+                statsBlock
+                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+            }
+
+            primaryButton
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 6)
+        .padding(.vertical, 6)
+        .background {
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    Capsule()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.8
+                        )
+                }
+                .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.82), value: isTracking)
+        .onAppear { pulseOpacity = 0.35 }
+    }
+
+    private var statusBlock: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(isTracking ? TE.accent : TE.textMuted.opacity(0.35))
+                .frame(width: 7, height: 7)
+                .opacity(isTracking ? pulseOpacity : 1.0)
+                .animation(
+                    isTracking
+                        ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
+                        : .default,
+                    value: pulseOpacity
+                )
+
+            if isContinuousTracking {
+                TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                    Text(viewModel.formattedSessionTrackingDuration)
+                        .font(TE.mono(.subheadline, weight: .semibold))
+                        .foregroundStyle(TE.textMuted)
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+            } else {
+                Text(isTracking ? "TRACKING" : "STANDBY")
+                    .font(TE.mono(.caption, weight: .semibold))
+                    .tracking(1.8)
+                    .foregroundStyle(TE.textMuted)
+            }
+        }
+    }
+
+    private var statsBlock: some View {
+        HStack(spacing: 8) {
+            Text(viewModel.formattedSessionDistance)
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+                .monospacedDigit()
+
+            Rectangle()
+                .fill(Color.primary.opacity(0.15))
+                .frame(width: 1, height: 12)
+
+            Text("\(viewModel.sessionLocationPoints.count) PTS")
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+        }
+    }
+
+    private var primaryButton: some View {
+        Button(action: onPrimaryTap) {
+            Image(systemName: isTracking ? "stop.fill" : "play.fill")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 34, height: 34)
+                .background {
+                    Circle()
+                        .fill(isTracking ? TE.danger : TE.accent)
+                        .overlay {
+                            Circle()
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.4), .white.opacity(0.0)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    ),
+                                    lineWidth: 0.8
+                                )
+                        }
+                        .shadow(
+                            color: (isTracking ? TE.danger : TE.accent).opacity(0.35),
+                            radius: 6,
+                            x: 0,
+                            y: 3
+                        )
+                }
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
+    }
+}
+
+struct MapAutoOffPill: View {
+    let remaining: TimeInterval
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "timer")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+
+            Text("AUTO-OFF  \(formatTime(remaining))")
+                .font(TE.mono(.caption2, weight: .semibold))
+                .tracking(1.4)
+                .foregroundStyle(TE.textMuted)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background {
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    Capsule()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.45), .white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.6
+                        )
+                }
+                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+        }
+    }
+
+    private func formatTime(_ interval: TimeInterval) -> String {
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+        if hours > 0 { return "\(hours)H \(minutes)M" }
+        return "\(minutes) MIN"
+    }
+}
+
+struct MapUsagePill: View {
+    @ObservedObject var usageTracker: UsageTracker
+    let isLockedOut: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        let totalHours = usageTracker.totalUsageHours
+        let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
+        let progress = min(totalHours / limitHours, 1.0)
+
+        Button(action: onTap) {
+            HStack(spacing: 10) {
+                Text("USAGE")
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .tracking(1.4)
+                    .foregroundStyle(TE.textMuted)
+
+                GeometryReader { geometry in
+                    let totalWidth = geometry.size.width
+                    let segmentCount = 14
+                    let gap: CGFloat = 2
+                    let segmentWidth = (totalWidth - CGFloat(segmentCount - 1) * gap) / CGFloat(segmentCount)
+                    let filledSegments = Int(Double(segmentCount) * progress)
+
+                    HStack(spacing: gap) {
+                        ForEach(0..<segmentCount, id: \.self) { index in
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(
+                                    index < filledSegments
+                                        ? (progress >= 1.0 ? TE.danger : TE.accent)
+                                        : TE.border.opacity(0.45)
+                                )
+                                .frame(width: segmentWidth, height: 4)
+                        }
+                    }
+                }
+                .frame(height: 4)
+
+                Text("\(totalHours, specifier: "%.1f")/\(Int(limitHours))H")
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .tracking(0.8)
+                    .foregroundStyle(TE.textMuted)
+                    .monospacedDigit()
+
+                if isLockedOut {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.accent)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        Capsule()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.45), .white.opacity(0.05)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.6
+                            )
+                    }
+                    .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 
