@@ -11,8 +11,11 @@ struct LocationMapView: View {
     @State private var showPointMarkers = true
     @State private var showStartEndMarkers = true
     @State private var showSessionPath = true
+    @State private var showVisitMarkers = true
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
+    @State private var activePreset: MapDatePreset? = .today
+    @AppStorage("showOutliers") private var showOutliers = false
     
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
@@ -27,12 +30,14 @@ struct LocationMapView: View {
     }
 
     var filteredPoints: [LocationPoint] {
-        viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        return showOutliers ? points : points.filter { !$0.isOutlier }
     }
-    
+
     var activeSessionPoints: [LocationPoint] {
         guard locationManager.isContinuousTrackingEnabled else { return [] }
-        return viewModel.sessionLocationPoints
+        let points = viewModel.sessionLocationPoints
+        return showOutliers ? points : points.filter { !$0.isOutlier }
     }
     
     var spacedPoints: [LocationPoint] {
@@ -126,15 +131,17 @@ struct LocationMapView: View {
                     }
 
                     // Visit markers
-                    ForEach(filteredVisits) { visit in
-                        Annotation(
-                            visit.displayName,
-                            coordinate: visit.coordinate,
-                            anchor: .bottom
-                        ) {
-                            VisitMarker(visit: visit, isSelected: selectedVisit?.id == visit.id)
+                    if showVisitMarkers {
+                        ForEach(filteredVisits) { visit in
+                            Annotation(
+                                visit.displayName,
+                                coordinate: visit.coordinate,
+                                anchor: .bottom
+                            ) {
+                                VisitMarker(visit: visit, isSelected: selectedVisit?.id == visit.id)
+                            }
+                            .tag(visit)
                         }
-                        .tag(visit)
                     }
                 }
                 .mapControls {
@@ -143,69 +150,38 @@ struct LocationMapView: View {
                     MapScaleView()
                 }
 
-                // Date range info overlay
+                // Bottom liquid-glass filter bar
                 VStack {
-                    HStack {
-                        DateRangeChip(range: viewModel.mapDateRange)
-                            .onTapGesture {
-                                showingFilters = true
-                            }
-                        Spacer()
-                    }
-                    .padding()
-
                     Spacer()
-                }
-            }
-            .navigationTitle("Map")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
+
+                    QuickFilterBar(
+                        activePreset: activePreset,
+                        showTravelPath: $showTravelPath,
+                        showPointMarkers: $showPointMarkers,
+                        showStartEndMarkers: $showStartEndMarkers,
+                        showSessionPath: $showSessionPath,
+                        showVisitMarkers: $showVisitMarkers,
+                        hasSessionPoints: !activeSessionPoints.isEmpty,
+                        onSelectPreset: { preset in
+                            activePreset = preset
+                            viewModel.mapDateRange = preset.range()
+                        },
+                        onSelectCustom: {
                             showingFilters = true
-                        } label: {
-                            Label("Date Range", systemImage: "calendar")
-                        }
-
-                        Toggle(isOn: $showTravelPath) {
-                            Label("Show Travel Path", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
-                        }
-                        
-                        Toggle(isOn: $showSessionPath) {
-                            Label("Show Active Session", systemImage: "waveform.path.ecg")
-                        }
-                        
-                        Toggle(isOn: $showPointMarkers) {
-                            Label("Show Point Markers", systemImage: "circle.fill")
-                        }
-                        
-                        Toggle(isOn: $showStartEndMarkers) {
-                            Label("Show Start/End Markers", systemImage: "flag.fill")
-                        }
-
-                        if !activeSessionPoints.isEmpty {
-                            Button {
-                                fitMapToSession()
-                            } label: {
-                                Label("Fit Active Session", systemImage: "location.north.line")
-                            }
-                        }
-
-                        Button {
-                            fitMapToContent()
-                        } label: {
-                            Label("Fit All Visits", systemImage: "arrow.up.left.and.arrow.down.right")
-                        }
-                    } label: {
-                        Image(systemName: "slider.horizontal.3")
-                    }
+                        },
+                        onFitContent: { fitMapToContent() },
+                        onFitSession: !activeSessionPoints.isEmpty ? { fitMapToSession() } : nil
+                    )
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
                 }
             }
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
                     dateRange: $viewModel.mapDateRange,
-                    isPresented: $showingFilters
+                    isPresented: $showingFilters,
+                    onApply: { activePreset = nil }
                 )
             }
             .sheet(item: $selectedVisit) { visit in
@@ -394,13 +370,19 @@ struct DateRangeChip: View {
 struct DateRangeFilterSheet: View {
     @Binding var dateRange: ClosedRange<Date>
     @Binding var isPresented: Bool
+    var onApply: (() -> Void)? = nil
 
     @State private var startDate: Date
     @State private var endDate: Date
 
-    init(dateRange: Binding<ClosedRange<Date>>, isPresented: Binding<Bool>) {
+    init(
+        dateRange: Binding<ClosedRange<Date>>,
+        isPresented: Binding<Bool>,
+        onApply: (() -> Void)? = nil
+    ) {
         _dateRange = dateRange
         _isPresented = isPresented
+        self.onApply = onApply
         _startDate = State(initialValue: dateRange.wrappedValue.lowerBound)
         _endDate = State(initialValue: dateRange.wrappedValue.upperBound)
     }
@@ -448,6 +430,7 @@ struct DateRangeFilterSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Apply") {
                         dateRange = startDate...endDate
+                        onApply?()
                         isPresented = false
                     }
                 }
@@ -542,6 +525,194 @@ struct VisitQuickView: View {
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+// MARK: - Quick Filter Bar
+
+enum MapDatePreset: CaseIterable, Hashable {
+    case today, sevenDays, thirtyDays, all
+
+    var label: String {
+        switch self {
+        case .today: return "Today"
+        case .sevenDays: return "7D"
+        case .thirtyDays: return "30D"
+        case .all: return "All"
+        }
+    }
+
+    func range(referenceDate: Date = Date()) -> ClosedRange<Date> {
+        let calendar = Calendar.current
+        switch self {
+        case .today:
+            return calendar.startOfDay(for: referenceDate)...referenceDate
+        case .sevenDays:
+            return calendar.date(byAdding: .day, value: -7, to: referenceDate)!...referenceDate
+        case .thirtyDays:
+            return calendar.date(byAdding: .day, value: -30, to: referenceDate)!...referenceDate
+        case .all:
+            return Date.distantPast...referenceDate
+        }
+    }
+}
+
+struct QuickFilterBar: View {
+    let activePreset: MapDatePreset?
+    @Binding var showTravelPath: Bool
+    @Binding var showPointMarkers: Bool
+    @Binding var showStartEndMarkers: Bool
+    @Binding var showSessionPath: Bool
+    @Binding var showVisitMarkers: Bool
+    let hasSessionPoints: Bool
+    let onSelectPreset: (MapDatePreset) -> Void
+    let onSelectCustom: () -> Void
+    let onFitContent: () -> Void
+    let onFitSession: (() -> Void)?
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(MapDatePreset.allCases, id: \.self) { preset in
+                    PresetPill(
+                        label: preset.label,
+                        isActive: activePreset == preset
+                    ) {
+                        onSelectPreset(preset)
+                    }
+                }
+
+                PresetPill(
+                    label: "Custom",
+                    icon: "calendar",
+                    isActive: activePreset == nil
+                ) {
+                    onSelectCustom()
+                }
+
+                PillSeparator()
+
+                LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
+                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $showTravelPath)
+                LayerToggleButton(systemImage: "smallcircle.filled.circle", isOn: $showPointMarkers)
+                LayerToggleButton(systemImage: "flag.fill", isOn: $showStartEndMarkers)
+                if hasSessionPoints {
+                    LayerToggleButton(systemImage: "waveform.path.ecg", isOn: $showSessionPath)
+                }
+
+                PillSeparator()
+
+                FitMenuButton(
+                    onFitContent: onFitContent,
+                    onFitSession: onFitSession
+                )
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+        }
+        .background {
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    Capsule()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.8
+                        )
+                }
+                .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+        }
+    }
+}
+
+struct PresetPill: View {
+    let label: String
+    var icon: String? = nil
+    let isActive: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 11, weight: .medium))
+                }
+                Text(label)
+                    .font(.system(size: 13, weight: .semibold))
+            }
+            .foregroundStyle(isActive ? Color.white : Color.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background {
+                Capsule()
+                    .fill(isActive ? TE.accent : Color.clear)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct LayerToggleButton: View {
+    let systemImage: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Button {
+            withAnimation(.spring(duration: 0.25)) {
+                isOn.toggle()
+            }
+        } label: {
+            Image(systemName: systemImage)
+                .font(.system(size: 13, weight: .semibold))
+                .frame(width: 32, height: 32)
+                .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
+                .background {
+                    Circle()
+                        .fill(isOn ? TE.accent : Color.clear)
+                }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct PillSeparator: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.primary.opacity(0.12))
+            .frame(width: 1, height: 20)
+            .padding(.horizontal, 2)
+    }
+}
+
+struct FitMenuButton: View {
+    let onFitContent: () -> Void
+    let onFitSession: (() -> Void)?
+
+    var body: some View {
+        Menu {
+            if let onFitSession {
+                Button {
+                    onFitSession()
+                } label: {
+                    Label("Fit Active Session", systemImage: "location.north.line")
+                }
+            }
+            Button {
+                onFitContent()
+            } label: {
+                Label("Fit All Visits", systemImage: "arrow.up.left.and.arrow.down.right")
+            }
+        } label: {
+            Image(systemName: "scope")
+                .font(.system(size: 13, weight: .semibold))
+                .frame(width: 32, height: 32)
+                .foregroundStyle(Color.primary.opacity(0.7))
         }
     }
 }

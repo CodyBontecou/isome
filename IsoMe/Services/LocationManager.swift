@@ -25,6 +25,9 @@ final class LocationManager: NSObject, ObservableObject {
     private var continuousTrackingTimer: Timer?
     @Published var continuousTrackingStartTime: Date?
 
+    // Free-tier usage limit timer (stops continuous tracking at 10h for non-purchased users)
+    private var freeLimitTimer: Timer?
+
     // Geocoding service
     private let geocodingService = GeocodingService()
     
@@ -52,6 +55,10 @@ final class LocationManager: NSObject, ObservableObject {
     private var currentLocationName: String?
     private var currentAddress: String?
     private var lastGeocodedLocation: CLLocation?
+
+    // Sliding window of recently saved points for outlier detection
+    private var pointBeforeLast: LocationPoint?
+    private var lastSavedPoint: LocationPoint?
 
     private var usesMetricDistanceUnits: Bool {
         let key = "usesMetricDistanceUnits"
@@ -95,8 +102,15 @@ final class LocationManager: NSObject, ObservableObject {
 
         authorizationStatus = locationManager.authorizationStatus
 
-        // Request notification permission for auto-start/stop alerts
+        // Request notification permission for auto-start/stop alerts.
+        // Skipped in screenshot-seeding mode so the system prompt doesn't cover the UI.
+        #if DEBUG
+        if !ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        }
+        #else
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        #endif
 
         // Set up activity detection for auto-start
         setupActivityDetection()
@@ -163,6 +177,8 @@ final class LocationManager: NSObject, ObservableObject {
             UsageTracker.shared.sessionEnded()
             continuousTrackingTimer?.invalidate()
             continuousTrackingTimer = nil
+            freeLimitTimer?.invalidate()
+            freeLimitTimer = nil
             Task {
                 await liveActivityManager.endActivity()
             }
@@ -202,6 +218,12 @@ final class LocationManager: NSObject, ObservableObject {
     func enableContinuousTracking() {
         guard hasLocationPermission else { return }
 
+        // Block start if the free-tier limit is already exhausted.
+        if !StoreManager.shared.isPurchased && UsageTracker.shared.hasExceededFreeLimit {
+            NotificationCenter.default.post(name: .freeLimitReached, object: nil)
+            return
+        }
+
         // Track usage for paywall
         UsageTracker.shared.sessionStarted()
 
@@ -212,11 +234,11 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = distanceFilter
         locationManager.startUpdatingLocation()
-        
+
         // Start Live Activity
         if isLiveActivityEnabled {
-            let autoOffSeconds = continuousTrackingAutoOffHours > 0 
-                ? Int(continuousTrackingAutoOffHours * 3600) 
+            let autoOffSeconds = continuousTrackingAutoOffHours > 0
+                ? Int(continuousTrackingAutoOffHours * 3600)
                 : nil
             liveActivityManager.startActivity(mode: .continuous, autoOffSeconds: autoOffSeconds)
         }
@@ -233,6 +255,8 @@ final class LocationManager: NSObject, ObservableObject {
                 }
             }
         }
+
+        scheduleFreeLimitTimerIfNeeded()
     }
 
     func disableContinuousTracking() {
@@ -244,6 +268,8 @@ final class LocationManager: NSObject, ObservableObject {
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingTimer?.invalidate()
         continuousTrackingTimer = nil
+        freeLimitTimer?.invalidate()
+        freeLimitTimer = nil
         continuousTrackingStartTime = nil
 
         locationManager.stopUpdatingLocation()
@@ -336,10 +362,36 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         let point = LocationPoint(from: location)
+
+        // Flag obvious teleports: implied speed from the last saved point exceeds
+        // what a human moves (~40 m/s / ~90 mph). Cheap check, catches end-of-trail spikes.
+        if let last = lastSavedPoint {
+            let dt = point.timestamp.timeIntervalSince(last.timestamp)
+            if dt > 0 {
+                let impliedSpeed = last.distance(to: point) / dt
+                if impliedSpeed > 40 {
+                    point.isOutlier = true
+                }
+            }
+        }
+
         context.insert(point)
+
+        // Re-evaluate the previously saved point now that we have a point after it.
+        // An out-and-back spike looks like: prev→last jumps far, last→new returns near prev.
+        if let before = pointBeforeLast, let last = lastSavedPoint, !last.isOutlier {
+            let spikeOut = before.distance(to: last)
+            let spikeBack = last.distance(to: point)
+            let endpointGap = before.distance(to: point)
+            if spikeOut > 100 && spikeBack > 100 && endpointGap < 30 {
+                last.isOutlier = true
+            }
+        }
 
         do {
             try context.save()
+            pointBeforeLast = lastSavedPoint
+            lastSavedPoint = point
             // Notify observers that new data is available
             locationPointsSavedCount += 1
             // Sync to watch widget (throttled by WidgetKit)
@@ -507,6 +559,47 @@ final class LocationManager: NSObject, ObservableObject {
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: "autoStop-\(UUID().uuidString)", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    // MARK: - Free-Tier Limit
+
+    private func scheduleFreeLimitTimerIfNeeded() {
+        freeLimitTimer?.invalidate()
+        freeLimitTimer = nil
+
+        guard !StoreManager.shared.isPurchased else { return }
+
+        let remaining = UsageTracker.shared.remainingFreeSeconds
+        guard remaining > 0 else { return }
+
+        freeLimitTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleFreeLimitReached()
+            }
+        }
+    }
+
+    private func handleFreeLimitReached() {
+        // A purchase mid-session cancels enforcement.
+        guard !StoreManager.shared.isPurchased else { return }
+        guard isContinuousTrackingEnabled else { return }
+
+        sendFreeLimitNotification()
+        // disableContinuousTracking flushes UsageTracker.sessionEnded() and stops
+        // location updates. Saved points/visits already live in SwiftData.
+        disableContinuousTracking()
+
+        NotificationCenter.default.post(name: .freeLimitReached, object: nil)
+    }
+
+    private func sendFreeLimitNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Free Tracking Limit Reached"
+        content.body = "You've used your 10 free hours. Tap to unlock unlimited tracking."
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: "freeLimit-\(UUID().uuidString)", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
 

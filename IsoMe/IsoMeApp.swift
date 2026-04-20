@@ -21,7 +21,13 @@ struct IsoMeApp: App {
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            #if DEBUG
+            MainActor.assumeIsolated {
+                MockDataSeeder.seedIfNeeded(modelContext: container.mainContext)
+            }
+            #endif
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
@@ -87,4 +93,5 @@ extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
     static let stopContinuousTracking = Notification.Name("stopContinuousTracking")
+    static let freeLimitReached = Notification.Name("freeLimitReached")
 }

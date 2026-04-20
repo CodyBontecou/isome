@@ -78,7 +78,6 @@ IsoMe/
     LocationViewModel.swift        # Data coordination between UI and services
   Views/
     ContentView.swift              # Root view with onboarding and tab navigation
-    TodayView.swift                # Visit timeline and location points
     TrackingView.swift             # Tracking controls
     MapView.swift                  # Map with visit pins
     SessionPathMapView.swift       # Route path visualization

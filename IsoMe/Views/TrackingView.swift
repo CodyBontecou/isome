@@ -7,7 +7,7 @@ struct TrackingView: View {
     @ObservedObject private var usageTracker = UsageTracker.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
-    @State private var pulsePhase: CGFloat = 0
+    @State private var pulseOpacity: Double = 1.0
 
     @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
@@ -35,37 +35,31 @@ struct TrackingView: View {
             ZStack {
                 TE.surface.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // Top module label
-                    moduleHeader
+                VStack(spacing: 16) {
+                    heroCard
+                        .frame(maxHeight: .infinity)
 
-                    // LCD Display
-                    lcdDisplay
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
+                    VStack(spacing: 10) {
+                        if isContinuousTracking,
+                           let remaining = locationManager.continuousTrackingRemainingTime {
+                            autoOffCapsule(remaining: remaining)
+                        }
 
-                    Spacer()
+                        if !isTracking && !storeManager.isPurchased {
+                            usageCapsule
+                        }
 
-                    // Control section
-                    controlSection
-                        .padding(.horizontal, 16)
+                        primaryButton
 
-                    Spacer()
-
-                    // Bottom info bar
-                    if !isTracking && !storeManager.isPurchased {
-                        usageMeter
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 8)
-                    }
-
-                    if isContinuousTracking, let remaining = locationManager.continuousTrackingRemainingTime {
-                        autoOffIndicator(remaining: remaining)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 8)
+                        Text(modeLabel)
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .tracking(1.5)
+                            .foregroundStyle(TE.textMuted)
                     }
                 }
-                .padding(.bottom, 8)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -79,18 +73,53 @@ struct TrackingView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+            .onReceive(NotificationCenter.default.publisher(for: .freeLimitReached)) { _ in
+                showingPaywall = true
+            }
+            .onAppear { pulseOpacity = 0.35 }
         }
     }
 
-    // MARK: - Module Header
+    // MARK: - Hero
 
-    private var moduleHeader: some View {
-        HStack(spacing: 6) {
+    private var heroCard: some View {
+        TECard {
+            VStack(alignment: .leading, spacing: 0) {
+                statusRow
+                    .padding(.horizontal, 20)
+                    .padding(.top, 18)
+
+                Spacer(minLength: 24)
+
+                timeBlock
+                    .padding(.horizontal, 20)
+
+                Spacer(minLength: 24)
+
+                Divider()
+                    .background(TE.border)
+
+                statRow
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isTracking)
+    }
+
+    private var statusRow: some View {
+        HStack(spacing: 8) {
             Circle()
-                .fill(isTracking ? TE.lcdGreen : TE.textMuted.opacity(0.3))
-                .frame(width: 6, height: 6)
+                .fill(isTracking ? TE.accent : TE.textMuted.opacity(0.3))
+                .frame(width: 7, height: 7)
+                .opacity(isTracking ? pulseOpacity : 1.0)
+                .animation(
+                    isTracking
+                        ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
+                        : .default,
+                    value: pulseOpacity
+                )
 
-            Text(isTracking ? "ACTIVE" : "STANDBY")
+            Text(isTracking ? "TRACKING" : "STANDBY")
                 .font(TE.mono(.caption2, weight: .semibold))
                 .tracking(2)
                 .foregroundStyle(isTracking ? TE.textPrimary : TE.textMuted)
@@ -99,101 +128,60 @@ struct TrackingView: View {
 
             if isContinuousTracking {
                 Text("CONTINUOUS")
-                    .font(TE.mono(.caption2, weight: .medium))
+                    .font(TE.mono(.caption2, weight: .semibold))
                     .tracking(1.5)
                     .foregroundStyle(TE.accent)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 10)
     }
 
-    // MARK: - LCD Display
-
-    private var lcdDisplay: some View {
-        VStack(spacing: 0) {
-            if isContinuousTracking {
-                // Active session display
-                TimelineView(.periodic(from: .now, by: 1.0)) { _ in
-                    VStack(spacing: 0) {
-                        // Duration - big LCD readout
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(viewModel.formattedSessionTrackingDuration)
-                                .font(.system(size: 52, weight: .light, design: .monospaced))
-                                .foregroundStyle(TE.textPrimary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 20)
-
-                        Text("ELAPSED")
-                            .font(TE.mono(.caption2, weight: .medium))
-                            .tracking(2)
-                            .foregroundStyle(TE.textMuted)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 2)
-
-                        Divider()
-                            .background(TE.border)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 16)
-
-                        // Stats row
-                        HStack(spacing: 0) {
-                            statCell(
-                                value: viewModel.formattedSessionDistance,
-                                label: "DIST"
-                            )
-
-                            Rectangle()
-                                .fill(TE.border)
-                                .frame(width: 1)
-                                .padding(.vertical, 12)
-
-                            statCell(
-                                value: "\(viewModel.sessionLocationPoints.count)",
-                                label: "PTS"
-                            )
-                        }
-                        .padding(.bottom, 16)
+    private var timeBlock: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Group {
+                if isContinuousTracking {
+                    TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                        Text(viewModel.formattedSessionTrackingDuration)
+                            .font(.system(size: 72, weight: .light, design: .monospaced))
+                            .foregroundStyle(TE.textPrimary)
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
                     }
-                }
-            } else {
-                // Idle display
-                VStack(spacing: 12) {
+                } else {
                     Text("--:--:--")
-                        .font(.system(size: 52, weight: .light, design: .monospaced))
+                        .font(.system(size: 72, weight: .light, design: .monospaced))
                         .foregroundStyle(TE.textMuted.opacity(0.4))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 20)
-
-                    Text("READY TO TRACK")
-                        .font(TE.mono(.caption2, weight: .medium))
-                        .tracking(2)
-                        .foregroundStyle(TE.textMuted)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 20)
+                        .monospacedDigit()
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(isTracking ? "ELAPSED" : "READY TO TRACK")
+                .font(TE.mono(.caption2, weight: .medium))
+                .tracking(2)
+                .foregroundStyle(TE.textMuted)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(TE.lcdBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .strokeBorder(TE.border, lineWidth: 1)
-        )
     }
 
-    private func statCell(value: String, label: String) -> some View {
+    private var statRow: some View {
+        HStack(spacing: 0) {
+            statCell(value: viewModel.formattedSessionDistance, label: "DIST")
+                .overlay(alignment: .trailing) {
+                    Rectangle()
+                        .fill(TE.border)
+                        .frame(width: 1)
+                        .padding(.vertical, 10)
+                }
+
+            statCell(value: "\(viewModel.sessionLocationPoints.count)", label: "PTS")
+        }
+    }
+
+    private func statCell(value: String, label: LocalizedStringKey) -> some View {
         VStack(spacing: 4) {
             Text(value)
                 .font(TE.mono(.title3, weight: .medium))
                 .foregroundStyle(TE.textPrimary)
+                .monospacedDigit()
 
             Text(label)
                 .font(TE.mono(.caption2, weight: .medium))
@@ -201,107 +189,83 @@ struct TrackingView: View {
                 .foregroundStyle(TE.textMuted)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
+        .padding(.vertical, 14)
     }
 
-    // MARK: - Control Section
+    // MARK: - Primary Button
 
-    private var controlSection: some View {
-        VStack(spacing: 16) {
-            // Main action button — rectangular, TE-style
-            Button {
-                if isLockedOut {
-                    showingPaywall = true
-                    return
-                }
-                withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-                    if isTracking {
-                        if isContinuousTracking {
-                            viewModel.disableContinuousTracking()
-                        }
-                        viewModel.stopTracking()
-                    } else {
-                        if defaultLocationTrackingEnabled {
-                            viewModel.startTracking()
-                        }
-                        if defaultContinuousTracking {
-                            viewModel.enableContinuousTracking()
-                        }
-                    }
-                }
-            } label: {
-                HStack(spacing: 12) {
-                    // Icon
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(isTracking ? TE.danger : TE.accent)
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            Image(systemName: isTracking ? "stop.fill" : "play.fill")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(.white)
-                        )
-
-                    Text(isTracking ? "STOP" : "START")
-                        .font(TE.mono(.body, weight: .bold))
-                        .tracking(2)
-                        .foregroundStyle(isTracking ? TE.danger : TE.textPrimary)
-
-                    Spacer()
-
-                    // Right chevron indicator
-                    Image(systemName: isTracking ? "xmark" : "arrow.right")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
-                        .foregroundStyle(TE.textMuted)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-                .background(
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(
-                            isTracking ? TE.danger.opacity(0.4) : TE.border,
-                            lineWidth: 1
-                        )
-                )
+    private var primaryButton: some View {
+        Button {
+            handleButtonTap()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: isTracking ? "stop.fill" : "play.fill")
+                    .font(.system(size: 14, weight: .bold))
+                Text(isTracking ? "STOP" : "START")
+                    .font(TE.mono(.body, weight: .bold))
+                    .tracking(2.5)
             }
-            .buttonStyle(.plain)
-            .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(isTracking ? TE.danger : TE.accent)
+            )
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
+    }
 
-            // Mode label
-            HStack {
-                Text(isContinuousTracking ? "HIGH ACCURACY" : defaultContinuousTracking ? "CONTINUOUS MODE" : "VISIT MODE")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .tracking(1.5)
-                    .foregroundStyle(TE.textMuted)
+    private var modeLabel: LocalizedStringKey {
+        if isContinuousTracking { return "HIGH ACCURACY" }
+        if defaultContinuousTracking { return "CONTINUOUS MODE" }
+        return "VISIT MODE"
+    }
 
-                Spacer()
+    private func handleButtonTap() {
+        if isLockedOut {
+            showingPaywall = true
+            return
+        }
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+            if isTracking {
+                if isContinuousTracking {
+                    viewModel.disableContinuousTracking()
+                }
+                viewModel.stopTracking()
+            } else {
+                if defaultLocationTrackingEnabled {
+                    viewModel.startTracking()
+                }
+                if defaultContinuousTracking {
+                    viewModel.enableContinuousTracking()
+                }
             }
         }
     }
 
-    // MARK: - Auto-Off Indicator
+    // MARK: - Capsules
 
-    private func autoOffIndicator(remaining: TimeInterval) -> some View {
+    private func autoOffCapsule(remaining: TimeInterval) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "timer")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
                 .foregroundStyle(TE.textMuted)
 
             Text("AUTO-OFF  \(formatTime(remaining))")
                 .font(TE.mono(.caption2, weight: .medium))
-                .tracking(1)
+                .tracking(1.5)
                 .foregroundStyle(TE.textMuted)
 
-            Spacer()
+            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 14)
         .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 4)
-                .fill(TE.surface)
+                .fill(TE.card)
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
                         .strokeBorder(TE.border, lineWidth: 1)
@@ -309,65 +273,53 @@ struct TrackingView: View {
         )
     }
 
-    private func formatTime(_ interval: TimeInterval) -> String {
-        let hours = Int(interval) / 3600
-        let minutes = (Int(interval) % 3600) / 60
-
-        if hours > 0 {
-            return "\(hours)H \(minutes)M"
-        } else {
-            return "\(minutes) MIN"
-        }
-    }
-
-    // MARK: - Usage Meter
-
-    private var usageMeter: some View {
+    private var usageCapsule: some View {
         let totalHours = usageTracker.totalUsageHours
         let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
         let progress = min(totalHours / limitHours, 1.0)
 
-        return VStack(spacing: 8) {
-            HStack {
-                Text("USAGE")
-                    .font(TE.mono(.caption2, weight: .semibold))
-                    .tracking(1.5)
-                    .foregroundStyle(TE.textMuted)
+        return Button {
+            if isLockedOut { showingPaywall = true }
+        } label: {
+            VStack(spacing: 8) {
+                HStack {
+                    Text("USAGE")
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.5)
+                        .foregroundStyle(TE.textMuted)
 
-                Spacer()
+                    Spacer()
 
-                Text("\(totalHours, specifier: "%.1f") / \(limitHours, specifier: "%.0f") HR")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .foregroundStyle(TE.textMuted)
-            }
+                    Text("\(totalHours, specifier: "%.1f") / \(limitHours, specifier: "%.0f") HR")
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .tracking(1)
+                        .foregroundStyle(TE.textMuted)
+                }
 
-            // Segmented progress bar (TE-style)
-            GeometryReader { geometry in
-                let totalWidth = geometry.size.width
-                let segmentCount = 20
-                let gap: CGFloat = 2
-                let segmentWidth = (totalWidth - CGFloat(segmentCount - 1) * gap) / CGFloat(segmentCount)
-                let filledSegments = Int(Double(segmentCount) * progress)
+                GeometryReader { geometry in
+                    let totalWidth = geometry.size.width
+                    let segmentCount = 20
+                    let gap: CGFloat = 2
+                    let segmentWidth = (totalWidth - CGFloat(segmentCount - 1) * gap) / CGFloat(segmentCount)
+                    let filledSegments = Int(Double(segmentCount) * progress)
 
-                HStack(spacing: gap) {
-                    ForEach(0..<segmentCount, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(
-                                index < filledSegments
-                                    ? (progress >= 1.0 ? TE.danger : TE.accent)
-                                    : TE.border.opacity(0.5)
-                            )
-                            .frame(width: segmentWidth, height: 8)
+                    HStack(spacing: gap) {
+                        ForEach(0..<segmentCount, id: \.self) { index in
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(
+                                    index < filledSegments
+                                        ? (progress >= 1.0 ? TE.danger : TE.accent)
+                                        : TE.border.opacity(0.5)
+                                )
+                                .frame(width: segmentWidth, height: 6)
+                        }
                     }
                 }
-            }
-            .frame(height: 8)
+                .frame(height: 6)
 
-            if isLockedOut {
-                Button {
-                    showingPaywall = true
-                } label: {
-                    HStack(spacing: 6) {
+                if isLockedOut {
+                    HStack(spacing: 4) {
+                        Spacer()
                         Text("UNLOCK")
                             .font(TE.mono(.caption2, weight: .bold))
                             .tracking(1.5)
@@ -377,16 +329,26 @@ struct TrackingView: View {
                     .foregroundStyle(TE.accent)
                 }
             }
+            .padding(14)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(TE.card)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(TE.border, lineWidth: 1)
+                    )
+            )
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(TE.border, lineWidth: 1)
-                )
-        )
+        .buttonStyle(.plain)
+    }
+
+    private func formatTime(_ interval: TimeInterval) -> String {
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+
+        if hours > 0 { return "\(hours)H \(minutes)M" }
+        return "\(minutes) MIN"
     }
 }
 

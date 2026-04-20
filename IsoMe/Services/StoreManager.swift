@@ -17,6 +17,10 @@ final class StoreManager: ObservableObject {
     private var transactionListener: Task<Void, Never>?
 
     private init() {
+        #if DEBUG
+        isPurchased = true
+        return
+        #endif
         transactionListener = listenForTransactions()
         Task {
             await loadProduct()

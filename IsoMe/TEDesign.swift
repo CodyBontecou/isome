@@ -27,7 +27,7 @@ enum TE {
 
 /// TE-styled section header: uppercase, tracked, monospaced.
 struct TESectionHeader: View {
-    let title: String
+    let title: LocalizedStringKey
 
     var body: some View {
         Text(title)
@@ -89,7 +89,7 @@ struct TERow<Content: View>: View {
 
 /// TE-styled section footer text.
 struct TESectionFooter: View {
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
         Text(text)

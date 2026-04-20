@@ -16,7 +16,7 @@ final class LocationViewModel {
     var todayLocationPoints: [LocationPoint] = []
 
     // UI State
-    var mapDateRange: ClosedRange<Date> = Date().addingTimeInterval(-86400 * 7)...Date()
+    var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?

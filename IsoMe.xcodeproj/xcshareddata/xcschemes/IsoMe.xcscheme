@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A1FFFFFA212EFFFFFFFF0000"
-               BuildableName = "Spotted.app"
-               BlueprintName = "Spotted"
-               ReferencedContainer = "container:Spotted.xcodeproj">
+               BuildableName = "IsoMe.app"
+               BlueprintName = "IsoMe"
+               ReferencedContainer = "container:IsoMe.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,9 +34,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA73D16C4130069D72314CAC"
-               BuildableName = "SpottedTests.xctest"
-               BlueprintName = "SpottedTests"
-               ReferencedContainer = "container:Spotted.xcodeproj">
+               BuildableName = "IsoMeTests.xctest"
+               BlueprintName = "IsoMeTests"
+               ReferencedContainer = "container:IsoMe.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A1FFFFFA212EFFFFFFFF0000"
-            BuildableName = "Spotted.app"
-            BlueprintName = "Spotted"
-            ReferencedContainer = "container:Spotted.xcodeproj">
+            BuildableName = "IsoMe.app"
+            BlueprintName = "IsoMe"
+            ReferencedContainer = "container:IsoMe.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <LocationScenarioReference
@@ -77,9 +77,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A1FFFFFA212EFFFFFFFF0000"
-            BuildableName = "Spotted.app"
-            BlueprintName = "Spotted"
-            ReferencedContainer = "container:Spotted.xcodeproj">
+            BuildableName = "IsoMe.app"
+            BlueprintName = "IsoMe"
+            ReferencedContainer = "container:IsoMe.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

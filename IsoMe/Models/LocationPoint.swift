@@ -11,6 +11,7 @@ final class LocationPoint {
     var altitude: Double?
     var speed: Double?
     var horizontalAccuracy: Double
+    var isOutlier: Bool = false
 
     init(
         id: UUID = UUID(),
@@ -19,7 +20,8 @@ final class LocationPoint {
         timestamp: Date,
         altitude: Double? = nil,
         speed: Double? = nil,
-        horizontalAccuracy: Double
+        horizontalAccuracy: Double,
+        isOutlier: Bool = false
     ) {
         self.id = id
         self.latitude = latitude
@@ -28,6 +30,7 @@ final class LocationPoint {
         self.altitude = altitude
         self.speed = speed
         self.horizontalAccuracy = horizontalAccuracy
+        self.isOutlier = isOutlier
     }
 
     convenience init(from location: CLLocation) {

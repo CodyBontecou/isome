@@ -31,6 +31,7 @@ struct SettingsView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
+    @AppStorage("showOutliers") private var showOutliers = false
 
     var body: some View {
         NavigationStack {
@@ -44,6 +45,7 @@ struct SettingsView: View {
                         continuousTrackingSection
                         defaultsSection
                         unitsSection
+                        mapDisplaySection
                         exportFolderSection
                         exportSection
                         importSection
@@ -133,6 +135,15 @@ struct SettingsView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+            #if DEBUG
+            .onAppear {
+                if ProcessInfo.processInfo.arguments.contains("--show-export-dialog") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        showingExportOptions = true
+                    }
+                }
+            }
+            #endif
         }
     }
 
@@ -476,7 +487,7 @@ struct SettingsView: View {
         }
     }
 
-    private func unitButton(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+    private func unitButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
@@ -486,6 +497,23 @@ struct SettingsView: View {
                 .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Map Display Section
+
+    private var mapDisplaySection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "MAP DISPLAY")
+
+            TECard {
+                TERow(showDivider: false) {
+                    settingsToggle("SHOW GPS GLITCHES", isOn: $showOutliers)
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.")
+        }
     }
 
     // MARK: - Export Folder Section
@@ -825,7 +853,7 @@ struct SettingsView: View {
 
     // MARK: - Reusable Row Components
 
-    private func settingsToggle(_ label: String, isOn: Binding<Bool>) -> some View {
+    private func settingsToggle(_ label: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
         HStack {
             Text(label)
                 .font(TE.mono(.caption, weight: .medium))
@@ -838,7 +866,7 @@ struct SettingsView: View {
         }
     }
 
-    private func settingsButton(_ label: String, icon: String, color: Color = TE.accent, action: @escaping () -> Void) -> some View {
+    private func settingsButton(_ label: LocalizedStringKey, icon: String, color: Color = TE.accent, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)

@@ -93,29 +93,40 @@ struct ContentView: View {
 
 private struct MainTabView: View {
     let viewModel: LocationViewModel
+    @State private var selectedTab: Int = MainTabView.initialTabFromLaunchArguments()
 
     var body: some View {
-        TabView {
-            TodayView(viewModel: viewModel)
-                .tabItem {
-                    Label("Data", systemImage: "list.bullet")
-                }
-
+        TabView(selection: $selectedTab) {
             TrackingView(viewModel: viewModel)
                 .tabItem {
                     Label("Track", systemImage: "location.fill")
                 }
+                .tag(0)
 
             LocationMapView(viewModel: viewModel)
                 .tabItem {
                     Label("Map", systemImage: "map.fill")
                 }
+                .tag(1)
 
             SettingsView(viewModel: viewModel)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+                .tag(2)
         }
+    }
+
+    private static func initialTabFromLaunchArguments() -> Int {
+        #if DEBUG
+        let prefix = "--default-tab="
+        if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
+           let index = Int(arg.dropFirst(prefix.count)),
+           (0...2).contains(index) {
+            return index
+        }
+        #endif
+        return 0
     }
 }
 
