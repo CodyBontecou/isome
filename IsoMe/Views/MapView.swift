@@ -10,6 +10,8 @@ struct LocationMapView: View {
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
     @State private var showingPaywall = false
+    @State private var showFilterBar = false
+    @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
     @State private var showPointMarkers = true
     @State private var showStartEndMarkers = true
@@ -175,12 +177,15 @@ struct LocationMapView: View {
                         locationManager: locationManager,
                         isTracking: isTracking,
                         isContinuousTracking: isContinuousTracking,
+                        isExpanded: $trackingPillExpanded,
                         onPrimaryTap: handleTrackingTap
                     )
+                    .frame(maxWidth: .infinity, alignment: .trailing)
 
                     if isContinuousTracking,
                        let remaining = locationManager.continuousTrackingRemainingTime {
                         MapAutoOffPill(remaining: remaining)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
 
@@ -201,29 +206,52 @@ struct LocationMapView: View {
                 .padding(.top, 8)
                 .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
                 .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
+                .onChange(of: isTracking) { _, newValue in
+                    if !newValue {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                            trackingPillExpanded = false
+                        }
+                    }
+                }
 
-                // Bottom liquid-glass filter bar
+                // Bottom liquid-glass filter bar with collapsible toggle
                 VStack {
                     Spacer()
 
-                    QuickFilterBar(
-                        activePreset: activePreset,
-                        showTravelPath: $showTravelPath,
-                        showPointMarkers: $showPointMarkers,
-                        showStartEndMarkers: $showStartEndMarkers,
-                        showSessionPath: $showSessionPath,
-                        showVisitMarkers: $showVisitMarkers,
-                        hasSessionPoints: !activeSessionPoints.isEmpty,
-                        onSelectPreset: { preset in
-                            activePreset = preset
-                            viewModel.mapDateRange = preset.range()
-                        },
-                        onSelectCustom: {
-                            showingFilters = true
-                        },
-                        onFitContent: { fitMapToContent() },
-                        onFitSession: !activeSessionPoints.isEmpty ? { fitMapToSession() } : nil
-                    )
+                    HStack(spacing: 8) {
+                        if showFilterBar {
+                            QuickFilterBar(
+                                activePreset: activePreset,
+                                showTravelPath: $showTravelPath,
+                                showPointMarkers: $showPointMarkers,
+                                showStartEndMarkers: $showStartEndMarkers,
+                                showSessionPath: $showSessionPath,
+                                showVisitMarkers: $showVisitMarkers,
+                                hasSessionPoints: !activeSessionPoints.isEmpty,
+                                onSelectPreset: { preset in
+                                    activePreset = preset
+                                    viewModel.mapDateRange = preset.range()
+                                },
+                                onSelectCustom: {
+                                    showingFilters = true
+                                },
+                                onFitContent: { fitMapToContent() },
+                                onFitSession: !activeSessionPoints.isEmpty ? { fitMapToSession() } : nil
+                            )
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .move(edge: .trailing).combined(with: .opacity)
+                            ))
+                        } else {
+                            Spacer(minLength: 0)
+                        }
+
+                        FilterBarToggle(isOpen: showFilterBar) {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                                showFilterBar.toggle()
+                            }
+                        }
+                    }
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
                 }
@@ -320,43 +348,59 @@ struct MapTrackingControlPill: View {
     @ObservedObject var locationManager: LocationManager
     let isTracking: Bool
     let isContinuousTracking: Bool
+    @Binding var isExpanded: Bool
     let onPrimaryTap: () -> Void
 
     @State private var pulseOpacity: Double = 1.0
 
     var body: some View {
         HStack(spacing: 10) {
-            statusBlock
-
-            Spacer(minLength: 6)
-
             if isTracking {
-                statsBlock
-                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                Button {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    statusBlock
+                }
+                .buttonStyle(.plain)
+                .transition(.opacity.combined(with: .move(edge: .trailing)))
+
+                if isExpanded {
+                    statsBlock
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .trailing)),
+                            removal: .opacity.combined(with: .move(edge: .trailing))
+                        ))
+                }
             }
 
             primaryButton
         }
-        .padding(.leading, 14)
-        .padding(.trailing, 6)
-        .padding(.vertical, 6)
+        .padding(.leading, isTracking ? 14 : 0)
+        .padding(.trailing, isTracking ? 6 : 0)
+        .padding(.vertical, isTracking ? 6 : 0)
         .background {
-            Capsule()
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    Capsule()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [.white.opacity(0.55), .white.opacity(0.08)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.8
-                        )
-                }
-                .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+            if isTracking {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        Capsule()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.8
+                            )
+                    }
+                    .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+                    .transition(.opacity)
+            }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.82), value: isTracking)
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
         .onAppear { pulseOpacity = 0.35 }
     }
 
@@ -877,6 +921,39 @@ enum MapDatePreset: CaseIterable, Hashable {
         case .all:
             return Date.distantPast...referenceDate
         }
+    }
+}
+
+struct FilterBarToggle: View {
+    let isOpen: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: isOpen ? "chevron.right" : "slider.horizontal.3")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(isOpen ? Color.white : Color.primary.opacity(0.75))
+                .frame(width: 42, height: 42)
+                .background {
+                    Circle()
+                        .fill(isOpen ? AnyShapeStyle(TE.accent) : AnyShapeStyle(.ultraThinMaterial))
+                        .overlay {
+                            Circle()
+                                .strokeBorder(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 0.8
+                                )
+                        }
+                        .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+                }
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: isOpen)
     }
 }
 
