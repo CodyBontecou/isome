@@ -9,8 +9,6 @@ struct SettingsView: View {
     @ObservedObject private var usageTracker = UsageTracker.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
-    @State private var showingExportOptions = false
-    @State private var showingLocationPointsExportOptions = false
     @State private var showingClearConfirmation = false
     @State private var showingFolderPicker = false
     @State private var showingClearFolderConfirmation = false
@@ -66,22 +64,6 @@ struct SettingsView: View {
                         .foregroundStyle(TE.textMuted)
                 }
             }
-            .confirmationDialog("Export Format", isPresented: $showingExportOptions) {
-                Button("JSON") { exportVisits(format: .json) }
-                Button("CSV") { exportVisits(format: .csv) }
-                Button("Markdown") { exportVisits(format: .markdown) }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Choose export format for visits")
-            }
-            .confirmationDialog("Export Format", isPresented: $showingLocationPointsExportOptions) {
-                Button("JSON") { exportLocationPoints(format: .json) }
-                Button("CSV") { exportLocationPoints(format: .csv) }
-                Button("Markdown") { exportLocationPoints(format: .markdown) }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Choose export format for location points")
-            }
             .alert("Clear All Data?", isPresented: $showingClearConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) { viewModel.clearAllData() }
@@ -135,15 +117,6 @@ struct SettingsView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
-            #if DEBUG
-            .onAppear {
-                if ProcessInfo.processInfo.arguments.contains("--show-export-dialog") {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        showingExportOptions = true
-                    }
-                }
-            }
-            #endif
         }
     }
 
@@ -582,42 +555,33 @@ struct SettingsView: View {
 
             TECard {
                 VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        formatButton("JSON", format: .json)
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        formatButton("CSV", format: .csv)
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        formatButton("MARKDOWN", format: .markdown)
+                    }
+                    .frame(height: 44)
+
+                    Divider().background(TE.border)
+
                     TERow {
-                        Button { showingExportOptions = true } label: {
-                            HStack {
-                                Text("EXPORT VISITS")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("\(viewModel.allVisits.count)")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .foregroundStyle(TE.textMuted)
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundStyle(TE.textMuted.opacity(0.4))
-                            }
+                        exportActionRow(title: "EXPORT VISITS", count: viewModel.allVisits.count) {
+                            exportVisits(format: exportFormat)
                         }
-                        .buttonStyle(.plain)
+                    }
+
+                    TERow {
+                        exportActionRow(title: "EXPORT POINTS", count: viewModel.locationPoints.count) {
+                            exportLocationPoints(format: exportFormat)
+                        }
                     }
 
                     TERow(showDivider: false) {
-                        Button { showingLocationPointsExportOptions = true } label: {
-                            HStack {
-                                Text("EXPORT POINTS")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("\(viewModel.locationPoints.count)")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .foregroundStyle(TE.textMuted)
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundStyle(TE.textMuted.opacity(0.4))
-                            }
+                        exportActionRow(title: "EXPORT ALL", count: viewModel.allVisits.count + viewModel.locationPoints.count) {
+                            exportAllData(format: exportFormat)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -626,9 +590,43 @@ struct SettingsView: View {
             if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
                 TESectionFooter(text: "Files saved to \(exportFolderManager.selectedFolderName ?? "your folder").")
             } else {
-                TESectionFooter(text: "Export as JSON, CSV, or Markdown.")
+                TESectionFooter(text: "Export visits, points, or everything in the selected format.")
             }
         }
+    }
+
+    private func formatButton(_ title: LocalizedStringKey, format: ExportFormat) -> some View {
+        let isSelected = exportFormat == format
+        return Button {
+            exportFormat = format
+        } label: {
+            Text(title)
+                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
+                .tracking(1.5)
+                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func exportActionRow(title: LocalizedStringKey, count: Int, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+                Spacer()
+                Text("\(count)")
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(TE.textMuted.opacity(0.4))
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Import Section
@@ -930,6 +928,24 @@ struct SettingsView: View {
             }
         } else {
             viewModel.exportLocationPoints(format: format)
+        }
+    }
+
+    private func exportAllData(format: ExportFormat) {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            do {
+                let url = try ExportService.exportCombinedToDefaultFolder(
+                    visits: viewModel.allVisits,
+                    points: viewModel.locationPoints,
+                    format: format
+                )
+                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                showingExportSuccess = true
+            } catch {
+                viewModel.exportError = error.localizedDescription
+            }
+        } else {
+            viewModel.exportAllData(format: format)
         }
     }
 }
