@@ -256,9 +256,17 @@ final class LocationViewModel {
         } else {
             pointsToExport = locationPoints
         }
-        
+
         do {
             try ExportService.shareLocationPoints(points: pointsToExport, format: format)
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
+
+    func exportAllData(format: ExportFormat) {
+        do {
+            try ExportService.shareCombined(visits: allVisits, points: locationPoints, format: format)
         } catch {
             exportError = error.localizedDescription
         }

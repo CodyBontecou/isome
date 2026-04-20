@@ -449,13 +449,175 @@ extension ExportService {
         case .markdown:
             data = exportLocationPointsToMarkdown(points: points)
         }
-        
+
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
-        
+
         guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
             throw ExportFolderError.noDefaultFolder
         }
-        
+
         return savedURL
+    }
+}
+
+// MARK: - Combined Export (visits + location points in a single file)
+
+extension ExportService {
+    struct CombinedExportData: Codable {
+        let exportDate: String
+        let totalVisits: Int
+        let totalPoints: Int
+        let dateRange: LocationPointsExportData.DateRangeInfo?
+        let visits: [ExportableVisit]
+        let points: [ExportableLocationPoint]
+    }
+
+    static func exportCombinedToJSON(visits: [Visit], points: [LocationPoint]) throws -> Data {
+        let exportableVisits = visits.map { visit in
+            ExportableVisit(
+                latitude: visit.latitude,
+                longitude: visit.longitude,
+                arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
+                departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
+                durationMinutes: visit.durationMinutes,
+                locationName: visit.locationName,
+                address: visit.address,
+                notes: visit.notes
+            )
+        }
+
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        let exportablePoints = sortedPoints.map { point in
+            ExportableLocationPoint(
+                latitude: point.latitude,
+                longitude: point.longitude,
+                timestamp: iso8601Formatter.string(from: point.timestamp),
+                timestampUnix: point.timestamp.timeIntervalSince1970,
+                altitude: point.altitude,
+                speed: point.speed,
+                course: nil,
+                horizontalAccuracy: point.horizontalAccuracy,
+                verticalAccuracy: nil
+            )
+        }
+
+        var dateRangeInfo: LocationPointsExportData.DateRangeInfo? = nil
+        if let first = sortedPoints.first, let last = sortedPoints.last {
+            dateRangeInfo = LocationPointsExportData.DateRangeInfo(
+                earliest: iso8601Formatter.string(from: first.timestamp),
+                latest: iso8601Formatter.string(from: last.timestamp),
+                durationSeconds: last.timestamp.timeIntervalSince(first.timestamp)
+            )
+        }
+
+        let exportData = CombinedExportData(
+            exportDate: iso8601Formatter.string(from: Date()),
+            totalVisits: exportableVisits.count,
+            totalPoints: exportablePoints.count,
+            dateRange: dateRangeInfo,
+            visits: exportableVisits,
+            points: exportablePoints
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        return try encoder.encode(exportData)
+    }
+
+    static func exportCombinedToCSV(visits: [Visit], points: [LocationPoint]) -> Data {
+        var csvString = "# iso.me Combined Export\n"
+        csvString.append("# Generated: \(iso8601Formatter.string(from: Date()))\n\n")
+
+        csvString.append("# VISITS (\(visits.count))\n")
+        csvString.append("arrived_at,departed_at,duration_minutes,latitude,longitude,location_name,address,notes\n")
+        for visit in visits {
+            let arrivedAt = iso8601Formatter.string(from: visit.arrivedAt)
+            let departedAt = visit.departedAt.map { iso8601Formatter.string(from: $0) } ?? ""
+            let duration = visit.durationMinutes.map { String(format: "%.1f", $0) } ?? ""
+            let locationName = escapeCSVField(visit.locationName ?? "")
+            let address = escapeCSVField(visit.address ?? "")
+            let notes = escapeCSVField(visit.notes ?? "")
+            csvString.append("\(arrivedAt),\(departedAt),\(duration),\(visit.latitude),\(visit.longitude),\(locationName),\(address),\(notes)\n")
+        }
+
+        csvString.append("\n# LOCATION POINTS (\(points.count))\n")
+        csvString.append("timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy\n")
+        for point in points.sorted(by: { $0.timestamp < $1.timestamp }) {
+            let timestamp = iso8601Formatter.string(from: point.timestamp)
+            let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
+            let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
+            let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
+            csvString.append("\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy)\n")
+        }
+
+        return csvString.data(using: .utf8) ?? Data()
+    }
+
+    static func exportCombinedToMarkdown(visits: [Visit], points: [LocationPoint]) -> Data {
+        var md = "# iso.me Complete Export\n\n"
+        md += "**Export Date:** \(formattedDateReadable())\n\n"
+        md += "**Total Visits:** \(visits.count)\n\n"
+        md += "**Total Location Points:** \(points.count)\n\n"
+        md += "---\n\n"
+
+        md += String(data: exportToMarkdown(visits: visits), encoding: .utf8)?
+            .replacingOccurrences(of: "# iso.me Export\n\n", with: "# Visits\n\n") ?? ""
+
+        md += "\n---\n\n"
+
+        md += String(data: exportLocationPointsToMarkdown(points: points), encoding: .utf8)?
+            .replacingOccurrences(of: "# iso.me Location Points Export\n\n", with: "# Location Points\n\n") ?? ""
+
+        return md.data(using: .utf8) ?? Data()
+    }
+
+    @MainActor
+    static func shareCombined(visits: [Visit], points: [LocationPoint], format: ExportFormat, from viewController: UIViewController? = nil) throws {
+        let data = try combinedData(visits: visits, points: points, format: format)
+
+        let fileName = "isome_complete_export_\(formattedDate()).\(format.fileExtension)"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+        try data.write(to: tempURL)
+
+        let activityVC = UIActivityViewController(
+            activityItems: [tempURL],
+            applicationActivities: nil
+        )
+
+        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController else {
+            return
+        }
+
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        presenter.present(activityVC, animated: true)
+    }
+
+    @MainActor
+    static func exportCombinedToDefaultFolder(visits: [Visit], points: [LocationPoint], format: ExportFormat) throws -> URL {
+        let data = try combinedData(visits: visits, points: points, format: format)
+        let fileName = "isome_complete_export_\(formattedDate()).\(format.fileExtension)"
+
+        guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
+            throw ExportFolderError.noDefaultFolder
+        }
+
+        return savedURL
+    }
+
+    private static func combinedData(visits: [Visit], points: [LocationPoint], format: ExportFormat) throws -> Data {
+        switch format {
+        case .json: return try exportCombinedToJSON(visits: visits, points: points)
+        case .csv: return exportCombinedToCSV(visits: visits, points: points)
+        case .markdown: return exportCombinedToMarkdown(visits: visits, points: points)
+        }
     }
 }
