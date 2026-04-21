@@ -930,7 +930,7 @@ struct FilterBarToggle: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: isOpen ? "chevron.right" : "slider.horizontal.3")
+            Image(systemName: isOpen ? "xmark" : "slider.horizontal.3")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(isOpen ? Color.white : Color.primary.opacity(0.75))
                 .frame(width: 42, height: 42)
