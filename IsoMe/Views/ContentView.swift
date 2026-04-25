@@ -205,17 +205,29 @@ private struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
+            TimelineView(viewModel: viewModel)
+                .tabItem {
+                    Label("Timeline", systemImage: "list.bullet.rectangle.fill")
+                }
+                .tag(0)
+
             LocationMapView(viewModel: viewModel)
                 .tabItem {
                     Label("Map", systemImage: "map.fill")
                 }
-                .tag(0)
+                .tag(1)
+
+            InsightsView(viewModel: viewModel)
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar.fill")
+                }
+                .tag(2)
 
             SettingsView(viewModel: viewModel)
                 .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    Label("Settings", systemImage: "gearshape.fill")
                 }
-                .tag(1)
+                .tag(3)
         }
     }
 
@@ -224,7 +236,7 @@ private struct MainTabView: View {
         let prefix = "--default-tab="
         if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
            let index = Int(arg.dropFirst(prefix.count)),
-           (0...1).contains(index) {
+           (0...3).contains(index) {
             return index
         }
         #endif

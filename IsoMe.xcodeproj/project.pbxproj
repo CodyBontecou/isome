@@ -31,6 +31,8 @@
 		A1000019212F000100000019 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019212F000000000019 /* AppDelegate.swift */; };
 		A100001F212F00010000001F /* TEDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001F212F00000000001F /* TEDesign.swift */; };
 		F1000001212F000100000001 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000001212F000000000001 /* DesignSystem.swift */; };
+		F1000002212F000100000002 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000002212F000000000002 /* TimelineView.swift */; };
+		F1000003212F000100000003 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000003212F000000000003 /* InsightsView.swift */; };
 		A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
 		A100001B212F00010000001B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B212F00000000001B /* LiveActivityManager.swift */; };
 		A100001C212F00010000001C /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
@@ -165,6 +167,8 @@
 		A1000019212F000000000019 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A100001F212F00000000001F /* TEDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEDesign.swift; sourceTree = "<group>"; };
 		F1000001212F000000000001 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		F1000002212F000000000002 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		F1000003212F000000000003 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		A100001A212F00000000001A /* LocationActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationActivityAttributes.swift; sourceTree = "<group>"; };
 		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		A100001C212F00000000001C /* SharedLocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
@@ -347,6 +351,8 @@
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 				E1000003212F000000000003 /* LogViewerView.swift */,
+				F1000002212F000000000002 /* TimelineView.swift */,
+				F1000003212F000000000003 /* InsightsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -634,6 +640,8 @@
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				F1000001212F000100000001 /* DesignSystem.swift in Sources */,
+				F1000002212F000100000002 /* TimelineView.swift in Sources */,
+				F1000003212F000100000003 /* InsightsView.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
