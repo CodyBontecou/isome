@@ -10,7 +10,6 @@
 		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
-		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
 		AD000001212F000100000001 /* ActivityDetectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD000001212F000000000001 /* ActivityDetectionManager.swift */; };
 		AE000001212F000100000001 /* HealthKitWorkoutObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE000001212F000000000001 /* HealthKitWorkoutObserver.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
@@ -33,6 +32,7 @@
 		F1000001212F000100000001 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000001212F000000000001 /* DesignSystem.swift */; };
 		F1000002212F000100000002 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000002212F000000000002 /* TimelineView.swift */; };
 		F1000003212F000100000003 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000003212F000000000003 /* InsightsView.swift */; };
+		F1000004212F000100000004 /* RouteReconstructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000004212F000000000004 /* RouteReconstructor.swift */; };
 		A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
 		A100001B212F00010000001B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B212F00000000001B /* LiveActivityManager.swift */; };
 		A100001C212F00010000001C /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
@@ -169,6 +169,7 @@
 		F1000001212F000000000001 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		F1000002212F000000000002 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		F1000003212F000000000003 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		F1000004212F000000000004 /* RouteReconstructor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteReconstructor.swift; sourceTree = "<group>"; };
 		A100001A212F00000000001A /* LocationActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationActivityAttributes.swift; sourceTree = "<group>"; };
 		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		A100001C212F00000000001C /* SharedLocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
@@ -194,7 +195,6 @@
 		AD000001212F000000000001 /* ActivityDetectionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActivityDetectionManager.swift; sourceTree = "<group>"; };
 		AE000001212F000000000001 /* HealthKitWorkoutObserver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HealthKitWorkoutObserver.swift; sourceTree = "<group>"; };
 		AF000001212F000000000001 /* DailyDistanceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyDistanceTracker.swift; sourceTree = "<group>"; };
-		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -334,9 +334,9 @@
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
-				DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */,
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
 				E1000002212F000000000002 /* LogManager.swift */,
+				F1000004212F000000000004 /* RouteReconstructor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -642,6 +642,7 @@
 				F1000001212F000100000001 /* DesignSystem.swift in Sources */,
 				F1000002212F000100000002 /* TimelineView.swift in Sources */,
 				F1000003212F000100000003 /* InsightsView.swift in Sources */,
+				F1000004212F000100000004 /* RouteReconstructor.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
@@ -659,7 +660,6 @@
 				A100001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 				90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */,
 				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
-				97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */,
 				AD000001212F000100000001 /* ActivityDetectionManager.swift in Sources */,
 				AE000001212F000100000001 /* HealthKitWorkoutObserver.swift in Sources */,
 				AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */,
@@ -909,7 +909,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -942,7 +942,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -974,7 +974,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1001,7 +1001,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1028,7 +1028,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1057,7 +1057,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1086,7 +1086,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1115,7 +1115,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";

@@ -15,6 +15,9 @@ final class LocationViewModel {
     var locationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
 
+    // Derived: chronological timeline (visit + route segments) for today.
+    var todayTimeline: [TimelineEntry] = []
+
     // UI State
     var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
     var showingExportSheet = false
@@ -67,6 +70,8 @@ final class LocationViewModel {
             print("Failed to fetch today's visits: \(error)")
             todayVisits = []
         }
+
+        recomputeTodayTimeline()
     }
 
     func loadAllVisits() {
@@ -111,6 +116,15 @@ final class LocationViewModel {
             print("Failed to fetch today's location points: \(error)")
             todayLocationPoints = []
         }
+
+        recomputeTodayTimeline()
+    }
+
+    private func recomputeTodayTimeline() {
+        todayTimeline = RouteReconstructor.timeline(
+            visits: todayVisits,
+            points: todayLocationPoints
+        )
     }
 
     // MARK: - Computed Properties
@@ -121,7 +135,7 @@ final class LocationViewModel {
 
     // Session-specific location points (only points from current tracking session)
     var sessionLocationPoints: [LocationPoint] {
-        guard let sessionStart = locationManager.continuousTrackingStartTime else {
+        guard let sessionStart = locationManager.trackingStartTime else {
             return []
         }
         return todayLocationPoints.filter { $0.timestamp >= sessionStart }
@@ -129,7 +143,7 @@ final class LocationViewModel {
 
     // Session tracking stats
     var sessionTrackingDuration: TimeInterval {
-        guard let sessionStart = locationManager.continuousTrackingStartTime else { return 0 }
+        guard let sessionStart = locationManager.trackingStartTime else { return 0 }
         return Date().timeIntervalSince(sessionStart)
     }
 
@@ -334,19 +348,11 @@ final class LocationViewModel {
 
     // MARK: - Tracking Control
 
-    func startTracking() {
-        locationManager.startTracking()
+    func enableTracking() {
+        locationManager.enableTracking()
     }
 
-    func stopTracking() {
-        locationManager.stopTracking()
-    }
-
-    func enableContinuousTracking() {
-        locationManager.enableContinuousTracking()
-    }
-
-    func disableContinuousTracking() {
-        locationManager.disableContinuousTracking()
+    func disableTracking() {
+        locationManager.disableTracking()
     }
 }
