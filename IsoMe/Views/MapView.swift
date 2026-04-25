@@ -203,9 +203,8 @@ struct LocationMapView: View {
                     onApply: { activePreset = nil }
                 )
             }
-            .sheet(item: $selectedVisit) { visit in
-                VisitQuickView(visit: visit, viewModel: viewModel)
-                    .presentationDetents([.medium])
+            .navigationDestination(item: $selectedVisit) { visit in
+                VisitDetailView(visit: visit, viewModel: viewModel)
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)

@@ -31,7 +31,7 @@ struct TimelineView: View {
                 VisitDetailView(visit: visit, viewModel: viewModel)
             }
             .navigationDestination(for: RouteSegment.self) { segment in
-                RouteSegmentPlaceholderDetail(segment: segment)
+                RouteDetailView(segment: segment)
             }
         }
     }
@@ -265,28 +265,3 @@ private struct TimelineEmptyState: View {
     }
 }
 
-// MARK: - Route detail placeholder (Phase 6 replaces with full RouteDetailView)
-
-private struct RouteSegmentPlaceholderDetail: View {
-    let segment: RouteSegment
-
-    var body: some View {
-        ZStack {
-            DS.Color.background.ignoresSafeArea()
-            VStack(spacing: DS.Spacing.md) {
-                CategoryIcon(symbol: segment.activity.symbol, palette: segment.activity.palette, size: 64)
-                Text(segment.activity.label)
-                    .font(DS.Font.title())
-                Text("\(Int(segment.distanceMeters)) m · \(Int(segment.durationSeconds / 60)) min")
-                    .font(DS.Font.body())
-                    .foregroundStyle(DS.Color.textMuted)
-                Text("Route detail coming in Phase 6")
-                    .font(DS.Font.caption())
-                    .foregroundStyle(DS.Color.textMuted)
-            }
-            .padding()
-        }
-        .navigationTitle(segment.activity.label)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
