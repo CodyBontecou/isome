@@ -418,7 +418,7 @@ struct MapTrackingControlPill: View {
                 )
 
             if isContinuousTracking {
-                TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                SwiftUI.TimelineView(.periodic(from: .now, by: 1.0)) { _ in
                     Text(viewModel.formattedSessionTrackingDuration)
                         .font(TE.mono(.subheadline, weight: .semibold))
                         .foregroundStyle(TE.textMuted)
