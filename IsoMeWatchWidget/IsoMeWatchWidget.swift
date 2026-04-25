@@ -8,8 +8,7 @@ struct IsoMeProvider: TimelineProvider {
         IsoMeEntry(
             date: Date(),
             data: SharedLocationData(
-                isTrackingEnabled: true,
-                isContinuousTrackingEnabled: false,
+                isTrackingEnabled: false,
                 currentLocationName: "Home",
                 currentAddress: nil,
                 lastLatitude: nil,
@@ -18,8 +17,8 @@ struct IsoMeProvider: TimelineProvider {
                 todayVisitsCount: 5,
                 todayDistanceMeters: 2500,
                 todayPointsCount: 0,
-                continuousTrackingStartTime: nil,
-                continuousTrackingAutoOffHours: nil
+                trackingStartTime: nil,
+                trackingAutoOffHours: nil
             )
         )
     }
@@ -35,7 +34,7 @@ struct IsoMeProvider: TimelineProvider {
         let entry = IsoMeEntry(date: Date(), data: data)
         
         // Refresh every 15 minutes or sooner if tracking is active
-        let refreshInterval: TimeInterval = data.isContinuousTrackingEnabled ? 300 : 900
+        let refreshInterval: TimeInterval = data.isTrackingEnabled ? 300 : 900
         let nextUpdate = Date().addingTimeInterval(refreshInterval)
         
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
@@ -63,12 +62,20 @@ struct IsoMeWatchWidget: Widget {
         }
         .configurationDisplayName("iso.me")
         .description("View your tracking status and today's stats.")
+        #if os(watchOS)
         .supportedFamilies([
             .accessoryCircular,
             .accessoryRectangular,
             .accessoryInline,
-            .accessoryCorner
+            .accessoryCorner,
         ])
+        #else
+        .supportedFamilies([
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryInline,
+        ])
+        #endif
     }
 }
 
@@ -86,8 +93,10 @@ struct IsoMeWidgetEntryView: View {
             RectangularWidgetView(data: entry.data)
         case .accessoryInline:
             InlineWidgetView(data: entry.data)
+        #if os(watchOS)
         case .accessoryCorner:
             CornerWidgetView(data: entry.data)
+        #endif
         default:
             CircularWidgetView(data: entry.data)
         }
@@ -108,7 +117,7 @@ struct CircularWidgetView: View {
                     .font(.title2)
                     .foregroundStyle(statusColor)
                 
-                if data.isContinuousTrackingEnabled {
+                if data.isTrackingEnabled {
                     Text("\(data.todayPointsCount)")
                         .font(.caption2)
                         .fontWeight(.semibold)
@@ -122,23 +131,11 @@ struct CircularWidgetView: View {
     }
     
     private var statusIcon: String {
-        if data.isContinuousTrackingEnabled {
-            return "location.fill"
-        } else if data.isTrackingEnabled {
-            return "mappin.circle.fill"
-        } else {
-            return "location.slash"
-        }
+        data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
     
     private var statusColor: Color {
-        if data.isContinuousTrackingEnabled {
-            return .green
-        } else if data.isTrackingEnabled {
-            return .blue
-        } else {
-            return .secondary
-        }
+        data.isTrackingEnabled ? .green : .secondary
     }
 }
 
@@ -174,7 +171,7 @@ struct RectangularWidgetView: View {
                 }
                 .font(.caption2)
                 
-                if data.isContinuousTrackingEnabled,
+                if data.isTrackingEnabled,
                    let remaining = data.formattedRemainingTime {
                     Text("\(remaining) left")
                         .font(.caption2)
@@ -185,23 +182,11 @@ struct RectangularWidgetView: View {
     }
     
     private var statusIcon: String {
-        if data.isContinuousTrackingEnabled {
-            return "location.fill"
-        } else if data.isTrackingEnabled {
-            return "mappin.circle.fill"
-        } else {
-            return "location.slash"
-        }
+        data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
     
     private var statusColor: Color {
-        if data.isContinuousTrackingEnabled {
-            return .green
-        } else if data.isTrackingEnabled {
-            return .blue
-        } else {
-            return .secondary
-        }
+        data.isTrackingEnabled ? .green : .secondary
     }
 }
 
@@ -211,10 +196,8 @@ struct InlineWidgetView: View {
     let data: SharedLocationData
     
     var body: some View {
-        if data.isContinuousTrackingEnabled {
+        if data.isTrackingEnabled {
             Label("\(data.todayPointsCount) pts • \(data.formattedDistance)", systemImage: "location.fill")
-        } else if data.isTrackingEnabled {
-            Label("\(data.todayVisitsCount) visits • \(data.formattedDistance)", systemImage: "mappin.circle.fill")
         } else {
             Label("Tracking Off", systemImage: "location.slash")
         }
@@ -233,10 +216,8 @@ struct CornerWidgetView: View {
                 .foregroundStyle(statusColor)
         }
         .widgetLabel {
-            if data.isContinuousTrackingEnabled {
+            if data.isTrackingEnabled {
                 Text("\(data.todayPointsCount) pts")
-            } else if data.isTrackingEnabled {
-                Text("\(data.todayVisitsCount) visits")
             } else {
                 Text("Off")
             }
@@ -244,23 +225,11 @@ struct CornerWidgetView: View {
     }
     
     private var statusIcon: String {
-        if data.isContinuousTrackingEnabled {
-            return "location.fill"
-        } else if data.isTrackingEnabled {
-            return "mappin.circle.fill"
-        } else {
-            return "location.slash"
-        }
+        data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
     
     private var statusColor: Color {
-        if data.isContinuousTrackingEnabled {
-            return .green
-        } else if data.isTrackingEnabled {
-            return .blue
-        } else {
-            return .secondary
-        }
+        data.isTrackingEnabled ? .green : .secondary
     }
 }
 
@@ -270,8 +239,7 @@ struct CornerWidgetView: View {
     IsoMeWatchWidget()
 } timeline: {
     IsoMeEntry(date: .now, data: SharedLocationData(
-        isTrackingEnabled: true,
-        isContinuousTrackingEnabled: true,
+                isTrackingEnabled: true,
         currentLocationName: "Coffee Shop",
         currentAddress: nil,
         lastLatitude: nil,
@@ -280,8 +248,8 @@ struct CornerWidgetView: View {
         todayVisitsCount: 3,
         todayDistanceMeters: 1500,
         todayPointsCount: 42,
-        continuousTrackingStartTime: Date().addingTimeInterval(-1800),
-        continuousTrackingAutoOffHours: 2
+        trackingStartTime: Date().addingTimeInterval(-1800),
+        trackingAutoOffHours: 2
     ))
 }
 
@@ -289,8 +257,7 @@ struct CornerWidgetView: View {
     IsoMeWatchWidget()
 } timeline: {
     IsoMeEntry(date: .now, data: SharedLocationData(
-        isTrackingEnabled: true,
-        isContinuousTrackingEnabled: true,
+                isTrackingEnabled: true,
         currentLocationName: "Coffee Shop",
         currentAddress: nil,
         lastLatitude: nil,
@@ -299,17 +266,16 @@ struct CornerWidgetView: View {
         todayVisitsCount: 3,
         todayDistanceMeters: 1500,
         todayPointsCount: 42,
-        continuousTrackingStartTime: Date().addingTimeInterval(-1800),
-        continuousTrackingAutoOffHours: 2
+        trackingStartTime: Date().addingTimeInterval(-1800),
+        trackingAutoOffHours: 2
     ))
 }
 
-#Preview("Inline - Visits", as: .accessoryInline) {
+#Preview("Inline - Off", as: .accessoryInline) {
     IsoMeWatchWidget()
 } timeline: {
     IsoMeEntry(date: .now, data: SharedLocationData(
-        isTrackingEnabled: true,
-        isContinuousTrackingEnabled: false,
+                isTrackingEnabled: false,
         currentLocationName: nil,
         currentAddress: nil,
         lastLatitude: nil,
@@ -318,17 +284,17 @@ struct CornerWidgetView: View {
         todayVisitsCount: 5,
         todayDistanceMeters: 3200,
         todayPointsCount: 0,
-        continuousTrackingStartTime: nil,
-        continuousTrackingAutoOffHours: nil
+        trackingStartTime: nil,
+        trackingAutoOffHours: nil
     ))
 }
 
+#if os(watchOS)
 #Preview("Corner - Off", as: .accessoryCorner) {
     IsoMeWatchWidget()
 } timeline: {
     IsoMeEntry(date: .now, data: SharedLocationData(
-        isTrackingEnabled: false,
-        isContinuousTrackingEnabled: false,
+                isTrackingEnabled: false,
         currentLocationName: nil,
         currentAddress: nil,
         lastLatitude: nil,
@@ -337,7 +303,8 @@ struct CornerWidgetView: View {
         todayVisitsCount: 0,
         todayDistanceMeters: 0,
         todayPointsCount: 0,
-        continuousTrackingStartTime: nil,
-        continuousTrackingAutoOffHours: nil
+        trackingStartTime: nil,
+        trackingAutoOffHours: nil
     ))
 }
+#endif
