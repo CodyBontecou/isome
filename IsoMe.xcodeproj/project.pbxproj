@@ -34,6 +34,7 @@
 		F1000003212F000100000003 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000003212F000000000003 /* InsightsView.swift */; };
 		F1000004212F000100000004 /* RouteReconstructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000004212F000000000004 /* RouteReconstructor.swift */; };
 		F1000005212F000100000005 /* TrackingHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000005212F000000000005 /* TrackingHeroView.swift */; };
+		F1000006212F000100000006 /* DateRangeFilterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000006212F000000000006 /* DateRangeFilterSheet.swift */; };
 		A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A212F00000000001A /* LocationActivityAttributes.swift */; };
 		A100001B212F00010000001B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B212F00000000001B /* LiveActivityManager.swift */; };
 		A100001C212F00010000001C /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
@@ -172,6 +173,7 @@
 		F1000003212F000000000003 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		F1000004212F000000000004 /* RouteReconstructor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteReconstructor.swift; sourceTree = "<group>"; };
 		F1000005212F000000000005 /* TrackingHeroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingHeroView.swift; sourceTree = "<group>"; };
+		F1000006212F000000000006 /* DateRangeFilterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangeFilterSheet.swift; sourceTree = "<group>"; };
 		A100001A212F00000000001A /* LocationActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationActivityAttributes.swift; sourceTree = "<group>"; };
 		A100001B212F00000000001B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		A100001C212F00000000001C /* SharedLocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
@@ -356,8 +358,17 @@
 				F1000002212F000000000002 /* TimelineView.swift */,
 				F1000003212F000000000003 /* InsightsView.swift */,
 				F1000005212F000000000005 /* TrackingHeroView.swift */,
+				F1000007212F000000000007 /* Components */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		F1000007212F000000000007 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F1000006212F000000000006 /* DateRangeFilterSheet.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		A1FFFFFE212EFFFFFFFF0006 /* ViewModels */ = {
@@ -647,6 +658,7 @@
 				F1000003212F000100000003 /* InsightsView.swift in Sources */,
 				F1000004212F000100000004 /* RouteReconstructor.swift in Sources */,
 				F1000005212F000100000005 /* TrackingHeroView.swift in Sources */,
+				F1000006212F000100000006 /* DateRangeFilterSheet.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,

@@ -5,13 +5,11 @@ import SwiftData
 struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
-    @ObservedObject private var usageTracker = UsageTracker.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
     @State private var showingPaywall = false
     @State private var showFilterBar = false
-    @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
     @State private var showPointMarkers = true
     @State private var showStartEndMarkers = true
@@ -21,27 +19,12 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
 
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
         self.locationManager = viewModel.locationManager
     }
 
-    private var isTracking: Bool {
-        locationManager.isContinuousTrackingEnabled ||
-        (!defaultContinuousTracking && locationManager.isTrackingEnabled)
-    }
-
-    private var isContinuousTracking: Bool {
-        locationManager.isContinuousTrackingEnabled
-    }
-
-    private var isLockedOut: Bool {
-        usageTracker.hasExceededFreeLimit && !storeManager.isPurchased
-    }
-    
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
 
@@ -55,7 +38,7 @@ struct LocationMapView: View {
     }
 
     var activeSessionPoints: [LocationPoint] {
-        guard locationManager.isContinuousTrackingEnabled else { return [] }
+        guard locationManager.isTrackingEnabled else { return [] }
         let points = viewModel.sessionLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
@@ -98,7 +81,7 @@ struct LocationMapView: View {
                             )
                     }
                     
-                    // Live session path (moved from Track tab)
+                    // Live session path
                     if showSessionPath && activeSessionPoints.count >= 2 {
                         let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
                         MapPolyline(coordinates: sessionCoordinates)
@@ -170,55 +153,11 @@ struct LocationMapView: View {
                     MapScaleView()
                 }
 
-                // Top liquid-glass tracking controls
-                VStack(spacing: 8) {
-                    MapTrackingControlPill(
-                        viewModel: viewModel,
-                        locationManager: locationManager,
-                        isTracking: isTracking,
-                        isContinuousTracking: isContinuousTracking,
-                        isExpanded: $trackingPillExpanded,
-                        onPrimaryTap: handleTrackingTap
-                    )
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-
-                    if isContinuousTracking,
-                       let remaining = locationManager.continuousTrackingRemainingTime {
-                        MapAutoOffPill(remaining: remaining)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    if !isTracking && !storeManager.isPurchased {
-                        MapUsagePill(
-                            usageTracker: usageTracker,
-                            isLockedOut: isLockedOut,
-                            onTap: {
-                                if isLockedOut { showingPaywall = true }
-                            }
-                        )
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
-                .onChange(of: isTracking) { _, newValue in
-                    if !newValue {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                            trackingPillExpanded = false
-                        }
-                    }
-                }
-
-                // Bottom liquid-glass filter bar with collapsible toggle
-                VStack {
+                // Bottom-right: filter toggle + optional filter bar
+                VStack(spacing: 10) {
                     Spacer()
 
-                    HStack(spacing: 8) {
+                    HStack(alignment: .center, spacing: 8) {
                         if showFilterBar {
                             QuickFilterBar(
                                 activePreset: activePreset,
@@ -252,9 +191,9 @@ struct LocationMapView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
                 }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingFilters) {
@@ -271,19 +210,16 @@ struct LocationMapView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
-            .onReceive(NotificationCenter.default.publisher(for: .freeLimitReached)) { _ in
-                showingPaywall = true
-            }
             .onAppear {
                 viewModel.loadAllVisits()
                 viewModel.loadLocationPoints()
 
-                if locationManager.isContinuousTrackingEnabled {
+                if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
             }
-            .onChange(of: locationManager.isContinuousTrackingEnabled) { _, isEnabled in
+            .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
                     attemptAutoFocusSession()
@@ -316,286 +252,6 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
-    }
-
-    private func handleTrackingTap() {
-        if isLockedOut {
-            showingPaywall = true
-            return
-        }
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-            if isTracking {
-                if isContinuousTracking {
-                    viewModel.disableContinuousTracking()
-                }
-                viewModel.stopTracking()
-            } else {
-                if defaultLocationTrackingEnabled {
-                    viewModel.startTracking()
-                }
-                if defaultContinuousTracking {
-                    viewModel.enableContinuousTracking()
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Tracking Control Pills
-
-struct MapTrackingControlPill: View {
-    @Bindable var viewModel: LocationViewModel
-    @ObservedObject var locationManager: LocationManager
-    let isTracking: Bool
-    let isContinuousTracking: Bool
-    @Binding var isExpanded: Bool
-    let onPrimaryTap: () -> Void
-
-    @State private var pulseOpacity: Double = 1.0
-
-    var body: some View {
-        HStack(spacing: 10) {
-            if isTracking {
-                Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    statusBlock
-                }
-                .buttonStyle(.plain)
-                .transition(.opacity.combined(with: .move(edge: .trailing)))
-
-                if isExpanded {
-                    statsBlock
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .move(edge: .trailing)),
-                            removal: .opacity.combined(with: .move(edge: .trailing))
-                        ))
-                }
-            }
-
-            primaryButton
-        }
-        .padding(.leading, isTracking ? 14 : 0)
-        .padding(.trailing, isTracking ? 6 : 0)
-        .padding(.vertical, isTracking ? 6 : 0)
-        .background {
-            if isTracking {
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        Capsule()
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [.white.opacity(0.55), .white.opacity(0.08)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.8
-                            )
-                    }
-                    .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
-                    .transition(.opacity)
-            }
-        }
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
-        .onAppear { pulseOpacity = 0.35 }
-    }
-
-    private var statusBlock: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(isTracking ? TE.accent : TE.textMuted.opacity(0.35))
-                .frame(width: 7, height: 7)
-                .opacity(isTracking ? pulseOpacity : 1.0)
-                .animation(
-                    isTracking
-                        ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-                        : .default,
-                    value: pulseOpacity
-                )
-
-            if isContinuousTracking {
-                SwiftUI.TimelineView(.periodic(from: .now, by: 1.0)) { _ in
-                    Text(viewModel.formattedSessionTrackingDuration)
-                        .font(TE.mono(.subheadline, weight: .semibold))
-                        .foregroundStyle(TE.textMuted)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
-            } else {
-                Text(isTracking ? "TRACKING" : "STANDBY")
-                    .font(TE.mono(.caption, weight: .semibold))
-                    .tracking(1.8)
-                    .foregroundStyle(TE.textMuted)
-            }
-        }
-    }
-
-    private var statsBlock: some View {
-        HStack(spacing: 8) {
-            Text(viewModel.formattedSessionDistance)
-                .font(TE.mono(.caption, weight: .medium))
-                .foregroundStyle(TE.textMuted)
-                .monospacedDigit()
-
-            Rectangle()
-                .fill(Color.primary.opacity(0.15))
-                .frame(width: 1, height: 12)
-
-            Text("\(viewModel.sessionLocationPoints.count) PTS")
-                .font(TE.mono(.caption, weight: .medium))
-                .foregroundStyle(TE.textMuted)
-        }
-    }
-
-    private var primaryButton: some View {
-        Button(action: onPrimaryTap) {
-            Image(systemName: isTracking ? "stop.fill" : "play.fill")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 34, height: 34)
-                .background {
-                    Circle()
-                        .fill(isTracking ? TE.danger : TE.accent)
-                        .overlay {
-                            Circle()
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [.white.opacity(0.4), .white.opacity(0.0)],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    ),
-                                    lineWidth: 0.8
-                                )
-                        }
-                        .shadow(
-                            color: (isTracking ? TE.danger : TE.accent).opacity(0.35),
-                            radius: 6,
-                            x: 0,
-                            y: 3
-                        )
-                }
-        }
-        .buttonStyle(.plain)
-        .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
-    }
-}
-
-struct MapAutoOffPill: View {
-    let remaining: TimeInterval
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "timer")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(TE.textMuted)
-
-            Text("AUTO-OFF  \(formatTime(remaining))")
-                .font(TE.mono(.caption2, weight: .semibold))
-                .tracking(1.4)
-                .foregroundStyle(TE.textMuted)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background {
-            Capsule()
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    Capsule()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [.white.opacity(0.45), .white.opacity(0.05)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.6
-                        )
-                }
-                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
-        }
-    }
-
-    private func formatTime(_ interval: TimeInterval) -> String {
-        let hours = Int(interval) / 3600
-        let minutes = (Int(interval) % 3600) / 60
-        if hours > 0 { return "\(hours)H \(minutes)M" }
-        return "\(minutes) MIN"
-    }
-}
-
-struct MapUsagePill: View {
-    @ObservedObject var usageTracker: UsageTracker
-    let isLockedOut: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        let totalHours = usageTracker.totalUsageHours
-        let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
-        let progress = min(totalHours / limitHours, 1.0)
-
-        Button(action: onTap) {
-            HStack(spacing: 10) {
-                Text("USAGE")
-                    .font(TE.mono(.caption2, weight: .semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(TE.textMuted)
-
-                GeometryReader { geometry in
-                    let totalWidth = geometry.size.width
-                    let segmentCount = 14
-                    let gap: CGFloat = 2
-                    let segmentWidth = (totalWidth - CGFloat(segmentCount - 1) * gap) / CGFloat(segmentCount)
-                    let filledSegments = Int(Double(segmentCount) * progress)
-
-                    HStack(spacing: gap) {
-                        ForEach(0..<segmentCount, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 1)
-                                .fill(
-                                    index < filledSegments
-                                        ? (progress >= 1.0 ? TE.danger : TE.accent)
-                                        : TE.border.opacity(0.45)
-                                )
-                                .frame(width: segmentWidth, height: 4)
-                        }
-                    }
-                }
-                .frame(height: 4)
-
-                Text("\(totalHours, specifier: "%.1f")/\(Int(limitHours))H")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .tracking(0.8)
-                    .foregroundStyle(TE.textMuted)
-                    .monospacedDigit()
-
-                if isLockedOut {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(TE.accent)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background {
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        Capsule()
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [.white.opacity(0.45), .white.opacity(0.05)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.6
-                            )
-                    }
-                    .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
-            }
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -733,90 +389,22 @@ struct DateRangeChip: View {
     }
 }
 
-struct DateRangeFilterSheet: View {
-    @Binding var dateRange: ClosedRange<Date>
-    @Binding var isPresented: Bool
-    var onApply: (() -> Void)? = nil
-
-    @State private var startDate: Date
-    @State private var endDate: Date
-
-    init(
-        dateRange: Binding<ClosedRange<Date>>,
-        isPresented: Binding<Bool>,
-        onApply: (() -> Void)? = nil
-    ) {
-        _dateRange = dateRange
-        _isPresented = isPresented
-        self.onApply = onApply
-        _startDate = State(initialValue: dateRange.wrappedValue.lowerBound)
-        _endDate = State(initialValue: dateRange.wrappedValue.upperBound)
-    }
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Quick Select") {
-                    Button("Today") {
-                        let today = Calendar.current.startOfDay(for: Date())
-                        startDate = today
-                        endDate = Date()
-                    }
-
-                    Button("Last 7 Days") {
-                        endDate = Date()
-                        startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
-                    }
-
-                    Button("Last 30 Days") {
-                        endDate = Date()
-                        startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate)!
-                    }
-
-                    Button("All Time") {
-                        startDate = Date.distantPast
-                        endDate = Date()
-                    }
-                }
-
-                Section("Custom Range") {
-                    DatePicker("From", selection: $startDate, displayedComponents: .date)
-                    DatePicker("To", selection: $endDate, displayedComponents: .date)
-                }
-            }
-            .navigationTitle("Filter by Date")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        isPresented = false
-                    }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") {
-                        dateRange = startDate...endDate
-                        onApply?()
-                        isPresented = false
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium])
-    }
-}
-
 struct VisitQuickView: View {
     let visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var nearbyMapItem: MKMapItem?
+    @State private var isLoadingPlace = false
+    @State private var showingPlaceDetail = false
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
                 // Header
-                HStack {
+                HStack(alignment: .top, spacing: 12) {
+                    placeIconView
+
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(visit.displayName)
+                        Text(nearbyMapItem?.name ?? visit.displayName)
                             .font(.title2)
                             .fontWeight(.semibold)
 
@@ -824,6 +412,12 @@ struct VisitQuickView: View {
                             Text(address)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                        }
+
+                        if let category = nearbyMapItem?.pointOfInterestCategory {
+                            Text(category.displayName)
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                         }
                     }
 
@@ -875,6 +469,52 @@ struct VisitQuickView: View {
                     }
                 }
 
+                // Place actions (phone, website, detail sheet)
+                if let item = nearbyMapItem {
+                    Divider()
+
+                    VStack(spacing: 0) {
+                        if let phone = item.phoneNumber, !phone.isEmpty,
+                           let url = URL(string: "tel:\(phone.filter { $0.isNumber || $0 == "+" })") {
+                            Link(destination: url) {
+                                PlaceActionRow(
+                                    icon: "phone.fill",
+                                    iconColor: .green,
+                                    label: phone
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider().padding(.leading, 44)
+                        }
+
+                        if let url = item.url {
+                            Link(destination: url) {
+                                PlaceActionRow(
+                                    icon: "globe",
+                                    iconColor: .blue,
+                                    label: url.host ?? "Website"
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider().padding(.leading, 44)
+                        }
+
+                        Button {
+                            showingPlaceDetail = true
+                        } label: {
+                            PlaceActionRow(
+                                icon: "info.circle.fill",
+                                iconColor: .blue,
+                                label: "View Place Details"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+                }
+
                 if let notes = visit.notes, !notes.isEmpty {
                     Divider()
 
@@ -892,6 +532,232 @@ struct VisitQuickView: View {
             .padding()
             .navigationBarTitleDisplayMode(.inline)
         }
+        .task {
+            await lookupNearbyPlace()
+        }
+    }
+
+    // MARK: - Place icon
+
+    @ViewBuilder
+    private var placeIconView: some View {
+        let category = nearbyMapItem?.pointOfInterestCategory
+        let symbolName = category?.sfSymbol ?? "mappin"
+        let bgColor = category?.tintColor ?? Color.red
+
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isLoadingPlace ? Color(.systemFill) : bgColor)
+                .frame(width: 52, height: 52)
+
+            if isLoadingPlace {
+                ProgressView()
+                    .scaleEffect(0.75)
+            } else {
+                Image(systemName: symbolName)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+        }
+        .animation(.spring(duration: 0.3), value: isLoadingPlace)
+        .animation(.spring(duration: 0.3), value: nearbyMapItem?.pointOfInterestCategory?.rawValue)
+    }
+
+    // MARK: - Nearby place lookup
+
+    private func lookupNearbyPlace() async {
+        isLoadingPlace = true
+        defer { isLoadingPlace = false }
+
+        let visitLoc = CLLocation(latitude: visit.latitude, longitude: visit.longitude)
+        let region = MKCoordinateRegion(
+            center: visit.coordinate,
+            latitudinalMeters: 300,
+            longitudinalMeters: 300
+        )
+
+        let request = MKLocalPointsOfInterestRequest(coordinateRegion: region)
+
+        guard let response = try? await MKLocalSearch(request: request).start() else { return }
+
+        nearbyMapItem = response.mapItems
+            .map { item -> (MKMapItem, CLLocationDistance) in
+                let loc = CLLocation(
+                    latitude: item.placemark.coordinate.latitude,
+                    longitude: item.placemark.coordinate.longitude
+                )
+                return (item, loc.distance(from: visitLoc))
+            }
+            .filter { $0.1 < 150 }
+            .min(by: { $0.1 < $1.1 })
+            .map { $0.0 }
+    }
+}
+
+// MARK: - Place action row
+
+struct PlaceActionRow: View {
+    let icon: String
+    let iconColor: Color
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(iconColor)
+                .frame(width: 20)
+
+            Text(label)
+                .foregroundStyle(.primary)
+                .font(.subheadline)
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.tertiary)
+                .font(.caption)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+    }
+}
+
+// MARK: - MKPointOfInterestCategory helpers
+
+extension MKPointOfInterestCategory {
+    var sfSymbol: String {
+        let map: [MKPointOfInterestCategory: String] = [
+            .airport: "airplane",
+            .amusementPark: "ferriswheel",
+            .aquarium: "fish",
+            .atm: "banknote",
+            .bakery: "birthday.cake",
+            .bank: "building.columns.fill",
+            .beach: "beach.umbrella",
+            .brewery: "mug.fill",
+            .cafe: "cup.and.saucer.fill",
+            .campground: "tent.fill",
+            .carRental: "car.fill",
+            .evCharger: "bolt.car.fill",
+            .fireStation: "flame.fill",
+            .fitnessCenter: "dumbbell.fill",
+            .foodMarket: "basket.fill",
+            .gasStation: "fuelpump.fill",
+            .hospital: "cross.fill",
+            .hotel: "bed.double.fill",
+            .laundry: "washer.fill",
+            .library: "books.vertical.fill",
+            .marina: "ferry.fill",
+            .movieTheater: "film.fill",
+            .museum: "building.columns.fill",
+            .nationalPark: "tree.fill",
+            .nightlife: "music.note",
+            .park: "leaf.fill",
+            .parking: "p.circle.fill",
+            .pharmacy: "pills.fill",
+            .police: "shield.fill",
+            .postOffice: "envelope.fill",
+            .publicTransport: "bus.fill",
+            .restaurant: "fork.knife",
+            .restroom: "toilet.fill",
+            .school: "graduationcap.fill",
+            .stadium: "sportscourt.fill",
+            .store: "bag.fill",
+            .theater: "theatermasks.fill",
+            .university: "graduationcap.fill",
+            .winery: "wineglass.fill",
+            .zoo: "pawprint.circle.fill",
+        ]
+        return map[self] ?? "mappin"
+    }
+
+    var tintColor: Color {
+        let map: [MKPointOfInterestCategory: Color] = [
+            .restaurant: .orange,
+            .cafe: .orange,
+            .bakery: .orange,
+            .foodMarket: .orange,
+            .brewery: Color(red: 0.6, green: 0.35, blue: 0.1),
+            .winery: Color(red: 0.55, green: 0.1, blue: 0.45),
+            .hospital: .red,
+            .pharmacy: .red,
+            .fireStation: .red,
+            .park: .green,
+            .nationalPark: .green,
+            .campground: .green,
+            .zoo: .green,
+            .airport: .blue,
+            .publicTransport: .blue,
+            .marina: .blue,
+            .store: .indigo,
+            .atm: .indigo,
+            .bank: .indigo,
+            .hotel: Color(red: 0.5, green: 0.2, blue: 0.75),
+            .nightlife: .pink,
+            .movieTheater: .pink,
+            .theater: .pink,
+            .amusementPark: .pink,
+            .school: .brown,
+            .university: .brown,
+            .library: .brown,
+            .museum: .brown,
+            .fitnessCenter: Color(red: 0.9, green: 0.4, blue: 0.0),
+            .beach: .cyan,
+            .aquarium: .cyan,
+            .gasStation: Color(.systemGray),
+            .evCharger: Color(.systemGray),
+            .carRental: Color(.systemGray),
+            .parking: Color(.systemGray),
+            .police: Color(red: 0.1, green: 0.25, blue: 0.6),
+            .postOffice: Color(red: 0.8, green: 0.5, blue: 0.0),
+        ]
+        return map[self] ?? Color(.systemGray)
+    }
+
+    var displayName: String {
+        let map: [MKPointOfInterestCategory: String] = [
+            .airport: "Airport",
+            .amusementPark: "Amusement Park",
+            .aquarium: "Aquarium",
+            .atm: "ATM",
+            .bakery: "Bakery",
+            .bank: "Bank",
+            .beach: "Beach",
+            .brewery: "Brewery",
+            .cafe: "Café",
+            .campground: "Campground",
+            .carRental: "Car Rental",
+            .evCharger: "EV Charger",
+            .fireStation: "Fire Station",
+            .fitnessCenter: "Gym",
+            .foodMarket: "Food Market",
+            .gasStation: "Gas Station",
+            .hospital: "Hospital",
+            .hotel: "Hotel",
+            .laundry: "Laundry",
+            .library: "Library",
+            .marina: "Marina",
+            .movieTheater: "Movie Theater",
+            .museum: "Museum",
+            .nationalPark: "National Park",
+            .nightlife: "Nightlife",
+            .park: "Park",
+            .parking: "Parking",
+            .pharmacy: "Pharmacy",
+            .police: "Police",
+            .postOffice: "Post Office",
+            .publicTransport: "Transit",
+            .restaurant: "Restaurant",
+            .restroom: "Restroom",
+            .school: "School",
+            .stadium: "Stadium",
+            .store: "Store",
+            .theater: "Theater",
+            .university: "University",
+            .winery: "Winery",
+            .zoo: "Zoo",
+        ]
+        return map[self] ?? "Place"
     }
 }
 
@@ -936,7 +802,7 @@ struct FilterBarToggle: View {
                 .frame(width: 42, height: 42)
                 .background {
                     Circle()
-                        .fill(isOpen ? AnyShapeStyle(TE.accent) : AnyShapeStyle(.ultraThinMaterial))
+                        .fill(isOpen ? AnyShapeStyle(DS.Color.accent) : AnyShapeStyle(.ultraThinMaterial))
                         .overlay {
                             Circle()
                                 .strokeBorder(
@@ -1050,7 +916,7 @@ struct PresetPill: View {
             .padding(.vertical, 7)
             .background {
                 Capsule()
-                    .fill(isActive ? TE.accent : Color.clear)
+                    .fill(isActive ? DS.Color.accent : Color.clear)
             }
         }
         .buttonStyle(.plain)
@@ -1073,7 +939,7 @@ struct LayerToggleButton: View {
                 .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
                 .background {
                     Circle()
-                        .fill(isOn ? TE.accent : Color.clear)
+                        .fill(isOn ? DS.Color.accent : Color.clear)
                 }
         }
         .buttonStyle(.plain)
