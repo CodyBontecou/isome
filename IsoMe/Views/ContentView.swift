@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import CoreLocation
+import StoreKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -9,6 +10,7 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var crashLog: String?
     @State private var pendingTrackingStart = false
+    @State private var pendingActivityPrompt: ActivityStartPromptContext?
 
     var body: some View {
         Group {
@@ -44,20 +46,49 @@ struct ContentView: View {
                 // tracking on, skip onboarding automatically the first time this version runs.
                 if UserDefaults.standard.object(forKey: "hasCompletedOnboarding") == nil {
                     let hasExistingSetup = manager.authorizationStatus != .notDetermined ||
-                        UserDefaults.standard.bool(forKey: "isTrackingEnabled") ||
-                        UserDefaults.standard.bool(forKey: "isContinuousTrackingEnabled")
+                        UserDefaults.standard.bool(forKey: TrackingStorageKeys.enabled)
                     hasCompletedOnboarding = hasExistingSetup
                 }
+
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--show-onboarding") {
+                    hasCompletedOnboarding = false
+                }
+                #endif
             }
+
+            consumePendingActivityPromptIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
             viewModel?.loadData()
+            consumePendingActivityPromptIfNeeded()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .activityStartPromptRequested)) { notification in
+            if let prompt = ActivityStartPromptContext(userInfo: notification.userInfo ?? [:]) {
+                pendingActivityPrompt = prompt
+                AppDelegate.pendingActivityPromptUserInfo = nil
+                LogManager.shared.info("[Movement] Opened confirmation view for movement prompt: \(prompt.reason).")
+            }
         }
         .onAppear {
             if let log = UserDefaults.standard.string(forKey: "lastCrashLog") {
                 crashLog = log
                 UserDefaults.standard.removeObject(forKey: "lastCrashLog")
             }
+            consumePendingActivityPromptIfNeeded()
+        }
+        .sheet(item: $pendingActivityPrompt) { prompt in
+            ActivityStartPromptDecisionView(
+                prompt: prompt,
+                onStart: {
+                    viewModel?.locationManager.confirmActivityStartPrompt(prompt)
+                    pendingActivityPrompt = nil
+                },
+                onNotNow: {
+                    viewModel?.locationManager.declineActivityStartPrompt(prompt)
+                    pendingActivityPrompt = nil
+                }
+            )
         }
         .alert("Previous Crash Detected", isPresented: Binding(
             get: { crashLog != nil },
@@ -74,20 +105,97 @@ struct ContentView: View {
     }
 
     private func startTrackingFromOnboarding(viewModel: LocationViewModel) {
-        let defaults = UserDefaults.standard
-        let enableTracking = defaults.object(forKey: "defaultLocationTrackingEnabled") == nil
-            ? true
-            : defaults.bool(forKey: "defaultLocationTrackingEnabled")
-        let enableContinuous = defaults.object(forKey: "defaultContinuousTracking") == nil
-            ? true
-            : defaults.bool(forKey: "defaultContinuousTracking")
+        viewModel.enableTracking()
+    }
 
-        if enableTracking {
-            viewModel.startTracking()
+    private func consumePendingActivityPromptIfNeeded() {
+        guard pendingActivityPrompt == nil,
+              let userInfo = AppDelegate.pendingActivityPromptUserInfo,
+              let prompt = ActivityStartPromptContext(userInfo: userInfo) else {
+            return
         }
-        if enableContinuous {
-            viewModel.enableContinuousTracking()
+
+        pendingActivityPrompt = prompt
+        AppDelegate.pendingActivityPromptUserInfo = nil
+        LogManager.shared.info("[Movement] Restored pending movement prompt after app launch.")
+    }
+}
+
+private struct ActivityStartPromptDecisionView: View {
+    let prompt: ActivityStartPromptContext
+    let onStart: () -> Void
+    let onNotNow: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 18) {
+                VStack(spacing: 8) {
+                    Text("MOVEMENT DETECTED")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(2)
+                        .foregroundStyle(TE.textMuted)
+
+                    Text(prompt.reason.capitalized)
+                        .font(.title3.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(TE.textPrimary)
+
+                    Text("Start tracking now?")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(TE.textMuted)
+                }
+
+                VStack(spacing: 10) {
+                    Button {
+                        onStart()
+                        dismiss()
+                    } label: {
+                        Text("START RECORDING")
+                            .font(TE.mono(.caption, weight: .semibold))
+                            .tracking(1.5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(TE.accent, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .foregroundStyle(Color.white)
+                    }
+
+                    Button {
+                        onNotNow()
+                        dismiss()
+                    } label: {
+                        Text("NOT NOW")
+                            .font(TE.mono(.caption, weight: .semibold))
+                            .tracking(1.5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(TE.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(TE.border, lineWidth: 1)
+                            }
+                            .foregroundStyle(TE.textPrimary)
+                    }
+                }
+            }
+            .padding(20)
+            .navigationTitle("Start Tracking")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Close") {
+                        onNotNow()
+                        dismiss()
+                    }
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                }
+            }
         }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 }
 
@@ -124,789 +232,979 @@ private struct MainTabView: View {
     }
 }
 
+// MARK: - Onboarding
+
 private struct OnboardingView: View {
     let viewModel: LocationViewModel
     let onComplete: (Bool) -> Void
 
     @ObservedObject private var locationManager: LocationManager
-
-    @State private var selectedPage = 0
-    @State private var startTrackingWhenDone = false
-
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
-
-    private let pageCount = 4
+    @ObservedObject private var storeManager = StoreManager.shared
+    @State private var selectedPage: Int
+    @State private var selectedPlan: StoreManager.Plan = .yearly
+    private let pageCount = 5
+    private var paywallPageIndex: Int { pageCount - 1 }
+    private var permissionsPageIndex: Int { 2 }
 
     init(viewModel: LocationViewModel, onComplete: @escaping (Bool) -> Void) {
         self.viewModel = viewModel
         self.onComplete = onComplete
         _locationManager = ObservedObject(initialValue: viewModel.locationManager)
+        _selectedPage = State(initialValue: Self.initialPageFromLaunchArguments())
+    }
+
+    private static func initialPageFromLaunchArguments() -> Int {
+        #if DEBUG
+        let prefix = "--onboarding-page="
+        if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
+           let index = Int(arg.dropFirst(prefix.count)),
+           (0...4).contains(index) {
+            return index
+        }
+        #endif
+        return 0
     }
 
     var body: some View {
         ZStack {
-            OnboardingBackdrop()
+            OnboardingBG()
 
             VStack(spacing: 0) {
-                pageIndicators
-                    .padding(.top, 58)
+                pageContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .animation(.easeOut(duration: 0.25), value: selectedPage)
+
+                if selectedPage != paywallPageIndex {
+                    OnboardingFooter(
+                        selectedPage: selectedPage,
+                        pageCount: pageCount,
+                        primaryTitle: primaryButtonTitle,
+                        secondaryTitle: secondaryButtonTitle,
+                        onPrimary: handlePrimary,
+                        onSecondary: handleSecondary
+                    )
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 14)
-
-                TabView(selection: $selectedPage) {
-                    welcomePage
-                        .tag(0)
-
-                    featuresPage
-                        .tag(1)
-
-                    permissionsPage
-                        .tag(2)
-
-                    finishPage
-                        .tag(3)
+                    .padding(.bottom, 20)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
-
-                controls
-                    .padding(.horizontal, 24)
-                    .padding(.top, 10)
-                    .padding(.bottom, 42)
             }
         }
         .onChange(of: locationManager.authorizationStatus) { _, newStatus in
-            guard selectedPage == 2 else { return }
+            guard selectedPage == permissionsPageIndex else { return }
             if newStatus == .authorizedAlways {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                    selectedPage = 3
-                }
+                advance()
             }
         }
-    }
-
-    private var welcomePage: some View {
-        LocationOnboardingPageView(
-            icon: "",
-            eyebrow: "Welcome",
-            title: "ISO.ME",
-            description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
-            useAppIcon: true
-        ) {
-            VStack(spacing: 10) {
-                OnboardingChecklistRow(icon: "mappin.and.ellipse", text: "Auto-detect places you visit")
-                OnboardingChecklistRow(icon: "point.topleft.down.to.point.bottomright.curvepath", text: "Capture detailed routes when needed")
-                OnboardingChecklistRow(icon: "lock.shield.fill", text: "Keep all location data on-device")
-            }
-        }
-    }
-
-    private var featuresPage: some View {
-        LocationOnboardingPageView(
-            icon: "square.grid.2x2.fill",
-            eyebrow: "Core Features",
-            title: "KEY FEATURES",
-            description: "Glanceable, battery-aware, and deeply contextual when you need it."
-        ) {
-            VStack(spacing: 12) {
-                OnboardingFeatureCard(
-                    icon: "house.and.flag.fill",
-                    title: "Visit timeline",
-                    description: "Arrivals, durations, and changes throughout your day."
-                )
-
-                OnboardingFeatureCard(
-                    icon: "map.fill",
-                    title: "Path visualization",
-                    description: "Routes with start and end markers plus optional detail points."
-                )
-
-                OnboardingFeatureCard(
-                    icon: "square.and.arrow.up",
-                    title: "Flexible exports",
-                    description: "JSON, CSV, or Markdown — whenever you need it."
-                )
-            }
-        }
-    }
-
-    private var permissionsPage: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 14) {
-                VStack(spacing: 10) {
-                    Text("PERMISSION SETUP")
-                        .font(.onboardingMicro)
-                        .tracking(2.2)
-                        .foregroundStyle(OnboardingPalette.textMuted)
-
-                    Text("BACKGROUND VISIT DETECTION")
-                        .font(.onboardingTitle)
-                        .tracking(1.2)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
-                        .multilineTextAlignment(.center)
-
-                    Text("Background visit detection lets iso.me keep recording when the app is closed.")
-                        .font(.onboardingBody)
-                        .foregroundStyle(OnboardingPalette.textSecondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(3)
-                }
-                .padding(.top, 12)
-
-                VStack(spacing: 10) {
-                    OnboardingStatusRow(
-                        title: "Location access",
-                        subtitle: locationManager.authorizationStatus.onboardingLabel,
-                        icon: locationManager.authorizationStatus.onboardingIcon,
-                        color: locationManager.authorizationStatus.onboardingColor
-                    )
-
-                    OnboardingStatusRow(
-                        title: "Background tracking",
-                        subtitle: locationManager.hasAlwaysPermission
-                            ? "Ready for always-on visit detection"
-                            : "Needs extended location access",
-                        icon: locationManager.hasAlwaysPermission ? "checkmark.shield.fill" : "exclamationmark.shield.fill",
-                        color: locationManager.hasAlwaysPermission ? OnboardingPalette.success : OnboardingPalette.warning
-                    )
-                }
-
-                permissionActionCard
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 14)
+        .onChange(of: storeManager.isPurchased) { _, newValue in
+            guard selectedPage == paywallPageIndex, newValue else { return }
+            finish()
         }
     }
 
     @ViewBuilder
-    private var permissionActionCard: some View {
-        switch locationManager.authorizationStatus {
-        case .notDetermined:
-            VStack(alignment: .leading, spacing: 12) {
-                Text("STEP 1 OF 2")
-                    .font(.onboardingMicro)
-                    .tracking(1.8)
-                    .foregroundStyle(OnboardingPalette.textMuted)
-
-                Text("iso.me uses your location to detect places you visit and trace your daily path.")
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Button {
-                    locationManager.requestWhenInUseAuthorization()
-                } label: {
-                    Label("Continue", systemImage: "location.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(OnboardingPrimaryButtonStyle())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .onboardingCard()
-
-        case .authorizedWhenInUse:
-            VStack(alignment: .leading, spacing: 12) {
-                Text("STEP 2 OF 2")
-                    .font(.onboardingMicro)
-                    .tracking(1.8)
-                    .foregroundStyle(OnboardingPalette.textMuted)
-
-                Text("Background visit detection requires extended location access so iso.me keeps recording when the app is closed.")
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Button {
-                    locationManager.requestAlwaysAuthorization()
-                } label: {
-                    Label("Continue", systemImage: "arrow.up.forward.app.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(OnboardingPrimaryButtonStyle())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .onboardingCard()
-
-        case .denied, .restricted:
-            VStack(alignment: .leading, spacing: 12) {
-                Text("LOCATION ACCESS IS OFF")
-                    .font(.onboardingMicro)
-                    .tracking(1.8)
-                    .foregroundStyle(OnboardingPalette.textMuted)
-
-                Text("Grant location access in iPhone Settings → iso.me → Location.")
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Button {
-                    openSettings()
-                } label: {
-                    Label("Open iPhone Settings", systemImage: "gearshape.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(OnboardingSecondaryButtonStyle())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .onboardingCard()
-
-        case .authorizedAlways:
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(OnboardingPalette.success)
-
-                Text("Perfect — permissions are fully configured.")
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .onboardingCard()
-
-        @unknown default:
-            EmptyView()
+    private var pageContent: some View {
+        switch selectedPage {
+        case 0:
+            OnboardingWelcomePage()
+        case 1:
+            OnboardingPrivatePage()
+        case 2:
+            OnboardingPermissionsPage(authorizationStatus: locationManager.authorizationStatus)
+        case 3:
+            OnboardingExportPage()
+        default:
+            OnboardingPaywallPage(
+                storeManager: storeManager,
+                selectedPlan: $selectedPlan,
+                onStartTrial: handleStartTrial,
+                onContinueFree: finish,
+                onRestore: handleRestore
+            )
         }
     }
 
-    private var finishPage: some View {
-        LocationOnboardingPageView(
-            icon: locationManager.hasAlwaysPermission ? "checkmark.seal.fill" : "sparkles",
-            eyebrow: "Ready",
-            title: "YOU'RE ALL SET",
-            description: "Start now, or fine-tune tracking behavior later in Settings."
-        ) {
-            VStack(spacing: 12) {
-                OnboardingSummaryRow(
-                    icon: "location.fill",
-                    title: "Location permission",
-                    value: locationManager.authorizationStatus.onboardingLabel
-                )
-
-                OnboardingSummaryRow(
-                    icon: "bolt.fill",
-                    title: "Default mode",
-                    value: defaultContinuousTracking ? "Continuous" : "Visit only"
-                )
-
-                OnboardingSummaryRow(
-                    icon: "lock.fill",
-                    title: "Privacy",
-                    value: "Stored on-device"
-                )
+    private var primaryButtonTitle: LocalizedStringKey {
+        switch selectedPage {
+        case permissionsPageIndex:
+            switch locationManager.authorizationStatus {
+            case .notDetermined, .authorizedWhenInUse:
+                return "Enable location"
+            case .denied, .restricted:
+                return "Open Settings"
+            case .authorizedAlways:
+                return "Continue"
+            @unknown default:
+                return "Continue"
             }
-            .onboardingCard(padding: 14, fill: OnboardingPalette.card)
+        default:
+            return "Continue"
+        }
+    }
 
-            if locationManager.hasLocationPermission {
-                Toggle(isOn: $startTrackingWhenDone) {
-                    Text("Start tracking immediately")
-                        .font(.onboardingBody)
-                        .fontWeight(.medium)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
-                }
-                .tint(OnboardingPalette.accent)
-                .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
-            } else {
-                Text("You can grant permission later from the Settings tab.")
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
+    private var secondaryButtonTitle: LocalizedStringKey? {
+        selectedPage == 0 ? nil : "Back"
+    }
+
+    private func handlePrimary() {
+        switch selectedPage {
+        case permissionsPageIndex:
+            switch locationManager.authorizationStatus {
+            case .notDetermined:
+                locationManager.requestWhenInUseAuthorization()
+            case .authorizedWhenInUse:
+                locationManager.requestAlwaysAuthorization()
+            case .denied, .restricted:
+                openSystemSettings()
+            case .authorizedAlways:
+                advance()
+            @unknown default:
+                advance()
+            }
+        default:
+            advance()
+        }
+    }
+
+    private func handleStartTrial() {
+        Task { await storeManager.purchase(plan: selectedPlan) }
+    }
+
+    private func handleRestore() {
+        Task {
+            await storeManager.restorePurchases()
+            if storeManager.isPurchased {
+                finish()
             }
         }
     }
 
-    private var pageIndicators: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<pageCount, id: \.self) { index in
-                Capsule()
-                    .fill(index <= selectedPage ? OnboardingPalette.accent : OnboardingPalette.border)
-                    .frame(height: 4)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.88), value: selectedPage)
-            }
-        }
+    private func handleSecondary() {
+        retreat()
     }
 
-    private var controls: some View {
-        HStack(spacing: 12) {
-            if selectedPage > 0 {
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                        selectedPage -= 1
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text("BACK")
-                    }
-                }
-                .buttonStyle(OnboardingTextButtonStyle())
-            } else {
-                Spacer()
-                    .frame(width: 86)
-            }
-
-            Spacer()
-
-            Button {
-                handlePrimaryAction()
-            } label: {
-                HStack(spacing: 6) {
-                    Text(primaryButtonTitle.uppercased())
-
-                    Image(systemName: selectedPage == pageCount - 1 ? "checkmark" : "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                }
-            }
-            .buttonStyle(OnboardingPrimaryButtonStyle())
-        }
-    }
-
-    private var primaryButtonTitle: String {
-        if selectedPage == pageCount - 1 {
-            return String(localized: "Get Started")
-        }
-
-        if selectedPage == 2 && locationManager.authorizationStatus == .notDetermined {
-            return String(localized: "Skip")
-        }
-
-        return String(localized: "Next")
-    }
-
-    private func handlePrimaryAction() {
-        guard selectedPage < pageCount - 1 else {
-            completeOnboarding()
-            return
-        }
-
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+    private func advance() {
+        guard selectedPage < pageCount - 1 else { finish(); return }
+        withAnimation(.easeOut(duration: 0.28)) {
             selectedPage += 1
         }
     }
 
-    private func completeOnboarding() {
-        let shouldStartTracking = startTrackingWhenDone && locationManager.hasLocationPermission
+    private func retreat() {
+        guard selectedPage > 0 else { return }
+        withAnimation(.easeOut(duration: 0.28)) {
+            selectedPage -= 1
+        }
+    }
+
+    private func finish() {
+        let shouldStartTracking = locationManager.hasLocationPermission
         onComplete(shouldStartTracking)
     }
 
-    private func openSettings() {
+    private func openSystemSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(url)
     }
 }
 
-private struct LocationOnboardingPageView<AccentContent: View>: View {
-    let icon: String
-    let eyebrow: String
-    let title: String
-    let description: String
-    var useAppIcon: Bool = false
-    @ViewBuilder let accentContent: () -> AccentContent
+// MARK: - Onboarding sub-components
+
+private struct OnboardingFooter: View {
+    let selectedPage: Int
+    let pageCount: Int
+    let primaryTitle: LocalizedStringKey
+    let secondaryTitle: LocalizedStringKey?
+    let onPrimary: () -> Void
+    let onSecondary: () -> Void
 
     var body: some View {
-        VStack(spacing: 26) {
-            Spacer(minLength: 20)
-
-            if useAppIcon,
-               let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
-               let primary = icons["CFBundlePrimaryIcon"] as? [String: Any],
-               let iconFiles = primary["CFBundleIconFiles"] as? [String],
-               let iconName = iconFiles.last,
-               let uiImage = UIImage(named: iconName) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 102, height: 102)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            } else {
-                ZStack {
-                    Circle()
-                        .fill(OnboardingPalette.cardSoft)
-                        .frame(width: 102, height: 102)
-                        .overlay {
-                            Circle()
-                                .stroke(OnboardingPalette.border, lineWidth: 1)
-                        }
-
-                    Image(systemName: icon)
-                        .font(.system(size: 36, weight: .light))
-                        .foregroundStyle(OnboardingPalette.accent)
+        VStack(spacing: 14) {
+            HStack(spacing: 8) {
+                ForEach(0..<pageCount, id: \.self) { index in
+                    Capsule()
+                        .fill(index == selectedPage ? OnboardPalette.brandPurple : OnboardPalette.dotInactive)
+                        .frame(width: index == selectedPage ? 22 : 8, height: 8)
+                        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: selectedPage)
                 }
             }
+            .padding(.bottom, 4)
+
+            Button(action: onPrimary) {
+                Text(primaryTitle)
+                    .font(.system(size: 19, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 0.541, green: 0.510, blue: 0.945),
+                                        Color(red: 0.451, green: 0.435, blue: 0.918)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+                    .shadow(color: OnboardPalette.brandPurple.opacity(0.32), radius: 14, x: 0, y: 8)
+            }
+            .buttonStyle(OnboardPressedScaleStyle())
+
+            if let secondaryTitle {
+                Button(action: onSecondary) {
+                    Text(secondaryTitle)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private struct OnboardPressedScaleStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Onboarding pages
+
+private struct OnboardingWelcomePage: View {
+    var body: some View {
+        OnboardingPageScaffold(
+            heroImageName: "OnboardingHeroWelcome",
+            title: AnyView(
+                HStack(spacing: 0) {
+                    Text("Welcome to iso")
+                    Text(".").foregroundStyle(OnboardPalette.brandRed)
+                    Text("me")
+                }
+            ),
+            subtitle: "Your private location timeline,\nbeautifully organized.",
+            rows: [
+                OnboardingRowSpec(
+                    icon: "mappin.and.ellipse",
+                    iconBg: OnboardPalette.tilePurple,
+                    iconFg: OnboardPalette.iconPurple,
+                    title: "Auto-detect places",
+                    body: "iso.me finds the places you visit in the background."
+                ),
+                OnboardingRowSpec(
+                    icon: "point.topleft.down.to.point.bottomright.curvepath",
+                    iconBg: OnboardPalette.tileGreen,
+                    iconFg: OnboardPalette.iconGreen,
+                    title: "See exact routes",
+                    body: "View the precise GPS routes you take."
+                ),
+                OnboardingRowSpec(
+                    icon: "icloud.and.arrow.up",
+                    iconBg: OnboardPalette.tilePeach,
+                    iconFg: OnboardPalette.iconPeach,
+                    title: "Export anytime",
+                    body: "Download your full history in JSON, CSV, or Markdown."
+                )
+            ]
+        )
+    }
+}
+
+private struct OnboardingPrivatePage: View {
+    var body: some View {
+        OnboardingPageScaffold(
+            heroImageName: "OnboardingHeroPrivate",
+            title: AnyView(Text("Private by default")),
+            subtitle: "Your places stay yours. iso.me keeps your history protected and easy to control.",
+            rows: [
+                OnboardingRowSpec(
+                    icon: "lock.fill",
+                    iconBg: OnboardPalette.tilePeach,
+                    iconFg: OnboardPalette.iconPeach,
+                    title: "Stored on your device",
+                    body: "Your data is saved locally — only on your device."
+                ),
+                OnboardingRowSpec(
+                    icon: "person.crop.circle.badge.checkmark",
+                    iconBg: OnboardPalette.tileGreen,
+                    iconFg: OnboardPalette.iconGreen,
+                    title: "No account required",
+                    body: "Use iso.me instantly. No sign up, no personal info."
+                ),
+                OnboardingRowSpec(
+                    icon: "square.and.arrow.up",
+                    iconBg: OnboardPalette.tilePurple,
+                    iconFg: OnboardPalette.iconPurple,
+                    title: "Export when you want",
+                    body: "Take your data anytime in JSON, CSV, or Markdown."
+                )
+            ]
+        )
+    }
+}
+
+private struct OnboardingPermissionsPage: View {
+    let authorizationStatus: CLAuthorizationStatus
+
+    var body: some View {
+        OnboardingPageScaffold(
+            heroImageName: "OnboardingHeroLocation",
+            title: AnyView(Text("Auto-detect every visit")),
+            subtitle: "To build your private timeline,\nallow location access in the background.",
+            rows: permissionRows,
+            footer: AnyView(
+                HStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.textMuted)
+                    Text("You can change this anytime in Settings.")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(OnboardPalette.textMuted)
+                }
+                .padding(.top, 4)
+            )
+        )
+    }
+
+    private var permissionRows: [OnboardingRowSpec] {
+        let alwaysGranted = authorizationStatus == .authorizedAlways
+        let whenInUse = authorizationStatus == .authorizedWhenInUse
+        let denied = authorizationStatus == .denied || authorizationStatus == .restricted
+
+        let locationValue: LocalizedStringKey
+        let preciseValue: LocalizedStringKey
+        if alwaysGranted {
+            locationValue = "Always Allow"
+            preciseValue = "On"
+        } else if whenInUse {
+            locationValue = "While Using"
+            preciseValue = "On"
+        } else if denied {
+            locationValue = "Denied"
+            preciseValue = "Off"
+        } else {
+            locationValue = "Required"
+            preciseValue = "Required"
+        }
+
+        return [
+            OnboardingRowSpec(
+                icon: "location.fill",
+                iconBg: OnboardPalette.tilePurple,
+                iconFg: OnboardPalette.iconPurple,
+                title: "Location Access",
+                body: locationValue,
+                trailing: alwaysGranted ? .check : (denied ? .warn : .none)
+            ),
+            OnboardingRowSpec(
+                icon: "scope",
+                iconBg: OnboardPalette.tileGreen,
+                iconFg: OnboardPalette.iconGreen,
+                title: "Precise Location",
+                body: preciseValue,
+                trailing: (alwaysGranted || whenInUse) ? .check : (denied ? .warn : .none)
+            )
+        ]
+    }
+}
+
+private struct OnboardingExportPage: View {
+    var body: some View {
+        OnboardingPageScaffold(
+            heroImageName: "OnboardingHeroExport",
+            title: AnyView(Text("Take your history anywhere")),
+            subtitle: "Export your visits and exact routes in clean, portable formats whenever you need them.",
+            rows: [
+                OnboardingRowSpec(
+                    icon: "curlybraces",
+                    iconBg: OnboardPalette.tilePurple,
+                    iconFg: OnboardPalette.iconPurple,
+                    title: "JSON",
+                    body: "For developers"
+                ),
+                OnboardingRowSpec(
+                    icon: "tablecells",
+                    iconBg: OnboardPalette.tileGreen,
+                    iconFg: OnboardPalette.iconGreen,
+                    title: "CSV",
+                    body: "For spreadsheets"
+                ),
+                OnboardingRowSpec(
+                    icon: "doc.richtext",
+                    iconBg: OnboardPalette.tilePeach,
+                    iconFg: OnboardPalette.iconPeach,
+                    title: "Markdown",
+                    body: "For notes & docs"
+                )
+            ],
+            footer: AnyView(
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(OnboardPalette.tilePeach)
+                            .frame(width: 32, height: 32)
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(OnboardPalette.iconPeach)
+                    }
+                    Text("Ready to track privately from day one.")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.textPrimary)
+                    Spacer(minLength: 0)
+                }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white.opacity(0.66))
+                )
+                .padding(.top, 10)
+            )
+        )
+    }
+}
+
+// MARK: - Onboarding paywall page
+
+private struct OnboardingPaywallPage: View {
+    @ObservedObject var storeManager: StoreManager
+    @Binding var selectedPlan: StoreManager.Plan
+    let onStartTrial: () -> Void
+    let onContinueFree: () -> Void
+    let onRestore: () -> Void
+
+    private let termsURL = URL(string: "https://iso.me/terms")
+    private let privacyURL = URL(string: "https://iso.me/privacy")
+
+    var body: some View {
+        GeometryReader { proxy in
+            let heroHeight = max(120, min(170, proxy.size.height * 0.20))
 
             VStack(spacing: 12) {
-                Text(eyebrow.uppercased())
-                    .font(.onboardingMicro)
-                    .tracking(2.5)
-                    .foregroundStyle(OnboardingPalette.textMuted)
+                Image("OnboardingHeroPaywall")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: heroHeight)
+                    .accessibilityHidden(true)
 
-                Text(title)
-                    .font(.onboardingDisplay)
-                    .tracking(1.4)
-                    .foregroundStyle(OnboardingPalette.textPrimary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 6) {
+                    Text("Unlock unlimited history")
+                        .font(.system(size: 26, weight: .heavy))
+                        .foregroundStyle(OnboardPalette.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
 
-                Text(description)
-                    .font(.onboardingBody)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 10)
+                    Text("Save more places, export anytime, and keep every route beautifully organized.")
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(OnboardPalette.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(1)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 28)
+                }
+
+                OnboardingFeatureCard(rows: featureRows)
+                    .padding(.horizontal, 24)
+
+                VStack(spacing: 8) {
+                    ForEach(StoreManager.Plan.allCases) { plan in
+                        OnboardingPlanCard(
+                            plan: plan,
+                            product: storeManager.product(for: plan),
+                            isSelected: selectedPlan == plan
+                        ) {
+                            withAnimation(.easeOut(duration: 0.18)) {
+                                selectedPlan = plan
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkle")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.brandPurple)
+                    Text("7-day free trial on yearly")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.brandPurple)
+                }
+
+                VStack(spacing: 8) {
+                    Button(action: onStartTrial) {
+                        Group {
+                            if storeManager.isLoading {
+                                ProgressView().tint(.white)
+                            } else {
+                                Text(primaryTitle)
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.541, green: 0.510, blue: 0.945),
+                                            Color(red: 0.451, green: 0.435, blue: 0.918)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        )
+                        .shadow(color: OnboardPalette.brandPurple.opacity(0.28), radius: 12, x: 0, y: 6)
+                    }
+                    .buttonStyle(OnboardPressedScaleStyle())
+                    .disabled(storeManager.isLoading)
+
+                    Button(action: onContinueFree) {
+                        Text("Continue with Free")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(OnboardPalette.brandPurple)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 46)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(Color.white)
+                            )
+                    }
+                    .buttonStyle(OnboardPressedScaleStyle())
+                    .disabled(storeManager.isLoading)
+                }
+                .padding(.horizontal, 24)
+
+                if let error = storeManager.purchaseError {
+                    Text(error)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(OnboardPalette.brandRed)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+
+                HStack {
+                    Button(action: onRestore) {
+                        Text("Restore Purchase")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(OnboardPalette.textMuted)
+                    }
+                    .disabled(storeManager.isLoading)
+
+                    Spacer(minLength: 8)
+
+                    HStack(spacing: 6) {
+                        if let termsURL {
+                            Link("Terms", destination: termsURL)
+                        } else {
+                            Text("Terms")
+                        }
+                        Text("·")
+                        if let privacyURL {
+                            Link("Privacy", destination: privacyURL)
+                        } else {
+                            Text("Privacy")
+                        }
+                    }
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(OnboardPalette.textMuted)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 2)
+
+                Spacer(minLength: 0)
             }
-
-            accentContent()
-                .frame(maxWidth: .infinity)
-
-            Spacer(minLength: 14)
+            .padding(.bottom, 8)
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 10)
+    }
+
+    private var primaryTitle: LocalizedStringKey {
+        selectedPlan == .yearly ? "Start free trial" : "Continue"
+    }
+
+    private var featureRows: [OnboardingRowSpec] {
+        [
+            OnboardingRowSpec(
+                icon: "infinity",
+                iconBg: OnboardPalette.tilePurple,
+                iconFg: OnboardPalette.iconPurple,
+                title: "Unlimited visits & routes"
+            ),
+            OnboardingRowSpec(
+                icon: "doc.text",
+                iconBg: OnboardPalette.tileGreen,
+                iconFg: OnboardPalette.iconGreen,
+                title: "JSON, CSV & Markdown exports"
+            ),
+            OnboardingRowSpec(
+                icon: "point.topleft.down.to.point.bottomright.curvepath",
+                iconBg: OnboardPalette.tilePeach,
+                iconFg: OnboardPalette.iconPeach,
+                title: "Advanced route history"
+            ),
+            OnboardingRowSpec(
+                icon: "checkmark.shield.fill",
+                iconBg: OnboardPalette.tilePurple,
+                iconFg: OnboardPalette.iconPurple,
+                title: "Privacy-first by default"
+            )
+        ]
+    }
+}
+
+private struct OnboardingPlanCard: View {
+    let plan: StoreManager.Plan
+    let product: Product?
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .stroke(
+                            isSelected ? OnboardPalette.brandPurple : OnboardPalette.divider,
+                            lineWidth: isSelected ? 5 : 1.5
+                        )
+                        .frame(width: 18, height: 18)
+
+                    if isSelected {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 6, height: 6)
+                    }
+                }
+
+                Text(planTitle)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(OnboardPalette.textPrimary)
+
+                if plan == .yearly {
+                    Text("Best value")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule().fill(OnboardPalette.tilePurple)
+                        )
+                }
+
+                Spacer(minLength: 8)
+
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text(priceText)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(OnboardPalette.textPrimary)
+                    Text(priceSuffix)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(OnboardPalette.textMuted)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(
+                        isSelected ? OnboardPalette.brandPurple : Color.black.opacity(0.04),
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var planTitle: LocalizedStringKey {
+        switch plan {
+        case .monthly: return "Monthly"
+        case .yearly: return "Yearly"
+        case .lifetime: return "Lifetime"
+        }
+    }
+
+    private var priceText: String {
+        if let product { return product.displayPrice }
+        switch plan {
+        case .monthly: return "$4.99"
+        case .yearly: return "$29.99"
+        case .lifetime: return "$59.99"
+        }
+    }
+
+    private var priceSuffix: LocalizedStringKey {
+        switch plan {
+        case .monthly: return "/ month"
+        case .yearly: return "/ year"
+        case .lifetime: return "once"
+        }
+    }
+}
+
+// MARK: - Onboarding scaffold
+
+private struct OnboardingPageScaffold: View {
+    let heroImageName: String
+    let title: AnyView
+    let subtitle: LocalizedStringKey
+    let rows: [OnboardingRowSpec]
+    var footer: AnyView? = nil
+
+    var body: some View {
+        GeometryReader { proxy in
+            let heroHeight = max(140, min(200, proxy.size.height * 0.27))
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 14) {
+                    Image(heroImageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: heroHeight)
+                        .accessibilityHidden(true)
+
+                    VStack(spacing: 10) {
+                        title
+                            .font(.system(size: 30, weight: .heavy))
+                            .foregroundStyle(OnboardPalette.textPrimary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
+
+                        Text(subtitle)
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(OnboardPalette.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
+                            .padding(.horizontal, 28)
+                    }
+
+                    OnboardingFeatureCard(rows: rows)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 2)
+
+                    if let footer {
+                        footer
+                            .padding(.horizontal, 24)
+                    }
+
+                    Spacer(minLength: 4)
+                }
+                .padding(.bottom, 6)
+                .frame(minHeight: proxy.size.height, alignment: .top)
+            }
+        }
+    }
+}
+
+private enum OnboardingRowTrailing {
+    case none
+    case check
+    case warn
+    case chevron
+}
+
+private struct OnboardingRowSpec {
+    let icon: String
+    let iconBg: Color
+    let iconFg: Color
+    let title: LocalizedStringKey
+    let body: LocalizedStringKey?
+    var trailing: OnboardingRowTrailing = .none
+
+    init(
+        icon: String,
+        iconBg: Color,
+        iconFg: Color,
+        title: LocalizedStringKey,
+        body: LocalizedStringKey? = nil,
+        trailing: OnboardingRowTrailing = .none
+    ) {
+        self.icon = icon
+        self.iconBg = iconBg
+        self.iconFg = iconFg
+        self.title = title
+        self.body = body
+        self.trailing = trailing
     }
 }
 
 private struct OnboardingFeatureCard: View {
-    let icon: String
-    let title: String
-    let description: String
+    let rows: [OnboardingRowSpec]
+
+    private var compact: Bool { rows.allSatisfy { $0.body == nil } }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 1.5)
-                .fill(OnboardingPalette.accent)
-                .frame(width: 3, height: 32)
-                .padding(.top, 2)
+        VStack(spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                OnboardingFeatureRow(spec: row)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, compact ? 6 : 12)
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(OnboardingPalette.accent)
-
-                    Text(title)
-                        .font(.onboardingHeadline)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
+                if index < rows.count - 1 {
+                    Rectangle()
+                        .fill(OnboardPalette.divider)
+                        .frame(height: 1)
+                        .padding(.horizontal, 16)
                 }
-
-                Text(description)
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .onboardingCard(padding: 14, fill: OnboardingPalette.card)
-    }
-}
-
-private struct OnboardingStatusRow: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(color)
-                .frame(width: 22)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.onboardingHeadline)
-                    .foregroundStyle(OnboardingPalette.textPrimary)
-
-                Text(subtitle)
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .onboardingCard(padding: 12, fill: OnboardingPalette.cardSoft)
-    }
-}
-
-private struct OnboardingSummaryRow: View {
-    let icon: String
-    let title: String
-    let value: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(OnboardingPalette.accent)
-                .frame(width: 20)
-
-            Text(title)
-                .font(.onboardingCaption)
-                .foregroundStyle(OnboardingPalette.textPrimary)
-
-            Spacer()
-
-            Text(value)
-                .font(.onboardingMicro)
-                .tracking(0.7)
-                .foregroundStyle(OnboardingPalette.textSecondary)
-        }
-    }
-}
-
-private struct OnboardingChecklistRow: View {
-    let icon: String
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(OnboardingPalette.accent)
-                .frame(width: 18)
-
-            Text(text)
-                .font(.onboardingCaption)
-                .foregroundStyle(OnboardingPalette.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Spacer(minLength: 0)
-        }
-    }
-}
-
-private struct OnboardingSignalColumn: View {
-    let delay: Double
-    @State private var isAnimating = false
-
-    var body: some View {
-        VStack(spacing: 4) {
-            ForEach(0..<5, id: \.self) { index in
-                Capsule()
-                    .fill(OnboardingPalette.accent.opacity(isAnimating ? (1.0 - Double(index) * 0.17) : 0.25))
-                    .frame(width: 5, height: CGFloat(22 - index * 3))
             }
         }
-        .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.0)
-                .repeatForever(autoreverses: true)
-                .delay(delay)
-            ) {
-                isAnimating = true
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color.white)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 10)
+    }
+}
+
+private struct OnboardingFeatureRow: View {
+    let spec: OnboardingRowSpec
+
+    var body: some View {
+        HStack(alignment: spec.body == nil ? .center : .top, spacing: spec.body == nil ? 10 : 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(spec.iconBg)
+                    .frame(width: spec.body == nil ? 30 : 44, height: spec.body == nil ? 30 : 44)
+
+                Image(systemName: spec.icon)
+                    .font(.system(size: spec.body == nil ? 14 : 19, weight: .semibold))
+                    .foregroundStyle(spec.iconFg)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(spec.title)
+                    .font(.system(size: spec.body == nil ? 14 : 16, weight: .bold))
+                    .foregroundStyle(OnboardPalette.textPrimary)
+
+                if let body = spec.body {
+                    Text(body)
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(OnboardPalette.textSecondary)
+                        .lineSpacing(1)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            switch spec.trailing {
+            case .none:
+                EmptyView()
+            case .check:
+                ZStack {
+                    Circle().fill(OnboardPalette.iconGreen).frame(width: 26, height: 26)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                .padding(.top, 8)
+            case .warn:
+                Image(systemName: "exclamationmark.circle.fill")
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundStyle(OnboardPalette.brandRed)
+                    .padding(.top, 8)
+            case .chevron:
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(OnboardPalette.textMuted)
+                    .padding(.top, 12)
             }
         }
     }
 }
 
-private struct OnboardingBackdrop: View {
+// MARK: - Onboarding background & palette
+
+private struct OnboardingBG: View {
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    OnboardingPalette.backgroundTop,
-                    OnboardingPalette.backgroundBottom
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            Circle()
-                .fill(OnboardingPalette.accent.opacity(0.16))
-                .frame(width: 340, height: 340)
-                .blur(radius: 42)
-                .offset(x: -130, y: -300)
-
-            Circle()
-                .fill(OnboardingPalette.accent.opacity(0.12))
-                .frame(width: 300, height: 300)
-                .blur(radius: 38)
-                .offset(x: 140, y: 330)
-
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.3),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+            OnboardPalette.background
                 .ignoresSafeArea()
-                .allowsHitTesting(false)
-        }
-    }
-}
 
-private struct OnboardingCardModifier: ViewModifier {
-    var padding: CGFloat = 16
-    var fill: Color = OnboardingPalette.card
+            // Soft pastel corner blobs
+            Circle()
+                .fill(OnboardPalette.blobPeach)
+                .frame(width: 260, height: 260)
+                .blur(radius: 40)
+                .offset(x: 160, y: -340)
 
-    func body(content: Content) -> some View {
-        content
-            .padding(padding)
-            .background(fill, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(OnboardingPalette.border, lineWidth: 1)
+            Circle()
+                .fill(OnboardPalette.blobLavender)
+                .frame(width: 220, height: 220)
+                .blur(radius: 36)
+                .offset(x: -180, y: 360)
+
+            Circle()
+                .fill(OnboardPalette.blobPink)
+                .frame(width: 240, height: 240)
+                .blur(radius: 38)
+                .offset(x: 180, y: 380)
+
+            // Sparkles
+            ForEach(0..<6, id: \.self) { i in
+                let positions: [CGSize] = [
+                    CGSize(width: -130, height: -260),
+                    CGSize(width: 140, height: -180),
+                    CGSize(width: -160, height: 60),
+                    CGSize(width: 150, height: 120),
+                    CGSize(width: -110, height: 280),
+                    CGSize(width: 130, height: 320)
+                ]
+                let sizes: [CGFloat] = [10, 14, 8, 12, 9, 11]
+                Image(systemName: "sparkle")
+                    .font(.system(size: sizes[i], weight: .semibold))
+                    .foregroundStyle(OnboardPalette.sparkle)
+                    .offset(positions[i])
+                    .opacity(0.55)
             }
-            .shadow(color: Color.black.opacity(0.03), radius: 9, x: 0, y: 5)
-    }
-}
-
-private extension View {
-    func onboardingCard(padding: CGFloat = 16, fill: Color = OnboardingPalette.card) -> some View {
-        modifier(OnboardingCardModifier(padding: padding, fill: fill))
-    }
-}
-
-private struct OnboardingPrimaryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.onboardingButton)
-            .textCase(.uppercase)
-            .tracking(1.4)
-            .foregroundStyle(.white)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(OnboardingPalette.accent)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(OnboardingPalette.accent.opacity(0.82), lineWidth: 1)
-            }
-            .shadow(color: OnboardingPalette.accent.opacity(0.24), radius: 10, x: 0, y: 6)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .opacity(configuration.isPressed ? 0.92 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
-private struct OnboardingSecondaryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.onboardingButton)
-            .textCase(.uppercase)
-            .tracking(1.2)
-            .foregroundStyle(OnboardingPalette.textPrimary)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(OnboardingPalette.card)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(OnboardingPalette.border, lineWidth: 1)
-            }
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .opacity(configuration.isPressed ? 0.92 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
-private struct OnboardingTextButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.onboardingMicro)
-            .tracking(1.3)
-            .foregroundStyle(OnboardingPalette.textSecondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(OnboardingPalette.card.opacity(configuration.isPressed ? 0.8 : 0.001))
-            )
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
-private enum OnboardingPalette {
-    static let backgroundTop = Color(red: 0.974, green: 0.981, blue: 0.996)
-    static let backgroundBottom = Color(red: 0.924, green: 0.942, blue: 0.979)
-
-    static let card = Color.white.opacity(0.94)
-    static let cardSoft = Color(red: 0.953, green: 0.966, blue: 0.992)
-    static let border = Color(red: 0.816, green: 0.852, blue: 0.917)
-
-    static let accent = Color(red: 0.196, green: 0.455, blue: 0.956)
-
-    static let textPrimary = Color(red: 0.125, green: 0.161, blue: 0.247)
-    static let textSecondary = Color(red: 0.294, green: 0.345, blue: 0.459)
-    static let textMuted = Color(red: 0.459, green: 0.514, blue: 0.639)
-
-    static let success = Color(red: 0.173, green: 0.67, blue: 0.42)
-    static let warning = Color(red: 0.923, green: 0.611, blue: 0.145)
-    static let danger = Color(red: 0.849, green: 0.327, blue: 0.278)
-}
-
-private extension Font {
-    static let onboardingDisplay = Font.system(.largeTitle, design: .monospaced, weight: .semibold)
-    static let onboardingTitle = Font.system(.title2, design: .monospaced, weight: .semibold)
-    static let onboardingHeadline = Font.system(.headline, design: .monospaced, weight: .semibold)
-    static let onboardingBody = Font.system(.body, design: .rounded, weight: .regular)
-    static let onboardingCaption = Font.system(.callout, design: .rounded, weight: .regular)
-    static let onboardingMicro = Font.system(.footnote, design: .monospaced, weight: .semibold)
-    static let onboardingButton = Font.system(.callout, design: .monospaced, weight: .semibold)
-}
-
-private extension CLAuthorizationStatus {
-    var onboardingLabel: String {
-        switch self {
-        case .notDetermined:
-            return String(localized: "Not requested")
-        case .restricted:
-            return String(localized: "Restricted")
-        case .denied:
-            return String(localized: "Denied")
-        case .authorizedWhenInUse:
-            return String(localized: "While using")
-        case .authorizedAlways:
-            return String(localized: "Always allowed")
-        @unknown default:
-            return String(localized: "Unknown")
         }
+        .allowsHitTesting(false)
     }
+}
 
-    var onboardingIcon: String {
-        switch self {
-        case .authorizedAlways:
-            return "checkmark.circle.fill"
-        case .authorizedWhenInUse:
-            return "clock.badge.checkmark.fill"
-        case .denied, .restricted:
-            return "xmark.octagon.fill"
-        case .notDetermined:
-            return "questionmark.circle.fill"
-        @unknown default:
-            return "questionmark.circle.fill"
-        }
-    }
+private enum OnboardPalette {
+    // Base
+    static let background = Color(red: 253/255, green: 248/255, blue: 245/255)
+    static let textPrimary = Color(red: 0.118, green: 0.149, blue: 0.282)
+    static let textSecondary = Color(red: 0.353, green: 0.392, blue: 0.502)
+    static let textMuted = Color(red: 0.541, green: 0.580, blue: 0.671)
+    static let divider = Color(red: 0.918, green: 0.918, blue: 0.945)
 
-    var onboardingColor: Color {
-        switch self {
-        case .authorizedAlways:
-            return OnboardingPalette.success
-        case .authorizedWhenInUse:
-            return OnboardingPalette.warning
-        case .denied, .restricted:
-            return OnboardingPalette.danger
-        case .notDetermined:
-            return OnboardingPalette.textMuted
-        @unknown default:
-            return OnboardingPalette.textMuted
-        }
-    }
+    // Brand
+    static let brandPurple = Color(red: 0.482, green: 0.467, blue: 0.929)
+    static let brandRed = Color(red: 0.929, green: 0.302, blue: 0.310)
+
+    // Tile fills
+    static let tilePurple = Color(red: 0.910, green: 0.890, blue: 0.984)
+    static let tileGreen  = Color(red: 0.847, green: 0.929, blue: 0.875)
+    static let tilePeach  = Color(red: 0.992, green: 0.875, blue: 0.835)
+
+    // Tile foregrounds
+    static let iconPurple = Color(red: 0.482, green: 0.420, blue: 0.882)
+    static let iconGreen  = Color(red: 0.298, green: 0.667, blue: 0.467)
+    static let iconPeach  = Color(red: 0.929, green: 0.510, blue: 0.388)
+
+    // Decoration
+    static let blobPeach    = Color(red: 0.984, green: 0.831, blue: 0.776).opacity(0.45)
+    static let blobLavender = Color(red: 0.835, green: 0.808, blue: 0.957).opacity(0.55)
+    static let blobPink     = Color(red: 0.973, green: 0.812, blue: 0.847).opacity(0.50)
+    static let sparkle      = Color(red: 0.808, green: 0.741, blue: 0.918)
+
+    static let dotInactive = Color(red: 0.808, green: 0.808, blue: 0.831)
 }
 
 #Preview {

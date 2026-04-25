@@ -2369,134 +2369,6 @@
         }
       }
     },
-    "You've used your 10 hours of free tracking. Unlock unlimited tracking with a one-time purchase.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You've used your 10 hours of free tracking. Unlock unlimited tracking with a one-time purchase."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "لقد استخدمت 10 ساعات من التتبع المجاني. فتح التتبع غير المحدود برشاء لمرة واحدة."
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "আপনি ১০ ঘন্টার বিনামূল্যে ট্র্যাকিং ব্যবহার করেছেন। একবার ক্রয়ের মাধ্যমে সীমাহীন ট্র্যাকিং আনলক করুন।"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Você usou suas 10 horas de rastreamento gratuito. Desbloqueie o rastreamento ilimitado com uma compra única."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вы использовали 10 часов бесплатного отслеживания. Разблокируйте неограниченное отслеживание с помощью разовой покупки."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "10時間の無料トラッキングを使用しました。1回のみの購入で無制限トラッキングをアンロック。"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous avez utilisé vos 10 heures de suivi gratuit. Déverrouillez le suivi illimité avec un achat unique."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Has utilizado tus 10 horas de seguimiento gratuito. Desbloquea el seguimiento ilimitado con una compra única."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "आपने अपने 10 घंटे की मुक्त ट्रैकिंग का उपयोग कर लिया है। एक बार की खरीद के साथ अनंत ट्रैकिंग को अनलॉक करें।"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "您已用完10小时的免费跟踪时间。一次性购买即可解锁无限跟踪。"
-          }
-        }
-      }
-    },
-    "Unlimited tracking forever": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unlimited tracking forever"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "تتبع غير محدود إلى الأبد"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "চিরকালের জন্য সীমাহীন ট্র্যাকিং"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastreamento ilimitado para sempre"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Неограниченное отслеживание на всегда"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "永遠に無制限トラッキング"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suivi illimité à jamais"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seguimiento ilimitado para siempre"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "हमेशा के लिए अनंत ट्रैकिंग"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "永久无限跟踪"
-          }
-        }
-      }
-    },
     "One-time payment, no subscription": {
       "localizations": {
         "en": {
@@ -3069,70 +2941,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "数据"
-          }
-        }
-      }
-    },
-    "Track": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Track"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "التتبع"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ট্র্যাক করুন"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastrear"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отслеживание"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トラッキング"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suivi"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seguir"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ट्रैक करें"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "跟踪"
           }
         }
       }
@@ -5569,134 +5377,6 @@
         }
       }
     },
-    "Continuous": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continuous"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "مستمر"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ক্রমাগত"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contínuo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Непрерывное"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "継続"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continu"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连续"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continuo"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "निरंतर"
-          }
-        }
-      }
-    },
-    "Visit only": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Visit only"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "الزيارات فقط"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "শুধুমাত্র পরিদর্শন"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apenas visitas"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Только посещения"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "訪問のみ"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Visites uniquement"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Solo visitas"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "केवल विजिट"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仅访问"
-          }
-        }
-      }
-    },
     "Privacy": {
       "localizations": {
         "en": {
@@ -7229,70 +6909,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "高精度"
-          }
-        }
-      }
-    },
-    "CONTINUOUS MODE": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINUOUS MODE"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MODO CONTINUO"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "निरंतर मोड"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连续模式"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "الوضع المستمر"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ক্রমাগত মোড"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MODE CONTINU"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連続モード"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MODO CONTÍNUO"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "НЕПРЕРЫВНЫЙ РЕЖИМ"
           }
         }
       }
@@ -9921,70 +9537,6 @@
         }
       }
     },
-    "UNLIMITED TRACKING": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UNLIMITED TRACKING"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "التتبع غير المحدود"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "সীমাহীন ট্র্যাকিং"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RASTREAMENTO ILIMITADO"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "НЕОГРАНИЧЕННОЕ ОТСЛЕЖИВАНИЕ"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "無制限トラッキング"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SUIVI ILLIMITÉ"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SEGUIMIENTO ILIMITADO"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "अनंत ट्रैकिंग"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无限跟踪"
-          }
-        }
-      }
-    },
     "PURCHASED": {
       "localizations": {
         "en": {
@@ -10049,70 +9601,6 @@
         }
       }
     },
-    "UNLOCK UNLIMITED": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UNLOCK UNLIMITED"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "فتح التتبع غير المحدود"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "সীমাহীন আনলক করুন"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DESBLOQUEAR ILIMITADO"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "РАЗБЛОКИРОВАТЬ НЕОГРАНИЧЕННОЕ"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "無制限をアンロック"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DÉVERROUILLER ILLIMITÉ"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DESBLOQUEAR ILIMITADO"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "अनंत को अनलॉक करें"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "解锁无限"
-          }
-        }
-      }
-    },
     "RESTORE PURCHASE": {
       "localizations": {
         "en": {
@@ -10173,70 +9661,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "恢复购买"
-          }
-        }
-      }
-    },
-    "Free for your first 10 hours. One-time purchase for unlimited use.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Free for your first 10 hours. One-time purchase for unlimited use."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "مجاني لأول 10 ساعات. شراء لمرة واحدة للاستخدام غير المحدود."
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "প্রথম ১০ ঘন্টার জন্য বিনামূল্যে। সীমাহীন ব্যবহারের জন্য একবার ক্রয়।"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Grátis pelas primeiras 10 horas. Compra única para uso ilimitado."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Бесплатно в течение первых 10 часов. Разовая покупка для неограниченного использования."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最初の10時間は無料。無制限使用は1回のみの購入。"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gratuit pour vos 10 premières heures. Achat unique pour une utilisation illimitée."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gratis para tus primeras 10 horas. Compra única para uso ilimitado."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "आपके पहले 10 घंटे के लिए मुक्त। असीमित उपयोग के लिए एकबारी खरीद।"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "前10小时免费。一次性购买即可无限使用。"
           }
         }
       }
@@ -12029,70 +11453,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "启动时位置"
-          }
-        }
-      }
-    },
-    "Default behavior when starting tracking from the Track tab.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Default behavior when starting tracking from the Track tab."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "السلوك الافتراضي عند بدء التتبع من علامة تبويب التتبع."
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ট্র্যাক ট্যাব থেকে ট্র্যাকিং শুরু করার সময় ডিফল্ট আচরণ।"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comportamento padrão ao iniciar o rastreamento na guia Track."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поведение по умолчанию при запуске отслеживания с вкладки Отслеживание."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トラッキングタブからトラッキングを開始する際のデフォルト動作。"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comportement par défaut lors du démarrage du suivi à partir de l'onglet Suivi."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comportamiento predeterminado al iniciar el seguimiento desde la pestaña Seguir."
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ट्रैक टैब से ट्रैकिंग शुरू करते समय डिफ़ॉल्ट व्यवहार।"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "从跟踪选项卡开始跟踪时的默认行为。"
           }
         }
       }
@@ -14337,70 +13697,6 @@
         }
       }
     },
-    "CONTINUOUS": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINUOUS"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连续"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINUO"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINU"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTÍNUO"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "НЕПРЕРЫВНО"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連続"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "مستمر"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "निरंतर"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ধারাবাহিক"
-          }
-        }
-      }
-    },
     "AUTO-START ON ACTIVITY": {
       "localizations": {
         "en": {
@@ -14781,6 +14077,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld প"
+          }
+        }
+      }
+    },
+    "Tracking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracking"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مستمر"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ক্রমাগত"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contínuo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Непрерывное"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "継続"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निरंतर"
           }
         }
       }
