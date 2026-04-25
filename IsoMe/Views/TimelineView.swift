@@ -15,9 +15,9 @@ struct TimelineView: View {
                             .padding(.top, DS.Spacing.md)
 
                         if viewModel.todayTimeline.isEmpty {
-                            TimelineEmptyState()
+                            TrackingHeroView(locationManager: viewModel.locationManager)
                                 .padding(.horizontal, DS.Spacing.lg)
-                                .padding(.top, DS.Spacing.xl)
+                                .padding(.top, DS.Spacing.lg)
                         } else {
                             TimelineList(entries: viewModel.todayTimeline)
                                 .padding(.horizontal, DS.Spacing.lg)
