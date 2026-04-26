@@ -5,100 +5,126 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 28) {
-            Spacer()
+        ZStack {
+            DS.Color.background.ignoresSafeArea()
 
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(Color.blue.opacity(0.1))
-                    .frame(width: 100, height: 100)
+            ScrollView {
+                VStack(spacing: DS.Spacing.xl) {
+                    Spacer(minLength: DS.Spacing.lg)
 
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.blue)
-            }
+                    iconHeader
+                    titleBlock
+                    featureCard
 
-            // Title
-            VStack(spacing: 8) {
-                Text("Free Limit Reached")
-                    .font(.title.bold())
+                    Spacer(minLength: DS.Spacing.lg)
 
-                Text("You've used your 10 hours of free tracking. Unlock unlimited tracking with a one-time purchase.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-            }
-
-            // Features
-            VStack(alignment: .leading, spacing: 12) {
-                featureRow(icon: "infinity", text: "Unlimited tracking forever")
-                featureRow(icon: "purchased", text: "One-time payment, no subscription")
-                featureRow(icon: "lock.shield.fill", text: "Still 100% private & on-device")
-            }
-            .padding(.horizontal, 32)
-
-            Spacer()
-
-            // Purchase button
-            VStack(spacing: 12) {
-                Button {
-                    Task {
-                        await storeManager.purchase()
-                    }
-                } label: {
-                    Group {
-                        if storeManager.isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        } else if let product = storeManager.product {
-                            Text("Unlock iso.me — \(product.displayPrice)")
-                                .font(.headline)
-                        } else {
-                            Text("Loading...")
-                                .font(.headline)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.blue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .foregroundStyle(.white)
+                    purchaseBlock
                 }
-                .disabled(storeManager.product == nil || storeManager.isLoading)
-
-                Button {
-                    Task {
-                        await storeManager.restorePurchases()
-                    }
-                } label: {
-                    Text("Restore Purchase")
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
-                }
-                .disabled(storeManager.isLoading)
-
-                if let error = storeManager.purchaseError {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .multilineTextAlignment(.center)
-                }
+                .padding(.horizontal, DS.Spacing.lg)
+                .padding(.bottom, DS.Spacing.xl)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
         }
     }
 
-    private func featureRow(icon: String, text: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.blue)
-                .frame(width: 24)
+    // MARK: - Sections
 
+    private var iconHeader: some View {
+        ZStack {
+            Circle()
+                .fill(DS.Color.tilePurple)
+                .frame(width: 120, height: 120)
+            Image(systemName: "square.and.arrow.up.fill")
+                .font(.system(size: 48, weight: .semibold))
+                .foregroundStyle(DS.Color.iconPurple)
+        }
+    }
+
+    private var titleBlock: some View {
+        VStack(spacing: DS.Spacing.sm) {
+            Text("Unlock data export")
+                .font(DS.Font.display(.bold))
+                .foregroundStyle(DS.Color.textPrimary)
+                .multilineTextAlignment(.center)
+
+            Text("You've collected your data — now take it with you. Unlock export with a one-time purchase.")
+                .font(DS.Font.body())
+                .foregroundStyle(DS.Color.textMuted)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, DS.Spacing.md)
+        }
+    }
+
+    private var featureCard: some View {
+        DSCard {
+            VStack(alignment: .leading, spacing: DS.Spacing.lg) {
+                featureRow(symbol: "square.and.arrow.up", palette: .purple, text: "Export to JSON, CSV, or Markdown")
+                featureRow(symbol: "infinity", palette: .green, text: "Unlimited tracking, always free")
+                featureRow(symbol: "checkmark.seal.fill", palette: .blue, text: "One-time payment, no subscription")
+                featureRow(symbol: "lock.shield.fill", palette: .peach, text: "Still 100% private & on-device")
+            }
+        }
+    }
+
+    private var purchaseBlock: some View {
+        VStack(spacing: DS.Spacing.md) {
+            Button {
+                Task { await storeManager.purchase() }
+            } label: {
+                purchaseLabel
+            }
+            .buttonStyle(.plain)
+            .disabled(storeManager.product == nil || storeManager.isLoading)
+
+            Button {
+                Task { await storeManager.restorePurchases() }
+            } label: {
+                Text("Restore purchase")
+                    .font(DS.Font.body(.medium))
+                    .foregroundStyle(DS.Color.accent)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, DS.Spacing.sm)
+            }
+            .buttonStyle(.plain)
+            .disabled(storeManager.isLoading)
+
+            if let error = storeManager.purchaseError {
+                Text(error)
+                    .font(DS.Font.caption())
+                    .foregroundStyle(DS.Color.danger)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+
+    private var purchaseLabel: some View {
+        Group {
+            if storeManager.isLoading {
+                ProgressView().tint(.white)
+            } else if let product = storeManager.product {
+                Text("Unlock export — \(product.displayPrice)")
+                    .font(DS.Font.headline())
+            } else {
+                Text("Loading…")
+                    .font(DS.Font.headline())
+            }
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DS.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                .fill(DS.Color.accent)
+        )
+        .shadow(color: DS.Color.accent.opacity(0.28), radius: 12, x: 0, y: 6)
+    }
+
+    private func featureRow(symbol: String, palette: DS.Palette, text: String) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            CategoryIcon(symbol: symbol, palette: palette, size: 36)
             Text(text)
-                .font(.body)
+                .font(DS.Font.body(.medium))
+                .foregroundStyle(DS.Color.textPrimary)
+            Spacer(minLength: 0)
         }
     }
 }

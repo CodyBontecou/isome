@@ -433,7 +433,7 @@ private struct OnboardingFooter: View {
             HStack(spacing: 8) {
                 ForEach(0..<pageCount, id: \.self) { index in
                     Capsule()
-                        .fill(index == selectedPage ? OnboardPalette.brandPurple : OnboardPalette.dotInactive)
+                        .fill(index == selectedPage ? DS.Color.accent : DS.Color.dotInactive)
                         .frame(width: index == selectedPage ? 22 : 8, height: 8)
                         .animation(.spring(response: 0.32, dampingFraction: 0.85), value: selectedPage)
                 }
@@ -459,7 +459,7 @@ private struct OnboardingFooter: View {
                                 )
                             )
                     )
-                    .shadow(color: OnboardPalette.brandPurple.opacity(0.32), radius: 14, x: 0, y: 8)
+                    .shadow(color: DS.Color.accent.opacity(0.32), radius: 14, x: 0, y: 8)
             }
             .buttonStyle(OnboardPressedScaleStyle())
 
@@ -467,7 +467,7 @@ private struct OnboardingFooter: View {
                 Button(action: onSecondary) {
                     Text(secondaryTitle)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .foregroundStyle(DS.Color.accent)
                         .padding(.vertical, 6)
                 }
                 .buttonStyle(.plain)
@@ -494,7 +494,7 @@ private struct OnboardingWelcomePage: View {
             title: AnyView(
                 HStack(spacing: 0) {
                     Text("Welcome to iso")
-                    Text(".").foregroundStyle(OnboardPalette.brandRed)
+                    Text(".").foregroundStyle(DS.Color.danger)
                     Text("me")
                 }
             ),
@@ -502,22 +502,22 @@ private struct OnboardingWelcomePage: View {
             rows: [
                 OnboardingRowSpec(
                     icon: "mappin.and.ellipse",
-                    iconBg: OnboardPalette.tilePurple,
-                    iconFg: OnboardPalette.iconPurple,
+                    iconBg: DS.Color.tilePurple,
+                    iconFg: DS.Color.iconPurple,
                     title: "Auto-detect places",
                     body: "iso.me finds the places you visit in the background."
                 ),
                 OnboardingRowSpec(
                     icon: "point.topleft.down.to.point.bottomright.curvepath",
-                    iconBg: OnboardPalette.tileGreen,
-                    iconFg: OnboardPalette.iconGreen,
+                    iconBg: DS.Color.tileGreen,
+                    iconFg: DS.Color.iconGreen,
                     title: "See exact routes",
                     body: "View the precise GPS routes you take."
                 ),
                 OnboardingRowSpec(
                     icon: "icloud.and.arrow.up",
-                    iconBg: OnboardPalette.tilePeach,
-                    iconFg: OnboardPalette.iconPeach,
+                    iconBg: DS.Color.tilePeach,
+                    iconFg: DS.Color.iconPeach,
                     title: "Export anytime",
                     body: "Download your full history in JSON, CSV, or Markdown."
                 )
@@ -535,22 +535,22 @@ private struct OnboardingPrivatePage: View {
             rows: [
                 OnboardingRowSpec(
                     icon: "lock.fill",
-                    iconBg: OnboardPalette.tilePeach,
-                    iconFg: OnboardPalette.iconPeach,
+                    iconBg: DS.Color.tilePeach,
+                    iconFg: DS.Color.iconPeach,
                     title: "Stored on your device",
                     body: "Your data is saved locally — only on your device."
                 ),
                 OnboardingRowSpec(
                     icon: "person.crop.circle.badge.checkmark",
-                    iconBg: OnboardPalette.tileGreen,
-                    iconFg: OnboardPalette.iconGreen,
+                    iconBg: DS.Color.tileGreen,
+                    iconFg: DS.Color.iconGreen,
                     title: "No account required",
                     body: "Use iso.me instantly. No sign up, no personal info."
                 ),
                 OnboardingRowSpec(
                     icon: "square.and.arrow.up",
-                    iconBg: OnboardPalette.tilePurple,
-                    iconFg: OnboardPalette.iconPurple,
+                    iconBg: DS.Color.tilePurple,
+                    iconFg: DS.Color.iconPurple,
                     title: "Export when you want",
                     body: "Take your data anytime in JSON, CSV, or Markdown."
                 )
@@ -572,10 +572,10 @@ private struct OnboardingPermissionsPage: View {
                 HStack(spacing: 6) {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.textMuted)
+                        .foregroundStyle(DS.Color.textMuted)
                     Text("You can change this anytime in Settings.")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(OnboardPalette.textMuted)
+                        .foregroundStyle(DS.Color.textMuted)
                 }
                 .padding(.top, 4)
             )
@@ -606,16 +606,16 @@ private struct OnboardingPermissionsPage: View {
         return [
             OnboardingRowSpec(
                 icon: "location.fill",
-                iconBg: OnboardPalette.tilePurple,
-                iconFg: OnboardPalette.iconPurple,
+                iconBg: DS.Color.tilePurple,
+                iconFg: DS.Color.iconPurple,
                 title: "Location Access",
                 body: locationValue,
                 trailing: alwaysGranted ? .check : (denied ? .warn : .none)
             ),
             OnboardingRowSpec(
                 icon: "scope",
-                iconBg: OnboardPalette.tileGreen,
-                iconFg: OnboardPalette.iconGreen,
+                iconBg: DS.Color.tileGreen,
+                iconFg: DS.Color.iconGreen,
                 title: "Precise Location",
                 body: preciseValue,
                 trailing: (alwaysGranted || whenInUse) ? .check : (denied ? .warn : .none)
@@ -633,22 +633,22 @@ private struct OnboardingExportPage: View {
             rows: [
                 OnboardingRowSpec(
                     icon: "curlybraces",
-                    iconBg: OnboardPalette.tilePurple,
-                    iconFg: OnboardPalette.iconPurple,
+                    iconBg: DS.Color.tilePurple,
+                    iconFg: DS.Color.iconPurple,
                     title: "JSON",
                     body: "For developers"
                 ),
                 OnboardingRowSpec(
                     icon: "tablecells",
-                    iconBg: OnboardPalette.tileGreen,
-                    iconFg: OnboardPalette.iconGreen,
+                    iconBg: DS.Color.tileGreen,
+                    iconFg: DS.Color.iconGreen,
                     title: "CSV",
                     body: "For spreadsheets"
                 ),
                 OnboardingRowSpec(
                     icon: "doc.richtext",
-                    iconBg: OnboardPalette.tilePeach,
-                    iconFg: OnboardPalette.iconPeach,
+                    iconBg: DS.Color.tilePeach,
+                    iconFg: DS.Color.iconPeach,
                     title: "Markdown",
                     body: "For notes & docs"
                 )
@@ -657,15 +657,15 @@ private struct OnboardingExportPage: View {
                 HStack(spacing: 10) {
                     ZStack {
                         Circle()
-                            .fill(OnboardPalette.tilePeach)
+                            .fill(DS.Color.tilePeach)
                             .frame(width: 32, height: 32)
                         Image(systemName: "checkmark.shield.fill")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(OnboardPalette.iconPeach)
+                            .foregroundStyle(DS.Color.iconPeach)
                     }
                     Text("Ready to track privately from day one.")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.textPrimary)
+                        .foregroundStyle(DS.Color.textPrimary)
                     Spacer(minLength: 0)
                 }
                 .padding(12)
@@ -706,13 +706,13 @@ private struct OnboardingPaywallPage: View {
                 VStack(spacing: 6) {
                     Text("Unlock unlimited history")
                         .font(.system(size: 26, weight: .heavy))
-                        .foregroundStyle(OnboardPalette.textPrimary)
+                        .foregroundStyle(DS.Color.textPrimary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
 
                     Text("Save more places, export anytime, and keep every route beautifully organized.")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(OnboardPalette.textSecondary)
+                        .foregroundStyle(DS.Color.textSecondary)
                         .multilineTextAlignment(.center)
                         .lineSpacing(1)
                         .fixedSize(horizontal: false, vertical: true)
@@ -740,10 +740,10 @@ private struct OnboardingPaywallPage: View {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkle")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .foregroundStyle(DS.Color.accent)
                     Text("7-day free trial on yearly")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .foregroundStyle(DS.Color.accent)
                 }
 
                 VStack(spacing: 8) {
@@ -772,7 +772,7 @@ private struct OnboardingPaywallPage: View {
                                     )
                                 )
                         )
-                        .shadow(color: OnboardPalette.brandPurple.opacity(0.28), radius: 12, x: 0, y: 6)
+                        .shadow(color: DS.Color.accent.opacity(0.28), radius: 12, x: 0, y: 6)
                     }
                     .buttonStyle(OnboardPressedScaleStyle())
                     .disabled(storeManager.isLoading)
@@ -780,7 +780,7 @@ private struct OnboardingPaywallPage: View {
                     Button(action: onContinueFree) {
                         Text("Continue with Free")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(OnboardPalette.brandPurple)
+                            .foregroundStyle(DS.Color.accent)
                             .frame(maxWidth: .infinity)
                             .frame(height: 46)
                             .background(
@@ -796,7 +796,7 @@ private struct OnboardingPaywallPage: View {
                 if let error = storeManager.purchaseError {
                     Text(error)
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(OnboardPalette.brandRed)
+                        .foregroundStyle(DS.Color.danger)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
@@ -805,7 +805,7 @@ private struct OnboardingPaywallPage: View {
                     Button(action: onRestore) {
                         Text("Restore Purchase")
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundStyle(OnboardPalette.textMuted)
+                            .foregroundStyle(DS.Color.textMuted)
                     }
                     .disabled(storeManager.isLoading)
 
@@ -825,7 +825,7 @@ private struct OnboardingPaywallPage: View {
                         }
                     }
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(OnboardPalette.textMuted)
+                    .foregroundStyle(DS.Color.textMuted)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 2)
@@ -845,26 +845,26 @@ private struct OnboardingPaywallPage: View {
         [
             OnboardingRowSpec(
                 icon: "infinity",
-                iconBg: OnboardPalette.tilePurple,
-                iconFg: OnboardPalette.iconPurple,
+                iconBg: DS.Color.tilePurple,
+                iconFg: DS.Color.iconPurple,
                 title: "Unlimited visits & routes"
             ),
             OnboardingRowSpec(
                 icon: "doc.text",
-                iconBg: OnboardPalette.tileGreen,
-                iconFg: OnboardPalette.iconGreen,
+                iconBg: DS.Color.tileGreen,
+                iconFg: DS.Color.iconGreen,
                 title: "JSON, CSV & Markdown exports"
             ),
             OnboardingRowSpec(
                 icon: "point.topleft.down.to.point.bottomright.curvepath",
-                iconBg: OnboardPalette.tilePeach,
-                iconFg: OnboardPalette.iconPeach,
+                iconBg: DS.Color.tilePeach,
+                iconFg: DS.Color.iconPeach,
                 title: "Advanced route history"
             ),
             OnboardingRowSpec(
                 icon: "checkmark.shield.fill",
-                iconBg: OnboardPalette.tilePurple,
-                iconFg: OnboardPalette.iconPurple,
+                iconBg: DS.Color.tilePurple,
+                iconFg: DS.Color.iconPurple,
                 title: "Privacy-first by default"
             )
         ]
@@ -883,7 +883,7 @@ private struct OnboardingPlanCard: View {
                 ZStack {
                     Circle()
                         .stroke(
-                            isSelected ? OnboardPalette.brandPurple : OnboardPalette.divider,
+                            isSelected ? DS.Color.accent : DS.Color.divider,
                             lineWidth: isSelected ? 5 : 1.5
                         )
                         .frame(width: 18, height: 18)
@@ -897,16 +897,16 @@ private struct OnboardingPlanCard: View {
 
                 Text(planTitle)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(OnboardPalette.textPrimary)
+                    .foregroundStyle(DS.Color.textPrimary)
 
                 if plan == .yearly {
                     Text("Best value")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(OnboardPalette.brandPurple)
+                        .foregroundStyle(DS.Color.accent)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
                         .background(
-                            Capsule().fill(OnboardPalette.tilePurple)
+                            Capsule().fill(DS.Color.tilePurple)
                         )
                 }
 
@@ -915,10 +915,10 @@ private struct OnboardingPlanCard: View {
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text(priceText)
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(OnboardPalette.textPrimary)
+                        .foregroundStyle(DS.Color.textPrimary)
                     Text(priceSuffix)
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(OnboardPalette.textMuted)
+                        .foregroundStyle(DS.Color.textMuted)
                 }
             }
             .padding(.horizontal, 14)
@@ -930,7 +930,7 @@ private struct OnboardingPlanCard: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(
-                        isSelected ? OnboardPalette.brandPurple : Color.black.opacity(0.04),
+                        isSelected ? DS.Color.accent : Color.black.opacity(0.04),
                         lineWidth: isSelected ? 2 : 1
                     )
             )
@@ -989,13 +989,13 @@ private struct OnboardingPageScaffold: View {
                     VStack(spacing: 10) {
                         title
                             .font(.system(size: 30, weight: .heavy))
-                            .foregroundStyle(OnboardPalette.textPrimary)
+                            .foregroundStyle(DS.Color.textPrimary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 16)
 
                         Text(subtitle)
                             .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(OnboardPalette.textSecondary)
+                            .foregroundStyle(DS.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                             .padding(.horizontal, 28)
@@ -1065,7 +1065,7 @@ private struct OnboardingFeatureCard: View {
 
                 if index < rows.count - 1 {
                     Rectangle()
-                        .fill(OnboardPalette.divider)
+                        .fill(DS.Color.divider)
                         .frame(height: 1)
                         .padding(.horizontal, 16)
                 }
@@ -1101,12 +1101,12 @@ private struct OnboardingFeatureRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(spec.title)
                     .font(.system(size: spec.body == nil ? 14 : 16, weight: .bold))
-                    .foregroundStyle(OnboardPalette.textPrimary)
+                    .foregroundStyle(DS.Color.textPrimary)
 
                 if let body = spec.body {
                     Text(body)
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(OnboardPalette.textSecondary)
+                        .foregroundStyle(DS.Color.textSecondary)
                         .lineSpacing(1)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -1118,7 +1118,7 @@ private struct OnboardingFeatureRow: View {
                 EmptyView()
             case .check:
                 ZStack {
-                    Circle().fill(OnboardPalette.iconGreen).frame(width: 26, height: 26)
+                    Circle().fill(DS.Color.iconGreen).frame(width: 26, height: 26)
                     Image(systemName: "checkmark")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(.white)
@@ -1127,12 +1127,12 @@ private struct OnboardingFeatureRow: View {
             case .warn:
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(.system(size: 22, weight: .regular))
-                    .foregroundStyle(OnboardPalette.brandRed)
+                    .foregroundStyle(DS.Color.danger)
                     .padding(.top, 8)
             case .chevron:
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(OnboardPalette.textMuted)
+                    .foregroundStyle(DS.Color.textMuted)
                     .padding(.top, 12)
             }
         }
@@ -1144,24 +1144,24 @@ private struct OnboardingFeatureRow: View {
 private struct OnboardingBG: View {
     var body: some View {
         ZStack {
-            OnboardPalette.background
+            DS.Color.background
                 .ignoresSafeArea()
 
             // Soft pastel corner blobs
             Circle()
-                .fill(OnboardPalette.blobPeach)
+                .fill(DS.Color.blobPeach)
                 .frame(width: 260, height: 260)
                 .blur(radius: 40)
                 .offset(x: 160, y: -340)
 
             Circle()
-                .fill(OnboardPalette.blobLavender)
+                .fill(DS.Color.blobLavender)
                 .frame(width: 220, height: 220)
                 .blur(radius: 36)
                 .offset(x: -180, y: 360)
 
             Circle()
-                .fill(OnboardPalette.blobPink)
+                .fill(DS.Color.blobPink)
                 .frame(width: 240, height: 240)
                 .blur(radius: 38)
                 .offset(x: 180, y: 380)
@@ -1179,44 +1179,13 @@ private struct OnboardingBG: View {
                 let sizes: [CGFloat] = [10, 14, 8, 12, 9, 11]
                 Image(systemName: "sparkle")
                     .font(.system(size: sizes[i], weight: .semibold))
-                    .foregroundStyle(OnboardPalette.sparkle)
+                    .foregroundStyle(DS.Color.sparkle)
                     .offset(positions[i])
                     .opacity(0.55)
             }
         }
         .allowsHitTesting(false)
     }
-}
-
-private enum OnboardPalette {
-    // Base
-    static let background = Color(red: 253/255, green: 248/255, blue: 245/255)
-    static let textPrimary = Color(red: 0.118, green: 0.149, blue: 0.282)
-    static let textSecondary = Color(red: 0.353, green: 0.392, blue: 0.502)
-    static let textMuted = Color(red: 0.541, green: 0.580, blue: 0.671)
-    static let divider = Color(red: 0.918, green: 0.918, blue: 0.945)
-
-    // Brand
-    static let brandPurple = Color(red: 0.482, green: 0.467, blue: 0.929)
-    static let brandRed = Color(red: 0.929, green: 0.302, blue: 0.310)
-
-    // Tile fills
-    static let tilePurple = Color(red: 0.910, green: 0.890, blue: 0.984)
-    static let tileGreen  = Color(red: 0.847, green: 0.929, blue: 0.875)
-    static let tilePeach  = Color(red: 0.992, green: 0.875, blue: 0.835)
-
-    // Tile foregrounds
-    static let iconPurple = Color(red: 0.482, green: 0.420, blue: 0.882)
-    static let iconGreen  = Color(red: 0.298, green: 0.667, blue: 0.467)
-    static let iconPeach  = Color(red: 0.929, green: 0.510, blue: 0.388)
-
-    // Decoration
-    static let blobPeach    = Color(red: 0.984, green: 0.831, blue: 0.776).opacity(0.45)
-    static let blobLavender = Color(red: 0.835, green: 0.808, blue: 0.957).opacity(0.55)
-    static let blobPink     = Color(red: 0.973, green: 0.812, blue: 0.847).opacity(0.50)
-    static let sparkle      = Color(red: 0.808, green: 0.741, blue: 0.918)
-
-    static let dotInactive = Color(red: 0.808, green: 0.808, blue: 0.831)
 }
 
 #Preview {
