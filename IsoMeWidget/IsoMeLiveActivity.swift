@@ -114,10 +114,12 @@ struct LockScreenView: View {
                 if let name = context.state.locationName {
                     Text(name)
                         .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
                         .lineLimit(1)
                 } else {
                     Text("Tracking")
                         .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
                 }
 
                 // Stats
@@ -129,7 +131,7 @@ struct LockScreenView: View {
                     systemImage: "figure.walk"
                 )
                 .font(.subheadline)
-                .foregroundStyle(WidgetTokens.textMuted)
+                .foregroundStyle(.white.opacity(0.7))
 
                 // Timer
                 if let remaining = context.state.remainingSeconds {
@@ -142,7 +144,7 @@ struct LockScreenView: View {
                     Text(context.attributes.startTime, style: .timer)
                         .font(.title2)
                         .monospacedDigit()
-                        .foregroundStyle(WidgetTokens.textPrimary)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                 }
 
@@ -175,8 +177,8 @@ struct LockScreenView: View {
             }
         }
         .padding()
-        .activityBackgroundTint(WidgetTokens.background)
-        .activitySystemActionForegroundColor(WidgetTokens.textPrimary)
+        .activityBackgroundTint(.black)
+        .activitySystemActionForegroundColor(.white)
     }
 
     private static func loadMapSnapshot() -> UIImage? {
