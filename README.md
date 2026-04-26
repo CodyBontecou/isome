@@ -1,6 +1,14 @@
 # iso.me
 
-A privacy-first location tracking app for iOS and watchOS. Automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and keeps all data on-device. No accounts, no cloud sync, no third-party dependencies.
+> **Open source, privacy-first iOS location tracking — your data stays on your device.**
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-iOS%2017%2B%20%7C%20watchOS%2010%2B-lightgrey)](#tech-stack)
+[![Swift](https://img.shields.io/badge/swift-5-orange)](#tech-stack)
+
+iso.me is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **keeps every byte of your data on-device**. No accounts. No cloud sync. No third-party dependencies. No analytics. Just you, your phone, and your history.
+
+**[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
 
 ## Features
 
@@ -136,3 +144,13 @@ The app requests the following permissions at runtime:
 The app registers the `isome://` URL scheme. Currently supports:
 
 - `isome://stop` - Stops continuous tracking (used by Live Activity)
+
+## Contributing
+
+Contributions are welcome — bug reports, feature ideas, and pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup guide (Xcode, signing, TestFlight) and a list of [good first issues](https://github.com/CodyBontecou/isome/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+If you want to chat about the project, design decisions, or what to build next, jump into [GitHub Discussions](https://github.com/CodyBontecou/isome/discussions).
+
+## License
+
+iso.me is licensed under the [GNU Affero General Public License v3.0](LICENSE). The AGPL ensures that any modified version of iso.me — including ones run as a hosted service — must also be open source. This protects the privacy-first promise: nobody can take iso.me, bolt on tracking, and ship it as a closed product.
