@@ -14,17 +14,17 @@ struct PaywallView: View {
                     .fill(Color.blue.opacity(0.1))
                     .frame(width: 100, height: 100)
 
-                Image(systemName: "lock.fill")
+                Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 40))
                     .foregroundStyle(.blue)
             }
 
             // Title
             VStack(spacing: 8) {
-                Text("Free Limit Reached")
+                Text("Unlock Data Export")
                     .font(.title.bold())
 
-                Text("You've used your 10 hours of free tracking. Unlock unlimited tracking with a one-time purchase.")
+                Text("Export your visits, points, and routes in JSON, CSV, or Markdown. Tracking stays free and unlimited.")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -33,8 +33,9 @@ struct PaywallView: View {
 
             // Features
             VStack(alignment: .leading, spacing: 12) {
-                featureRow(icon: "infinity", text: "Unlimited tracking forever")
-                featureRow(icon: "purchased", text: "One-time payment, no subscription")
+                featureRow(icon: "doc.on.doc", text: "Export to JSON, CSV, or Markdown")
+                featureRow(icon: "folder", text: "Auto-save to a folder of your choice")
+                featureRow(icon: "checkmark.seal.fill", text: "One-time payment, no subscription")
                 featureRow(icon: "lock.shield.fill", text: "Still 100% private & on-device")
             }
             .padding(.horizontal, 32)
@@ -53,7 +54,7 @@ struct PaywallView: View {
                             ProgressView()
                                 .tint(.white)
                         } else if let product = storeManager.product {
-                            Text("Unlock iso.me — \(product.displayPrice)")
+                            Text("Unlock Export — \(product.displayPrice)")
                                 .font(.headline)
                         } else {
                             Text("Loading...")
