@@ -1,10 +1,12 @@
 import UIKit
 import CoreLocation
 import UserNotifications
+import GripeSDK
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     // Shared location manager instance for background launches
     static var sharedLocationManager: LocationManager?
+    static var pendingActivityPromptUserInfo: [AnyHashable: Any]?
 
     func application(
         _ application: UIApplication,
@@ -20,6 +22,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             UserDefaults.standard.set(info, forKey: "lastCrashLog")
             UserDefaults.standard.synchronize()
         }
+
+        UNUserNotificationCenter.current().delegate = self
+
+        let gripeAPIKey = (Bundle.main.object(forInfoDictionaryKey: "GripeAPIKey") as? String) ?? ""
+        Gripe.start(
+            apiKey: gripeAPIKey,
+            endpoint: URL(string: "https://gripe.isolated.tech/v1/reports")!,
+            dryRun: false,
+            repository: "CodyBontecou/ios-location-tracker"
+        )
 
         // Check if app was launched due to a location event
         if let locationKey = launchOptions?[.location] as? Bool, locationKey {
@@ -45,5 +57,35 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Save any pending data before termination
         print("App will terminate - saving state")
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound, .list])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        guard ActivityStartPromptContext.isActivityPrompt(userInfo),
+              let prompt = ActivityStartPromptContext(userInfo: userInfo) else {
+            completionHandler()
+            return
+        }
+
+        AppDelegate.pendingActivityPromptUserInfo = prompt.userInfo
+        NotificationCenter.default.post(name: .activityStartPromptRequested, object: nil, userInfo: prompt.userInfo)
+
+        Task { @MainActor in
+            LogManager.shared.info("[Movement] Notification tapped: \(prompt.reason).")
+        }
+
+        completionHandler()
     }
 }

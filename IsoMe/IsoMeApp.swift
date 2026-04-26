@@ -79,11 +79,69 @@ struct IsoMeApp: App {
         
         switch url.host {
         case "stop":
-            // Stop continuous tracking
+            // Stop tracking
+            NotificationCenter.default.post(name: .stopTracking, object: nil)
+            // Backward compatibility for any still-listening legacy observers.
             NotificationCenter.default.post(name: .stopContinuousTracking, object: nil)
         default:
             break
         }
+    }
+}
+
+struct ActivityStartPromptContext: Identifiable {
+    static let notificationIdentifierPrefix = "activityPrompt-"
+
+    private static let typeKey = "promptType"
+    private static let idKey = "promptID"
+    private static let reasonKey = "promptReason"
+    private static let activityTypeKey = "promptActivityType"
+    private static let detectedAtKey = "promptDetectedAt"
+    private static let typeValue = "movementStartPrompt"
+
+    let id: String
+    let reason: String
+    let activityType: String
+    let detectedAt: Date
+
+    init(id: String = UUID().uuidString, reason: String, activityType: String, detectedAt: Date = Date()) {
+        self.id = id
+        self.reason = reason
+        self.activityType = activityType
+        self.detectedAt = detectedAt
+    }
+
+    init?(userInfo: [AnyHashable: Any]) {
+        guard Self.isActivityPrompt(userInfo) else { return nil }
+
+        let id = userInfo[Self.idKey] as? String ?? UUID().uuidString
+        let reason = userInfo[Self.reasonKey] as? String ?? "movement detected"
+        let activityType = userInfo[Self.activityTypeKey] as? String ?? "movement"
+
+        let detectedAt: Date
+        if let interval = userInfo[Self.detectedAtKey] as? TimeInterval {
+            detectedAt = Date(timeIntervalSince1970: interval)
+        } else if let number = userInfo[Self.detectedAtKey] as? NSNumber {
+            detectedAt = Date(timeIntervalSince1970: number.doubleValue)
+        } else {
+            detectedAt = Date()
+        }
+
+        self.init(id: id, reason: reason, activityType: activityType, detectedAt: detectedAt)
+    }
+
+    var userInfo: [String: Any] {
+        [
+            Self.typeKey: Self.typeValue,
+            Self.idKey: id,
+            Self.reasonKey: reason,
+            Self.activityTypeKey: activityType,
+            Self.detectedAtKey: detectedAt.timeIntervalSince1970
+        ]
+    }
+
+    static func isActivityPrompt(_ userInfo: [AnyHashable: Any]) -> Bool {
+        (userInfo[typeKey] as? String) == typeValue
     }
 }
 
@@ -92,6 +150,10 @@ struct IsoMeApp: App {
 extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
+    static let stopTracking = Notification.Name("stopTracking")
+
+    /// Legacy notification name kept so old posting paths continue to work during transition.
     static let stopContinuousTracking = Notification.Name("stopContinuousTracking")
-    static let freeLimitReached = Notification.Name("freeLimitReached")
+
+    static let activityStartPromptRequested = Notification.Name("activityStartPromptRequested")
 }

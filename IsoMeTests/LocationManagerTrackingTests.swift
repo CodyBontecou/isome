@@ -3,7 +3,7 @@ import CoreLocation
 @testable import IsoMe
 
 /// Tests that the LocationManager tracking lifecycle is correct:
-/// starting, stopping, and restarting should leave no stale state.
+/// enabling and disabling should leave no stale state.
 @MainActor
 final class LocationManagerTrackingTests: XCTestCase {
 
@@ -13,59 +13,54 @@ final class LocationManagerTrackingTests: XCTestCase {
         super.setUp()
         manager = LocationManager()
         // Clear any persisted state from prior runs
-        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "isContinuousTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "continuousTrackingAutoOffHours")
+        UserDefaults.standard.removeObject(forKey: TrackingStorageKeys.enabled)
+        UserDefaults.standard.removeObject(forKey: TrackingStorageKeys.autoOffHours)
     }
 
     override func tearDown() {
         manager = nil
-        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "isContinuousTrackingEnabled")
+        UserDefaults.standard.removeObject(forKey: TrackingStorageKeys.enabled)
         super.tearDown()
     }
 
-    // MARK: - stopTracking must fully clean up
+    // MARK: - disableTracking must fully clean up
 
-    /// stopTracking() must reset isContinuousTrackingEnabled AND
-    /// clear the continuous tracking timer + start time so the next
-    /// start cycle doesn't see stale state.
-    func testStopTrackingClearsContinuousState() {
-        // Simulate that continuous tracking was previously active
-        manager.isContinuousTrackingEnabled = true
-        manager.continuousTrackingStartTime = Date()
+    /// disableTracking() must reset isTrackingEnabled and clear the timer +
+    /// start time so the next start cycle doesn't see stale state.
+    func testDisableTrackingClearsState() {
+        // Simulate that tracking was previously active
+        manager.isTrackingEnabled = true
+        manager.trackingStartTime = Date()
 
-        manager.stopTracking()
+        manager.disableTracking()
 
         XCTAssertFalse(manager.isTrackingEnabled)
-        XCTAssertFalse(manager.isContinuousTrackingEnabled)
-        XCTAssertNil(manager.continuousTrackingStartTime,
-                     "stopTracking must nil out continuousTrackingStartTime")
+        XCTAssertNil(manager.trackingStartTime,
+                     "disableTracking must nil out trackingStartTime")
     }
 
-    /// After stopTracking(), the Live Activity manager should not
+    /// After disableTracking(), the Live Activity manager should not
     /// report an active session.
-    func testStopTrackingEndsLiveActivity() async {
-        manager.stopTracking()
+    func testDisableTrackingEndsLiveActivity() async {
+        manager.disableTracking()
 
         // Give any async Task a moment to complete
         try? await Task.sleep(nanoseconds: 200_000_000)
 
         let liveActivityActive = LiveActivityManager.shared.isActivityActive
         XCTAssertFalse(liveActivityActive,
-                       "stopTracking must end the Live Activity")
+                       "disableTracking must end the Live Activity")
     }
 
-    /// Calling stopTracking() followed by startTracking() +
-    /// enableContinuousTracking() should not leave leftover timer state.
-    func testStopThenRestartHasCleanTimerState() {
-        // Arrange – simulate previous continuous session
-        manager.continuousTrackingStartTime = Date().addingTimeInterval(-3600)
+    /// Disabling then re-enabling tracking should not leave leftover timer state.
+    func testDisableThenReenableHasCleanTimerState() {
+        // Arrange – simulate previous session
+        manager.trackingStartTime = Date().addingTimeInterval(-3600)
 
-        // Act – stop, then restart
-        manager.stopTracking()
+        // Act – disable
+        manager.disableTracking()
 
-        XCTAssertNil(manager.continuousTrackingStartTime,
-                     "After stop, start time must be nil before restarting")
+        XCTAssertNil(manager.trackingStartTime,
+                     "After disable, start time must be nil before restarting")
     }
 }

@@ -253,7 +253,7 @@ struct ExportService {
     }
 }
 
-// MARK: - Location Points Export (for continuous tracking data)
+// MARK: - Location Points Export (tracking data)
 
 extension ExportService {
     struct ExportableLocationPoint: Codable {

@@ -2,18 +2,18 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var locationData: SharedLocationData = .empty
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 // Tracking Status Header
                 trackingStatusView
-                
+
                 Divider()
-                
+
                 // Today's Stats
                 statsView
-                
+
                 if let locationName = locationData.currentLocationName {
                     Divider()
                     currentLocationView(locationName)
@@ -25,17 +25,17 @@ struct ContentView: View {
             refreshData()
         }
     }
-    
+
     private var trackingStatusView: some View {
         VStack(spacing: 8) {
             Image(systemName: statusIcon)
                 .font(.system(size: 36))
                 .foregroundStyle(statusColor)
-            
+
             Text(locationData.trackingStatus)
                 .font(.headline)
-            
-            if locationData.isContinuousTrackingEnabled,
+
+            if locationData.isTrackingEnabled,
                let remaining = locationData.formattedRemainingTime {
                 Text("\(remaining) remaining")
                     .font(.caption)
@@ -43,24 +43,24 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private var statsView: some View {
         VStack(spacing: 12) {
             Text("Today")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             HStack(spacing: 20) {
                 statItem(value: "\(locationData.todayVisitsCount)", label: "Visits", icon: "mappin.circle")
                 statItem(value: locationData.formattedDistance, label: "Distance", icon: "figure.walk")
             }
-            
+
             if locationData.todayPointsCount > 0 {
                 statItem(value: "\(locationData.todayPointsCount)", label: "Points", icon: "location.fill")
             }
         }
     }
-    
+
     private func statItem(value: String, label: String, icon: String) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
@@ -73,7 +73,7 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     private func currentLocationView(_ name: String) -> some View {
         VStack(spacing: 4) {
             Text("Current Location")
@@ -84,27 +84,23 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
         }
     }
-    
+
     private var statusIcon: String {
-        if locationData.isContinuousTrackingEnabled {
+        if locationData.isTrackingEnabled {
             return "location.fill"
-        } else if locationData.isTrackingEnabled {
-            return "mappin.circle.fill"
         } else {
             return "location.slash"
         }
     }
-    
+
     private var statusColor: Color {
-        if locationData.isContinuousTrackingEnabled {
+        if locationData.isTrackingEnabled {
             return .green
-        } else if locationData.isTrackingEnabled {
-            return .blue
         } else {
             return .gray
         }
     }
-    
+
     private func refreshData() {
         if let data = SharedLocationData.load() {
             locationData = data

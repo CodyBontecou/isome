@@ -7,6 +7,12 @@ import ActivityKit
 import WidgetKit
 import UserNotifications
 
+enum TrackingStorageKeys {
+    // Intentionally preserve legacy raw keys for backward-compatible UserDefaults storage.
+    static let enabled = "isContinuousTrackingEnabled"
+    static let autoOffHours = "continuousTrackingAutoOffHours"
+}
+
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
@@ -15,18 +21,14 @@ final class LocationManager: NSObject, ObservableObject {
     // Published state
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var isTrackingEnabled: Bool = false
-    @Published var isContinuousTrackingEnabled: Bool = false
-    @Published var continuousTrackingAutoOffHours: Double = 2.0
+    @Published var trackingAutoOffHours: Double = 2.0
     @Published var distanceFilter: Double = 10.0
     @Published var currentLocation: CLLocation?
     @Published var lastError: String?
 
-    // Continuous tracking timer
-    private var continuousTrackingTimer: Timer?
-    @Published var continuousTrackingStartTime: Date?
-
-    // Free-tier usage limit timer (stops continuous tracking at 10h for non-purchased users)
-    private var freeLimitTimer: Timer?
+    // Tracking timer
+    private var trackingTimer: Timer?
+    @Published var trackingStartTime: Date?
 
     // Geocoding service
     private let geocodingService = GeocodingService()
@@ -38,10 +40,11 @@ final class LocationManager: NSObject, ObservableObject {
     private let liveActivityManager = LiveActivityManager.shared
     @Published var isLiveActivityEnabled: Bool = true
     
-    // Activity detection
+    // Activity detection prompt
     private let activityDetectionManager = ActivityDetectionManager.shared
     @Published var autoStartOnActivity: Bool = false
     @Published var wasAutoStarted: Bool = false
+    private let lastActivityPromptSentAtKey = "lastActivityPromptSentAt"
 
     // HealthKit workout observer
     private let healthKitObserver = HealthKitWorkoutObserver.shared
@@ -76,19 +79,36 @@ final class LocationManager: NSObject, ObservableObject {
         return UserDefaults.standard.bool(forKey: key)
     }
 
+    private var activityPromptCooldownMinutes: Double {
+        let key = "activityPromptCooldownMinutes"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return 30
+        }
+        return max(1, UserDefaults.standard.double(forKey: key))
+    }
+
+    private var activityPromptCooldownInterval: TimeInterval {
+        activityPromptCooldownMinutes * 60
+    }
+
+    private var lastActivityPromptSentAt: Date? {
+        guard UserDefaults.standard.object(forKey: lastActivityPromptSentAtKey) != nil else { return nil }
+        let interval = UserDefaults.standard.double(forKey: lastActivityPromptSentAtKey)
+        return Date(timeIntervalSince1970: interval)
+    }
+
     override init() {
         super.init()
         locationManager.delegate = self
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
 
-        // Restore saved state
-        isTrackingEnabled = UserDefaults.standard.bool(forKey: "isTrackingEnabled")
-        isContinuousTrackingEnabled = UserDefaults.standard.bool(forKey: "isContinuousTrackingEnabled")
-        if UserDefaults.standard.object(forKey: "continuousTrackingAutoOffHours") != nil {
-            continuousTrackingAutoOffHours = UserDefaults.standard.double(forKey: "continuousTrackingAutoOffHours")
+        // Restore saved state (legacy keys intentionally retained for compatibility).
+        isTrackingEnabled = UserDefaults.standard.bool(forKey: TrackingStorageKeys.enabled)
+        if UserDefaults.standard.object(forKey: TrackingStorageKeys.autoOffHours) != nil {
+            trackingAutoOffHours = UserDefaults.standard.double(forKey: TrackingStorageKeys.autoOffHours)
         } else {
-            continuousTrackingAutoOffHours = 2.0
+            trackingAutoOffHours = 2.0
         }
         if UserDefaults.standard.object(forKey: "distanceFilter") != nil {
             distanceFilter = UserDefaults.standard.double(forKey: "distanceFilter")
@@ -102,10 +122,12 @@ final class LocationManager: NSObject, ObservableObject {
 
         authorizationStatus = locationManager.authorizationStatus
 
-        // Request notification permission for auto-start/stop alerts.
-        // Skipped in screenshot-seeding mode so the system prompt doesn't cover the UI.
+        // Request notification permission for movement prompts and status alerts.
+        // Skipped in screenshot-seeding/onboarding-preview modes so the system prompt doesn't cover the UI.
         #if DEBUG
-        if !ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
+        let suppressNotificationPrompt = ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data")
+            || ProcessInfo.processInfo.arguments.contains("--show-onboarding")
+        if !suppressNotificationPrompt {
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
         }
         #else
@@ -118,20 +140,50 @@ final class LocationManager: NSObject, ObservableObject {
         // Set up HealthKit workout observer
         setupHealthKitObserver()
 
-        // Listen for stop tracking notification from Live Activity
+        // Listen for stop tracking notifications from Live Activity / deep links.
         NotificationCenter.default.addObserver(
-            forName: .stopContinuousTracking,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.disableContinuousTracking()
-            }
+            self,
+            selector: #selector(handleStopTrackingNotification(_:)),
+            name: .stopTracking,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStopTrackingNotification(_:)),
+            name: .stopContinuousTracking,
+            object: nil
+        )
+
+        restoreTrackingStateAfterLaunch()
+    }
+
+    @objc private func handleStopTrackingNotification(_ notification: Notification) {
+        Task { @MainActor in
+            self.disableTracking()
         }
     }
 
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
+    }
+
+    private func restoreTrackingStateAfterLaunch() {
+        if !hasLocationPermission {
+            if isTrackingEnabled {
+                LogManager.shared.warning("[Movement] Cleared persisted tracking state because location permission is unavailable.")
+            }
+            isTrackingEnabled = false
+            UserDefaults.standard.set(false, forKey: TrackingStorageKeys.enabled)
+            updateTrackingState()
+            return
+        }
+
+        updateTrackingState()
+
+        if isTrackingEnabled {
+            LogManager.shared.info("[Movement] Restoring active tracking session after launch.")
+            enableTracking()
+        }
     }
 
     // MARK: - Permission Handling
@@ -158,148 +210,95 @@ final class LocationManager: NSObject, ObservableObject {
 
     // MARK: - Tracking Control
 
-    func startTracking() {
+    private func updateTrackingState() {
         guard hasLocationPermission else {
-            requestAlwaysAuthorization()
+            locationManager.stopUpdatingLocation()
+            activityDetectionManager.stopMonitoring()
+            healthKitObserver.stopObserving()
             return
         }
 
-        isTrackingEnabled = true
-        UserDefaults.standard.set(isTrackingEnabled, forKey: "isTrackingEnabled")
-        updateTrackingState()
-        syncDataToWatch()
-    }
-
-    func stopTracking() {
-        // Clean up continuous tracking state first
-        if isContinuousTrackingEnabled {
-            // Track usage for paywall
-            UsageTracker.shared.sessionEnded()
-            continuousTrackingTimer?.invalidate()
-            continuousTrackingTimer = nil
-            freeLimitTimer?.invalidate()
-            freeLimitTimer = nil
-            Task {
-                await liveActivityManager.endActivity()
-            }
-        }
-        continuousTrackingStartTime = nil
-
-        isTrackingEnabled = false
-        isContinuousTrackingEnabled = false
-        UserDefaults.standard.set(isTrackingEnabled, forKey: "isTrackingEnabled")
-        UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
-
-        updateTrackingState()
-        syncDataToWatch()
-    }
-
-    private func updateTrackingState() {
-        if isTrackingEnabled && hasLocationPermission {
-            locationManager.startMonitoringVisits()
-            locationManager.startMonitoringSignificantLocationChanges()
-            if autoStartOnActivity {
-                activityDetectionManager.startMonitoring()
-            }
-            if autoStartOnWorkout {
-                healthKitObserver.startObserving()
-            }
+        // Activity detection for movement-prompt auto-start (when tracking is off)
+        if autoStartOnActivity && !isTrackingEnabled {
+            activityDetectionManager.startMonitoring()
         } else {
-            locationManager.stopMonitoringVisits()
-            locationManager.stopMonitoringSignificantLocationChanges()
-            locationManager.stopUpdatingLocation()
             activityDetectionManager.stopMonitoring()
+        }
+
+        // HealthKit workout observer for auto-start
+        if autoStartOnWorkout && !isTrackingEnabled {
+            healthKitObserver.startObserving()
+        } else {
             healthKitObserver.stopObserving()
         }
     }
 
-    // MARK: - Continuous Tracking
+    // MARK: - Tracking
 
-    func enableContinuousTracking() {
+    func enableTracking() {
         guard hasLocationPermission else { return }
 
-        // Block start if the free-tier limit is already exhausted.
-        if !StoreManager.shared.isPurchased && UsageTracker.shared.hasExceededFreeLimit {
-            NotificationCenter.default.post(name: .freeLimitReached, object: nil)
-            return
-        }
-
-        // Track usage for paywall
-        UsageTracker.shared.sessionStarted()
-
-        isContinuousTrackingEnabled = true
-        UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
-        continuousTrackingStartTime = Date()
+        isTrackingEnabled = true
+        UserDefaults.standard.set(isTrackingEnabled, forKey: TrackingStorageKeys.enabled)
+        trackingStartTime = Date()
 
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = distanceFilter
         locationManager.startUpdatingLocation()
 
+        // While tracking is active, movement prompts are redundant.
+        activityDetectionManager.stopMonitoring()
+        LogManager.shared.info("[Tracking] Tracking enabled (distance filter: \(Int(distanceFilter))m).")
+
         // Start Live Activity
         if isLiveActivityEnabled {
-            let autoOffSeconds = continuousTrackingAutoOffHours > 0
-                ? Int(continuousTrackingAutoOffHours * 3600)
+            let autoOffSeconds = trackingAutoOffHours > 0
+                ? Int(trackingAutoOffHours * 3600)
                 : nil
-            liveActivityManager.startActivity(mode: .continuous, autoOffSeconds: autoOffSeconds)
+            liveActivityManager.startActivity(autoOffSeconds: autoOffSeconds)
         }
 
         // Set auto-off timer (skip if set to "Never" which is 0)
-        continuousTrackingTimer?.invalidate()
-        continuousTrackingTimer = nil
+        trackingTimer?.invalidate()
+        trackingTimer = nil
 
-        if continuousTrackingAutoOffHours > 0 {
-            let autoOffInterval = continuousTrackingAutoOffHours * 3600
-            continuousTrackingTimer = Timer.scheduledTimer(withTimeInterval: autoOffInterval, repeats: false) { [weak self] _ in
+        if trackingAutoOffHours > 0 {
+            let autoOffInterval = trackingAutoOffHours * 3600
+            trackingTimer = Timer.scheduledTimer(withTimeInterval: autoOffInterval, repeats: false) { [weak self] _ in
                 Task { @MainActor in
-                    self?.disableContinuousTracking()
+                    self?.disableTracking()
                 }
             }
         }
 
-        scheduleFreeLimitTimerIfNeeded()
     }
 
-    func disableContinuousTracking() {
-        // Track usage for paywall
-        UsageTracker.shared.sessionEnded()
-
+    func disableTracking() {
         wasAutoStarted = false
-        isContinuousTrackingEnabled = false
-        UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
-        continuousTrackingTimer?.invalidate()
-        continuousTrackingTimer = nil
-        freeLimitTimer?.invalidate()
-        freeLimitTimer = nil
-        continuousTrackingStartTime = nil
+        isTrackingEnabled = false
+        UserDefaults.standard.set(isTrackingEnabled, forKey: TrackingStorageKeys.enabled)
+        trackingTimer?.invalidate()
+        trackingTimer = nil
+        trackingStartTime = nil
 
         locationManager.stopUpdatingLocation()
-        
+        LogManager.shared.info("[Tracking] Tracking disabled.")
+
         // End Live Activity
         Task {
             await liveActivityManager.endActivity()
         }
 
-        // Resume normal tracking if still enabled
-        if isTrackingEnabled {
-            updateTrackingState()
-        }
+        updateTrackingState()
         syncDataToWatch()
     }
 
-    private func updateContinuousTracking() {
-        if isContinuousTrackingEnabled {
-            enableContinuousTracking()
-        } else {
-            disableContinuousTracking()
-        }
-    }
-
-    var continuousTrackingRemainingTime: TimeInterval? {
+    var trackingRemainingTime: TimeInterval? {
         // Return nil if auto-off is set to "Never" (0)
-        guard continuousTrackingAutoOffHours > 0 else { return nil }
-        guard let startTime = continuousTrackingStartTime else { return nil }
+        guard trackingAutoOffHours > 0 else { return nil }
+        guard let startTime = trackingStartTime else { return nil }
         let elapsed = Date().timeIntervalSince(startTime)
-        let total = continuousTrackingAutoOffHours * 3600
+        let total = trackingAutoOffHours * 3600
         return max(0, total - elapsed)
     }
 
@@ -357,7 +356,8 @@ final class LocationManager: NSObject, ObservableObject {
 
     private func saveLocationPoint(_ location: CLLocation) {
         guard let context = modelContext else { return }
-        guard location.horizontalAccuracy >= 0 && location.horizontalAccuracy <= 100 else {
+        guard location.horizontalAccuracy >= 0,
+              location.horizontalAccuracy <= 100 else {
             return // Skip inaccurate readings
         }
 
@@ -428,7 +428,7 @@ final class LocationManager: NSObject, ObservableObject {
         await geocodeVisit(visit)
     }
     
-    // MARK: - Activity Detection (Auto-Start)
+    // MARK: - Activity Detection Prompt
 
     private func setupActivityDetection() {
         activityDetectionManager.onActivityStarted = { [weak self] activity in
@@ -442,8 +442,8 @@ final class LocationManager: NSObject, ObservableObject {
             }
         }
 
-        // Start monitoring if auto-start is enabled and tracking is on
-        if autoStartOnActivity && isTrackingEnabled {
+        // Start monitoring if movement prompts are enabled and tracking is off.
+        if autoStartOnActivity && !isTrackingEnabled {
             activityDetectionManager.startMonitoring()
         }
     }
@@ -452,34 +452,115 @@ final class LocationManager: NSObject, ObservableObject {
         autoStartOnActivity = enabled
         UserDefaults.standard.set(enabled, forKey: "autoStartOnActivity")
 
-        if enabled && isTrackingEnabled {
-            activityDetectionManager.startMonitoring()
-        } else if !enabled {
-            activityDetectionManager.stopMonitoring()
+        updateTrackingState()
+
+        if enabled {
+            LogManager.shared.info("[Movement] Activity prompt enabled for times when tracking is off.")
+        } else {
+            LogManager.shared.info("[Movement] Activity prompt disabled.")
         }
     }
 
     private func handleActivityDetected(_ activity: CMMotionActivity) {
-        guard autoStartOnActivity,
-              isTrackingEnabled,
-              !isContinuousTrackingEnabled else { return }
+        guard autoStartOnActivity else {
+            LogManager.shared.info("[Movement] Detection ignored because Prompt on Movement is disabled.")
+            return
+        }
 
-        wasAutoStarted = true
-        enableContinuousTracking()
+        guard !isTrackingEnabled else {
+            LogManager.shared.info("[Movement] Detection ignored because tracking is already active.")
+            return
+        }
 
-        let reason: String
-        if activity.automotive { reason = "driving detected" }
-        else if activity.cycling { reason = "cycling detected" }
-        else if activity.running { reason = "running detected" }
-        else { reason = "walking detected" }
-        sendAutoStartNotification(reason: reason)
+        if shouldThrottleActivityPrompt() {
+            LogManager.shared.info("[Movement] Detection ignored due to prompt cooldown. Cooldown: \(Int(activityPromptCooldownMinutes)) min.")
+            return
+        }
+
+        markActivityPromptSent()
+        scheduleActivityStartPromptNotification(for: activity)
     }
 
     private func handleActivityStopped() {
-        guard wasAutoStarted, isContinuousTrackingEnabled else { return }
+        guard wasAutoStarted, isTrackingEnabled else { return }
 
+        LogManager.shared.info("[Movement] Auto-stopping tracking after stationary event.")
         sendAutoStopNotification()
-        disableContinuousTracking()
+        disableTracking()
+    }
+
+    func confirmActivityStartPrompt(_ prompt: ActivityStartPromptContext) {
+        guard !isTrackingEnabled else {
+            LogManager.shared.info("[Movement] Prompt accepted, but tracking is already active.")
+            return
+        }
+
+        guard hasLocationPermission else {
+            LogManager.shared.warning("[Movement] Prompt accepted without location permission. Requesting authorization.")
+            requestAlwaysAuthorization()
+            return
+        }
+
+        wasAutoStarted = true
+        enableTracking()
+        LogManager.shared.info("[Movement] User started tracking from movement prompt: \(prompt.reason).")
+    }
+
+    func declineActivityStartPrompt(_ prompt: ActivityStartPromptContext) {
+        LogManager.shared.info("[Movement] User declined movement prompt: \(prompt.reason).")
+    }
+
+    private func shouldThrottleActivityPrompt(at now: Date = Date()) -> Bool {
+        guard let lastPrompt = lastActivityPromptSentAt else { return false }
+        return now.timeIntervalSince(lastPrompt) < activityPromptCooldownInterval
+    }
+
+    private func markActivityPromptSent(at date: Date = Date()) {
+        UserDefaults.standard.set(date.timeIntervalSince1970, forKey: lastActivityPromptSentAtKey)
+    }
+
+    private func scheduleActivityStartPromptNotification(for activity: CMMotionActivity) {
+        let reason = ActivityDetectionManager.triggerReason(for: activity)
+        let activityType = ActivityDetectionManager.primaryActivityType(for: activity)?.rawValue ?? "movement"
+        let prompt = ActivityStartPromptContext(reason: reason, activityType: activityType)
+
+        Task {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            let canNotify = settings.authorizationStatus == .authorized ||
+                settings.authorizationStatus == .provisional ||
+                settings.authorizationStatus == .ephemeral
+
+            if canNotify {
+                let content = UNMutableNotificationContent()
+                content.title = "Movement Detected"
+                content.body = "\(reason.prefix(1).uppercased() + reason.dropFirst()). Tap to review and start recording."
+                content.sound = .default
+                content.userInfo = prompt.userInfo
+
+                let request = UNNotificationRequest(
+                    identifier: "\(ActivityStartPromptContext.notificationIdentifierPrefix)\(prompt.id)",
+                    content: content,
+                    trigger: nil
+                )
+
+                UNUserNotificationCenter.current().add(request) { error in
+                    Task { @MainActor in
+                        if let error {
+                            LogManager.shared.error("[Movement] Failed to schedule movement prompt notification: \(error.localizedDescription)")
+                        } else {
+                            LogManager.shared.info("[Movement] Movement prompt notification sent: \(reason).")
+                        }
+                    }
+                }
+            } else {
+                await MainActor.run {
+                    // Fall back to in-app prompt when notifications are not authorized.
+                    AppDelegate.pendingActivityPromptUserInfo = prompt.userInfo
+                    NotificationCenter.default.post(name: .activityStartPromptRequested, object: nil, userInfo: prompt.userInfo)
+                    LogManager.shared.warning("[Movement] Notifications not authorized; showing movement prompt in-app.")
+                }
+            }
+        }
     }
 
     // MARK: - HealthKit Workout Observer (Auto-Start)
@@ -491,7 +572,7 @@ final class LocationManager: NSObject, ObservableObject {
             }
         }
 
-        if autoStartOnWorkout && isTrackingEnabled {
+        if autoStartOnWorkout && !isTrackingEnabled {
             healthKitObserver.startObserving()
         }
     }
@@ -502,7 +583,7 @@ final class LocationManager: NSObject, ObservableObject {
                 let authorized = await healthKitObserver.requestAuthorization()
                 autoStartOnWorkout = authorized
                 UserDefaults.standard.set(authorized, forKey: "autoStartOnWorkout")
-                if authorized && isTrackingEnabled {
+                if authorized && !isTrackingEnabled {
                     healthKitObserver.startObserving()
                 }
             }
@@ -515,11 +596,10 @@ final class LocationManager: NSObject, ObservableObject {
 
     private func handleWorkoutDetected() {
         guard autoStartOnWorkout,
-              isTrackingEnabled,
-              !isContinuousTrackingEnabled else { return }
+              !isTrackingEnabled else { return }
 
         wasAutoStarted = true
-        enableContinuousTracking()
+        enableTracking()
         sendAutoStartNotification(reason: "workout detected")
     }
 
@@ -532,11 +612,10 @@ final class LocationManager: NSObject, ObservableObject {
 
     private func handleDistanceThresholdExceeded() {
         guard autoStartOnDistance,
-              isTrackingEnabled,
-              !isContinuousTrackingEnabled else { return }
+              !isTrackingEnabled else { return }
 
         wasAutoStarted = true
-        enableContinuousTracking()
+        enableTracking()
         sendAutoStartNotification(reason: "above-average travel detected")
     }
 
@@ -545,7 +624,7 @@ final class LocationManager: NSObject, ObservableObject {
     private func sendAutoStartNotification(reason: String) {
         let content = UNMutableNotificationContent()
         content.title = "Recording Started"
-        content.body = "\(reason.prefix(1).uppercased() + reason.dropFirst()) — continuous tracking enabled"
+        content.body = "\(reason.prefix(1).uppercased() + reason.dropFirst()) — tracking enabled"
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: "autoStart-\(UUID().uuidString)", content: content, trigger: nil)
@@ -555,64 +634,25 @@ final class LocationManager: NSObject, ObservableObject {
     private func sendAutoStopNotification() {
         let content = UNMutableNotificationContent()
         content.title = "Recording Stopped"
-        content.body = "Activity ended — continuous tracking disabled"
+        content.body = "Activity ended — tracking disabled"
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: "autoStop-\(UUID().uuidString)", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
 
-    // MARK: - Free-Tier Limit
-
-    private func scheduleFreeLimitTimerIfNeeded() {
-        freeLimitTimer?.invalidate()
-        freeLimitTimer = nil
-
-        guard !StoreManager.shared.isPurchased else { return }
-
-        let remaining = UsageTracker.shared.remainingFreeSeconds
-        guard remaining > 0 else { return }
-
-        freeLimitTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                self?.handleFreeLimitReached()
-            }
-        }
-    }
-
-    private func handleFreeLimitReached() {
-        // A purchase mid-session cancels enforcement.
-        guard !StoreManager.shared.isPurchased else { return }
-        guard isContinuousTrackingEnabled else { return }
-
-        sendFreeLimitNotification()
-        // disableContinuousTracking flushes UsageTracker.sessionEnded() and stops
-        // location updates. Saved points/visits already live in SwiftData.
-        disableContinuousTracking()
-
-        NotificationCenter.default.post(name: .freeLimitReached, object: nil)
-    }
-
-    private func sendFreeLimitNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Free Tracking Limit Reached"
-        content.body = "You've used your 10 free hours. Tap to unlock unlimited tracking."
-        content.sound = .default
-
-        let request = UNNotificationRequest(identifier: "freeLimit-\(UUID().uuidString)", content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
-    }
-
-    /// Check activity on background wake (called from significant location change)
+    /// Check activity on background wake
     private func checkActivityOnWake() {
         guard autoStartOnActivity,
-              isTrackingEnabled,
-              !isContinuousTrackingEnabled else { return }
+              !isTrackingEnabled else { return }
 
         Task {
             guard let activity = await activityDetectionManager.queryCurrentActivity() else { return }
-            if ActivityDetectionManager.isActiveActivity(activity) {
+            if activityDetectionManager.shouldTriggerPrompt(for: activity) {
+                LogManager.shared.info("[Movement] Background wake matched movement trigger; preparing prompt.")
                 handleActivityDetected(activity)
+            } else {
+                LogManager.shared.info("[Movement] Background wake activity did not match configured movement triggers.")
             }
         }
     }
@@ -678,7 +718,6 @@ final class LocationManager: NSObject, ObservableObject {
         // Create shared data
         let sharedData = SharedLocationData(
             isTrackingEnabled: isTrackingEnabled,
-            isContinuousTrackingEnabled: isContinuousTrackingEnabled,
             currentLocationName: currentLocationName,
             currentAddress: currentAddress,
             lastLatitude: currentLocation?.coordinate.latitude,
@@ -687,8 +726,8 @@ final class LocationManager: NSObject, ObservableObject {
             todayVisitsCount: todayVisits.count,
             todayDistanceMeters: totalDistance,
             todayPointsCount: todayPoints.count,
-            continuousTrackingStartTime: continuousTrackingStartTime,
-            continuousTrackingAutoOffHours: continuousTrackingAutoOffHours > 0 ? continuousTrackingAutoOffHours : nil,
+            trackingStartTime: trackingStartTime,
+            trackingAutoOffHours: trackingAutoOffHours > 0 ? trackingAutoOffHours : nil,
             usesMetricDistanceUnits: usesMetricDistanceUnits
         )
 
@@ -709,9 +748,7 @@ extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor in
             authorizationStatus = manager.authorizationStatus
-            if hasLocationPermission && isTrackingEnabled {
-                updateTrackingState()
-            }
+            updateTrackingState()
         }
     }
 
@@ -729,8 +766,8 @@ extension LocationManager: CLLocationManagerDelegate {
             // Record location for daily distance history
             dailyDistanceTracker.recordLocation(location)
 
-            // On significant location change (not continuous), check if we should auto-start
-            if !isContinuousTrackingEnabled {
+            // While not recording, check if movement should trigger a start prompt.
+            if !isTrackingEnabled {
                 checkActivityOnWake()
 
                 // Check distance-based trigger
@@ -739,15 +776,15 @@ extension LocationManager: CLLocationManagerDelegate {
                 }
             }
 
-            if isContinuousTrackingEnabled {
+            if isTrackingEnabled {
                 saveLocationPoint(location)
-                
+
                 // Geocode location for Live Activity (throttled to avoid too many requests)
                 await geocodeForLiveActivity(location: location)
-                
+
                 // Update Live Activity
                 let remainingSeconds: Int?
-                if let remaining = continuousTrackingRemainingTime {
+                if let remaining = trackingRemainingTime {
                     remainingSeconds = Int(remaining)
                 } else {
                     remainingSeconds = nil
@@ -755,8 +792,7 @@ extension LocationManager: CLLocationManagerDelegate {
                 liveActivityManager.updateActivity(
                     location: location,
                     locationName: currentLocationName,
-                    remainingSeconds: remainingSeconds,
-                    mode: .continuous
+                    remainingSeconds: remainingSeconds
                 )
             }
         }
