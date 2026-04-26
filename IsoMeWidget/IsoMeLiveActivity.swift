@@ -3,6 +3,20 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
+// MARK: - Widget tokens
+// Mirrors values from IsoMe/DesignSystem.swift so the widget extension stays
+// self-contained without sharing the DS namespace across targets.
+private enum WidgetTokens {
+    static let background = Color(red: 253/255, green: 248/255, blue: 245/255)
+    static let card = Color.white
+    static let textPrimary = Color(red: 0.118, green: 0.149, blue: 0.282)
+    static let textMuted = Color(red: 0.541, green: 0.580, blue: 0.671)
+    static let accent = Color(red: 0.482, green: 0.467, blue: 0.929)
+    static let accentGreen = Color(red: 0.298, green: 0.667, blue: 0.467)
+    static let danger = Color(red: 0.929, green: 0.302, blue: 0.310)
+    static let warning = Color(red: 0.929, green: 0.510, blue: 0.388)
+}
+
 struct IsoMeLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LocationActivityAttributes.self) { context in
@@ -13,20 +27,20 @@ struct IsoMeLiveActivity: Widget {
                 // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 4) {
-                        Image(systemName: context.state.trackingMode == .continuous ? "location.fill" : "mappin.circle.fill")
-                            .foregroundStyle(.blue)
-                        Text(context.state.trackingMode.rawValue)
+                        Image(systemName: "location.fill")
+                            .foregroundStyle(WidgetTokens.accent)
+                        Text("Tracking")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(WidgetTokens.textMuted)
                     }
                 }
-                
+
                 DynamicIslandExpandedRegion(.trailing) {
                     if let remaining = context.state.remainingSeconds {
                         Text(formatTime(remaining))
                             .font(.caption)
                             .monospacedDigit()
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(WidgetTokens.warning)
                     }
                 }
                 
@@ -48,27 +62,27 @@ struct IsoMeLiveActivity: Widget {
                             )
                         }
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(WidgetTokens.textMuted)
                     }
                 }
-                
+
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack {
                         Text("Tracking since \(context.attributes.startTime, style: .time)")
                             .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(WidgetTokens.textMuted)
                     }
                 }
             } compactLeading: {
-                Image(systemName: context.state.trackingMode == .continuous ? "location.fill" : "mappin.circle.fill")
-                    .foregroundStyle(.blue)
+                Image(systemName: "location.fill")
+                    .foregroundStyle(WidgetTokens.accent)
             } compactTrailing: {
                 Text("\(context.state.locationsRecorded)")
                     .font(.caption)
                     .monospacedDigit()
             } minimal: {
                 Image(systemName: "location.fill")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(WidgetTokens.accent)
             }
         }
     }
@@ -115,19 +129,20 @@ struct LockScreenView: View {
                     systemImage: "figure.walk"
                 )
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(WidgetTokens.textMuted)
 
                 // Timer
                 if let remaining = context.state.remainingSeconds {
                     Text(formatTime(remaining))
                         .font(.title2)
                         .monospacedDigit()
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(WidgetTokens.warning)
                         .frame(maxWidth: .infinity)
                 } else {
                     Text(context.attributes.startTime, style: .timer)
                         .font(.title2)
                         .monospacedDigit()
+                        .foregroundStyle(WidgetTokens.textPrimary)
                         .frame(maxWidth: .infinity)
                 }
 
@@ -143,7 +158,7 @@ struct LockScreenView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(.red.opacity(0.8), in: RoundedRectangle(cornerRadius: 8))
+                    .background(WidgetTokens.danger, in: RoundedRectangle(cornerRadius: 10))
                 }
             }
 
@@ -160,8 +175,8 @@ struct LockScreenView: View {
             }
         }
         .padding()
-        .activityBackgroundTint(.black.opacity(0.8))
-        .activitySystemActionForegroundColor(.white)
+        .activityBackgroundTint(WidgetTokens.background)
+        .activitySystemActionForegroundColor(WidgetTokens.textPrimary)
     }
 
     private static func loadMapSnapshot() -> UIImage? {
@@ -190,7 +205,6 @@ struct LockScreenView: View {
     IsoMeLiveActivity()
 } contentStates: {
     LocationActivityAttributes.ContentState(
-        trackingMode: .continuous,
         locationName: "Coffee Shop",
         locationsRecorded: 42,
         distanceTraveled: 1234,
@@ -198,7 +212,6 @@ struct LockScreenView: View {
         lastUpdate: .now
     )
     LocationActivityAttributes.ContentState(
-        trackingMode: .visits,
         locationName: nil,
         locationsRecorded: 5,
         distanceTraveled: 8500,
