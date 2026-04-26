@@ -6,7 +6,6 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @StateObject private var exportFolderManager = ExportFolderManager.shared
-    @ObservedObject private var usageTracker = UsageTracker.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
@@ -20,11 +19,16 @@ struct SettingsView: View {
     @State private var showingImportResult = false
     @State private var importErrorMessage: String?
     @State private var showingImportError = false
+    @State private var showAdvanced = false
 
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
     @AppStorage("autoStartOnActivity") private var autoStartOnActivity = false
     @AppStorage("autoStartOnDistance") private var autoStartOnDistance = false
+    @AppStorage("activityTriggerDriving") private var activityTriggerDriving = true
+    @AppStorage("activityTriggerCycling") private var activityTriggerCycling = true
+    @AppStorage("activityTriggerRunning") private var activityTriggerRunning = true
+    @AppStorage("activityTriggerWalking") private var activityTriggerWalking = true
+    @AppStorage("activityMinimumConfidence") private var activityMinimumConfidence = MotionConfidenceThreshold.medium.rawValue
+    @AppStorage("activityPromptCooldownMinutes") private var activityPromptCooldownMinutes = 30.0
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
@@ -34,68 +38,37 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                TE.surface.ignoresSafeArea()
-
-                ScrollView {
-                    VStack(spacing: 0) {
-                        purchaseSection
-                        trackingSection
-                        continuousTrackingSection
-                        defaultsSection
-                        unitsSection
-                        mapDisplaySection
-                        exportFolderSection
-                        exportSection
-                        importSection
-                        dataSection
-                        onboardingSection
-                        supportSection
-                        aboutSection
-                    }
-                    .padding(.bottom, 32)
-                }
+                DS.Color.background.ignoresSafeArea()
+                settingsScrollContent
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("SETTINGS")
-                        .font(TE.mono(.caption, weight: .bold))
-                        .tracking(3)
-                        .foregroundStyle(TE.textMuted)
-                }
-            }
-            .alert("Clear All Data?", isPresented: $showingClearConfirmation) {
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
+            .alert("Clear all data?", isPresented: $showingClearConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) { viewModel.clearAllData() }
             } message: {
                 Text("This will permanently delete all visit data and location points. This action cannot be undone.")
             }
-            .alert("Remove Default Folder?", isPresented: $showingClearFolderConfirmation) {
+            .alert("Remove default folder?", isPresented: $showingClearFolderConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Remove", role: .destructive) { exportFolderManager.clearDefaultFolder() }
             } message: {
                 Text("Exports will use the share sheet instead of saving directly to a folder.")
             }
-            .alert("Export Complete", isPresented: $showingExportSuccess) {
+            .alert("Export complete", isPresented: $showingExportSuccess) {
                 Button("OK", role: .cancel) {}
             } message: {
-                if let message = exportSuccessMessage {
-                    Text(message)
-                }
+                if let message = exportSuccessMessage { Text(message) }
             }
-            .alert("Import Complete", isPresented: $showingImportResult) {
+            .alert("Import complete", isPresented: $showingImportResult) {
                 Button("OK", role: .cancel) {}
             } message: {
-                if let message = importResultMessage {
-                    Text(message)
-                }
+                if let message = importResultMessage { Text(message) }
             }
-            .alert("Import Failed", isPresented: $showingImportError) {
+            .alert("Import failed", isPresented: $showingImportError) {
                 Button("OK", role: .cancel) {}
             } message: {
-                if let message = importErrorMessage {
-                    Text(message)
-                }
+                if let message = importErrorMessage { Text(message) }
             }
             .fileImporter(
                 isPresented: $showingImportPicker,
@@ -106,13 +79,29 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingFolderPicker) {
                 FolderPicker { url in
-                    if let url = url {
-                        exportFolderManager.setDefaultFolder(url)
-                    }
+                    if let url = url { exportFolderManager.setDefaultFolder(url) }
                 }
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 viewModel.locationManager.refreshDistanceUnitPreference()
+            }
+            .onChange(of: activityMinimumConfidence) { _, newValue in
+                LogManager.shared.info("[Movement] Updated prompt sensitivity to \(newValue).")
+            }
+            .onChange(of: activityPromptCooldownMinutes) { _, newValue in
+                LogManager.shared.info("[Movement] Updated prompt cooldown to \(Int(newValue)) minutes.")
+            }
+            .onChange(of: activityTriggerDriving) { _, isEnabled in
+                LogManager.shared.info("[Movement] Driving trigger \(isEnabled ? "enabled" : "disabled").")
+            }
+            .onChange(of: activityTriggerCycling) { _, isEnabled in
+                LogManager.shared.info("[Movement] Cycling trigger \(isEnabled ? "enabled" : "disabled").")
+            }
+            .onChange(of: activityTriggerRunning) { _, isEnabled in
+                LogManager.shared.info("[Movement] Running trigger \(isEnabled ? "enabled" : "disabled").")
+            }
+            .onChange(of: activityTriggerWalking) { _, isEnabled in
+                LogManager.shared.info("[Movement] Walking trigger \(isEnabled ? "enabled" : "disabled").")
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
@@ -120,139 +109,247 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Purchase Section
-
-    private var purchaseSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "ISO.ME PRO")
-
-            TECard {
-                VStack(spacing: 0) {
-                    if storeManager.isPurchased {
-                        TERow(showDivider: false) {
-                            HStack {
-                                Circle()
-                                    .fill(TE.success)
-                                    .frame(width: 6, height: 6)
-                                Text("UNLIMITED TRACKING")
-                                    .font(TE.mono(.caption, weight: .semibold))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("PURCHASED")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.success)
-                            }
-                        }
+    @ViewBuilder
+    private var settingsScrollContent: some View {
+        ScrollViewReader { scrollProxy in
+            ScrollView(.vertical) {
+                VStack(spacing: DS.Spacing.lg) {
+                    if !storeManager.isPurchased {
+                        subscriptionSection
                     } else {
-                        let totalHours = usageTracker.totalUsageHours
-                        let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
-
-                        TERow {
-                            HStack {
-                                Text("USAGE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("\(totalHours, specifier: "%.1f") / \(limitHours, specifier: "%.0f") HR")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .foregroundStyle(usageTracker.hasExceededFreeLimit ? TE.danger : TE.textMuted)
-                            }
-                        }
-
-                        TERow {
-                            settingsButton("UNLOCK UNLIMITED", icon: "lock.open.fill") {
-                                showingPaywall = true
-                            }
-                        }
-
-                        TERow(showDivider: false) {
-                            settingsButton("RESTORE PURCHASE", icon: "arrow.clockwise") {
-                                Task { await storeManager.restorePurchases() }
-                            }
+                        purchasedSection
+                    }
+                    trackingSection
+                    permissionSection
+                    automationSection
+                    mapDisplaySection
+                    unitsSection
+                    exportFolderSection
+                    exportSection
+                        .id("exportSection")
+                    importSection
+                    dataSection
+                    onboardingSection
+                    aboutSection
+                    advancedSection
+                }
+                .padding(.horizontal, DS.Spacing.lg)
+                .padding(.bottom, DS.Spacing.xxl)
+            }
+            #if DEBUG
+            .onAppear {
+                if ProcessInfo.processInfo.arguments.contains("--scroll-to-export") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        withAnimation(.none) {
+                            scrollProxy.scrollTo("exportSection", anchor: .top)
                         }
                     }
                 }
             }
-            .padding(.horizontal, 16)
+            #endif
+        }
+    }
 
-            if !storeManager.isPurchased {
-                TESectionFooter(text: "Free for your first 10 hours. One-time purchase for unlimited use.")
+    // MARK: - Subscription / Pro
+
+    private var subscriptionSection: some View {
+        section(title: "iso.me Pro", footer: "Tracking is always free. One-time purchase to unlock data export.") {
+            VStack(alignment: .leading, spacing: DS.Spacing.md) {
+                HStack(spacing: DS.Spacing.md) {
+                    CategoryIcon(symbol: "lock.open.fill", palette: .purple, size: 44)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Unlock data export")
+                            .font(DS.Font.headline())
+                            .foregroundStyle(DS.Color.textPrimary)
+                        Text("Export visits, points, and combined data")
+                            .font(DS.Font.caption())
+                            .foregroundStyle(DS.Color.textMuted)
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                PrimaryButton(title: "View pricing") {
+                    showingPaywall = true
+                }
+
+                Button {
+                    Task { await storeManager.restorePurchases() }
+                } label: {
+                    Text("Restore purchase")
+                        .font(DS.Font.body(.medium))
+                        .foregroundStyle(DS.Color.accent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, DS.Spacing.sm)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
 
-    // MARK: - Tracking Section
+    private var purchasedSection: some View {
+        section(title: "iso.me Pro") {
+            HStack(spacing: DS.Spacing.md) {
+                CategoryIcon(symbol: "checkmark.seal.fill", palette: .green, size: 44)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Pro unlocked")
+                        .font(DS.Font.headline())
+                        .foregroundStyle(DS.Color.textPrimary)
+                    Text("Data export available")
+                        .font(DS.Font.caption())
+                        .foregroundStyle(DS.Color.textMuted)
+                }
+                Spacer(minLength: 0)
+                StatusDot(state: .on)
+            }
+        }
+    }
+
+    // MARK: - Tracking
 
     private var trackingSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "LOCATION TRACKING")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        settingsToggle(
-                            "TRACKING",
-                            isOn: Binding(
-                                get: { viewModel.locationManager.isTrackingEnabled },
-                                set: { newValue in
-                                    if newValue {
-                                        if usageTracker.hasExceededFreeLimit && !storeManager.isPurchased {
-                                            showingPaywall = true
-                                            return
-                                        }
-                                        viewModel.startTracking()
-                                    } else {
-                                        viewModel.stopTracking()
-                                    }
-                                }
-                            )
-                        )
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("PERMISSION")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text(permissionStatusText.uppercased())
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(permissionStatusColor)
-                        }
-                    }
-
-                    if !viewModel.locationManager.hasAlwaysPermission {
-                        TERow {
-                            settingsButton("OPEN SETTINGS", icon: "arrow.up.right") {
-                                if let url = URL(string: UIApplication.openSettingsURLString) {
-                                    UIApplication.shared.open(url)
-                                }
+        section(title: "Tracking", footer: "Auto-detect uses CLVisit. Precise routes record your full path between visits.") {
+            VStack(spacing: 0) {
+                DSRow {
+                    toggleRow(
+                        symbol: "location.fill",
+                        palette: .green,
+                        title: "Auto-detect places",
+                        subtitle: "Battery friendly visit detection",
+                        isOn: Binding(
+                            get: { viewModel.locationManager.isTrackingEnabled },
+                            set: { newValue in
+                                if newValue { viewModel.enableTracking() } else { viewModel.disableTracking() }
                             }
-                        }
-                    }
+                        )
+                    )
+                }
 
-                    TERow(showDivider: false) {
-                        settingsToggle("LOCATION NAMES", isOn: $allowNetworkGeocoding)
+                DSRow {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "waveform.path.ecg", palette: .purple, size: 36)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Live Activity")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                            Text(liveActivityStatus)
+                                .font(DS.Font.caption())
+                                .foregroundStyle(DS.Color.textMuted)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+
+                DSRow {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "timer", palette: .peach, size: 36)
+                        Text("Auto-off")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.textPrimary)
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { viewModel.locationManager.trackingAutoOffHours },
+                            set: {
+                                viewModel.locationManager.trackingAutoOffHours = $0
+                                UserDefaults.standard.set($0, forKey: TrackingStorageKeys.autoOffHours)
+                            }
+                        )) {
+                            Text("30m").tag(0.5)
+                            Text("1h").tag(1.0)
+                            Text("2h").tag(2.0)
+                            Text("4h").tag(4.0)
+                            Text("8h").tag(8.0)
+                            Text("Never").tag(0.0)
+                        }
+                        .labelsHidden()
+                        .tint(DS.Color.accent)
+                    }
+                }
+
+                DSRow(showDivider: false) {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "ruler", palette: .blue, size: 36)
+                        Text("Distance filter")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.textPrimary)
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { viewModel.locationManager.distanceFilter },
+                            set: {
+                                viewModel.locationManager.distanceFilter = $0
+                                UserDefaults.standard.set($0, forKey: "distanceFilter")
+                            }
+                        )) {
+                            Text("5m").tag(5.0)
+                            Text("10m").tag(10.0)
+                            Text("25m").tag(25.0)
+                            Text("50m").tag(50.0)
+                            Text("100m").tag(100.0)
+                            Text("200m").tag(200.0)
+                        }
+                        .labelsHidden()
+                        .tint(DS.Color.accent)
                     }
                 }
             }
-            .padding(.horizontal, 16)
+        }
+    }
 
-            TESectionFooter(text: "Visit monitoring tracks places you visit. Significant location changes provides a trail between visits. Location names are looked up when available.")
+    private var liveActivityStatus: String {
+        if !ActivityAuthorizationInfo().areActivitiesEnabled { return "Disabled in system settings" }
+        return LiveActivityManager.shared.isActivityActive ? "Active" : "Ready"
+    }
+
+    // MARK: - Permission
+
+    private var permissionSection: some View {
+        section(title: "Permission") {
+            VStack(spacing: 0) {
+                DSRow(showDivider: !viewModel.locationManager.hasAlwaysPermission) {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "lock.shield.fill", palette: permissionPalette, size: 36)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Location access")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                            Text(permissionStatusText)
+                                .font(DS.Font.caption())
+                                .foregroundStyle(permissionStatusColor)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+
+                if !viewModel.locationManager.hasAlwaysPermission {
+                    DSRow(showDivider: false) {
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            HStack(spacing: DS.Spacing.md) {
+                                CategoryIcon(symbol: "gearshape.fill", palette: .purple, size: 36)
+                                Text("Open system settings")
+                                    .font(DS.Font.body(.medium))
+                                    .foregroundStyle(DS.Color.accent)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(DS.Color.textMuted)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
     }
 
     private var permissionStatusText: String {
         switch viewModel.locationManager.authorizationStatus {
-        case .notDetermined: return String(localized: "Not Set")
+        case .notDetermined: return String(localized: "Not set")
         case .restricted: return String(localized: "Restricted")
         case .denied: return String(localized: "Denied")
-        case .authorizedWhenInUse: return String(localized: "When In Use")
+        case .authorizedWhenInUse: return String(localized: "When in use")
         case .authorizedAlways: return String(localized: "Always")
         @unknown default: return String(localized: "Unknown")
         }
@@ -260,578 +357,608 @@ struct SettingsView: View {
 
     private var permissionStatusColor: Color {
         switch viewModel.locationManager.authorizationStatus {
-        case .authorizedAlways: return TE.accent
-        case .authorizedWhenInUse: return TE.accent.opacity(0.7)
-        case .denied, .restricted: return TE.danger
-        default: return TE.textMuted
+        case .authorizedAlways: return DS.Color.accentGreen
+        case .authorizedWhenInUse: return DS.Color.warning
+        case .denied, .restricted: return DS.Color.danger
+        default: return DS.Color.textMuted
         }
     }
 
-    // MARK: - Continuous Tracking Section
-
-    private var continuousTrackingSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "HIGH-ACCURACY MODE")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        settingsToggle(
-                            "CONTINUOUS",
-                            isOn: Binding(
-                                get: { viewModel.locationManager.isContinuousTrackingEnabled },
-                                set: { newValue in
-                                    if newValue {
-                                        if usageTracker.hasExceededFreeLimit && !storeManager.isPurchased {
-                                            showingPaywall = true
-                                            return
-                                        }
-                                        viewModel.enableContinuousTracking()
-                                    } else {
-                                        viewModel.disableContinuousTracking()
-                                    }
-                                }
-                            )
-                        )
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("LIVE ACTIVITY")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            if ActivityAuthorizationInfo().areActivitiesEnabled {
-                                if LiveActivityManager.shared.isActivityActive {
-                                    Text("ACTIVE")
-                                        .font(TE.mono(.caption2, weight: .medium))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.success)
-                                } else {
-                                    Text("READY")
-                                        .font(TE.mono(.caption2, weight: .medium))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.textMuted)
-                                }
-                            } else {
-                                Text("DISABLED")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.warning)
-                            }
-                        }
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("AUTO-OFF")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { viewModel.locationManager.continuousTrackingAutoOffHours },
-                                set: {
-                                    viewModel.locationManager.continuousTrackingAutoOffHours = $0
-                                    UserDefaults.standard.set($0, forKey: "continuousTrackingAutoOffHours")
-                                }
-                            )) {
-                                Text("30m").tag(0.5)
-                                Text("1h").tag(1.0)
-                                Text("2h").tag(2.0)
-                                Text("4h").tag(4.0)
-                                Text("8h").tag(8.0)
-                                Text("Never").tag(0.0)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
-                    }
-
-                    TERow(showDivider: false) {
-                        HStack {
-                            Text("DISTANCE FILTER")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { viewModel.locationManager.distanceFilter },
-                                set: {
-                                    viewModel.locationManager.distanceFilter = $0
-                                    UserDefaults.standard.set($0, forKey: "distanceFilter")
-                                }
-                            )) {
-                                Text("5m").tag(5.0)
-                                Text("10m").tag(10.0)
-                                Text("25m").tag(25.0)
-                                Text("50m").tag(50.0)
-                                Text("100m").tag(100.0)
-                                Text("200m").tag(200.0)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "High battery usage. Records your exact path between visits.")
+    private var permissionPalette: DS.Palette {
+        switch viewModel.locationManager.authorizationStatus {
+        case .authorizedAlways: return .green
+        case .denied, .restricted: return .peach
+        default: return .blue
         }
     }
 
-    // MARK: - Defaults Section
+    // MARK: - Automation
 
-    private var defaultsSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "TRACKING DEFAULTS")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        settingsToggle("LOCATION ON START", isOn: $defaultLocationTrackingEnabled)
-                    }
-
-                    TERow {
-                        settingsToggle("CONTINUOUS MODE", isOn: $defaultContinuousTracking)
-                    }
-
-                    TERow {
-                        settingsToggle("AUTO-START ON ACTIVITY", isOn: Binding(
+    private var automationSection: some View {
+        section(
+            title: "Movement detection",
+            footer: autoStartOnActivity && !hasAnyMovementTriggerEnabled
+                ? "Movement prompts are enabled, but all movement types are off. Enable at least one trigger."
+                : "When tracking is off, movement detection can prompt before tracking starts."
+        ) {
+            VStack(spacing: 0) {
+                DSRow {
+                    toggleRow(
+                        symbol: "bell.badge.fill",
+                        palette: .purple,
+                        title: "Prompt on movement",
+                        subtitle: "Notify before auto-tracking",
+                        isOn: Binding(
                             get: { autoStartOnActivity },
                             set: { newValue in
                                 autoStartOnActivity = newValue
                                 viewModel.locationManager.setAutoStartOnActivity(newValue)
                             }
-                        ))
+                        )
+                    )
+                }
+
+                if autoStartOnActivity {
+                    DSRow {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "slider.horizontal.3", palette: .blue, size: 36)
+                            Text("Sensitivity")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                            Spacer()
+                            Picker("", selection: $activityMinimumConfidence) {
+                                ForEach(MotionConfidenceThreshold.allCases, id: \.rawValue) { threshold in
+                                    Text(threshold.title).tag(threshold.rawValue)
+                                }
+                            }
+                            .labelsHidden()
+                            .tint(DS.Color.accent)
+                        }
                     }
 
-                    TERow {
-                        settingsToggle("AUTO-START ON WORKOUT", isOn: Binding(
+                    DSRow {
+                        compactToggle(symbol: "car.fill", palette: .blue, title: "Driving", isOn: $activityTriggerDriving)
+                    }
+                    DSRow {
+                        compactToggle(symbol: "bicycle", palette: .peach, title: "Cycling", isOn: $activityTriggerCycling)
+                    }
+                    DSRow {
+                        compactToggle(symbol: "figure.run", palette: .green, title: "Running", isOn: $activityTriggerRunning)
+                    }
+                    DSRow {
+                        compactToggle(symbol: "figure.walk", palette: .green, title: "Walking", isOn: $activityTriggerWalking)
+                    }
+
+                    DSRow {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "hourglass", palette: .peach, size: 36)
+                            Text("Cooldown")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                            Spacer()
+                            Picker("", selection: $activityPromptCooldownMinutes) {
+                                Text("5m").tag(5.0)
+                                Text("15m").tag(15.0)
+                                Text("30m").tag(30.0)
+                                Text("60m").tag(60.0)
+                            }
+                            .labelsHidden()
+                            .tint(DS.Color.accent)
+                        }
+                    }
+                }
+
+                DSRow {
+                    toggleRow(
+                        symbol: "figure.strengthtraining.traditional",
+                        palette: .green,
+                        title: "Auto-start on workout",
+                        subtitle: "Begin tracking when a workout starts",
+                        isOn: Binding(
                             get: { viewModel.locationManager.autoStartOnWorkout },
                             set: { viewModel.locationManager.setAutoStartOnWorkout($0) }
-                        ))
-                    }
+                        )
+                    )
+                }
 
-                    TERow(showDivider: false) {
-                        settingsToggle("AUTO-START ON DISTANCE", isOn: Binding(
+                DSRow(showDivider: false) {
+                    toggleRow(
+                        symbol: "location.north.line.fill",
+                        palette: .blue,
+                        title: "Auto-start on distance",
+                        subtitle: "Begin tracking after sustained movement",
+                        isOn: Binding(
                             get: { autoStartOnDistance },
                             set: { newValue in
                                 autoStartOnDistance = newValue
                                 viewModel.locationManager.setAutoStartOnDistance(newValue)
                             }
-                        ))
-                    }
+                        )
+                    )
                 }
             }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "Auto-start begins continuous tracking when motion activity, an Apple Watch workout, or above-average daily travel is detected.")
         }
     }
 
-    // MARK: - Units Section
+    private var hasAnyMovementTriggerEnabled: Bool {
+        activityTriggerDriving || activityTriggerCycling || activityTriggerRunning || activityTriggerWalking
+    }
 
-    private var unitsSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "UNITS")
+    // MARK: - Map display
 
-            TECard {
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        unitButton("METRIC", isSelected: usesMetricDistanceUnits) {
-                            usesMetricDistanceUnits = true
-                        }
-                        Rectangle()
-                            .fill(TE.border)
-                            .frame(width: 1)
-                        unitButton("US STANDARD", isSelected: !usesMetricDistanceUnits) {
-                            usesMetricDistanceUnits = false
-                        }
-                    }
-                    .frame(height: 44)
+    private var mapDisplaySection: some View {
+        section(title: "Map & display", footer: "Names are looked up when available. Glitches are GPS jumps that return to your path.") {
+            VStack(spacing: 0) {
+                DSRow {
+                    toggleRow(
+                        symbol: "text.bubble.fill",
+                        palette: .blue,
+                        title: "Location names",
+                        subtitle: "Reverse-geocode visits",
+                        isOn: $allowNetworkGeocoding
+                    )
+                }
+
+                DSRow(showDivider: false) {
+                    toggleRow(
+                        symbol: "exclamationmark.triangle.fill",
+                        palette: .peach,
+                        title: "Show GPS glitches",
+                        subtitle: "Display outlier points on the map",
+                        isOn: $showOutliers
+                    )
                 }
             }
-            .padding(.horizontal, 16)
+        }
+    }
 
-            TESectionFooter(text: "Distance values shown throughout the app, widgets, and Live Activity.")
+    // MARK: - Units
+
+    private var unitsSection: some View {
+        section(title: "Units", footer: "Used in widgets, Live Activity, and throughout the app.") {
+            HStack(spacing: DS.Spacing.sm) {
+                unitButton("Metric", isSelected: usesMetricDistanceUnits) { usesMetricDistanceUnits = true }
+                unitButton("US Standard", isSelected: !usesMetricDistanceUnits) { usesMetricDistanceUnits = false }
+            }
         }
     }
 
     private func unitButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
-                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+                .font(DS.Font.body(isSelected ? .semibold : .medium))
+                .foregroundStyle(isSelected ? Color.white : DS.Color.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DS.Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                        .fill(isSelected ? DS.Color.accent : DS.Color.divider.opacity(0.5))
+                )
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - Map Display Section
-
-    private var mapDisplaySection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "MAP DISPLAY")
-
-            TECard {
-                TERow(showDivider: false) {
-                    settingsToggle("SHOW GPS GLITCHES", isOn: $showOutliers)
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.")
-        }
-    }
-
-    // MARK: - Export Folder Section
+    // MARK: - Export folder
 
     private var exportFolderSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "EXPORT FOLDER")
-
-            TECard {
-                VStack(spacing: 0) {
-                    if let folderName = exportFolderManager.selectedFolderName {
-                        TERow {
-                            HStack {
-                                Image(systemName: "folder.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text(folderName.uppercased())
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(0.5)
-                                    .foregroundStyle(TE.textPrimary)
-                                    .lineLimit(1)
-                                Spacer()
-                                Button {
-                                    showingFolderPicker = true
-                                } label: {
-                                    Text("CHANGE")
-                                        .font(TE.mono(.caption2, weight: .semibold))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.accent)
-                                }
+        section(
+            title: "Export folder",
+            footer: exportFolderManager.hasDefaultFolder
+                ? "Files saved directly when auto-save is on."
+                : "Set a folder to save exports without the share sheet."
+        ) {
+            VStack(spacing: 0) {
+                if let folderName = exportFolderManager.selectedFolderName {
+                    DSRow {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "folder.fill", palette: .brown, size: 36)
+                            Text(folderName)
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                                .lineLimit(1)
+                            Spacer()
+                            Button("Change") { showingFolderPicker = true }
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.accent)
                                 .buttonStyle(.plain)
+                        }
+                    }
+                    DSRow {
+                        toggleRow(
+                            symbol: "square.and.arrow.down.fill",
+                            palette: .green,
+                            title: "Auto-save",
+                            subtitle: "Skip the share sheet",
+                            isOn: $useDefaultExportFolder
+                        )
+                    }
+                    DSRow(showDivider: false) {
+                        Button {
+                            showingClearFolderConfirmation = true
+                        } label: {
+                            HStack(spacing: DS.Spacing.md) {
+                                CategoryIcon(symbol: "folder.badge.minus", palette: .peach, size: 36)
+                                Text("Remove folder")
+                                    .font(DS.Font.body(.medium))
+                                    .foregroundStyle(DS.Color.danger)
+                                Spacer()
                             }
                         }
-
-                        TERow {
-                            settingsToggle("AUTO-SAVE", isOn: $useDefaultExportFolder)
-                        }
-
-                        TERow(showDivider: false) {
-                            settingsButton("REMOVE FOLDER", icon: "folder.badge.minus", color: TE.danger) {
-                                showingClearFolderConfirmation = true
+                        .buttonStyle(.plain)
+                    }
+                } else {
+                    DSRow(showDivider: false) {
+                        Button {
+                            showingFolderPicker = true
+                        } label: {
+                            HStack(spacing: DS.Spacing.md) {
+                                CategoryIcon(symbol: "folder.badge.plus", palette: .brown, size: 36)
+                                Text("Select folder")
+                                    .font(DS.Font.body(.medium))
+                                    .foregroundStyle(DS.Color.accent)
+                                Spacer()
                             }
                         }
-                    } else {
-                        TERow(showDivider: false) {
-                            settingsButton("SELECT FOLDER", icon: "folder.badge.plus") {
-                                showingFolderPicker = true
-                            }
-                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: exportFolderManager.hasDefaultFolder
-                ? "Exports saved directly to this folder when auto-save is enabled."
-                : "Set a default folder to save exports without the share sheet.")
         }
     }
 
-    // MARK: - Export Section
+    // MARK: - Export
 
     private var exportSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "DATA EXPORT")
+        section(
+            title: "Data & export",
+            footer: exportFolderManager.hasDefaultFolder && useDefaultExportFolder
+                ? "Files saved to \(exportFolderManager.selectedFolderName ?? "your folder")."
+                : "Pick a format, then choose what to export."
+        ) {
+            VStack(spacing: DS.Spacing.md) {
+                HStack(spacing: DS.Spacing.sm) {
+                    formatChip(.json, label: "JSON", symbol: "curlybraces", palette: .purple)
+                    formatChip(.csv, label: "CSV", symbol: "tablecells.fill", palette: .green)
+                    formatChip(.markdown, label: "Markdown", symbol: "doc.richtext.fill", palette: .blue)
+                }
 
-            TECard {
                 VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        formatButton("JSON", format: .json)
-                        Rectangle().fill(TE.border).frame(width: 1)
-                        formatButton("CSV", format: .csv)
-                        Rectangle().fill(TE.border).frame(width: 1)
-                        formatButton("MARKDOWN", format: .markdown)
-                    }
-                    .frame(height: 44)
-
-                    Divider().background(TE.border)
-
-                    TERow {
-                        exportActionRow(title: "EXPORT VISITS", count: viewModel.allVisits.count) {
+                    DSRow {
+                        exportActionRow(symbol: "mappin.and.ellipse", palette: .purple, title: "Export visits", count: viewModel.allVisits.count) {
                             exportVisits(format: exportFormat)
                         }
                     }
-
-                    TERow {
-                        exportActionRow(title: "EXPORT POINTS", count: viewModel.locationPoints.count) {
+                    DSRow {
+                        exportActionRow(symbol: "point.topleft.down.to.point.bottomright.curvepath", palette: .green, title: "Export points", count: viewModel.locationPoints.count) {
                             exportLocationPoints(format: exportFormat)
                         }
                     }
-
-                    TERow(showDivider: false) {
-                        exportActionRow(title: "EXPORT ALL", count: viewModel.allVisits.count + viewModel.locationPoints.count) {
+                    DSRow(showDivider: false) {
+                        exportActionRow(symbol: "square.stack.3d.up.fill", palette: .blue, title: "Export everything", count: viewModel.allVisits.count + viewModel.locationPoints.count) {
                             exportAllData(format: exportFormat)
                         }
                     }
                 }
             }
-            .padding(.horizontal, 16)
-
-            if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-                TESectionFooter(text: "Files saved to \(exportFolderManager.selectedFolderName ?? "your folder").")
-            } else {
-                TESectionFooter(text: "Export visits, points, or everything in the selected format.")
-            }
         }
     }
 
-    private func formatButton(_ title: LocalizedStringKey, format: ExportFormat) -> some View {
+    private func formatChip(_ format: ExportFormat, label: LocalizedStringKey, symbol: String, palette: DS.Palette) -> some View {
         let isSelected = exportFormat == format
         return Button {
             exportFormat = format
         } label: {
-            Text(title)
-                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
-                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+            VStack(spacing: DS.Spacing.xs) {
+                CategoryIcon(symbol: symbol, palette: palette, size: 36)
+                Text(label)
+                    .font(DS.Font.caption(isSelected ? .semibold : .medium))
+                    .foregroundStyle(DS.Color.textPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DS.Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                    .fill(isSelected ? palette.tile : Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                            .stroke(isSelected ? palette.icon.opacity(0.4) : DS.Color.divider, lineWidth: 1)
+                    )
+            )
         }
         .buttonStyle(.plain)
     }
 
-    private func exportActionRow(title: LocalizedStringKey, count: Int, action: @escaping () -> Void) -> some View {
+    private func exportActionRow(symbol: String, palette: DS.Palette, title: LocalizedStringKey, count: Int, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack {
+            HStack(spacing: DS.Spacing.md) {
+                CategoryIcon(symbol: symbol, palette: palette, size: 36)
                 Text(title)
-                    .font(TE.mono(.caption, weight: .medium))
-                    .tracking(1)
-                    .foregroundStyle(TE.textPrimary)
+                    .font(DS.Font.body(.medium))
+                    .foregroundStyle(DS.Color.textPrimary)
                 Spacer()
                 Text("\(count)")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .foregroundStyle(TE.textMuted)
+                    .font(DS.Font.caption(.medium))
+                    .foregroundStyle(DS.Color.textMuted)
+                    .monospacedDigit()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(TE.textMuted.opacity(0.4))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(DS.Color.textMuted)
             }
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - Import Section
+    // MARK: - Import
 
     private var importSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "DATA IMPORT")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow(showDivider: false) {
-                        settingsButton("IMPORT FILE", icon: "square.and.arrow.down") {
-                            showingImportPicker = true
-                        }
+        section(title: "Data import", footer: "Restore visits or points from a previously exported file.") {
+            DSRow(showDivider: false) {
+                Button {
+                    showingImportPicker = true
+                } label: {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "square.and.arrow.down", palette: .blue, size: 36)
+                        Text("Import file")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.accent)
+                        Spacer()
                     }
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "Import visits or points from a previously exported JSON, CSV, or Markdown file.")
         }
     }
 
-    // MARK: - Data Section
+    // MARK: - Data
 
     private var dataSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "DATA")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        HStack {
-                            Text("VISITS")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
+        section(title: "Data") {
+            VStack(spacing: 0) {
+                DSRow {
+                    statRow(symbol: "mappin.and.ellipse", palette: .purple, title: "Visits", value: viewModel.allVisits.count)
+                }
+                DSRow {
+                    statRow(symbol: "point.topleft.down.to.point.bottomright.curvepath", palette: .green, title: "Location points", value: viewModel.locationPoints.count)
+                }
+                DSRow(showDivider: false) {
+                    Button(role: .destructive) {
+                        showingClearConfirmation = true
+                    } label: {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "trash.fill", palette: .peach, size: 36)
+                            Text("Clear all data")
+                                .font(DS.Font.body(.semibold))
+                                .foregroundStyle(DS.Color.danger)
                             Spacer()
-                            Text("\(viewModel.allVisits.count)")
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.textMuted)
                         }
                     }
-
-                    TERow {
-                        HStack {
-                            Text("POINTS")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text("\(viewModel.locationPoints.count)")
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.textMuted)
-                        }
-                    }
-
-                    TERow(showDivider: false) {
-                        settingsButton("CLEAR ALL DATA", icon: "trash", color: TE.danger) {
-                            showingClearConfirmation = true
-                        }
-                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 16)
         }
     }
 
-    // MARK: - Onboarding Section
+    private func statRow(symbol: String, palette: DS.Palette, title: LocalizedStringKey, value: Int) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            CategoryIcon(symbol: symbol, palette: palette, size: 36)
+            Text(title)
+                .font(DS.Font.body(.medium))
+                .foregroundStyle(DS.Color.textPrimary)
+            Spacer()
+            Text("\(value)")
+                .font(DS.Font.body(.semibold))
+                .foregroundStyle(DS.Color.textPrimary)
+                .monospacedDigit()
+        }
+    }
+
+    // MARK: - Onboarding
 
     private var onboardingSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "ONBOARDING")
-
-            TECard {
-                TERow(showDivider: false) {
-                    settingsButton("REPLAY ONBOARDING", icon: "sparkles") {
-                        hasCompletedOnboarding = false
+        section(title: "Onboarding") {
+            DSRow(showDivider: false) {
+                Button {
+                    hasCompletedOnboarding = false
+                } label: {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "sparkles", palette: .purple, size: 36)
+                        Text("Replay onboarding")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.accent)
+                        Spacer()
                     }
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
         }
     }
 
-    // MARK: - Support Section
+    // MARK: - About
 
-    private var supportSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "SUPPORT")
+    private var aboutSection: some View {
+        section(title: "About", footer: "All data stored locally. Never uploaded to any server.") {
+            VStack(spacing: 0) {
+                DSRow {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "app.badge.fill", palette: .purple, size: 36)
+                        Text("Version")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.textPrimary)
+                        Spacer()
+                        Text(AppInfo.versionDisplay)
+                            .font(DS.Font.caption(.medium))
+                            .foregroundStyle(DS.Color.textMuted)
+                            .monospaced()
+                    }
+                }
 
-            TECard {
-                VStack(spacing: 0) {
-                    TERow(showDivider: false) {
+                DSRow {
+                    HStack(spacing: DS.Spacing.md) {
+                        CategoryIcon(symbol: "lock.shield.fill", palette: .green, size: 36)
+                        Text("Storage")
+                            .font(DS.Font.body(.medium))
+                            .foregroundStyle(DS.Color.textPrimary)
+                        Spacer()
+                        Text("On-device only")
+                            .font(DS.Font.caption(.medium))
+                            .foregroundStyle(DS.Color.accentGreen)
+                    }
+                }
+
+                DSRow {
+                    Button {
+                        sendFeedbackEmail()
+                    } label: {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "envelope.fill", palette: .peach, size: 36)
+                            Text("Send feedback")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.accent)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(DS.Color.textMuted)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                DSRow {
+                    externalLinkRow(symbol: "hand.raised.fill", palette: .blue, title: "Privacy policy", url: "https://isome.isolated.tech/privacy")
+                }
+
+                DSRow(showDivider: false) {
+                    externalLinkRow(symbol: "doc.text.fill", palette: .blue, title: "Terms of service", url: "https://isome.isolated.tech/terms")
+                }
+            }
+        }
+    }
+
+    private func externalLinkRow(symbol: String, palette: DS.Palette, title: LocalizedStringKey, url: String) -> some View {
+        Link(destination: URL(string: url)!) {
+            HStack(spacing: DS.Spacing.md) {
+                CategoryIcon(symbol: symbol, palette: palette, size: 36)
+                Text(title)
+                    .font(DS.Font.body(.medium))
+                    .foregroundStyle(DS.Color.accent)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(DS.Color.textMuted)
+            }
+        }
+    }
+
+    // MARK: - Advanced (debug)
+
+    @ViewBuilder
+    private var advancedSection: some View {
+        #if DEBUG
+        section(title: "Advanced") {
+            VStack(spacing: 0) {
+                DSRow(showDivider: showAdvanced) {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { showAdvanced.toggle() }
+                    } label: {
+                        HStack(spacing: DS.Spacing.md) {
+                            CategoryIcon(symbol: "wrench.and.screwdriver.fill", palette: .brown, size: 36)
+                            Text("Developer tools")
+                                .font(DS.Font.body(.medium))
+                                .foregroundStyle(DS.Color.textPrimary)
+                            Spacer()
+                            Image(systemName: showAdvanced ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(DS.Color.textMuted)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if showAdvanced {
+                    DSRow(showDivider: false) {
                         NavigationLink {
                             LogViewerView()
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("VIEW LOGS")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
+                            HStack(spacing: DS.Spacing.md) {
+                                CategoryIcon(symbol: "doc.text.magnifyingglass", palette: .blue, size: 36)
+                                Text("View logs")
+                                    .font(DS.Font.body(.medium))
+                                    .foregroundStyle(DS.Color.accent)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(DS.Color.textMuted)
                             }
                         }
                     }
                 }
             }
-            .padding(.horizontal, 16)
+        }
+        #else
+        EmptyView()
+        #endif
+    }
 
-            TESectionFooter(text: "View app activity logs for troubleshooting.")
+    // MARK: - Section helper
+
+    private func section<Content: View>(
+        title: LocalizedStringKey,
+        footer: LocalizedStringKey? = nil,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        let body = content()
+        return VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+            DSSectionHeader(title: title)
+            DSCard { body }
+            if let footer {
+                Text(footer)
+                    .font(DS.Font.caption())
+                    .foregroundStyle(DS.Color.textMuted)
+                    .padding(.horizontal, DS.Spacing.xs)
+            }
         }
     }
 
-    // MARK: - About Section
-
-    private var aboutSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "ABOUT")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        HStack {
-                            Text("VERSION")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text(AppInfo.versionDisplay)
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.textMuted)
-                        }
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("STORAGE")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text("ON-DEVICE ONLY")
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textMuted)
-                        }
-                    }
-
-                    TERow {
-                        settingsButton("SEND FEEDBACK", icon: "envelope") {
-                            sendFeedbackEmail()
-                        }
-                    }
-
-                    TERow {
-                        Link(destination: URL(string: "https://isome.isolated.tech/privacy")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "hand.raised")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("PRIVACY POLICY")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
-                            }
-                        }
-                    }
-
-                    TERow(showDivider: false) {
-                        Link(destination: URL(string: "https://isome.isolated.tech/terms")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "doc.text")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("TERMS OF SERVICE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
-                            }
-                        }
-                    }
+    private func toggleRow(
+        symbol: String,
+        palette: DS.Palette,
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
+        isOn: Binding<Bool>
+    ) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            CategoryIcon(symbol: symbol, palette: palette, size: 36)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(DS.Font.body(.medium))
+                    .foregroundStyle(DS.Color.textPrimary)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(DS.Font.caption())
+                        .foregroundStyle(DS.Color.textMuted)
                 }
             }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "All data stored locally. Never uploaded to any server.")
+            Spacer(minLength: 0)
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(DS.Color.accentGreen)
         }
     }
 
-    // MARK: - Feedback Email
+    private func compactToggle(symbol: String, palette: DS.Palette, title: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            CategoryIcon(symbol: symbol, palette: palette, size: 36)
+            Text(title)
+                .font(DS.Font.body(.medium))
+                .foregroundStyle(DS.Color.textPrimary)
+            Spacer()
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(DS.Color.accentGreen)
+        }
+    }
+
+    // MARK: - Feedback email
 
     private func sendFeedbackEmail() {
         let subject = "iso.me Feedback"
@@ -849,43 +976,10 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Reusable Row Components
-
-    private func settingsToggle(_ label: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
-        HStack {
-            Text(label)
-                .font(TE.mono(.caption, weight: .medium))
-                .tracking(1)
-                .foregroundStyle(TE.textPrimary)
-            Spacer()
-            Toggle("", isOn: isOn)
-                .labelsHidden()
-                .tint(TE.accent)
-        }
-    }
-
-    private func settingsButton(_ label: LocalizedStringKey, icon: String, color: Color = TE.accent, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(color)
-                Text(label)
-                    .font(TE.mono(.caption, weight: .medium))
-                    .tracking(1)
-                    .foregroundStyle(color)
-                Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(color.opacity(0.5))
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Export Helpers
+    // MARK: - Export helpers
 
     private func exportVisits(format: ExportFormat) {
+        guard storeManager.isPurchased else { showingPaywall = true; return }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportToDefaultFolder(visits: viewModel.allVisits, format: format)
@@ -918,6 +1012,7 @@ struct SettingsView: View {
     }
 
     private func exportLocationPoints(format: ExportFormat) {
+        guard storeManager.isPurchased else { showingPaywall = true; return }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportLocationPointsToDefaultFolder(points: viewModel.locationPoints, format: format)
@@ -932,6 +1027,7 @@ struct SettingsView: View {
     }
 
     private func exportAllData(format: ExportFormat) {
+        guard storeManager.isPurchased else { showingPaywall = true; return }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportCombinedToDefaultFolder(
@@ -957,7 +1053,7 @@ struct SettingsView: View {
     ))
 }
 
-// MARK: - Folder Picker
+// MARK: - Folder picker
 
 struct FolderPicker: UIViewControllerRepresentable {
     let onFolderSelected: (URL?) -> Void
