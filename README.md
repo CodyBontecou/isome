@@ -1,25 +1,25 @@
 # iso.me
 
-A privacy-first location tracking app for iOS and watchOS. Automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and keeps all data on-device. No accounts, no cloud sync, no third-party dependencies.
+A privacy-first location tracking app for iOS and watchOS. Automatically records the places you visit throughout the day, captures routes with high-accuracy GPS logging, and keeps all data on-device. No accounts, no cloud sync, no third-party dependencies.
 
 ## Features
 
 ### Visit Detection
 Automatic background detection of places you arrive at and depart from, powered by `CLLocationManager` visit monitoring. Each visit is reverse-geocoded to show a human-readable address and location name.
 
-### Continuous Tracking
+### Tracking
 High-accuracy GPS tracking that records your exact path. Configurable distance filter (5m-200m) and auto-off timer (30 min to never). Tracked points include altitude, speed, and accuracy metadata.
 
-### Auto-Start on Activity
-Continuous tracking can start automatically when the app detects you're driving, walking, running, or cycling. Uses CoreMotion's `CMMotionActivityManager` to classify device motion. When enabled:
+### Movement Prompt Detection
+Instead of starting recording immediately, iso.me can detect movement (driving, cycling, running, walking) and send a notification prompt. When enabled:
 
 1. Significant location changes (~500m movement) wake the app in the background
 2. CoreMotion is queried for the current activity type
-3. If driving or exercising is detected, continuous tracking starts automatically
-4. When you become stationary, the auto-started session stops automatically
-5. Manually started sessions are never auto-stopped
+3. If configured movement is detected, a notification asks whether to start recording
+4. Tapping the notification opens a confirmation screen with **Start** / **Not now**
+5. If a prompted session starts, it can auto-stop when stationary
 
-Enable this in **Settings > Tracking Defaults > Auto-Start on Activity**.
+Configure this in **Settings > Automation > Prompt on Movement**.
 
 ### Live Activities
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
@@ -34,7 +34,7 @@ Companion watchOS app showing today's visit count, distance traveled, and tracki
 iOS lock screen widget via Live Activities and watchOS complications for quick tracking status.
 
 ### iso.me Pro
-Free tier includes 10 hours of cumulative continuous tracking. A one-time lifetime purchase unlocks unlimited tracking.
+Tracking is always free. A one-time lifetime purchase unlocks data export.
 
 ## Tech Stack
 
@@ -64,7 +64,7 @@ Free tier includes 10 hours of cumulative continuous tracking. A one-time lifeti
 IsoMe/
   Models/
     Visit.swift                    # Visit data model (coordinates, times, address)
-    LocationPoint.swift            # Continuous tracking point model
+    LocationPoint.swift            # Tracking point model
     LocationActivityAttributes.swift  # Live Activity state
   Services/
     LocationManager.swift          # Core location tracking logic
@@ -72,13 +72,11 @@ IsoMe/
     LiveActivityManager.swift      # Live Activity lifecycle
     GeocodingService.swift         # Reverse geocoding with caching
     StoreManager.swift             # In-app purchase management
-    UsageTracker.swift             # Free tier usage tracking
     LogManager.swift               # Crash and debug logging
   ViewModels/
     LocationViewModel.swift        # Data coordination between UI and services
   Views/
     ContentView.swift              # Root view with onboarding and tab navigation
-    TrackingView.swift             # Tracking controls
     MapView.swift                  # Map with visit pins
     SessionPathMapView.swift       # Route path visualization
     SettingsView.swift             # Preferences, export, import, data management
@@ -123,7 +121,7 @@ The app requests the following permissions at runtime:
 
 - **Location (Always)** - Background visit detection and tracking
 - **Location (When in Use)** - Foreground location display
-- **Motion & Fitness** - Activity detection for auto-start feature
+- **Motion & Fitness** - Movement detection and start prompts
 
 ### Entitlements
 
@@ -135,4 +133,4 @@ The app requests the following permissions at runtime:
 
 The app registers the `isome://` URL scheme. Currently supports:
 
-- `isome://stop` - Stops continuous tracking (used by Live Activity)
+- `isome://stop` - Stops tracking (used by Live Activity)

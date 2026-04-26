@@ -1,1 +1,4 @@
 build/
+
+# Local secrets (xcconfig) — track only the .example template
+Config/Gripe.xcconfig

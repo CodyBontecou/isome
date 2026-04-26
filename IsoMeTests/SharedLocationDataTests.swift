@@ -5,34 +5,46 @@ final class SharedLocationDataTests: XCTestCase {
 
     // MARK: - Backward-compatible decoding
 
-    /// Data encoded BEFORE the usesMetricDistanceUnits field was added must
-    /// still decode successfully.  A failure here means existing users will
-    /// crash on launch because SharedLocationData.load() feeds a JSONDecoder.
+    /// Data encoded before the rename to tracking terminology must still decode.
     func testDecodesLegacyPayloadWithoutMetricField() throws {
-        // Simulate the JSON that was persisted before the new field existed.
         let legacyJSON = """
         {
-            "isTrackingEnabled": true,
             "isContinuousTrackingEnabled": false,
             "todayVisitsCount": 3,
             "todayDistanceMeters": 1200.0,
-            "todayPointsCount": 10
+            "todayPointsCount": 10,
+            "continuousTrackingStartTime": null,
+            "continuousTrackingAutoOffHours": 2.0
         }
         """.data(using: .utf8)!
 
         let decoded = try JSONDecoder().decode(SharedLocationData.self, from: legacyJSON)
 
-        XCTAssertTrue(decoded.isTrackingEnabled)
-        XCTAssertFalse(decoded.isContinuousTrackingEnabled)
+        XCTAssertFalse(decoded.isTrackingEnabled)
         XCTAssertNil(decoded.usesMetricDistanceUnits,
                      "Missing key should decode as nil, not crash")
+        XCTAssertEqual(decoded.todayVisitsCount, 3)
     }
 
-    /// Round-trip: encode with the new field, then decode.
+    func testTrackingKeyTakesPrecedenceOverLegacyKey() throws {
+        let mixedJSON = """
+        {
+            "isTrackingEnabled": true,
+            "isContinuousTrackingEnabled": false,
+            "todayVisitsCount": 1,
+            "todayDistanceMeters": 10.0,
+            "todayPointsCount": 1
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(SharedLocationData.self, from: mixedJSON)
+        XCTAssertTrue(decoded.isTrackingEnabled)
+    }
+
+    /// Round-trip: encode with the current fields, then decode.
     func testRoundTripWithMetricField() throws {
         let original = SharedLocationData(
             isTrackingEnabled: true,
-            isContinuousTrackingEnabled: true,
             currentLocationName: "Coffee Shop",
             currentAddress: "123 Main St",
             lastLatitude: 37.7749,
@@ -41,8 +53,8 @@ final class SharedLocationDataTests: XCTestCase {
             todayVisitsCount: 5,
             todayDistanceMeters: 3200,
             todayPointsCount: 42,
-            continuousTrackingStartTime: Date(),
-            continuousTrackingAutoOffHours: 2.0,
+            trackingStartTime: Date(),
+            trackingAutoOffHours: 2.0,
             usesMetricDistanceUnits: false
         )
 
@@ -51,6 +63,11 @@ final class SharedLocationDataTests: XCTestCase {
 
         XCTAssertEqual(decoded.usesMetricDistanceUnits, false)
         XCTAssertEqual(decoded.todayVisitsCount, 5)
+
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(json["isTrackingEnabled"] as? Bool, true)
+        XCTAssertEqual(json["isContinuousTrackingEnabled"] as? Bool, true,
+                       "Encoder should continue emitting legacy key for compatibility")
     }
 
     // MARK: - Formatted distance (metric vs US standard)
@@ -73,7 +90,6 @@ final class SharedLocationDataTests: XCTestCase {
         var d = SharedLocationData.empty
         d.usesMetricDistanceUnits = false
         d.todayDistanceMeters = 30 // ~98 ft
-        // 30 * 3.28084 ≈ 98 ft, miles = 30/1609.344 ≈ 0.019 < 0.1
         XCTAssertEqual(d.formattedDistance, "98 ft")
     }
 

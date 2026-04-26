@@ -5,6 +5,9 @@
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
 
+    <key>GripeAPIKey</key>
+    <string>$(GRIPE_API_KEY)</string>
+
     <key>NSSupportsLiveActivities</key>
     <true/>
     
@@ -21,10 +24,13 @@
     </array>
     
     <key>NSMotionUsageDescription</key>
-    <string>iso.me uses motion data to detect when you start driving or exercising so it can automatically begin recording your trip.</string>
+    <string>iso.me uses motion data to detect movement and notify you so you can choose whether to start recording your trip.</string>
 
     <key>NSHealthShareUsageDescription</key>
     <string>iso.me reads workout data to automatically start recording your trip when you begin an exercise session on your Apple Watch or in the Health app.</string>
+
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>iso.me does not write any data to Health. This entitlement is required by the platform but is unused.</string>
 
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>iso.me needs always-on location access to automatically record the places you visit throughout the day, even when the app is in the background. This enables visit detection and travel tracking.</string>

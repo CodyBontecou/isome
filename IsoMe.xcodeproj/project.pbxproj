@@ -69,6 +69,7 @@
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
 		B2000008212F000100000008 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000004212F000000000004 /* Localizable.xcstrings */; };
 		B2000009212F000100000009 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000005212F000000000005 /* Localizable.xcstrings */; };
+		D1000001212F000100000001 /* GripeSDK in Frameworks */ = {isa = PBXBuildFile; productRef = D1000002212F000100000002 /* GripeSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +206,8 @@
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000004212F000000000004 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000005212F000000000005 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		D2000001212F000100000001 /* Gripe.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Gripe.xcconfig; sourceTree = "<group>"; };
+		D2000003212F000100000003 /* Gripe.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gripe.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +215,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1000001212F000100000001 /* GripeSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,10 +283,20 @@
 				A3FFFFFA212EFFFFFFFF0001 /* IsoMeWatch */,
 				A4FFFFFA212EFFFFFFFF0001 /* IsoMeWatchWidget */,
 				A5FFFFFA212EFFFFFFFF0001 /* Shared */,
+				D2000002212F000100000002 /* Config */,
 				A1FFFFF9212EFFFFFFFF0002 /* Products */,
 				6C56D277F7A90AC5E53EA483 /* Frameworks */,
 				AD8A47404A1FA6D94EF61780 /* IsoMeTests */,
 			);
+			sourceTree = "<group>";
+		};
+		D2000002212F000100000002 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D2000001212F000100000001 /* Gripe.xcconfig */,
+				D2000003212F000100000003 /* Gripe.xcconfig.example */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		A1FFFFF9212EFFFFFFFF0002 /* Products */ = {
@@ -468,6 +482,9 @@
 				A3000012212F000000000012 /* PBXTargetDependency */,
 			);
 			name = IsoMe;
+			packageProductDependencies = (
+				D1000002212F000100000002 /* GripeSDK */,
+			);
 			productName = IsoMe;
 			productReference = A1000000212F000000000000 /* IsoMe.app */;
 			productType = "com.apple.product-type.application";
@@ -585,6 +602,9 @@
 				fr,
 			);
 			mainGroup = A1FFFFF8212EFFFFFFFF0000;
+			packageReferences = (
+				D1000003212F000100000003 /* XCRemoteSwiftPackageReference "gripe-sdk" */,
+			);
 			productRefGroup = A1FFFFF9212EFFFFFFFF0002 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -796,6 +816,7 @@
 		};
 		A1000015212F000000000015 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D2000001212F000100000001 /* Gripe.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -861,6 +882,7 @@
 		};
 		A1000016212F000000000016 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D2000001212F000100000001 /* Gripe.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1211,6 +1233,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D1000003212F000100000003 /* XCRemoteSwiftPackageReference "gripe-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/codybontecou/gripe-sdk";
+			requirement = {
+				kind = exactVersion;
+				version = 0.1.10;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D1000002212F000100000002 /* GripeSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D1000003212F000100000003 /* XCRemoteSwiftPackageReference "gripe-sdk" */;
+			productName = GripeSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 }

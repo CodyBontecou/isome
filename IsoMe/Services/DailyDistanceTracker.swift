@@ -18,7 +18,7 @@ final class DailyDistanceTracker {
 
     /// Record a location update. Only accumulates distance when the user has
     /// moved at least 200m from the previous checkpoint (normalizes across
-    /// continuous tracking and significant-change modes).
+    /// different update cadences).
     func recordLocation(_ location: CLLocation) {
         if let lastCoords = defaults.array(forKey: lastCheckpointKey) as? [Double],
            lastCoords.count == 2 {
