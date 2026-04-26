@@ -93,5 +93,4 @@ extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
     static let stopContinuousTracking = Notification.Name("stopContinuousTracking")
-    static let freeLimitReached = Notification.Name("freeLimitReached")
 }

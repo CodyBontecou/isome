@@ -5,11 +5,8 @@ import SwiftData
 struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
-    @ObservedObject private var usageTracker = UsageTracker.shared
-    @ObservedObject private var storeManager = StoreManager.shared
     @State private var selectedVisit: Visit?
     @State private var showingFilters = false
-    @State private var showingPaywall = false
     @State private var showFilterBar = false
     @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
@@ -38,10 +35,6 @@ struct LocationMapView: View {
         locationManager.isContinuousTrackingEnabled
     }
 
-    private var isLockedOut: Bool {
-        usageTracker.hasExceededFreeLimit && !storeManager.isPurchased
-    }
-    
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
 
@@ -170,8 +163,10 @@ struct LocationMapView: View {
                     MapScaleView()
                 }
 
-                // Top liquid-glass tracking controls
+                // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
+                    Spacer()
+
                     MapTrackingControlPill(
                         viewModel: viewModel,
                         locationManager: locationManager,
@@ -186,37 +181,8 @@ struct LocationMapView: View {
                        let remaining = locationManager.continuousTrackingRemainingTime {
                         MapAutoOffPill(remaining: remaining)
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
-
-                    if !isTracking && !storeManager.isPurchased {
-                        MapUsagePill(
-                            usageTracker: usageTracker,
-                            isLockedOut: isLockedOut,
-                            onTap: {
-                                if isLockedOut { showingPaywall = true }
-                            }
-                        )
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
-                .onChange(of: isTracking) { _, newValue in
-                    if !newValue {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                            trackingPillExpanded = false
-                        }
-                    }
-                }
-
-                // Bottom liquid-glass filter bar with collapsible toggle
-                VStack {
-                    Spacer()
 
                     HStack(spacing: 8) {
                         if showFilterBar {
@@ -252,8 +218,17 @@ struct LocationMapView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
+                .onChange(of: isTracking) { _, newValue in
+                    if !newValue {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                            trackingPillExpanded = false
+                        }
+                    }
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -267,12 +242,6 @@ struct LocationMapView: View {
             .sheet(item: $selectedVisit) { visit in
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
-            }
-            .sheet(isPresented: $showingPaywall) {
-                PaywallView(storeManager: storeManager)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .freeLimitReached)) { _ in
-                showingPaywall = true
             }
             .onAppear {
                 viewModel.loadAllVisits()
@@ -319,10 +288,6 @@ struct LocationMapView: View {
     }
 
     private func handleTrackingTap() {
-        if isLockedOut {
-            showingPaywall = true
-            return
-        }
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             if isTracking {
                 if isContinuousTracking {
@@ -523,79 +488,6 @@ struct MapAutoOffPill: View {
         let minutes = (Int(interval) % 3600) / 60
         if hours > 0 { return "\(hours)H \(minutes)M" }
         return "\(minutes) MIN"
-    }
-}
-
-struct MapUsagePill: View {
-    @ObservedObject var usageTracker: UsageTracker
-    let isLockedOut: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        let totalHours = usageTracker.totalUsageHours
-        let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
-        let progress = min(totalHours / limitHours, 1.0)
-
-        Button(action: onTap) {
-            HStack(spacing: 10) {
-                Text("USAGE")
-                    .font(TE.mono(.caption2, weight: .semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(TE.textMuted)
-
-                GeometryReader { geometry in
-                    let totalWidth = geometry.size.width
-                    let segmentCount = 14
-                    let gap: CGFloat = 2
-                    let segmentWidth = (totalWidth - CGFloat(segmentCount - 1) * gap) / CGFloat(segmentCount)
-                    let filledSegments = Int(Double(segmentCount) * progress)
-
-                    HStack(spacing: gap) {
-                        ForEach(0..<segmentCount, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 1)
-                                .fill(
-                                    index < filledSegments
-                                        ? (progress >= 1.0 ? TE.danger : TE.accent)
-                                        : TE.border.opacity(0.45)
-                                )
-                                .frame(width: segmentWidth, height: 4)
-                        }
-                    }
-                }
-                .frame(height: 4)
-
-                Text("\(totalHours, specifier: "%.1f")/\(Int(limitHours))H")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .tracking(0.8)
-                    .foregroundStyle(TE.textMuted)
-                    .monospacedDigit()
-
-                if isLockedOut {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(TE.accent)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background {
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        Capsule()
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [.white.opacity(0.45), .white.opacity(0.05)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 0.6
-                            )
-                    }
-                    .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
-            }
-        }
-        .buttonStyle(.plain)
     }
 }
 

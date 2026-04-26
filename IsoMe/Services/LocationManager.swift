@@ -25,9 +25,6 @@ final class LocationManager: NSObject, ObservableObject {
     private var continuousTrackingTimer: Timer?
     @Published var continuousTrackingStartTime: Date?
 
-    // Free-tier usage limit timer (stops continuous tracking at 10h for non-purchased users)
-    private var freeLimitTimer: Timer?
-
     // Geocoding service
     private let geocodingService = GeocodingService()
     
@@ -173,12 +170,8 @@ final class LocationManager: NSObject, ObservableObject {
     func stopTracking() {
         // Clean up continuous tracking state first
         if isContinuousTrackingEnabled {
-            // Track usage for paywall
-            UsageTracker.shared.sessionEnded()
             continuousTrackingTimer?.invalidate()
             continuousTrackingTimer = nil
-            freeLimitTimer?.invalidate()
-            freeLimitTimer = nil
             Task {
                 await liveActivityManager.endActivity()
             }
@@ -218,15 +211,6 @@ final class LocationManager: NSObject, ObservableObject {
     func enableContinuousTracking() {
         guard hasLocationPermission else { return }
 
-        // Block start if the free-tier limit is already exhausted.
-        if !StoreManager.shared.isPurchased && UsageTracker.shared.hasExceededFreeLimit {
-            NotificationCenter.default.post(name: .freeLimitReached, object: nil)
-            return
-        }
-
-        // Track usage for paywall
-        UsageTracker.shared.sessionStarted()
-
         isContinuousTrackingEnabled = true
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingStartTime = Date()
@@ -255,21 +239,14 @@ final class LocationManager: NSObject, ObservableObject {
                 }
             }
         }
-
-        scheduleFreeLimitTimerIfNeeded()
     }
 
     func disableContinuousTracking() {
-        // Track usage for paywall
-        UsageTracker.shared.sessionEnded()
-
         wasAutoStarted = false
         isContinuousTrackingEnabled = false
         UserDefaults.standard.set(isContinuousTrackingEnabled, forKey: "isContinuousTrackingEnabled")
         continuousTrackingTimer?.invalidate()
         continuousTrackingTimer = nil
-        freeLimitTimer?.invalidate()
-        freeLimitTimer = nil
         continuousTrackingStartTime = nil
 
         locationManager.stopUpdatingLocation()
@@ -559,47 +536,6 @@ final class LocationManager: NSObject, ObservableObject {
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: "autoStop-\(UUID().uuidString)", content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
-    }
-
-    // MARK: - Free-Tier Limit
-
-    private func scheduleFreeLimitTimerIfNeeded() {
-        freeLimitTimer?.invalidate()
-        freeLimitTimer = nil
-
-        guard !StoreManager.shared.isPurchased else { return }
-
-        let remaining = UsageTracker.shared.remainingFreeSeconds
-        guard remaining > 0 else { return }
-
-        freeLimitTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                self?.handleFreeLimitReached()
-            }
-        }
-    }
-
-    private func handleFreeLimitReached() {
-        // A purchase mid-session cancels enforcement.
-        guard !StoreManager.shared.isPurchased else { return }
-        guard isContinuousTrackingEnabled else { return }
-
-        sendFreeLimitNotification()
-        // disableContinuousTracking flushes UsageTracker.sessionEnded() and stops
-        // location updates. Saved points/visits already live in SwiftData.
-        disableContinuousTracking()
-
-        NotificationCenter.default.post(name: .freeLimitReached, object: nil)
-    }
-
-    private func sendFreeLimitNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Free Tracking Limit Reached"
-        content.body = "You've used your 10 free hours. Tap to unlock unlimited tracking."
-        content.sound = .default
-
-        let request = UNNotificationRequest(identifier: "freeLimit-\(UUID().uuidString)", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
 

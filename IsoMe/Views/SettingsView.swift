@@ -6,7 +6,6 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @StateObject private var exportFolderManager = ExportFolderManager.shared
-    @ObservedObject private var usageTracker = UsageTracker.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
@@ -134,7 +133,7 @@ struct SettingsView: View {
                                 Circle()
                                     .fill(TE.success)
                                     .frame(width: 6, height: 6)
-                                Text("UNLIMITED TRACKING")
+                                Text("EXPORT UNLOCKED")
                                     .font(TE.mono(.caption, weight: .semibold))
                                     .tracking(1)
                                     .foregroundStyle(TE.textPrimary)
@@ -146,24 +145,8 @@ struct SettingsView: View {
                             }
                         }
                     } else {
-                        let totalHours = usageTracker.totalUsageHours
-                        let limitHours = UsageTracker.freeUsageLimitSeconds / 3600
-
                         TERow {
-                            HStack {
-                                Text("USAGE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("\(totalHours, specifier: "%.1f") / \(limitHours, specifier: "%.0f") HR")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .foregroundStyle(usageTracker.hasExceededFreeLimit ? TE.danger : TE.textMuted)
-                            }
-                        }
-
-                        TERow {
-                            settingsButton("UNLOCK UNLIMITED", icon: "lock.open.fill") {
+                            settingsButton("UNLOCK EXPORT", icon: "lock.open.fill") {
                                 showingPaywall = true
                             }
                         }
@@ -179,7 +162,7 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
 
             if !storeManager.isPurchased {
-                TESectionFooter(text: "Free for your first 10 hours. One-time purchase for unlimited use.")
+                TESectionFooter(text: "Tracking is free and unlimited. Unlock data export with a one-time purchase.")
             }
         }
     }
@@ -199,10 +182,6 @@ struct SettingsView: View {
                                 get: { viewModel.locationManager.isTrackingEnabled },
                                 set: { newValue in
                                     if newValue {
-                                        if usageTracker.hasExceededFreeLimit && !storeManager.isPurchased {
-                                            showingPaywall = true
-                                            return
-                                        }
                                         viewModel.startTracking()
                                     } else {
                                         viewModel.stopTracking()
@@ -282,10 +261,6 @@ struct SettingsView: View {
                                 get: { viewModel.locationManager.isContinuousTrackingEnabled },
                                 set: { newValue in
                                     if newValue {
-                                        if usageTracker.hasExceededFreeLimit && !storeManager.isPurchased {
-                                            showingPaywall = true
-                                            return
-                                        }
                                         viewModel.enableContinuousTracking()
                                     } else {
                                         viewModel.disableContinuousTracking()
@@ -886,6 +861,10 @@ struct SettingsView: View {
     // MARK: - Export Helpers
 
     private func exportVisits(format: ExportFormat) {
+        guard storeManager.isPurchased else {
+            showingPaywall = true
+            return
+        }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportToDefaultFolder(visits: viewModel.allVisits, format: format)
@@ -918,6 +897,10 @@ struct SettingsView: View {
     }
 
     private func exportLocationPoints(format: ExportFormat) {
+        guard storeManager.isPurchased else {
+            showingPaywall = true
+            return
+        }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportLocationPointsToDefaultFolder(points: viewModel.locationPoints, format: format)
@@ -932,6 +915,10 @@ struct SettingsView: View {
     }
 
     private func exportAllData(format: ExportFormat) {
+        guard storeManager.isPurchased else {
+            showingPaywall = true
+            return
+        }
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let url = try ExportService.exportCombinedToDefaultFolder(
