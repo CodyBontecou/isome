@@ -1240,7 +1240,7 @@
 			repositoryURL = "https://github.com/codybontecou/gripe-sdk";
 			requirement = {
 				kind = exactVersion;
-				version = 0.1.10;
+				version = 0.1.11;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
