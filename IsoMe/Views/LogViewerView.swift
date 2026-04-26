@@ -6,17 +6,16 @@ struct LogViewerView: View {
 
     var body: some View {
         ZStack {
-            TE.surface.ignoresSafeArea()
+            DS.Color.background.ignoresSafeArea()
 
             if logManager.entries.isEmpty {
-                VStack(spacing: 8) {
+                VStack(spacing: DS.Spacing.sm) {
                     Image(systemName: "doc.text")
-                        .font(.system(size: 24, weight: .light))
-                        .foregroundStyle(TE.textMuted)
-                    Text("NO LOG ENTRIES")
-                        .font(TE.mono(.caption, weight: .medium))
-                        .tracking(2)
-                        .foregroundStyle(TE.textMuted)
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundStyle(DS.Color.textMuted)
+                    Text("No log entries")
+                        .font(DS.Font.body(.medium))
+                        .foregroundStyle(DS.Color.textMuted)
                 }
             } else {
                 ScrollView {
@@ -25,18 +24,13 @@ struct LogViewerView: View {
                             logRow(entry)
                         }
                     }
-                    .padding(.bottom, 32)
+                    .padding(.bottom, DS.Spacing.xxl)
                 }
             }
         }
+        .navigationTitle("Logs")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("LOGS")
-                    .font(TE.mono(.caption, weight: .bold))
-                    .tracking(3)
-                    .foregroundStyle(TE.textMuted)
-            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if !logManager.entries.isEmpty {
                     Button {
@@ -44,20 +38,20 @@ struct LogViewerView: View {
                         showingCopyConfirmation = true
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(TE.accent)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(DS.Color.accent)
                     }
                     Button {
                         logManager.clear()
                     } label: {
                         Image(systemName: "trash")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(TE.danger)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(DS.Color.danger)
                     }
                 }
             }
         }
-        .alert("Copied to Clipboard", isPresented: $showingCopyConfirmation) {
+        .alert("Copied to clipboard", isPresented: $showingCopyConfirmation) {
             Button("OK", role: .cancel) {}
         }
     }
@@ -65,21 +59,21 @@ struct LogViewerView: View {
     private func logRow(_ entry: LogManager.LogEntry) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(entry.display)
-                .font(TE.mono(.caption2, weight: .regular))
+                .font(DS.Font.mono(.caption2))
                 .foregroundStyle(colorForLevel(entry.level))
                 .lineLimit(nil)
                 .textSelection(.enabled)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, DS.Spacing.lg)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func colorForLevel(_ level: LogManager.LogEntry.Level) -> Color {
         switch level {
-        case .info: return TE.textPrimary
-        case .warning: return TE.warning
-        case .error: return TE.danger
+        case .info: return DS.Color.textPrimary
+        case .warning: return DS.Color.warning
+        case .error: return DS.Color.danger
         }
     }
 }

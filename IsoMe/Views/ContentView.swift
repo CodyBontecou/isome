@@ -130,58 +130,55 @@ private struct ActivityStartPromptDecisionView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 18) {
-                VStack(spacing: 8) {
-                    Text("MOVEMENT DETECTED")
-                        .font(TE.mono(.caption, weight: .bold))
-                        .tracking(2)
-                        .foregroundStyle(TE.textMuted)
+            ZStack {
+                DS.Color.background.ignoresSafeArea()
 
-                    Text(prompt.reason.capitalized)
-                        .font(.title3.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(TE.textPrimary)
+                VStack(spacing: DS.Spacing.lg) {
+                    VStack(spacing: DS.Spacing.sm) {
+                        CategoryIcon(symbol: "figure.walk.motion", palette: .purple, size: 56)
+                            .padding(.bottom, DS.Spacing.xs)
 
-                    Text("Start tracking now?")
-                        .font(.subheadline)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(TE.textMuted)
-                }
+                        Text(prompt.reason.capitalized)
+                            .font(DS.Font.title())
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(DS.Color.textPrimary)
 
-                VStack(spacing: 10) {
-                    Button {
-                        onStart()
-                        dismiss()
-                    } label: {
-                        Text("START RECORDING")
-                            .font(TE.mono(.caption, weight: .semibold))
-                            .tracking(1.5)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(TE.accent, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .foregroundStyle(Color.white)
+                        Text("Start tracking now?")
+                            .font(DS.Font.body())
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(DS.Color.textMuted)
                     }
 
-                    Button {
-                        onNotNow()
-                        dismiss()
-                    } label: {
-                        Text("NOT NOW")
-                            .font(TE.mono(.caption, weight: .semibold))
-                            .tracking(1.5)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(TE.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .stroke(TE.border, lineWidth: 1)
-                            }
-                            .foregroundStyle(TE.textPrimary)
+                    VStack(spacing: DS.Spacing.sm) {
+                        PrimaryButton(title: "Start recording") {
+                            onStart()
+                            dismiss()
+                        }
+
+                        Button {
+                            onNotNow()
+                            dismiss()
+                        } label: {
+                            Text("Not now")
+                                .font(DS.Font.headline())
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, DS.Spacing.md)
+                                .background(
+                                    RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                                        .fill(DS.Color.card)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: DS.Radius.tile, style: .continuous)
+                                                .stroke(DS.Color.divider, lineWidth: 1)
+                                        )
+                                )
+                                .foregroundStyle(DS.Color.textPrimary)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
+                .padding(DS.Spacing.lg)
             }
-            .padding(20)
-            .navigationTitle("Start Tracking")
+            .navigationTitle("Start tracking")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -189,8 +186,8 @@ private struct ActivityStartPromptDecisionView: View {
                         onNotNow()
                         dismiss()
                     }
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .foregroundStyle(TE.textMuted)
+                    .font(DS.Font.body(.medium))
+                    .foregroundStyle(DS.Color.textMuted)
                 }
             }
         }

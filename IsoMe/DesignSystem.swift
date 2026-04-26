@@ -2,8 +2,7 @@ import SwiftUI
 
 // MARK: - Tokens
 
-/// New design system replacing TEDesign. Promotes the existing OnboardPalette
-/// values to canonical app-wide tokens. Coexists with TE during migration.
+/// Canonical design tokens for the iso.me app.
 enum DS {
     enum Color {
         // Base
