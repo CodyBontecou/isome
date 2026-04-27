@@ -6,7 +6,5 @@
     <array>
         <string>group.com.bontecou.isome</string>
     </array>
-    <key>com.apple.developer.healthkit</key>
-    <true/>
 </dict>
 </plist>
