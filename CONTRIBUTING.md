@@ -8,6 +8,7 @@ Thanks for your interest in contributing! iso.me is open source under the [AGPL-
 - **File a bug** — open an issue with reproduction steps, iOS version, and device.
 - **Propose a feature** — start a thread in [GitHub Discussions](https://github.com/CodyBontecou/isome/discussions) before opening a large PR, so we can align on scope.
 - **Improve docs** — typo fixes and clearer explanations are always appreciated.
+- **Hang out** — join the [Isolated Tech Discord](https://discord.gg/jNRWSSSz4N) and say hi in `#iso-me-chat`. Pick the **iso.me** option in onboarding to unlock the channel.
 
 ## Development setup
 
