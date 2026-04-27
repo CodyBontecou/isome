@@ -436,27 +436,29 @@ private struct OnboardingView: View {
 
             Spacer()
 
-            Button {
-                handlePrimaryAction()
-            } label: {
-                HStack(spacing: 6) {
-                    Text(primaryButtonTitle.uppercased())
+            if !isAwaitingPermissionRequest {
+                Button {
+                    handlePrimaryAction()
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(primaryButtonTitle.uppercased())
 
-                    Image(systemName: selectedPage == pageCount - 1 ? "checkmark" : "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
+                        Image(systemName: selectedPage == pageCount - 1 ? "checkmark" : "chevron.right")
+                            .font(.system(size: 11, weight: .semibold))
+                    }
                 }
+                .buttonStyle(OnboardingPrimaryButtonStyle())
             }
-            .buttonStyle(OnboardingPrimaryButtonStyle())
         }
+    }
+
+    private var isAwaitingPermissionRequest: Bool {
+        selectedPage == 2 && locationManager.authorizationStatus == .notDetermined
     }
 
     private var primaryButtonTitle: String {
         if selectedPage == pageCount - 1 {
             return String(localized: "Get Started")
-        }
-
-        if selectedPage == 2 && locationManager.authorizationStatus == .notDetermined {
-            return String(localized: "Skip")
         }
 
         return String(localized: "Next")
