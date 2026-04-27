@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import ActivityKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
@@ -20,10 +19,7 @@ struct SettingsView: View {
     @State private var importErrorMessage: String?
     @State private var showingImportError = false
 
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
-    @AppStorage("autoStartOnActivity") private var autoStartOnActivity = false
-    @AppStorage("autoStartOnDistance") private var autoStartOnDistance = false
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
@@ -39,8 +35,6 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         purchaseSection
                         trackingSection
-                        continuousTrackingSection
-                        defaultsSection
                         unitsSection
                         mapDisplaySection
                         exportFolderSection
@@ -215,6 +209,56 @@ struct SettingsView: View {
                         }
                     }
 
+                    TERow {
+                        settingsToggle("START ON LAUNCH", isOn: $defaultLocationTrackingEnabled)
+                    }
+
+                    TERow {
+                        HStack {
+                            Text("DISTANCE FILTER")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { viewModel.locationManager.distanceFilter },
+                                set: { viewModel.locationManager.setDistanceFilter($0) }
+                            )) {
+                                Text("5m").tag(5.0)
+                                Text("10m").tag(10.0)
+                                Text("25m").tag(25.0)
+                                Text("50m").tag(50.0)
+                                Text("100m").tag(100.0)
+                                Text("200m").tag(200.0)
+                            }
+                            .labelsHidden()
+                            .tint(TE.accent)
+                        }
+                    }
+
+                    TERow {
+                        HStack {
+                            Text("STOP AFTER")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { viewModel.locationManager.stopAfterHours },
+                                set: { viewModel.locationManager.setStopAfterHours($0) }
+                            )) {
+                                Text("Never").tag(0.0)
+                                Text("1h").tag(1.0)
+                                Text("2h").tag(2.0)
+                                Text("4h").tag(4.0)
+                                Text("8h").tag(8.0)
+                                Text("12h").tag(12.0)
+                            }
+                            .labelsHidden()
+                            .tint(TE.accent)
+                        }
+                    }
+
                     TERow(showDivider: false) {
                         settingsToggle("LOCATION NAMES", isOn: $allowNetworkGeocoding)
                     }
@@ -222,7 +266,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Visit monitoring tracks places you visit. Significant location changes provides a trail between visits. Location names are looked up when available.")
+            TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
         }
     }
 
@@ -243,167 +287,6 @@ struct SettingsView: View {
         case .authorizedWhenInUse: return TE.accent.opacity(0.7)
         case .denied, .restricted: return TE.danger
         default: return TE.textMuted
-        }
-    }
-
-    // MARK: - Continuous Tracking Section
-
-    private var continuousTrackingSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "HIGH-ACCURACY MODE")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        settingsToggle(
-                            "CONTINUOUS",
-                            isOn: Binding(
-                                get: { viewModel.locationManager.isContinuousTrackingEnabled },
-                                set: { newValue in
-                                    if newValue {
-                                        viewModel.enableContinuousTracking()
-                                    } else {
-                                        viewModel.disableContinuousTracking()
-                                    }
-                                }
-                            )
-                        )
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("LIVE ACTIVITY")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            if ActivityAuthorizationInfo().areActivitiesEnabled {
-                                if LiveActivityManager.shared.isActivityActive {
-                                    Text("ACTIVE")
-                                        .font(TE.mono(.caption2, weight: .medium))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.success)
-                                } else {
-                                    Text("READY")
-                                        .font(TE.mono(.caption2, weight: .medium))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.textMuted)
-                                }
-                            } else {
-                                Text("DISABLED")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.warning)
-                            }
-                        }
-                    }
-
-                    TERow {
-                        HStack {
-                            Text("AUTO-OFF")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { viewModel.locationManager.continuousTrackingAutoOffHours },
-                                set: {
-                                    viewModel.locationManager.continuousTrackingAutoOffHours = $0
-                                    UserDefaults.standard.set($0, forKey: "continuousTrackingAutoOffHours")
-                                }
-                            )) {
-                                Text("30m").tag(0.5)
-                                Text("1h").tag(1.0)
-                                Text("2h").tag(2.0)
-                                Text("4h").tag(4.0)
-                                Text("8h").tag(8.0)
-                                Text("Never").tag(0.0)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
-                    }
-
-                    TERow(showDivider: false) {
-                        HStack {
-                            Text("DISTANCE FILTER")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { viewModel.locationManager.distanceFilter },
-                                set: {
-                                    viewModel.locationManager.distanceFilter = $0
-                                    UserDefaults.standard.set($0, forKey: "distanceFilter")
-                                }
-                            )) {
-                                Text("5m").tag(5.0)
-                                Text("10m").tag(10.0)
-                                Text("25m").tag(25.0)
-                                Text("50m").tag(50.0)
-                                Text("100m").tag(100.0)
-                                Text("200m").tag(200.0)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "High battery usage. Records your exact path between visits.")
-        }
-    }
-
-    // MARK: - Defaults Section
-
-    private var defaultsSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "TRACKING DEFAULTS")
-
-            TECard {
-                VStack(spacing: 0) {
-                    TERow {
-                        settingsToggle("LOCATION ON START", isOn: $defaultLocationTrackingEnabled)
-                    }
-
-                    TERow {
-                        settingsToggle("CONTINUOUS MODE", isOn: $defaultContinuousTracking)
-                    }
-
-                    TERow {
-                        settingsToggle("AUTO-START ON ACTIVITY", isOn: Binding(
-                            get: { autoStartOnActivity },
-                            set: { newValue in
-                                autoStartOnActivity = newValue
-                                viewModel.locationManager.setAutoStartOnActivity(newValue)
-                            }
-                        ))
-                    }
-
-                    TERow {
-                        settingsToggle("AUTO-START ON WORKOUT", isOn: Binding(
-                            get: { viewModel.locationManager.autoStartOnWorkout },
-                            set: { viewModel.locationManager.setAutoStartOnWorkout($0) }
-                        ))
-                    }
-
-                    TERow(showDivider: false) {
-                        settingsToggle("AUTO-START ON DISTANCE", isOn: Binding(
-                            get: { autoStartOnDistance },
-                            set: { newValue in
-                                autoStartOnDistance = newValue
-                                viewModel.locationManager.setAutoStartOnDistance(newValue)
-                            }
-                        ))
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: "Auto-start begins continuous tracking when motion activity, an Apple Watch workout, or above-average daily travel is detected.")
         }
     }
 
