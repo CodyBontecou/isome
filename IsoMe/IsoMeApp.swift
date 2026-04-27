@@ -76,11 +76,10 @@ struct IsoMeApp: App {
 
     private func handleDeepLink(_ url: URL) {
         guard url.scheme == "isome" else { return }
-        
+
         switch url.host {
         case "stop":
-            // Stop continuous tracking
-            NotificationCenter.default.post(name: .stopContinuousTracking, object: nil)
+            NotificationCenter.default.post(name: .stopTracking, object: nil)
         default:
             break
         }
@@ -92,5 +91,5 @@ struct IsoMeApp: App {
 extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
-    static let stopContinuousTracking = Notification.Name("stopContinuousTracking")
+    static let stopTracking = Notification.Name("stopTracking")
 }

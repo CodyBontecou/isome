@@ -44,8 +44,7 @@ struct ContentView: View {
                 // tracking on, skip onboarding automatically the first time this version runs.
                 if UserDefaults.standard.object(forKey: "hasCompletedOnboarding") == nil {
                     let hasExistingSetup = manager.authorizationStatus != .notDetermined ||
-                        UserDefaults.standard.bool(forKey: "isTrackingEnabled") ||
-                        UserDefaults.standard.bool(forKey: "isContinuousTrackingEnabled")
+                        UserDefaults.standard.bool(forKey: "isTrackingEnabled")
                     hasCompletedOnboarding = hasExistingSetup
                 }
             }
@@ -78,15 +77,9 @@ struct ContentView: View {
         let enableTracking = defaults.object(forKey: "defaultLocationTrackingEnabled") == nil
             ? true
             : defaults.bool(forKey: "defaultLocationTrackingEnabled")
-        let enableContinuous = defaults.object(forKey: "defaultContinuousTracking") == nil
-            ? true
-            : defaults.bool(forKey: "defaultContinuousTracking")
 
         if enableTracking {
             viewModel.startTracking()
-        }
-        if enableContinuous {
-            viewModel.enableContinuousTracking()
         }
     }
 }
@@ -133,7 +126,6 @@ private struct OnboardingView: View {
     @State private var selectedPage = 0
     @State private var startTrackingWhenDone = false
 
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
 
     private let pageCount = 4
@@ -380,12 +372,6 @@ private struct OnboardingView: View {
                     icon: "location.fill",
                     title: "Location permission",
                     value: locationManager.authorizationStatus.onboardingLabel
-                )
-
-                OnboardingSummaryRow(
-                    icon: "bolt.fill",
-                    title: "Default mode",
-                    value: defaultContinuousTracking ? "Continuous" : "Visit only"
                 )
 
                 OnboardingSummaryRow(

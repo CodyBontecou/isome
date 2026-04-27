@@ -17,7 +17,6 @@ final class LiveActivityManager: ObservableObject {
     private var locationsRecorded: Int = 0
     private var totalDistance: Double = 0
     private var lastLocation: CLLocation?
-    private var currentTrackingMode: LocationActivityAttributes.ContentState.TrackingMode = .visits
     private var currentLocationName: String?
     private var currentRemainingSeconds: Int?
     private var trackedCoordinates: [CLLocationCoordinate2D] = []
@@ -42,7 +41,7 @@ final class LiveActivityManager: ObservableObject {
     }
     
     /// Start a new Live Activity for location tracking
-    func startActivity(mode: LocationActivityAttributes.ContentState.TrackingMode, autoOffSeconds: Int?) {
+    func startActivity(autoStopSeconds: Int?) {
         #if DEBUG
         print("🟡 LiveActivityManager.startActivity called")
         print("   areActivitiesEnabled: \(areActivitiesEnabled)")
@@ -56,41 +55,38 @@ final class LiveActivityManager: ObservableObject {
             #endif
             return
         }
-        
+
         // End any existing activities first
         Task {
             await endAllActivities()
-            await startActivityInternal(mode: mode, autoOffSeconds: autoOffSeconds)
+            await startActivityInternal(autoStopSeconds: autoStopSeconds)
         }
     }
-    
-    private func startActivityInternal(mode: LocationActivityAttributes.ContentState.TrackingMode, autoOffSeconds: Int?) async {
+
+    private func startActivityInternal(autoStopSeconds: Int?) async {
         startTime = Date()
         locationsRecorded = 0
         totalDistance = 0
         lastLocation = nil
-        currentTrackingMode = mode
         currentLocationName = nil
-        currentRemainingSeconds = autoOffSeconds
+        currentRemainingSeconds = autoStopSeconds
         trackedCoordinates = []
         mapSnapshotVersion = 0
 
         let attributes = LocationActivityAttributes(startTime: startTime!)
         let initialState = LocationActivityAttributes.ContentState(
-            trackingMode: mode,
             locationName: nil,
             locationsRecorded: 0,
             distanceTraveled: 0,
-            remainingSeconds: autoOffSeconds,
+            remainingSeconds: autoStopSeconds,
             lastUpdate: Date(),
             usesMetricDistanceUnits: usesMetricDistanceUnits,
             mapSnapshotVersion: 0
         )
-        
+
         #if DEBUG
         print("🟢 Requesting Live Activity...")
-        print("   mode: \(mode)")
-        print("   autoOffSeconds: \(String(describing: autoOffSeconds))")
+        print("   autoStopSeconds: \(String(describing: autoStopSeconds))")
         #endif
 
         do {
@@ -110,16 +106,15 @@ final class LiveActivityManager: ObservableObject {
             #endif
         }
     }
-    
+
     /// Update the Live Activity with new location data
     func updateActivity(
         location: CLLocation?,
         locationName: String? = nil,
-        remainingSeconds: Int? = nil,
-        mode: LocationActivityAttributes.ContentState.TrackingMode
+        remainingSeconds: Int? = nil
     ) {
         guard let activity = currentActivity else { return }
-        
+
         // Update distance if we have a new location
         if let newLocation = location {
             if let last = lastLocation {
@@ -134,15 +129,13 @@ final class LiveActivityManager: ObservableObject {
                 generateMapSnapshot()
             }
         }
-        
-        currentTrackingMode = mode
+
         if let locationName {
             currentLocationName = locationName
         }
         currentRemainingSeconds = remainingSeconds
 
         let updatedState = LocationActivityAttributes.ContentState(
-            trackingMode: currentTrackingMode,
             locationName: currentLocationName,
             locationsRecorded: locationsRecorded,
             distanceTraveled: totalDistance,
@@ -151,20 +144,19 @@ final class LiveActivityManager: ObservableObject {
             usesMetricDistanceUnits: usesMetricDistanceUnits,
             mapSnapshotVersion: mapSnapshotVersion
         )
-        
+
         Task {
             await activity.update(
                 ActivityContent(state: updatedState, staleDate: nil)
             )
         }
     }
-    
+
     /// End the current Live Activity
     func endActivity() async {
         guard let activity = currentActivity else { return }
-        
+
         let finalState = LocationActivityAttributes.ContentState(
-            trackingMode: .visits,
             locationName: "Tracking Stopped",
             locationsRecorded: locationsRecorded,
             distanceTraveled: totalDistance,
@@ -173,16 +165,15 @@ final class LiveActivityManager: ObservableObject {
             usesMetricDistanceUnits: usesMetricDistanceUnits,
             mapSnapshotVersion: mapSnapshotVersion
         )
-        
+
         await activity.end(
             ActivityContent(state: finalState, staleDate: nil),
             dismissalPolicy: .immediate
         )
-        
+
         currentActivity = nil
         isActivityActive = false
         startTime = nil
-        currentTrackingMode = .visits
         currentLocationName = nil
         currentRemainingSeconds = nil
         #if DEBUG
@@ -196,8 +187,7 @@ final class LiveActivityManager: ObservableObject {
         updateActivity(
             location: nil,
             locationName: currentLocationName,
-            remainingSeconds: currentRemainingSeconds,
-            mode: currentTrackingMode
+            remainingSeconds: currentRemainingSeconds
         )
     }
     
@@ -231,7 +221,7 @@ final class LiveActivityManager: ObservableObject {
                     try data.write(to: url, options: .atomic)
                     self.mapSnapshotVersion += 1
                     // Push the updated version to the Live Activity
-                    self.updateActivity(location: nil, mode: self.currentTrackingMode)
+                    self.updateActivity(location: nil)
                 } catch {
                     #if DEBUG
                     print("❌ Failed to write map snapshot: \(error)")
@@ -325,7 +315,6 @@ final class LiveActivityManager: ObservableObject {
         }
         currentActivity = nil
         isActivityActive = false
-        currentTrackingMode = .visits
         currentLocationName = nil
         currentRemainingSeconds = nil
     }

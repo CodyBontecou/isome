@@ -18,7 +18,6 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
-    @AppStorage("defaultContinuousTracking") private var defaultContinuousTracking = true
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
 
     init(viewModel: LocationViewModel) {
@@ -27,12 +26,7 @@ struct LocationMapView: View {
     }
 
     private var isTracking: Bool {
-        locationManager.isContinuousTrackingEnabled ||
-        (!defaultContinuousTracking && locationManager.isTrackingEnabled)
-    }
-
-    private var isContinuousTracking: Bool {
-        locationManager.isContinuousTrackingEnabled
+        locationManager.isTrackingEnabled
     }
 
     // Minimum distance in meters between points to show as markers
@@ -48,7 +42,7 @@ struct LocationMapView: View {
     }
 
     var activeSessionPoints: [LocationPoint] {
-        guard locationManager.isContinuousTrackingEnabled else { return [] }
+        guard locationManager.isTrackingEnabled else { return [] }
         let points = viewModel.sessionLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
@@ -171,14 +165,13 @@ struct LocationMapView: View {
                         viewModel: viewModel,
                         locationManager: locationManager,
                         isTracking: isTracking,
-                        isContinuousTracking: isContinuousTracking,
                         isExpanded: $trackingPillExpanded,
                         onPrimaryTap: handleTrackingTap
                     )
                     .frame(maxWidth: .infinity, alignment: .trailing)
 
-                    if isContinuousTracking,
-                       let remaining = locationManager.continuousTrackingRemainingTime {
+                    if isTracking,
+                       let remaining = locationManager.remainingTime {
                         MapAutoOffPill(remaining: remaining)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -222,7 +215,6 @@ struct LocationMapView: View {
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
                 .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isContinuousTracking)
                 .onChange(of: isTracking) { _, newValue in
                     if !newValue {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
@@ -247,12 +239,12 @@ struct LocationMapView: View {
                 viewModel.loadAllVisits()
                 viewModel.loadLocationPoints()
 
-                if locationManager.isContinuousTrackingEnabled {
+                if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
             }
-            .onChange(of: locationManager.isContinuousTrackingEnabled) { _, isEnabled in
+            .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
                     attemptAutoFocusSession()
@@ -290,17 +282,9 @@ struct LocationMapView: View {
     private func handleTrackingTap() {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             if isTracking {
-                if isContinuousTracking {
-                    viewModel.disableContinuousTracking()
-                }
                 viewModel.stopTracking()
             } else {
-                if defaultLocationTrackingEnabled {
-                    viewModel.startTracking()
-                }
-                if defaultContinuousTracking {
-                    viewModel.enableContinuousTracking()
-                }
+                viewModel.startTracking()
             }
         }
     }
@@ -312,7 +296,6 @@ struct MapTrackingControlPill: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject var locationManager: LocationManager
     let isTracking: Bool
-    let isContinuousTracking: Bool
     @Binding var isExpanded: Bool
     let onPrimaryTap: () -> Void
 
@@ -382,7 +365,7 @@ struct MapTrackingControlPill: View {
                     value: pulseOpacity
                 )
 
-            if isContinuousTracking {
+            if isTracking {
                 TimelineView(.periodic(from: .now, by: 1.0)) { _ in
                     Text(viewModel.formattedSessionTrackingDuration)
                         .font(TE.mono(.subheadline, weight: .semibold))
@@ -391,7 +374,7 @@ struct MapTrackingControlPill: View {
                         .contentTransition(.numericText())
                 }
             } else {
-                Text(isTracking ? "TRACKING" : "STANDBY")
+                Text("STANDBY")
                     .font(TE.mono(.caption, weight: .semibold))
                     .tracking(1.8)
                     .foregroundStyle(TE.textMuted)

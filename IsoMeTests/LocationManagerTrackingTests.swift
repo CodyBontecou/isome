@@ -11,36 +11,35 @@ final class LocationManagerTrackingTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        manager = LocationManager()
-        // Clear any persisted state from prior runs
+        // Clear any persisted state from prior runs before instantiating
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "isContinuousTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "continuousTrackingAutoOffHours")
+        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
+        UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        manager = LocationManager()
     }
 
     override func tearDown() {
         manager = nil
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "isContinuousTrackingEnabled")
+        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
+        UserDefaults.standard.removeObject(forKey: "distanceFilter")
         super.tearDown()
     }
 
     // MARK: - stopTracking must fully clean up
 
-    /// stopTracking() must reset isContinuousTrackingEnabled AND
-    /// clear the continuous tracking timer + start time so the next
-    /// start cycle doesn't see stale state.
-    func testStopTrackingClearsContinuousState() {
-        // Simulate that continuous tracking was previously active
-        manager.isContinuousTrackingEnabled = true
-        manager.continuousTrackingStartTime = Date()
+    /// stopTracking() must reset isTrackingEnabled and clear the start time
+    /// so the next start cycle doesn't see stale state.
+    func testStopTrackingClearsState() {
+        // Simulate that tracking was previously active
+        manager.isTrackingEnabled = true
+        manager.trackingStartTime = Date()
 
         manager.stopTracking()
 
         XCTAssertFalse(manager.isTrackingEnabled)
-        XCTAssertFalse(manager.isContinuousTrackingEnabled)
-        XCTAssertNil(manager.continuousTrackingStartTime,
-                     "stopTracking must nil out continuousTrackingStartTime")
+        XCTAssertNil(manager.trackingStartTime,
+                     "stopTracking must nil out trackingStartTime")
     }
 
     /// After stopTracking(), the Live Activity manager should not
@@ -56,16 +55,24 @@ final class LocationManagerTrackingTests: XCTestCase {
                        "stopTracking must end the Live Activity")
     }
 
-    /// Calling stopTracking() followed by startTracking() +
-    /// enableContinuousTracking() should not leave leftover timer state.
-    func testStopThenRestartHasCleanTimerState() {
-        // Arrange – simulate previous continuous session
-        manager.continuousTrackingStartTime = Date().addingTimeInterval(-3600)
+    // MARK: - Persisted defaults
 
-        // Act – stop, then restart
-        manager.stopTracking()
+    /// stopAfterHours defaults to 0 (Never) so a fresh user won't see
+    /// surprise auto-stops.
+    func testStopAfterHoursDefaultsToNever() {
+        XCTAssertEqual(manager.stopAfterHours, 0.0)
+    }
 
-        XCTAssertNil(manager.continuousTrackingStartTime,
-                     "After stop, start time must be nil before restarting")
+    /// Distance filter defaults to 5m (the most aggressive available)
+    /// to maximize captured points by default.
+    func testDistanceFilterDefaultsToFiveMeters() {
+        XCTAssertEqual(manager.distanceFilter, 5.0)
+    }
+
+    /// setStopAfterHours persists across reinstantiation.
+    func testStopAfterHoursIsPersisted() {
+        manager.setStopAfterHours(2.0)
+        let fresh = LocationManager()
+        XCTAssertEqual(fresh.stopAfterHours, 2.0)
     }
 }

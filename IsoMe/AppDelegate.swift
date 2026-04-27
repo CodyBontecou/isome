@@ -28,12 +28,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             print("App launched from location event")
         }
 
-        // Re-register HealthKit workout observer for background delivery
-        // (must be set up on every launch for background delivery to work)
-        if UserDefaults.standard.bool(forKey: "autoStartOnWorkout") {
-            HealthKitWorkoutObserver.shared.startObserving()
-        }
-
         return true
     }
 

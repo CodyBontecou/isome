@@ -121,7 +121,7 @@ final class LocationViewModel {
 
     // Session-specific location points (only points from current tracking session)
     var sessionLocationPoints: [LocationPoint] {
-        guard let sessionStart = locationManager.continuousTrackingStartTime else {
+        guard let sessionStart = locationManager.trackingStartTime else {
             return []
         }
         return todayLocationPoints.filter { $0.timestamp >= sessionStart }
@@ -129,7 +129,7 @@ final class LocationViewModel {
 
     // Session tracking stats
     var sessionTrackingDuration: TimeInterval {
-        guard let sessionStart = locationManager.continuousTrackingStartTime else { return 0 }
+        guard let sessionStart = locationManager.trackingStartTime else { return 0 }
         return Date().timeIntervalSince(sessionStart)
     }
 
@@ -340,13 +340,5 @@ final class LocationViewModel {
 
     func stopTracking() {
         locationManager.stopTracking()
-    }
-
-    func enableContinuousTracking() {
-        locationManager.enableContinuousTracking()
-    }
-
-    func disableContinuousTracking() {
-        locationManager.disableContinuousTracking()
     }
 }

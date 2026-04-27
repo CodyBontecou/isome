@@ -13,14 +13,14 @@ struct IsoMeLiveActivity: Widget {
                 // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 4) {
-                        Image(systemName: context.state.trackingMode == .continuous ? "location.fill" : "mappin.circle.fill")
+                        Image(systemName: "location.fill")
                             .foregroundStyle(.blue)
-                        Text(context.state.trackingMode.rawValue)
+                        Text("Tracking")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 DynamicIslandExpandedRegion(.trailing) {
                     if let remaining = context.state.remainingSeconds {
                         Text(formatTime(remaining))
@@ -29,7 +29,7 @@ struct IsoMeLiveActivity: Widget {
                             .foregroundStyle(.orange)
                     }
                 }
-                
+
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 2) {
                         if let name = context.state.locationName {
@@ -51,7 +51,7 @@ struct IsoMeLiveActivity: Widget {
                         .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack {
                         Text("Tracking since \(context.attributes.startTime, style: .time)")
@@ -60,7 +60,7 @@ struct IsoMeLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                Image(systemName: context.state.trackingMode == .continuous ? "location.fill" : "mappin.circle.fill")
+                Image(systemName: "location.fill")
                     .foregroundStyle(.blue)
             } compactTrailing: {
                 Text("\(context.state.locationsRecorded)")
@@ -72,7 +72,7 @@ struct IsoMeLiveActivity: Widget {
             }
         }
     }
-    
+
     private func formatTime(_ seconds: Int) -> String {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
@@ -81,7 +81,7 @@ struct IsoMeLiveActivity: Widget {
         }
         return "\(minutes)m"
     }
-    
+
     private func formatDistance(_ meters: Double, usesMetricDistanceUnits: Bool) -> String {
         DistanceFormatter.format(meters: meters, usesMetric: usesMetricDistanceUnits)
     }
@@ -190,7 +190,6 @@ struct LockScreenView: View {
     IsoMeLiveActivity()
 } contentStates: {
     LocationActivityAttributes.ContentState(
-        trackingMode: .continuous,
         locationName: "Coffee Shop",
         locationsRecorded: 42,
         distanceTraveled: 1234,
@@ -198,7 +197,6 @@ struct LockScreenView: View {
         lastUpdate: .now
     )
     LocationActivityAttributes.ContentState(
-        trackingMode: .visits,
         locationName: nil,
         locationsRecorded: 5,
         distanceTraveled: 8500,

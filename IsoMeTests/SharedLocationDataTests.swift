@@ -13,7 +13,6 @@ final class SharedLocationDataTests: XCTestCase {
         let legacyJSON = """
         {
             "isTrackingEnabled": true,
-            "isContinuousTrackingEnabled": false,
             "todayVisitsCount": 3,
             "todayDistanceMeters": 1200.0,
             "todayPointsCount": 10
@@ -23,16 +22,34 @@ final class SharedLocationDataTests: XCTestCase {
         let decoded = try JSONDecoder().decode(SharedLocationData.self, from: legacyJSON)
 
         XCTAssertTrue(decoded.isTrackingEnabled)
-        XCTAssertFalse(decoded.isContinuousTrackingEnabled)
         XCTAssertNil(decoded.usesMetricDistanceUnits,
                      "Missing key should decode as nil, not crash")
     }
 
-    /// Round-trip: encode with the new field, then decode.
-    func testRoundTripWithMetricField() throws {
+    /// Data encoded with the OLD continuous-tracking fields must still decode.
+    /// Extra unknown keys should be silently ignored.
+    func testDecodesPayloadWithRemovedContinuousFields() throws {
+        let legacyJSON = """
+        {
+            "isTrackingEnabled": true,
+            "isContinuousTrackingEnabled": true,
+            "todayVisitsCount": 3,
+            "todayDistanceMeters": 1200.0,
+            "todayPointsCount": 10,
+            "continuousTrackingStartTime": -1000,
+            "continuousTrackingAutoOffHours": 2.0
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(SharedLocationData.self, from: legacyJSON)
+        XCTAssertTrue(decoded.isTrackingEnabled)
+        XCTAssertEqual(decoded.todayVisitsCount, 3)
+    }
+
+    /// Round-trip: encode and decode the new struct.
+    func testRoundTrip() throws {
         let original = SharedLocationData(
             isTrackingEnabled: true,
-            isContinuousTrackingEnabled: true,
             currentLocationName: "Coffee Shop",
             currentAddress: "123 Main St",
             lastLatitude: 37.7749,
@@ -41,8 +58,8 @@ final class SharedLocationDataTests: XCTestCase {
             todayVisitsCount: 5,
             todayDistanceMeters: 3200,
             todayPointsCount: 42,
-            continuousTrackingStartTime: Date(),
-            continuousTrackingAutoOffHours: 2.0,
+            trackingStartTime: Date(),
+            stopAfterHours: 2.0,
             usesMetricDistanceUnits: false
         )
 
@@ -51,6 +68,20 @@ final class SharedLocationDataTests: XCTestCase {
 
         XCTAssertEqual(decoded.usesMetricDistanceUnits, false)
         XCTAssertEqual(decoded.todayVisitsCount, 5)
+        XCTAssertEqual(decoded.stopAfterHours, 2.0)
+    }
+
+    // MARK: - Tracking status (2-state)
+
+    func testTrackingStatusOn() {
+        var d = SharedLocationData.empty
+        d.isTrackingEnabled = true
+        XCTAssertEqual(d.trackingStatus, "Tracking")
+    }
+
+    func testTrackingStatusOff() {
+        let d = SharedLocationData.empty
+        XCTAssertEqual(d.trackingStatus, "Off")
     }
 
     // MARK: - Formatted distance (metric vs US standard)
