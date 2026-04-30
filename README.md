@@ -10,6 +10,12 @@ iso.me is a location tracking app for iOS and watchOS. It automatically records 
 
 **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
 
+## Screenshots
+
+| Keep it on-device | Capture every visit | Record exact routes | Export your history |
+|---|---|---|---|
+| ![Settings showing on-device tracking](screenshots/final/01-keep-on-device.jpg) | ![Map view with visit pins](screenshots/final/02-capture-visits.jpg) | ![Recorded route segments list](screenshots/final/03-record-routes.jpg) | ![Export format picker — JSON, CSV, Markdown](screenshots/final/04-export-history.jpg) |
+
 ## Features
 
 ### Visit Detection
@@ -33,7 +39,7 @@ Enable this in **Settings > Tracking Defaults > Auto-Start on Activity**.
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
 ### Export & Import
-Export visits and location points as JSON, CSV, or Markdown. Optionally set a default export folder for one-tap saves. Import previously exported data back into the app.
+Export visits and location points as JSON, CSV, or Markdown. Optionally set a default export folder for one-tap saves. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
 
 ### Watch App
 Companion watchOS app showing today's visit count, distance traveled, and tracking status. Syncs with the main app via shared App Groups.
@@ -41,8 +47,13 @@ Companion watchOS app showing today's visit count, distance traveled, and tracki
 ### Widgets
 iOS lock screen widget via Live Activities and watchOS complications for quick tracking status.
 
-### iso.me Pro
-Free tier includes 10 hours of cumulative continuous tracking. A one-time lifetime purchase unlocks unlimited tracking.
+## Pricing
+
+Tracking is free and unlimited — visits, continuous routes, watch app, Live Activities, widgets. No subscription, no ads, no usage caps.
+
+The one paid feature is **export**: a one-time **$9.99** unlock for JSON, CSV, and Markdown export of your visits and location points. Lifetime, no recurring charge.
+
+The split is on purpose: tracking is the commodity, but a clean, lossless export of your full history is the part that's worth paying for once. It also keeps the privacy promise free at the door — you never have to pay to keep your data on your device.
 
 ## Tech Stack
 
