@@ -39,6 +39,7 @@ struct ImportedLocationPoint {
     let altitude: Double?
     let speed: Double?
     let horizontalAccuracy: Double
+    let isOutlier: Bool
 }
 
 struct ImportResult {
@@ -214,7 +215,8 @@ struct ImportService {
                 timestamp: timestamp,
                 altitude: dict["altitude"] as? Double,
                 speed: dict["speed"] as? Double,
-                horizontalAccuracy: dict["horizontalAccuracy"] as? Double ?? 0
+                horizontalAccuracy: dict["horizontalAccuracy"] as? Double ?? 0,
+                isOutlier: dict["isOutlier"] as? Bool ?? false
             )
         }
     }
@@ -340,13 +342,18 @@ struct ImportService {
                 Double(fields[col])
             } ?? 0
 
+            let isOutlier: Bool = colIndex["is_outlier"].map { col in
+                fields[col].lowercased() == "true"
+            } ?? false
+
             return ImportedLocationPoint(
                 latitude: latitude,
                 longitude: longitude,
                 timestamp: timestamp,
                 altitude: altitude,
                 speed: speed,
-                horizontalAccuracy: horizontalAccuracy
+                horizontalAccuracy: horizontalAccuracy,
+                isOutlier: isOutlier
             )
         }
     }
@@ -511,13 +518,16 @@ struct ImportService {
                     return val == "-" ? nil : Double(val)
                 }()
 
+                let isOutlier: Bool = cells.count >= 6 && cells[5].lowercased() == "yes"
+
                 points.append(ImportedLocationPoint(
                     latitude: lat,
                     longitude: lon,
                     timestamp: timestamp,
                     altitude: altitude,
                     speed: speed,
-                    horizontalAccuracy: 0
+                    horizontalAccuracy: 0,
+                    isOutlier: isOutlier
                 ))
             }
         }

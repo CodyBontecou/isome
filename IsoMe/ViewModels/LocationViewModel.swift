@@ -308,7 +308,8 @@ final class LocationViewModel {
                 timestamp: imported.timestamp,
                 altitude: imported.altitude,
                 speed: imported.speed,
-                horizontalAccuracy: imported.horizontalAccuracy
+                horizontalAccuracy: imported.horizontalAccuracy,
+                isOutlier: imported.isOutlier
             )
             modelContext.insert(point)
         }

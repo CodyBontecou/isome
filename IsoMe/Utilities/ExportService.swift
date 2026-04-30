@@ -266,6 +266,8 @@ extension ExportService {
         let course: Double?
         let horizontalAccuracy: Double
         let verticalAccuracy: Double?
+        // True when the app's GPS-glitch detector flagged this point as an outlier.
+        let isOutlier: Bool
     }
 
     struct LocationPointsExportData: Codable {
@@ -294,10 +296,11 @@ extension ExportService {
                 speed: point.speed,
                 course: nil,
                 horizontalAccuracy: point.horizontalAccuracy,
-                verticalAccuracy: nil
+                verticalAccuracy: nil,
+                isOutlier: point.isOutlier
             )
         }
-        
+
         var dateRangeInfo: LocationPointsExportData.DateRangeInfo? = nil
         if let first = sortedPoints.first, let last = sortedPoints.last {
             dateRangeInfo = LocationPointsExportData.DateRangeInfo(
@@ -322,19 +325,20 @@ extension ExportService {
     
     static func exportLocationPointsToCSV(points: [LocationPoint]) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
-        
-        var csvString = "timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy\n"
-        
+
+        var csvString = "timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy,is_outlier\n"
+
         for point in sortedPoints {
             let timestamp = iso8601Formatter.string(from: point.timestamp)
             let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
             let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
             let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
-            
-            let row = "\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy)\n"
+            let isOutlier = point.isOutlier ? "true" : "false"
+
+            let row = "\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy),\(isOutlier)\n"
             csvString.append(row)
         }
-        
+
         return csvString.data(using: .utf8) ?? Data()
     }
     
@@ -380,17 +384,18 @@ extension ExportService {
             let sortedDayPoints = dayPoints.sorted { $0.timestamp < $1.timestamp }
             
             md += "## \(dateFormatter.string(from: date))\n\n"
-            md += "| Time | Lat | Lon | Speed | Altitude |\n"
-            md += "|------|-----|-----|-------|----------|\n"
-            
+            md += "| Time | Lat | Lon | Speed | Altitude | Outlier |\n"
+            md += "|------|-----|-----|-------|----------|---------|\n"
+
             for point in sortedDayPoints {
                 let time = timeFormatter.string(from: point.timestamp)
                 let lat = String(format: "%.6f", point.latitude)
                 let lon = String(format: "%.6f", point.longitude)
                 let speed = point.speed.map { String(format: "%.1f m/s", $0) } ?? "-"
                 let altitude = point.altitude.map { String(format: "%.1f m", $0) } ?? "-"
-                
-                md += "| \(time) | \(lat) | \(lon) | \(speed) | \(altitude) |\n"
+                let outlier = point.isOutlier ? "yes" : "-"
+
+                md += "| \(time) | \(lat) | \(lon) | \(speed) | \(altitude) | \(outlier) |\n"
             }
             
             md += "\n"
@@ -497,7 +502,8 @@ extension ExportService {
                 speed: point.speed,
                 course: nil,
                 horizontalAccuracy: point.horizontalAccuracy,
-                verticalAccuracy: nil
+                verticalAccuracy: nil,
+                isOutlier: point.isOutlier
             )
         }
 
@@ -542,13 +548,14 @@ extension ExportService {
         }
 
         csvString.append("\n# LOCATION POINTS (\(points.count))\n")
-        csvString.append("timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy\n")
+        csvString.append("timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy,is_outlier\n")
         for point in points.sorted(by: { $0.timestamp < $1.timestamp }) {
             let timestamp = iso8601Formatter.string(from: point.timestamp)
             let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
             let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
             let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
-            csvString.append("\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy)\n")
+            let isOutlier = point.isOutlier ? "true" : "false"
+            csvString.append("\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy),\(isOutlier)\n")
         }
 
         return csvString.data(using: .utf8) ?? Data()
