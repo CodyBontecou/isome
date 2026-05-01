@@ -22,11 +22,6 @@ struct IsoMeApp: App {
 
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            #if DEBUG
-            MainActor.assumeIsolated {
-                MockDataSeeder.seedIfNeeded(modelContext: container.mainContext)
-            }
-            #endif
             return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")

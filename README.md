@@ -12,9 +12,9 @@ iso.me is a location tracking app for iOS and watchOS. It automatically records 
 
 ## Screenshots
 
-| Keep it on-device | Capture every visit | Record exact routes | Export your history |
-|---|---|---|---|
-| ![Settings showing on-device tracking](screenshots/final/01-keep-on-device.jpg) | ![Map view with visit pins](screenshots/final/02-capture-visits.jpg) | ![Recorded route segments list](screenshots/final/03-record-routes.jpg) | ![Export format picker — JSON, CSV, Markdown](screenshots/final/04-export-history.jpg) |
+| Capture every visit | Keep it on-device | Export your history |
+|---|---|---|
+| ![Map view with visit pins](screenshots/final/02-capture-visits.jpg) | ![Settings showing on-device tracking](screenshots/final/01-keep-on-device.jpg) | ![Export format picker — JSON, CSV, Markdown](screenshots/final/04-export-history.jpg) |
 
 ## Features
 
