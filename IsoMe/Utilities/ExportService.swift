@@ -33,8 +33,8 @@ struct ExportService {
     // MARK: - JSON Export
 
     struct ExportableVisit: Codable {
-        let latitude: Double
-        let longitude: Double
+        let latitude: Double?
+        let longitude: Double?
         let arrivedAt: String
         let departedAt: String?
         let durationMinutes: Double?
@@ -48,17 +48,17 @@ struct ExportService {
         let visits: [ExportableVisit]
     }
 
-    static func exportToJSON(visits: [Visit]) throws -> Data {
+    static func exportToJSON(visits: [Visit], options: ExportOptions = ExportOptions()) throws -> Data {
         let exportableVisits = visits.map { visit in
             ExportableVisit(
-                latitude: visit.latitude,
-                longitude: visit.longitude,
+                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
+                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
                 arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
                 departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: visit.durationMinutes,
-                locationName: visit.locationName,
-                address: visit.address,
-                notes: visit.notes
+                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
+                locationName: options.includeVisitLocationName ? visit.locationName : nil,
+                address: options.includeVisitAddress ? visit.address : nil,
+                notes: options.includeVisitNotes ? visit.notes : nil
             )
         }
 
@@ -75,19 +75,40 @@ struct ExportService {
 
     // MARK: - CSV Export
 
-    static func exportToCSV(visits: [Visit]) -> Data {
-        var csvString = "arrived_at,departed_at,duration_minutes,latitude,longitude,location_name,address,notes\n"
+    static func exportToCSV(visits: [Visit], options: ExportOptions = ExportOptions()) -> Data {
+        var headers = ["arrived_at", "departed_at"]
+        if options.includeVisitDuration { headers.append("duration_minutes") }
+        if options.includeVisitCoordinates {
+            headers.append("latitude")
+            headers.append("longitude")
+        }
+        if options.includeVisitLocationName { headers.append("location_name") }
+        if options.includeVisitAddress { headers.append("address") }
+        if options.includeVisitNotes { headers.append("notes") }
+
+        var csvString = headers.joined(separator: ",") + "\n"
 
         for visit in visits {
-            let arrivedAt = iso8601Formatter.string(from: visit.arrivedAt)
-            let departedAt = visit.departedAt.map { iso8601Formatter.string(from: $0) } ?? ""
-            let duration = visit.durationMinutes.map { String(format: "%.1f", $0) } ?? ""
-            let locationName = escapeCSVField(visit.locationName ?? "")
-            let address = escapeCSVField(visit.address ?? "")
-            let notes = escapeCSVField(visit.notes ?? "")
-
-            let row = "\(arrivedAt),\(departedAt),\(duration),\(visit.latitude),\(visit.longitude),\(locationName),\(address),\(notes)\n"
-            csvString.append(row)
+            var fields: [String] = []
+            fields.append(iso8601Formatter.string(from: visit.arrivedAt))
+            fields.append(visit.departedAt.map { iso8601Formatter.string(from: $0) } ?? "")
+            if options.includeVisitDuration {
+                fields.append(visit.durationMinutes.map { String(format: "%.1f", $0) } ?? "")
+            }
+            if options.includeVisitCoordinates {
+                fields.append(String(visit.latitude))
+                fields.append(String(visit.longitude))
+            }
+            if options.includeVisitLocationName {
+                fields.append(escapeCSVField(visit.locationName ?? ""))
+            }
+            if options.includeVisitAddress {
+                fields.append(escapeCSVField(visit.address ?? ""))
+            }
+            if options.includeVisitNotes {
+                fields.append(escapeCSVField(visit.notes ?? ""))
+            }
+            csvString.append(fields.joined(separator: ",") + "\n")
         }
 
         return csvString.data(using: .utf8) ?? Data()
@@ -103,7 +124,7 @@ struct ExportService {
 
     // MARK: - Markdown Export
 
-    static func exportToMarkdown(visits: [Visit]) -> Data {
+    static func exportToMarkdown(visits: [Visit], options: ExportOptions = ExportOptions()) -> Data {
         var md = "# iso.me Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Visits:** \(visits.count)\n\n"
@@ -130,17 +151,22 @@ struct ExportService {
             md += "## \(dateFormatter.string(from: date))\n\n"
 
             for visit in dayVisits.sorted(by: { $0.arrivedAt < $1.arrivedAt }) {
-                let locationName = visit.locationName ?? "Unknown Location"
+                let heading: String
+                if options.includeVisitLocationName, let name = visit.locationName, !name.isEmpty {
+                    heading = name
+                } else {
+                    heading = timeFormatter.string(from: visit.arrivedAt)
+                }
                 let arrivedTime = timeFormatter.string(from: visit.arrivedAt)
 
-                md += "### \(locationName)\n\n"
+                md += "### \(heading)\n\n"
                 md += "- **Arrived:** \(arrivedTime)\n"
 
                 if let departedAt = visit.departedAt {
                     md += "- **Departed:** \(timeFormatter.string(from: departedAt))\n"
                 }
 
-                if let duration = visit.durationMinutes {
+                if options.includeVisitDuration, let duration = visit.durationMinutes {
                     let hours = Int(duration) / 60
                     let minutes = Int(duration) % 60
                     if hours > 0 {
@@ -150,13 +176,15 @@ struct ExportService {
                     }
                 }
 
-                if let address = visit.address, !address.isEmpty {
+                if options.includeVisitAddress, let address = visit.address, !address.isEmpty {
                     md += "- **Address:** \(address)\n"
                 }
 
-                md += "- **Coordinates:** \(String(format: "%.6f", visit.latitude)), \(String(format: "%.6f", visit.longitude))\n"
+                if options.includeVisitCoordinates {
+                    md += "- **Coordinates:** \(String(format: "%.6f", visit.latitude)), \(String(format: "%.6f", visit.longitude))\n"
+                }
 
-                if let notes = visit.notes, !notes.isEmpty {
+                if options.includeVisitNotes, let notes = visit.notes, !notes.isEmpty {
                     md += "\n> \(notes)\n"
                 }
 
@@ -264,10 +292,10 @@ extension ExportService {
         let altitude: Double?
         let speed: Double?
         let course: Double?
-        let horizontalAccuracy: Double
+        let horizontalAccuracy: Double?
         let verticalAccuracy: Double?
         // True when the app's GPS-glitch detector flagged this point as an outlier.
-        let isOutlier: Bool
+        let isOutlier: Bool?
     }
 
     struct LocationPointsExportData: Codable {
@@ -283,21 +311,21 @@ extension ExportService {
         }
     }
 
-    static func exportLocationPointsToJSON(points: [LocationPoint]) throws -> Data {
+    static func exportLocationPointsToJSON(points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
-        
+
         let exportablePoints = sortedPoints.map { point in
             ExportableLocationPoint(
                 latitude: point.latitude,
                 longitude: point.longitude,
                 timestamp: iso8601Formatter.string(from: point.timestamp),
                 timestampUnix: point.timestamp.timeIntervalSince1970,
-                altitude: point.altitude,
-                speed: point.speed,
+                altitude: options.includePointAltitude ? point.altitude : nil,
+                speed: options.includePointSpeed ? point.speed : nil,
                 course: nil,
-                horizontalAccuracy: point.horizontalAccuracy,
+                horizontalAccuracy: options.includePointAccuracy ? point.horizontalAccuracy : nil,
                 verticalAccuracy: nil,
-                isOutlier: point.isOutlier
+                isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil
             )
         }
 
@@ -323,84 +351,115 @@ extension ExportService {
         return try encoder.encode(exportData)
     }
     
-    static func exportLocationPointsToCSV(points: [LocationPoint]) -> Data {
+    static func exportLocationPointsToCSV(points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
 
-        var csvString = "timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy,is_outlier\n"
+        var headers = ["timestamp", "timestamp_unix", "latitude", "longitude"]
+        if options.includePointAltitude { headers.append("altitude") }
+        if options.includePointSpeed { headers.append("speed") }
+        if options.includePointAccuracy { headers.append("horizontal_accuracy") }
+        if options.includePointOutlierFlag { headers.append("is_outlier") }
+
+        var csvString = headers.joined(separator: ",") + "\n"
 
         for point in sortedPoints {
-            let timestamp = iso8601Formatter.string(from: point.timestamp)
-            let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
-            let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
-            let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
-            let isOutlier = point.isOutlier ? "true" : "false"
-
-            let row = "\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy),\(isOutlier)\n"
-            csvString.append(row)
+            var fields: [String] = []
+            fields.append(iso8601Formatter.string(from: point.timestamp))
+            fields.append(String(format: "%.3f", point.timestamp.timeIntervalSince1970))
+            fields.append(String(point.latitude))
+            fields.append(String(point.longitude))
+            if options.includePointAltitude {
+                fields.append(point.altitude.map { String(format: "%.2f", $0) } ?? "")
+            }
+            if options.includePointSpeed {
+                fields.append(point.speed.map { String(format: "%.2f", $0) } ?? "")
+            }
+            if options.includePointAccuracy {
+                fields.append(String(point.horizontalAccuracy))
+            }
+            if options.includePointOutlierFlag {
+                fields.append(point.isOutlier ? "true" : "false")
+            }
+            csvString.append(fields.joined(separator: ",") + "\n")
         }
 
         return csvString.data(using: .utf8) ?? Data()
     }
     
-    static func exportLocationPointsToMarkdown(points: [LocationPoint]) -> Data {
+    static func exportLocationPointsToMarkdown(points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
-        
+
         var md = "# iso.me Location Points Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Points:** \(sortedPoints.count)\n\n"
-        
+
         if let first = sortedPoints.first, let last = sortedPoints.last {
             let duration = last.timestamp.timeIntervalSince(first.timestamp)
             let hours = Int(duration) / 3600
             let minutes = (Int(duration) % 3600) / 60
-            
+
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .medium
-            
+
             md += "**Time Range:** \(dateFormatter.string(from: first.timestamp)) → \(dateFormatter.string(from: last.timestamp))\n\n"
             md += "**Duration:** \(hours)h \(minutes)m\n\n"
         }
-        
+
         md += "---\n\n"
-        
+
         // Group by date
         let grouped = Dictionary(grouping: sortedPoints) { point in
             Calendar.current.startOfDay(for: point.timestamp)
         }
-        
+
         let sortedDates = grouped.keys.sorted()
-        
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .full
         dateFormatter.timeStyle = .none
-        
+
         let timeFormatter = DateFormatter()
         timeFormatter.dateStyle = .none
         timeFormatter.timeStyle = .medium
-        
+
+        var headerCols: [String] = ["Time", "Lat", "Lon"]
+        if options.includePointSpeed { headerCols.append("Speed") }
+        if options.includePointAltitude { headerCols.append("Altitude") }
+        if options.includePointAccuracy { headerCols.append("Accuracy") }
+        if options.includePointOutlierFlag { headerCols.append("Outlier") }
+
         for date in sortedDates {
             guard let dayPoints = grouped[date] else { continue }
             let sortedDayPoints = dayPoints.sorted { $0.timestamp < $1.timestamp }
-            
+
             md += "## \(dateFormatter.string(from: date))\n\n"
-            md += "| Time | Lat | Lon | Speed | Altitude | Outlier |\n"
-            md += "|------|-----|-----|-------|----------|---------|\n"
+            md += "| " + headerCols.joined(separator: " | ") + " |\n"
+            md += "|" + headerCols.map { _ in "------" }.joined(separator: "|") + "|\n"
 
             for point in sortedDayPoints {
-                let time = timeFormatter.string(from: point.timestamp)
-                let lat = String(format: "%.6f", point.latitude)
-                let lon = String(format: "%.6f", point.longitude)
-                let speed = point.speed.map { String(format: "%.1f m/s", $0) } ?? "-"
-                let altitude = point.altitude.map { String(format: "%.1f m", $0) } ?? "-"
-                let outlier = point.isOutlier ? "yes" : "-"
-
-                md += "| \(time) | \(lat) | \(lon) | \(speed) | \(altitude) | \(outlier) |\n"
+                var cells: [String] = []
+                cells.append(timeFormatter.string(from: point.timestamp))
+                cells.append(String(format: "%.6f", point.latitude))
+                cells.append(String(format: "%.6f", point.longitude))
+                if options.includePointSpeed {
+                    cells.append(point.speed.map { String(format: "%.1f m/s", $0) } ?? "-")
+                }
+                if options.includePointAltitude {
+                    cells.append(point.altitude.map { String(format: "%.1f m", $0) } ?? "-")
+                }
+                if options.includePointAccuracy {
+                    cells.append(String(format: "%.1f m", point.horizontalAccuracy))
+                }
+                if options.includePointOutlierFlag {
+                    cells.append(point.isOutlier ? "yes" : "-")
+                }
+                md += "| " + cells.joined(separator: " | ") + " |\n"
             }
-            
+
             md += "\n"
         }
-        
+
         return md.data(using: .utf8) ?? Data()
     }
     
@@ -477,17 +536,17 @@ extension ExportService {
         let points: [ExportableLocationPoint]
     }
 
-    static func exportCombinedToJSON(visits: [Visit], points: [LocationPoint]) throws -> Data {
+    static func exportCombinedToJSON(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
         let exportableVisits = visits.map { visit in
             ExportableVisit(
-                latitude: visit.latitude,
-                longitude: visit.longitude,
+                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
+                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
                 arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
                 departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: visit.durationMinutes,
-                locationName: visit.locationName,
-                address: visit.address,
-                notes: visit.notes
+                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
+                locationName: options.includeVisitLocationName ? visit.locationName : nil,
+                address: options.includeVisitAddress ? visit.address : nil,
+                notes: options.includeVisitNotes ? visit.notes : nil
             )
         }
 
@@ -498,12 +557,12 @@ extension ExportService {
                 longitude: point.longitude,
                 timestamp: iso8601Formatter.string(from: point.timestamp),
                 timestampUnix: point.timestamp.timeIntervalSince1970,
-                altitude: point.altitude,
-                speed: point.speed,
+                altitude: options.includePointAltitude ? point.altitude : nil,
+                speed: options.includePointSpeed ? point.speed : nil,
                 course: nil,
-                horizontalAccuracy: point.horizontalAccuracy,
+                horizontalAccuracy: options.includePointAccuracy ? point.horizontalAccuracy : nil,
                 verticalAccuracy: nil,
-                isOutlier: point.isOutlier
+                isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil
             )
         }
 
@@ -531,49 +590,34 @@ extension ExportService {
         return try encoder.encode(exportData)
     }
 
-    static func exportCombinedToCSV(visits: [Visit], points: [LocationPoint]) -> Data {
+    static func exportCombinedToCSV(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
         var csvString = "# iso.me Combined Export\n"
         csvString.append("# Generated: \(iso8601Formatter.string(from: Date()))\n\n")
 
         csvString.append("# VISITS (\(visits.count))\n")
-        csvString.append("arrived_at,departed_at,duration_minutes,latitude,longitude,location_name,address,notes\n")
-        for visit in visits {
-            let arrivedAt = iso8601Formatter.string(from: visit.arrivedAt)
-            let departedAt = visit.departedAt.map { iso8601Formatter.string(from: $0) } ?? ""
-            let duration = visit.durationMinutes.map { String(format: "%.1f", $0) } ?? ""
-            let locationName = escapeCSVField(visit.locationName ?? "")
-            let address = escapeCSVField(visit.address ?? "")
-            let notes = escapeCSVField(visit.notes ?? "")
-            csvString.append("\(arrivedAt),\(departedAt),\(duration),\(visit.latitude),\(visit.longitude),\(locationName),\(address),\(notes)\n")
-        }
+        let visitsCSV = String(data: exportToCSV(visits: visits, options: options), encoding: .utf8) ?? ""
+        csvString.append(visitsCSV)
 
         csvString.append("\n# LOCATION POINTS (\(points.count))\n")
-        csvString.append("timestamp,timestamp_unix,latitude,longitude,altitude,speed,horizontal_accuracy,is_outlier\n")
-        for point in points.sorted(by: { $0.timestamp < $1.timestamp }) {
-            let timestamp = iso8601Formatter.string(from: point.timestamp)
-            let timestampUnix = String(format: "%.3f", point.timestamp.timeIntervalSince1970)
-            let altitude = point.altitude.map { String(format: "%.2f", $0) } ?? ""
-            let speed = point.speed.map { String(format: "%.2f", $0) } ?? ""
-            let isOutlier = point.isOutlier ? "true" : "false"
-            csvString.append("\(timestamp),\(timestampUnix),\(point.latitude),\(point.longitude),\(altitude),\(speed),\(point.horizontalAccuracy),\(isOutlier)\n")
-        }
+        let pointsCSV = String(data: exportLocationPointsToCSV(points: points, options: options), encoding: .utf8) ?? ""
+        csvString.append(pointsCSV)
 
         return csvString.data(using: .utf8) ?? Data()
     }
 
-    static func exportCombinedToMarkdown(visits: [Visit], points: [LocationPoint]) -> Data {
+    static func exportCombinedToMarkdown(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
         var md = "# iso.me Complete Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Visits:** \(visits.count)\n\n"
         md += "**Total Location Points:** \(points.count)\n\n"
         md += "---\n\n"
 
-        md += String(data: exportToMarkdown(visits: visits), encoding: .utf8)?
+        md += String(data: exportToMarkdown(visits: visits, options: options), encoding: .utf8)?
             .replacingOccurrences(of: "# iso.me Export\n\n", with: "# Visits\n\n") ?? ""
 
         md += "\n---\n\n"
 
-        md += String(data: exportLocationPointsToMarkdown(points: points), encoding: .utf8)?
+        md += String(data: exportLocationPointsToMarkdown(points: points, options: options), encoding: .utf8)?
             .replacingOccurrences(of: "# iso.me Location Points Export\n\n", with: "# Location Points\n\n") ?? ""
 
         return md.data(using: .utf8) ?? Data()
@@ -620,11 +664,100 @@ extension ExportService {
         return savedURL
     }
 
-    private static func combinedData(visits: [Visit], points: [LocationPoint], format: ExportFormat) throws -> Data {
+    private static func combinedData(visits: [Visit], points: [LocationPoint], format: ExportFormat, options: ExportOptions = ExportOptions()) throws -> Data {
         switch format {
-        case .json: return try exportCombinedToJSON(visits: visits, points: points)
-        case .csv: return exportCombinedToCSV(visits: visits, points: points)
-        case .markdown: return exportCombinedToMarkdown(visits: visits, points: points)
+        case .json: return try exportCombinedToJSON(visits: visits, points: points, options: options)
+        case .csv: return exportCombinedToCSV(visits: visits, points: points, options: options)
+        case .markdown: return exportCombinedToMarkdown(visits: visits, points: points, options: options)
         }
+    }
+}
+
+// MARK: - Options-Driven Entrypoints
+
+extension ExportService {
+    /// Resolves the data, applies filters, and returns the encoded payload + suggested filename.
+    static func render(
+        visits: [Visit],
+        points: [LocationPoint],
+        options: ExportOptions
+    ) throws -> (data: Data, fileName: String) {
+        let filteredVisits = options.filterVisits(visits)
+        let filteredPoints = options.filterPoints(points)
+
+        let data: Data
+        let prefix: String
+        switch options.dataKind {
+        case .visits:
+            switch options.format {
+            case .json: data = try exportToJSON(visits: filteredVisits, options: options)
+            case .csv: data = exportToCSV(visits: filteredVisits, options: options)
+            case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
+            }
+            prefix = "isome_visits"
+        case .points:
+            switch options.format {
+            case .json: data = try exportLocationPointsToJSON(points: filteredPoints, options: options)
+            case .csv: data = exportLocationPointsToCSV(points: filteredPoints, options: options)
+            case .markdown: data = exportLocationPointsToMarkdown(points: filteredPoints, options: options)
+            }
+            prefix = "isome_location_points"
+        case .all:
+            data = try combinedData(
+                visits: filteredVisits,
+                points: filteredPoints,
+                format: options.format,
+                options: options
+            )
+            prefix = "isome_complete_export"
+        }
+
+        let fileName = "\(prefix)_\(formattedDate()).\(options.format.fileExtension)"
+        return (data, fileName)
+    }
+
+    @MainActor
+    static func share(
+        visits: [Visit],
+        points: [LocationPoint],
+        options: ExportOptions,
+        from viewController: UIViewController? = nil
+    ) throws {
+        let rendered = try render(visits: visits, points: points, options: options)
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(rendered.fileName)
+        try rendered.data.write(to: tempURL)
+
+        let activityVC = UIActivityViewController(
+            activityItems: [tempURL],
+            applicationActivities: nil
+        )
+
+        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController else {
+            return
+        }
+
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        presenter.present(activityVC, animated: true)
+    }
+
+    @MainActor
+    static func saveToDefaultFolder(
+        visits: [Visit],
+        points: [LocationPoint],
+        options: ExportOptions
+    ) throws -> URL {
+        let rendered = try render(visits: visits, points: points, options: options)
+        guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: rendered.data, fileName: rendered.fileName) else {
+            throw ExportFolderError.noDefaultFolder
+        }
+        return savedURL
     }
 }

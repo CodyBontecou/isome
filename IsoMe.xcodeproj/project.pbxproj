@@ -10,6 +10,7 @@
 		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
+		D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */; };
 		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
@@ -19,6 +20,8 @@
 		A1000005212F000100000005 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005212F000000000005 /* LocationManager.swift */; };
 		A1000006212F000100000006 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006212F000000000006 /* GeocodingService.swift */; };
 		A1000007212F000100000007 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000007212F000000000007 /* ExportService.swift */; };
+		A1000030212F000100000030 /* ExportOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000030212F000000000030 /* ExportOptions.swift */; };
+		A1000031212F000100000031 /* ExportOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000031212F000000000031 /* ExportOptionsSheet.swift */; };
 		A1000020212F000100000020 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000020212F000000000020 /* ImportService.swift */; };
 		A1000008212F000100000008 /* LocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000008212F000000000008 /* LocationViewModel.swift */; };
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
@@ -53,7 +56,6 @@
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
 		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
 		E1000001212F000100000001 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000001212F000000000001 /* AppInfo.swift */; };
-		E1000004212F000100000004 /* MockDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000004212F000000000004 /* MockDataSeeder.swift */; };
 		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
 		E1000003212F000100000003 /* LogViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000003212F000000000003 /* LogViewerView.swift */; };
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
@@ -139,10 +141,10 @@
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
 		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		E1000001212F000000000001 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
-		E1000004212F000000000004 /* MockDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSeeder.swift; sourceTree = "<group>"; };
 		E1000002212F000000000002 /* LogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogManager.swift; sourceTree = "<group>"; };
 		E1000003212F000000000003 /* LogViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerView.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
+		D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordPromoBanner.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* IsoMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -151,6 +153,8 @@
 		A1000005212F000000000005 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		A1000006212F000000000006 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		A1000007212F000000000007 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		A1000030212F000000000030 /* ExportOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptions.swift; sourceTree = "<group>"; };
+		A1000031212F000000000031 /* ExportOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptionsSheet.swift; sourceTree = "<group>"; };
 		A1000020212F000000000020 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		A1000008212F000000000008 /* LocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewModel.swift; sourceTree = "<group>"; };
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -310,6 +314,7 @@
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
+				A1000030212F000000000030 /* ExportOptions.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -338,6 +343,8 @@
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 				E1000003212F000000000003 /* LogViewerView.swift */,
+				D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */,
+				A1000031212F000000000031 /* ExportOptionsSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -357,7 +364,6 @@
 				A1000020212F000000000020 /* ImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
-				E1000004212F000000000004 /* MockDataSeeder.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -630,6 +636,8 @@
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
+				A1000030212F000100000030 /* ExportOptions.swift in Sources */,
+				A1000031212F000100000031 /* ExportOptionsSheet.swift in Sources */,
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
@@ -648,7 +656,7 @@
 				E1000001212F000100000001 /* AppInfo.swift in Sources */,
 				E1000002212F000100000002 /* LogManager.swift in Sources */,
 				E1000003212F000100000003 /* LogViewerView.swift in Sources */,
-				E1000004212F000100000004 /* MockDataSeeder.swift in Sources */,
+				D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -889,7 +897,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -905,7 +913,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -922,7 +930,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -938,7 +946,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -954,7 +962,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -964,7 +972,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -981,7 +989,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -991,7 +999,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1008,7 +1016,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1018,7 +1026,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1037,7 +1045,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1047,7 +1055,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1066,7 +1074,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1076,7 +1084,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1095,7 +1103,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1105,7 +1113,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

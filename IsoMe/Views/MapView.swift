@@ -19,6 +19,7 @@ struct LocationMapView: View {
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
+    @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
@@ -156,6 +157,16 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    if !discordPromoDismissed {
+                        DiscordPromoBanner(onDismiss: dismissDiscordPromo)
+                            .padding(.horizontal, 12)
+                            .padding(.top, 6)
+                            .padding(.bottom, 4)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .animation(.spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -277,6 +288,12 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
+    }
+
+    private func dismissDiscordPromo() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+            discordPromoDismissed = true
+        }
     }
 
     private func handleTrackingTap() {

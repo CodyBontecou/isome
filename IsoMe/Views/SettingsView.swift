@@ -13,6 +13,8 @@ struct SettingsView: View {
     @State private var exportSuccessMessage: String?
     @State private var showingExportSuccess = false
     @State private var exportFormat: ExportFormat = .json
+    @State private var showingExportOptions = false
+    @State private var pendingExportOptions = ExportOptions()
     @State private var showingImportPicker = false
     @State private var importResultMessage: String?
     @State private var showingImportResult = false
@@ -109,6 +111,15 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
+            }
+            .sheet(isPresented: $showingExportOptions) {
+                ExportOptionsSheet(
+                    allVisits: viewModel.allVisits,
+                    allPoints: viewModel.locationPoints,
+                    initialOptions: pendingExportOptions
+                ) { options in
+                    runExport(with: options)
+                }
             }
         }
     }
@@ -446,9 +457,9 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
 
             if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-                TESectionFooter(text: "Files saved to \(exportFolderManager.selectedFolderName ?? "your folder").")
+                TESectionFooter(text: "Choose date range, fields, and filters before saving to \(exportFolderManager.selectedFolderName ?? "your folder").")
             } else {
-                TESectionFooter(text: "Export visits, points, or everything in the selected format.")
+                TESectionFooter(text: "Choose date range, fields, and filters on the next screen.")
             }
         }
     }
@@ -578,7 +589,7 @@ struct SettingsView: View {
 
             TECard {
                 VStack(spacing: 0) {
-                    TERow(showDivider: false) {
+                    TERow {
                         NavigationLink {
                             LogViewerView()
                         } label: {
@@ -597,11 +608,29 @@ struct SettingsView: View {
                             }
                         }
                     }
+
+                    TERow(showDivider: false) {
+                        Link(destination: discordInviteURL) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "bubble.left.and.bubble.right.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text("JOIN DISCORD")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(TE.accent.opacity(0.5))
+                            }
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "View app activity logs for troubleshooting.")
+            TESectionFooter(text: "View app activity logs or chat with the community.")
         }
     }
 
@@ -743,22 +772,38 @@ struct SettingsView: View {
 
     // MARK: - Export Helpers
 
-    private func exportVisits(format: ExportFormat) {
+    private func openExportSheet(dataKind: ExportOptions.DataKind, format: ExportFormat) {
         guard storeManager.isPurchased else {
             showingPaywall = true
             return
         }
+        var options = ExportOptions()
+        options.dataKind = dataKind
+        options.format = format
+        pendingExportOptions = options
+        showingExportOptions = true
+    }
+
+    private func runExport(with options: ExportOptions) {
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
-                let url = try ExportService.exportToDefaultFolder(visits: viewModel.allVisits, format: format)
+                let url = try ExportService.saveToDefaultFolder(
+                    visits: viewModel.allVisits,
+                    points: viewModel.locationPoints,
+                    options: options
+                )
                 exportSuccessMessage = "Saved to \(url.lastPathComponent)"
                 showingExportSuccess = true
             } catch {
                 viewModel.exportError = error.localizedDescription
             }
         } else {
-            viewModel.exportVisits(format: format)
+            viewModel.exportWithOptions(options)
         }
+    }
+
+    private func exportVisits(format: ExportFormat) {
+        openExportSheet(dataKind: .visits, format: format)
     }
 
     private func handleImportResult(_ result: Result<[URL], Error>) {
@@ -780,43 +825,11 @@ struct SettingsView: View {
     }
 
     private func exportLocationPoints(format: ExportFormat) {
-        guard storeManager.isPurchased else {
-            showingPaywall = true
-            return
-        }
-        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-            do {
-                let url = try ExportService.exportLocationPointsToDefaultFolder(points: viewModel.locationPoints, format: format)
-                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
-                showingExportSuccess = true
-            } catch {
-                viewModel.exportError = error.localizedDescription
-            }
-        } else {
-            viewModel.exportLocationPoints(format: format)
-        }
+        openExportSheet(dataKind: .points, format: format)
     }
 
     private func exportAllData(format: ExportFormat) {
-        guard storeManager.isPurchased else {
-            showingPaywall = true
-            return
-        }
-        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-            do {
-                let url = try ExportService.exportCombinedToDefaultFolder(
-                    visits: viewModel.allVisits,
-                    points: viewModel.locationPoints,
-                    format: format
-                )
-                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
-                showingExportSuccess = true
-            } catch {
-                viewModel.exportError = error.localizedDescription
-            }
-        } else {
-            viewModel.exportAllData(format: format)
-        }
+        openExportSheet(dataKind: .all, format: format)
     }
 }
 

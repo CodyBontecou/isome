@@ -272,6 +272,15 @@ final class LocationViewModel {
         }
     }
 
+    @MainActor
+    func exportWithOptions(_ options: ExportOptions) {
+        do {
+            try ExportService.share(visits: allVisits, points: locationPoints, options: options)
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
+
     // MARK: - Import
 
     func importData(from url: URL) throws -> ImportResult {
