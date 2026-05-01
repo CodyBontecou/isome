@@ -18,7 +18,6 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
     init(viewModel: LocationViewModel) {

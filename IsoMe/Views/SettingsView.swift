@@ -13,7 +13,6 @@ struct SettingsView: View {
     @State private var importErrorMessage: String?
     @State private var showingImportError = false
 
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
@@ -178,10 +177,6 @@ struct SettingsView: View {
                                 }
                             }
                         }
-                    }
-
-                    TERow {
-                        settingsToggle("START ON LAUNCH", isOn: $defaultLocationTrackingEnabled)
                     }
 
                     TERow {
