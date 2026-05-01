@@ -235,6 +235,7 @@
     .hero-stat {
       padding: 14px 0;
       border-right: 1px solid var(--rule);
+      text-align: center;
     }
     .hero-stat:last-child { border-right: 0; }
     .hero-stat .v {
@@ -381,7 +382,7 @@
     }
 
     /* ──────────────────────── Features grid ──────────────────────── */
-    .features { padding: 100px 0 60px; }
+    .features { padding-block: 100px 60px; }
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -441,7 +442,7 @@
     }
 
     /* ───────────────────── Inside-the-app showcase ───────────────────── */
-    .showcase { padding: 80px 0; }
+    .showcase { padding-block: 80px; }
     .showcase-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -590,7 +591,7 @@
     .readout-row .v.on { color: var(--lcd); }
 
     /* ─────────────────────────── Pricing ─────────────────────────── */
-    .pricing { padding: 80px 0 100px; }
+    .pricing { padding-block: 80px 100px; }
     .pricing-grid {
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -779,8 +780,8 @@
       .brand { font-size: 0.85rem; letter-spacing: 0.06em; }
       .brand img { width: 22px; height: 22px; }
       .hero { padding: 50px 0 30px; }
-      .features { padding: 60px 0 30px; }
-      .showcase { padding: 40px 0; }
+      .features { padding-block: 60px 30px; }
+      .showcase { padding-block: 40px; }
       .features-grid { grid-template-columns: 1fr; }
       .feature { border-right: 0 !important; border-bottom: 1px solid var(--rule) !important; }
       .feature:last-child { border-bottom: 0 !important; }
