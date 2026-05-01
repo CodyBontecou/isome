@@ -8,6 +8,9 @@ import UserNotifications
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
+    /// Latest live instance, used by App Intents so Siri/Shortcuts can drive tracking.
+    static weak var shared: LocationManager?
+
     private let locationManager = CLLocationManager()
     private var modelContext: ModelContext?
 
@@ -63,6 +66,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        Self.shared = self
         locationManager.delegate = self
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
