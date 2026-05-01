@@ -145,54 +145,68 @@ struct ExportService {
         timeFormatter.dateStyle = .none
         timeFormatter.timeStyle = .short
 
+        var headerCols: [String] = ["Arrived", "Departed"]
+        if options.includeVisitDuration { headerCols.append("Duration") }
+        if options.includeVisitCoordinates {
+            headerCols.append("Lat")
+            headerCols.append("Lon")
+        }
+        if options.includeVisitLocationName { headerCols.append("Location") }
+        if options.includeVisitAddress { headerCols.append("Address") }
+        if options.includeVisitNotes { headerCols.append("Notes") }
+
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
+            let sortedDayVisits = dayVisits.sorted { $0.arrivedAt < $1.arrivedAt }
 
             md += "## \(dateFormatter.string(from: date))\n\n"
+            md += "| " + headerCols.joined(separator: " | ") + " |\n"
+            md += "|" + headerCols.map { _ in "------" }.joined(separator: "|") + "|\n"
 
-            for visit in dayVisits.sorted(by: { $0.arrivedAt < $1.arrivedAt }) {
-                let heading: String
-                if options.includeVisitLocationName, let name = visit.locationName, !name.isEmpty {
-                    heading = name
-                } else {
-                    heading = timeFormatter.string(from: visit.arrivedAt)
-                }
-                let arrivedTime = timeFormatter.string(from: visit.arrivedAt)
+            for visit in sortedDayVisits {
+                var cells: [String] = []
+                cells.append(timeFormatter.string(from: visit.arrivedAt))
+                cells.append(visit.departedAt.map { timeFormatter.string(from: $0) } ?? "-")
 
-                md += "### \(heading)\n\n"
-                md += "- **Arrived:** \(arrivedTime)\n"
-
-                if let departedAt = visit.departedAt {
-                    md += "- **Departed:** \(timeFormatter.string(from: departedAt))\n"
-                }
-
-                if options.includeVisitDuration, let duration = visit.durationMinutes {
-                    let hours = Int(duration) / 60
-                    let minutes = Int(duration) % 60
-                    if hours > 0 {
-                        md += "- **Duration:** \(hours)h \(minutes)m\n"
+                if options.includeVisitDuration {
+                    if let duration = visit.durationMinutes {
+                        let hours = Int(duration) / 60
+                        let minutes = Int(duration) % 60
+                        cells.append(hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m")
                     } else {
-                        md += "- **Duration:** \(minutes)m\n"
+                        cells.append("-")
                     }
                 }
-
-                if options.includeVisitAddress, let address = visit.address, !address.isEmpty {
-                    md += "- **Address:** \(address)\n"
-                }
-
                 if options.includeVisitCoordinates {
-                    md += "- **Coordinates:** \(String(format: "%.6f", visit.latitude)), \(String(format: "%.6f", visit.longitude))\n"
+                    cells.append(String(format: "%.6f", visit.latitude))
+                    cells.append(String(format: "%.6f", visit.longitude))
                 }
-
-                if options.includeVisitNotes, let notes = visit.notes, !notes.isEmpty {
-                    md += "\n> \(notes)\n"
+                if options.includeVisitLocationName {
+                    cells.append(escapeMarkdownTableCell(visit.locationName))
                 }
-
-                md += "\n"
+                if options.includeVisitAddress {
+                    cells.append(escapeMarkdownTableCell(visit.address))
+                }
+                if options.includeVisitNotes {
+                    cells.append(escapeMarkdownTableCell(visit.notes))
+                }
+                md += "| " + cells.joined(separator: " | ") + " |\n"
             }
+
+            md += "\n"
         }
 
         return md.data(using: .utf8) ?? Data()
+    }
+
+    private static func escapeMarkdownTableCell(_ value: String?) -> String {
+        guard let value = value, !value.isEmpty else { return "-" }
+        return value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "|", with: "\\|")
+            .replacingOccurrences(of: "\r\n", with: " ")
+            .replacingOccurrences(of: "\n", with: "<br>")
+            .replacingOccurrences(of: "\r", with: " ")
     }
 
     private static func formattedDateReadable() -> String {

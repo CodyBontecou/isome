@@ -87,6 +87,45 @@ struct TERow<Content: View>: View {
     }
 }
 
+/// TE-styled toggle: cream-paper-friendly off track with stronger border,
+/// solid accent on track. Gives clear contrast on TE.surface backgrounds.
+struct TEToggleStyle: ToggleStyle {
+    private let trackWidth: CGFloat = 50
+    private let trackHeight: CGFloat = 30
+    private let thumbInset: CGFloat = 2
+
+    func makeBody(configuration: Configuration) -> some View {
+        let isOn = configuration.isOn
+        let thumbDiameter = trackHeight - thumbInset * 2
+
+        return HStack {
+            configuration.label
+            Spacer()
+            ZStack(alignment: isOn ? .trailing : .leading) {
+                Capsule()
+                    .fill(isOn ? TE.accent : TE.border)
+                Capsule()
+                    .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
+
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: thumbDiameter, height: thumbDiameter)
+                    .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
+                    .padding(.horizontal, thumbInset)
+            }
+            .frame(width: trackWidth, height: trackHeight)
+            .animation(.easeInOut(duration: 0.18), value: isOn)
+            .contentShape(Capsule())
+            .onTapGesture {
+                configuration.isOn.toggle()
+            }
+            .accessibilityRepresentation {
+                Toggle(isOn: configuration.$isOn) { configuration.label }
+            }
+        }
+    }
+}
+
 /// TE-styled section footer text.
 struct TESectionFooter: View {
     let text: LocalizedStringKey

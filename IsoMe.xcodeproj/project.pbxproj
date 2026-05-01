@@ -21,7 +21,7 @@
 		A1000006212F000100000006 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006212F000000000006 /* GeocodingService.swift */; };
 		A1000007212F000100000007 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000007212F000000000007 /* ExportService.swift */; };
 		A1000030212F000100000030 /* ExportOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000030212F000000000030 /* ExportOptions.swift */; };
-		A1000031212F000100000031 /* ExportOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000031212F000000000031 /* ExportOptionsSheet.swift */; };
+		A1000031212F000100000031 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000031212F000000000031 /* ExportView.swift */; };
 		A1000020212F000100000020 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000020212F000000000020 /* ImportService.swift */; };
 		A1000008212F000100000008 /* LocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000008212F000000000008 /* LocationViewModel.swift */; };
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
@@ -154,7 +154,7 @@
 		A1000006212F000000000006 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		A1000007212F000000000007 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
 		A1000030212F000000000030 /* ExportOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptions.swift; sourceTree = "<group>"; };
-		A1000031212F000000000031 /* ExportOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptionsSheet.swift; sourceTree = "<group>"; };
+		A1000031212F000000000031 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		A1000020212F000000000020 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		A1000008212F000000000008 /* LocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewModel.swift; sourceTree = "<group>"; };
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -344,7 +344,7 @@
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 				E1000003212F000000000003 /* LogViewerView.swift */,
 				D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */,
-				A1000031212F000000000031 /* ExportOptionsSheet.swift */,
+				A1000031212F000000000031 /* ExportView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -637,7 +637,7 @@
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
 				A1000030212F000100000030 /* ExportOptions.swift in Sources */,
-				A1000031212F000100000031 /* ExportOptionsSheet.swift in Sources */,
+				A1000031212F000100000031 /* ExportView.swift in Sources */,
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
