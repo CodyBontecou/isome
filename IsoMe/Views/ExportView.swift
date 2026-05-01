@@ -1,32 +1,26 @@
 import SwiftUI
+import SwiftData
 
-struct ExportOptionsSheet: View {
-    @Environment(\.dismiss) private var dismiss
+struct ExportView: View {
+    @Bindable var viewModel: LocationViewModel
+    @StateObject private var exportFolderManager = ExportFolderManager.shared
+    @ObservedObject private var storeManager = StoreManager.shared
 
-    let allVisits: [Visit]
-    let allPoints: [LocationPoint]
-    let onExport: (ExportOptions) -> Void
+    @State private var options = ExportOptions()
+    @State private var showingPaywall = false
+    @State private var showingFolderPicker = false
+    @State private var showingClearFolderConfirmation = false
+    @State private var exportSuccessMessage: String?
+    @State private var showingExportSuccess = false
 
-    @State private var options: ExportOptions
-
-    init(
-        allVisits: [Visit],
-        allPoints: [LocationPoint],
-        initialOptions: ExportOptions = ExportOptions(),
-        onExport: @escaping (ExportOptions) -> Void
-    ) {
-        self.allVisits = allVisits
-        self.allPoints = allPoints
-        self.onExport = onExport
-        _options = State(initialValue: initialOptions)
-    }
+    @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
 
     private var filteredVisits: [Visit] {
-        options.filterVisits(allVisits)
+        options.filterVisits(viewModel.allVisits)
     }
 
     private var filteredPoints: [LocationPoint] {
-        options.filterPoints(allPoints)
+        options.filterPoints(viewModel.locationPoints)
     }
 
     private var totalCount: Int {
@@ -50,22 +44,27 @@ struct ExportOptionsSheet: View {
             ZStack {
                 TE.surface.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 0) {
-                        formatSection
-                        dataKindSection
-                        dateRangeSection
-                        timeOfDaySection
-                        filtersSection
-                        if showsVisitFields { visitFieldsSection }
-                        if showsPointFields { pointFieldsSection }
-                        Spacer().frame(height: 96)
+                if storeManager.isPurchased {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            formatSection
+                            dataKindSection
+                            exportFolderSection
+                            dateRangeSection
+                            timeOfDaySection
+                            filtersSection
+                            if showsVisitFields { visitFieldsSection }
+                            if showsPointFields { pointFieldsSection }
+                            Spacer().frame(height: 110)
+                        }
                     }
-                }
 
-                VStack {
-                    Spacer()
-                    exportFooter
+                    VStack {
+                        Spacer()
+                        exportFooter
+                    }
+                } else {
+                    lockedState
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -76,14 +75,79 @@ struct ExportOptionsSheet: View {
                         .tracking(3)
                         .foregroundStyle(TE.textMuted)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("CANCEL") { dismiss() }
-                        .font(TE.mono(.caption2, weight: .semibold))
-                        .tracking(1.5)
-                        .foregroundStyle(TE.textMuted)
+            }
+            .alert("Remove Default Folder?", isPresented: $showingClearFolderConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Remove", role: .destructive) { exportFolderManager.clearDefaultFolder() }
+            } message: {
+                Text("Exports will use the share sheet instead of saving directly to a folder.")
+            }
+            .alert("Export Complete", isPresented: $showingExportSuccess) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let message = exportSuccessMessage {
+                    Text(message)
                 }
             }
+            .sheet(isPresented: $showingFolderPicker) {
+                FolderPicker { url in
+                    if let url = url {
+                        exportFolderManager.setDefaultFolder(url)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView(storeManager: storeManager)
+            }
         }
+    }
+
+    // MARK: - Locked state
+
+    private var lockedState: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 32, weight: .light))
+                .foregroundStyle(TE.textMuted)
+
+            Text("EXPORT LOCKED")
+                .font(TE.mono(.caption, weight: .bold))
+                .tracking(2)
+                .foregroundStyle(TE.textPrimary)
+
+            Text("Tracking is free and unlimited. Unlock data export with a one-time purchase.")
+                .font(TE.mono(.caption2, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.horizontal, 32)
+
+            Button {
+                showingPaywall = true
+            } label: {
+                Text("UNLOCK EXPORT")
+                    .font(TE.mono(.caption, weight: .bold))
+                    .tracking(2)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 28)
+                    .frame(height: 44)
+                    .background(TE.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                Task { await storeManager.restorePurchases() }
+            } label: {
+                Text("RESTORE PURCHASE")
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .tracking(1.5)
+                    .foregroundStyle(TE.textMuted)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+        }
+        .padding()
     }
 
     // MARK: - Format
@@ -123,6 +187,94 @@ struct ExportOptionsSheet: View {
                 .frame(height: 44)
             }
             .padding(.horizontal, 16)
+        }
+    }
+
+    // MARK: - Export Folder
+
+    private var exportFolderSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "EXPORT FOLDER")
+
+            TECard {
+                VStack(spacing: 0) {
+                    if let folderName = exportFolderManager.selectedFolderName {
+                        TERow {
+                            HStack {
+                                Image(systemName: "folder.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text(folderName.uppercased())
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(0.5)
+                                    .foregroundStyle(TE.textPrimary)
+                                    .lineLimit(1)
+                                Spacer()
+                                Button {
+                                    showingFolderPicker = true
+                                } label: {
+                                    Text("CHANGE")
+                                        .font(TE.mono(.caption2, weight: .semibold))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
+                        TERow {
+                            toggleRow("AUTO-SAVE", isOn: $useDefaultExportFolder)
+                        }
+
+                        TERow(showDivider: false) {
+                            Button {
+                                showingClearFolderConfirmation = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "folder.badge.minus")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.danger)
+                                    Text("REMOVE FOLDER")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.danger)
+                                    Spacer()
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.danger.opacity(0.5))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } else {
+                        TERow(showDivider: false) {
+                            Button {
+                                showingFolderPicker = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "folder.badge.plus")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("SELECT FOLDER")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: exportFolderManager.hasDefaultFolder
+                ? "Exports save directly to this folder when auto-save is on. Otherwise the share sheet opens."
+                : "Set a default folder to save exports without the share sheet.")
         }
     }
 
@@ -365,8 +517,7 @@ struct ExportOptionsSheet: View {
         VStack(spacing: 8) {
             countSummary
             Button {
-                onExport(options)
-                dismiss()
+                runExport()
             } label: {
                 Text(totalCount == 0 ? "NOTHING TO EXPORT" : "EXPORT \(totalCount)")
                     .font(TE.mono(.caption, weight: .bold))
@@ -433,15 +584,39 @@ struct ExportOptionsSheet: View {
     }
 
     private func toggleRow(_ label: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
-        HStack {
+        Toggle(isOn: isOn) {
             Text(label)
                 .font(TE.mono(.caption, weight: .medium))
                 .tracking(1)
                 .foregroundStyle(TE.textPrimary)
-            Spacer()
-            Toggle("", isOn: isOn)
-                .labelsHidden()
-                .tint(TE.accent)
+        }
+        .toggleStyle(TEToggleStyle())
+    }
+
+    // MARK: - Actions
+
+    private func runExport() {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            do {
+                let url = try ExportService.saveToDefaultFolder(
+                    visits: viewModel.allVisits,
+                    points: viewModel.locationPoints,
+                    options: options
+                )
+                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                showingExportSuccess = true
+            } catch {
+                viewModel.exportError = error.localizedDescription
+            }
+        } else {
+            viewModel.exportWithOptions(options)
         }
     }
+}
+
+#Preview {
+    ExportView(viewModel: LocationViewModel(
+        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        locationManager: LocationManager()
+    ))
 }

@@ -4,17 +4,9 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
-    @StateObject private var exportFolderManager = ExportFolderManager.shared
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
-    @State private var showingFolderPicker = false
-    @State private var showingClearFolderConfirmation = false
-    @State private var exportSuccessMessage: String?
-    @State private var showingExportSuccess = false
-    @State private var exportFormat: ExportFormat = .json
-    @State private var showingExportOptions = false
-    @State private var pendingExportOptions = ExportOptions()
     @State private var showingImportPicker = false
     @State private var importResultMessage: String?
     @State private var showingImportResult = false
@@ -22,7 +14,6 @@ struct SettingsView: View {
     @State private var showingImportError = false
 
     @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
-    @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
@@ -39,8 +30,6 @@ struct SettingsView: View {
                         trackingSection
                         unitsSection
                         mapDisplaySection
-                        exportFolderSection
-                        exportSection
                         importSection
                         dataSection
                         onboardingSection
@@ -65,19 +54,6 @@ struct SettingsView: View {
             } message: {
                 Text("This will permanently delete all visit data and location points. This action cannot be undone.")
             }
-            .alert("Remove Default Folder?", isPresented: $showingClearFolderConfirmation) {
-                Button("Cancel", role: .cancel) {}
-                Button("Remove", role: .destructive) { exportFolderManager.clearDefaultFolder() }
-            } message: {
-                Text("Exports will use the share sheet instead of saving directly to a folder.")
-            }
-            .alert("Export Complete", isPresented: $showingExportSuccess) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                if let message = exportSuccessMessage {
-                    Text(message)
-                }
-            }
             .alert("Import Complete", isPresented: $showingImportResult) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -99,27 +75,11 @@ struct SettingsView: View {
             ) { result in
                 handleImportResult(result)
             }
-            .sheet(isPresented: $showingFolderPicker) {
-                FolderPicker { url in
-                    if let url = url {
-                        exportFolderManager.setDefaultFolder(url)
-                    }
-                }
-            }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 viewModel.locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
-            }
-            .sheet(isPresented: $showingExportOptions) {
-                ExportOptionsSheet(
-                    allVisits: viewModel.allVisits,
-                    allPoints: viewModel.locationPoints,
-                    initialOptions: pendingExportOptions
-                ) { options in
-                    runExport(with: options)
-                }
             }
         }
     }
@@ -356,146 +316,6 @@ struct SettingsView: View {
 
             TESectionFooter(text: "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.")
         }
-    }
-
-    // MARK: - Export Folder Section
-
-    private var exportFolderSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "EXPORT FOLDER")
-
-            TECard {
-                VStack(spacing: 0) {
-                    if let folderName = exportFolderManager.selectedFolderName {
-                        TERow {
-                            HStack {
-                                Image(systemName: "folder.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text(folderName.uppercased())
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(0.5)
-                                    .foregroundStyle(TE.textPrimary)
-                                    .lineLimit(1)
-                                Spacer()
-                                Button {
-                                    showingFolderPicker = true
-                                } label: {
-                                    Text("CHANGE")
-                                        .font(TE.mono(.caption2, weight: .semibold))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.accent)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-
-                        TERow {
-                            settingsToggle("AUTO-SAVE", isOn: $useDefaultExportFolder)
-                        }
-
-                        TERow(showDivider: false) {
-                            settingsButton("REMOVE FOLDER", icon: "folder.badge.minus", color: TE.danger) {
-                                showingClearFolderConfirmation = true
-                            }
-                        }
-                    } else {
-                        TERow(showDivider: false) {
-                            settingsButton("SELECT FOLDER", icon: "folder.badge.plus") {
-                                showingFolderPicker = true
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: exportFolderManager.hasDefaultFolder
-                ? "Exports saved directly to this folder when auto-save is enabled."
-                : "Set a default folder to save exports without the share sheet.")
-        }
-    }
-
-    // MARK: - Export Section
-
-    private var exportSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "DATA EXPORT")
-
-            TECard {
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        formatButton("JSON", format: .json)
-                        Rectangle().fill(TE.border).frame(width: 1)
-                        formatButton("CSV", format: .csv)
-                        Rectangle().fill(TE.border).frame(width: 1)
-                        formatButton("MARKDOWN", format: .markdown)
-                    }
-                    .frame(height: 44)
-
-                    Divider().background(TE.border)
-
-                    TERow {
-                        exportActionRow(title: "EXPORT VISITS", count: viewModel.allVisits.count) {
-                            exportVisits(format: exportFormat)
-                        }
-                    }
-
-                    TERow {
-                        exportActionRow(title: "EXPORT POINTS", count: viewModel.locationPoints.count) {
-                            exportLocationPoints(format: exportFormat)
-                        }
-                    }
-
-                    TERow(showDivider: false) {
-                        exportActionRow(title: "EXPORT ALL", count: viewModel.allVisits.count + viewModel.locationPoints.count) {
-                            exportAllData(format: exportFormat)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-                TESectionFooter(text: "Choose date range, fields, and filters before saving to \(exportFolderManager.selectedFolderName ?? "your folder").")
-            } else {
-                TESectionFooter(text: "Choose date range, fields, and filters on the next screen.")
-            }
-        }
-    }
-
-    private func formatButton(_ title: LocalizedStringKey, format: ExportFormat) -> some View {
-        let isSelected = exportFormat == format
-        return Button {
-            exportFormat = format
-        } label: {
-            Text(title)
-                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
-                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func exportActionRow(title: LocalizedStringKey, count: Int, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                    .font(TE.mono(.caption, weight: .medium))
-                    .tracking(1)
-                    .foregroundStyle(TE.textPrimary)
-                Spacer()
-                Text("\(count)")
-                    .font(TE.mono(.caption2, weight: .medium))
-                    .foregroundStyle(TE.textMuted)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(TE.textMuted.opacity(0.4))
-            }
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Import Section
@@ -739,16 +559,13 @@ struct SettingsView: View {
     // MARK: - Reusable Row Components
 
     private func settingsToggle(_ label: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
-        HStack {
+        Toggle(isOn: isOn) {
             Text(label)
                 .font(TE.mono(.caption, weight: .medium))
                 .tracking(1)
                 .foregroundStyle(TE.textPrimary)
-            Spacer()
-            Toggle("", isOn: isOn)
-                .labelsHidden()
-                .tint(TE.accent)
         }
+        .toggleStyle(TEToggleStyle())
     }
 
     private func settingsButton(_ label: LocalizedStringKey, icon: String, color: Color = TE.accent, action: @escaping () -> Void) -> some View {
@@ -770,42 +587,6 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Export Helpers
-
-    private func openExportSheet(dataKind: ExportOptions.DataKind, format: ExportFormat) {
-        guard storeManager.isPurchased else {
-            showingPaywall = true
-            return
-        }
-        var options = ExportOptions()
-        options.dataKind = dataKind
-        options.format = format
-        pendingExportOptions = options
-        showingExportOptions = true
-    }
-
-    private func runExport(with options: ExportOptions) {
-        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
-            do {
-                let url = try ExportService.saveToDefaultFolder(
-                    visits: viewModel.allVisits,
-                    points: viewModel.locationPoints,
-                    options: options
-                )
-                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
-                showingExportSuccess = true
-            } catch {
-                viewModel.exportError = error.localizedDescription
-            }
-        } else {
-            viewModel.exportWithOptions(options)
-        }
-    }
-
-    private func exportVisits(format: ExportFormat) {
-        openExportSheet(dataKind: .visits, format: format)
-    }
-
     private func handleImportResult(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
@@ -824,13 +605,6 @@ struct SettingsView: View {
         }
     }
 
-    private func exportLocationPoints(format: ExportFormat) {
-        openExportSheet(dataKind: .points, format: format)
-    }
-
-    private func exportAllData(format: ExportFormat) {
-        openExportSheet(dataKind: .all, format: format)
-    }
 }
 
 #Preview {

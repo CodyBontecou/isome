@@ -96,11 +96,17 @@ private struct MainTabView: View {
                 }
                 .tag(0)
 
+            ExportView(viewModel: viewModel)
+                .tabItem {
+                    Label("Export", systemImage: "square.and.arrow.up")
+                }
+                .tag(1)
+
             SettingsView(viewModel: viewModel)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(1)
+                .tag(2)
         }
     }
 
@@ -109,7 +115,7 @@ private struct MainTabView: View {
         let prefix = "--default-tab="
         if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
            let index = Int(arg.dropFirst(prefix.count)),
-           (0...1).contains(index) {
+           (0...2).contains(index) {
             return index
         }
         #endif
