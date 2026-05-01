@@ -694,13 +694,13 @@ extension ExportService {
     static func render(
         visits: [Visit],
         points: [LocationPoint],
-        options: ExportOptions
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> (data: Data, fileName: String) {
         let filteredVisits = options.filterVisits(visits)
         let filteredPoints = options.filterPoints(points)
 
         let data: Data
-        let prefix: String
         switch options.dataKind {
         case .visits:
             switch options.format {
@@ -708,14 +708,12 @@ extension ExportService {
             case .csv: data = exportToCSV(visits: filteredVisits, options: options)
             case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
             }
-            prefix = "isome_visits"
         case .points:
             switch options.format {
             case .json: data = try exportLocationPointsToJSON(points: filteredPoints, options: options)
             case .csv: data = exportLocationPointsToCSV(points: filteredPoints, options: options)
             case .markdown: data = exportLocationPointsToMarkdown(points: filteredPoints, options: options)
             }
-            prefix = "isome_location_points"
         case .all:
             data = try combinedData(
                 visits: filteredVisits,
@@ -723,10 +721,13 @@ extension ExportService {
                 format: options.format,
                 options: options
             )
-            prefix = "isome_complete_export"
         }
 
-        let fileName = "\(prefix)_\(formattedDate()).\(options.format.fileExtension)"
+        let fileName = FilenameTemplate.resolve(
+            pattern: filenamePattern,
+            dataKind: options.dataKind,
+            format: options.format
+        )
         return (data, fileName)
     }
 
@@ -735,9 +736,10 @@ extension ExportService {
         visits: [Visit],
         points: [LocationPoint],
         options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern,
         from viewController: UIViewController? = nil
     ) throws {
-        let rendered = try render(visits: visits, points: points, options: options)
+        let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(rendered.fileName)
         try rendered.data.write(to: tempURL)
 
@@ -766,9 +768,10 @@ extension ExportService {
     static func saveToDefaultFolder(
         visits: [Visit],
         points: [LocationPoint],
-        options: ExportOptions
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> URL {
-        let rendered = try render(visits: visits, points: points, options: options)
+        let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
         guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: rendered.data, fileName: rendered.fileName) else {
             throw ExportFolderError.noDefaultFolder
         }

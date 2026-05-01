@@ -36,6 +36,10 @@ struct IsoMeApp: App {
                 .onOpenURL { url in
                     handleDeepLink(url)
                 }
+                .task {
+                    DailyExportScheduler.shared.attach(modelContainer: sharedModelContainer)
+                    await DailyExportScheduler.shared.runIfDue()
+                }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -44,6 +48,7 @@ struct IsoMeApp: App {
                 sessionStart = Date()
                 requestReviewIfEligible()
                 NotificationCenter.default.post(name: .appDidBecomeActive, object: nil)
+                Task { await DailyExportScheduler.shared.runIfDue() }
             case .inactive:
                 break
             case .background:
@@ -52,6 +57,7 @@ struct IsoMeApp: App {
                     sessionStart = nil
                 }
                 NotificationCenter.default.post(name: .appDidEnterBackground, object: nil)
+                DailyExportScheduler.shared.scheduleNextBackgroundRun()
             @unknown default:
                 break
             }
