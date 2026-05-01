@@ -73,14 +73,7 @@ struct ContentView: View {
     }
 
     private func startTrackingFromOnboarding(viewModel: LocationViewModel) {
-        let defaults = UserDefaults.standard
-        let enableTracking = defaults.object(forKey: "defaultLocationTrackingEnabled") == nil
-            ? true
-            : defaults.bool(forKey: "defaultLocationTrackingEnabled")
-
-        if enableTracking {
-            viewModel.startTracking()
-        }
+        viewModel.startTracking()
     }
 }
 
@@ -131,8 +124,6 @@ private struct OnboardingView: View {
 
     @State private var selectedPage = 0
     @State private var startTrackingWhenDone = false
-
-    @AppStorage("defaultLocationTrackingEnabled") private var defaultLocationTrackingEnabled = true
 
     private let pageCount = 4
 
