@@ -34,6 +34,7 @@
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
         <string>com.bontecou.isome.refresh</string>
+        <string>com.bontecou.isome.dailyexport</string>
     </array>
 </dict>
 </plist>

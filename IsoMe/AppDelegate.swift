@@ -21,6 +21,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             UserDefaults.standard.synchronize()
         }
 
+        // Register the daily-export background task before applicationDidFinishLaunching returns.
+        DailyExportScheduler.registerBackgroundTask()
+
         // Check if app was launched due to a location event
         if let locationKey = launchOptions?[.location] as? Bool, locationKey {
             // App was launched in background due to location event

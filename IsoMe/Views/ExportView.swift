@@ -4,6 +4,7 @@ import SwiftData
 struct ExportView: View {
     @Bindable var viewModel: LocationViewModel
     @StateObject private var exportFolderManager = ExportFolderManager.shared
+    @StateObject private var dailyScheduler = DailyExportScheduler.shared
     @ObservedObject private var storeManager = StoreManager.shared
 
     @State private var options = ExportOptions()
@@ -12,8 +13,10 @@ struct ExportView: View {
     @State private var showingClearFolderConfirmation = false
     @State private var exportSuccessMessage: String?
     @State private var showingExportSuccess = false
+    @State private var dailyTimeBinding = Date()
 
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
+    @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
 
     private var filteredVisits: [Visit] {
         options.filterVisits(viewModel.allVisits)
@@ -50,6 +53,10 @@ struct ExportView: View {
                             formatSection
                             dataKindSection
                             exportFolderSection
+                            if exportFolderManager.hasDefaultFolder {
+                                dailyExportSection
+                            }
+                            filenameSection
                             dateRangeSection
                             timeOfDaySection
                             filtersSection
@@ -276,6 +283,209 @@ struct ExportView: View {
                 ? "Exports save directly to this folder when auto-save is on. Otherwise the share sheet opens."
                 : "Set a default folder to save exports without the share sheet.")
         }
+    }
+
+    // MARK: - Daily Export
+
+    private var dailyExportSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "DAILY EXPORT")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: dailyScheduler.isEnabled) {
+                        toggleRow("ENABLE", isOn: Binding(
+                            get: { dailyScheduler.isEnabled },
+                            set: { dailyScheduler.isEnabled = $0 }
+                        ))
+                    }
+
+                    if dailyScheduler.isEnabled {
+                        TERow {
+                            HStack {
+                                Text("TIME")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textPrimary)
+                                Spacer()
+                                DatePicker("", selection: $dailyTimeBinding, displayedComponents: [.hourAndMinute])
+                                    .labelsHidden()
+                                    .tint(TE.accent)
+                                    .onChange(of: dailyTimeBinding) { _, newValue in
+                                        let comps = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                                        dailyScheduler.hour = comps.hour ?? 21
+                                        dailyScheduler.minute = comps.minute ?? 0
+                                    }
+                            }
+                        }
+
+                        TERow {
+                            HStack {
+                                Text("FORMAT")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textPrimary)
+                                Spacer()
+                                Picker("", selection: Binding(
+                                    get: { dailyScheduler.format },
+                                    set: { dailyScheduler.format = $0 }
+                                )) {
+                                    Text("JSON").tag(ExportFormat.json)
+                                    Text("CSV").tag(ExportFormat.csv)
+                                    Text("MARKDOWN").tag(ExportFormat.markdown)
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+
+                        TERow {
+                            HStack {
+                                Text("DATA")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textPrimary)
+                                Spacer()
+                                Picker("", selection: Binding(
+                                    get: { dailyScheduler.dataKind },
+                                    set: { dailyScheduler.dataKind = $0 }
+                                )) {
+                                    Text("VISITS").tag(ExportOptions.DataKind.visits)
+                                    Text("POINTS").tag(ExportOptions.DataKind.points)
+                                    Text("ALL").tag(ExportOptions.DataKind.all)
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+
+                        TERow {
+                            HStack {
+                                Text("LAST RUN")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textMuted)
+                                Spacer()
+                                Text(lastRunText)
+                                    .font(TE.mono(.caption2, weight: .medium))
+                                    .foregroundStyle(TE.textPrimary)
+                            }
+                        }
+
+                        TERow(showDivider: false) {
+                            Button {
+                                Task { await dailyScheduler.runNow() }
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "arrow.down.doc.fill")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("RUN NOW")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: dailyScheduler.isEnabled
+                ? "iOS schedules background runs near this time, but cannot guarantee them. The export also runs the next time you open the app if it's overdue."
+                : "Save a fresh export to your folder once per day, automatically.")
+        }
+        .onAppear {
+            var comps = DateComponents()
+            comps.hour = dailyScheduler.hour
+            comps.minute = dailyScheduler.minute
+            dailyTimeBinding = Calendar.current.date(from: comps) ?? Date()
+        }
+    }
+
+    private var lastRunText: String {
+        guard let last = dailyScheduler.lastRun else { return "NEVER" }
+        let fmt = DateFormatter()
+        fmt.dateStyle = .short
+        fmt.timeStyle = .short
+        return fmt.string(from: last)
+    }
+
+    // MARK: - Filename
+
+    private var filenameSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "FILENAME")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow {
+                        HStack(spacing: 0) {
+                            presetButton("READABLE", isSelected: filenamePattern == FilenameTemplate.readablePattern) {
+                                filenamePattern = FilenameTemplate.readablePattern
+                            }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
+                                filenamePattern = FilenameTemplate.compactPattern
+                            }
+                        }
+                        .frame(height: 36)
+                    }
+
+                    TERow {
+                        TextField("", text: $filenamePattern)
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textPrimary)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled(true)
+                    }
+
+                    TERow(showDivider: false) {
+                        HStack {
+                            Text("PREVIEW")
+                                .font(TE.mono(.caption2, weight: .semibold))
+                                .tracking(1)
+                                .foregroundStyle(TE.textMuted)
+                            Spacer()
+                            Text(filenamePreview)
+                                .font(TE.mono(.caption2, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " "))")
+        }
+    }
+
+    private var filenamePreview: String {
+        FilenameTemplate.resolve(
+            pattern: filenamePattern,
+            dataKind: options.dataKind,
+            format: options.format
+        )
+    }
+
+    private func presetButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
+                .tracking(1.5)
+                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Date Range
@@ -515,11 +725,10 @@ struct ExportView: View {
 
     private var exportFooter: some View {
         VStack(spacing: 8) {
-            countSummary
             Button {
                 runExport()
             } label: {
-                Text(totalCount == 0 ? "NOTHING TO EXPORT" : "EXPORT \(totalCount)")
+                Text(totalCount == 0 ? "NOTHING TO EXPORT" : "EXPORT")
                     .font(TE.mono(.caption, weight: .bold))
                     .tracking(2)
                     .foregroundStyle(.white)
@@ -544,29 +753,6 @@ struct ExportView: View {
             .allowsHitTesting(false),
             alignment: .bottom
         )
-    }
-
-    private var countSummary: some View {
-        HStack(spacing: 12) {
-            if showsVisitFields {
-                summaryPill(value: filteredVisits.count, label: "VISITS")
-            }
-            if showsPointFields {
-                summaryPill(value: filteredPoints.count, label: "POINTS")
-            }
-        }
-    }
-
-    private func summaryPill(value: Int, label: String) -> some View {
-        HStack(spacing: 6) {
-            Text("\(value)")
-                .font(TE.mono(.caption, weight: .bold))
-                .foregroundStyle(TE.textPrimary)
-            Text(LocalizedStringKey(label))
-                .font(TE.mono(.caption2, weight: .medium))
-                .tracking(1)
-                .foregroundStyle(TE.textMuted)
-        }
     }
 
     // MARK: - Reusable bits
@@ -601,7 +787,8 @@ struct ExportView: View {
                 let url = try ExportService.saveToDefaultFolder(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
-                    options: options
+                    options: options,
+                    filenamePattern: filenamePattern
                 )
                 exportSuccessMessage = "Saved to \(url.lastPathComponent)"
                 showingExportSuccess = true
@@ -609,7 +796,16 @@ struct ExportView: View {
                 viewModel.exportError = error.localizedDescription
             }
         } else {
-            viewModel.exportWithOptions(options)
+            do {
+                try ExportService.share(
+                    visits: viewModel.allVisits,
+                    points: viewModel.locationPoints,
+                    options: options,
+                    filenamePattern: filenamePattern
+                )
+            } catch {
+                viewModel.exportError = error.localizedDescription
+            }
         }
     }
 }
