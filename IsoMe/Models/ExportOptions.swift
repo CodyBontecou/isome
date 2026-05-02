@@ -61,6 +61,9 @@ struct ExportOptions {
     var minVisitDurationMinutes: Double = 0
     var maxAccuracyMeters: Double = 0  // 0 means no cap
 
+    // Output shape
+    var splitByDay: Bool = false
+
     // MARK: - Defaults
 
     private static let defaultTimeOfDayStart: Date = {
@@ -148,6 +151,38 @@ struct ExportOptions {
             if excludeOutliers && point.isOutlier { return false }
             if maxAccuracyMeters > 0 && point.horizontalAccuracy > maxAccuracyMeters { return false }
             return true
+        }
+    }
+
+    // MARK: - Per-day grouping
+
+    struct DayGroup {
+        let day: Date
+        let visits: [Visit]
+        let points: [LocationPoint]
+    }
+
+    /// Groups already-filtered visits and points by calendar day. Days with no
+    /// data for the active dataKind are omitted.
+    func groupByDay(visits: [Visit], points: [LocationPoint]) -> [DayGroup] {
+        let cal = Calendar.current
+        let visitsByDay = Dictionary(grouping: visits) { cal.startOfDay(for: $0.arrivedAt) }
+        let pointsByDay = Dictionary(grouping: points) { cal.startOfDay(for: $0.timestamp) }
+
+        let relevantKeys: Set<Date> = {
+            switch dataKind {
+            case .visits: return Set(visitsByDay.keys)
+            case .points: return Set(pointsByDay.keys)
+            case .all: return Set(visitsByDay.keys).union(pointsByDay.keys)
+            }
+        }()
+
+        return relevantKeys.sorted().map { day in
+            DayGroup(
+                day: day,
+                visits: visitsByDay[day] ?? [],
+                points: pointsByDay[day] ?? []
+            )
         }
     }
 }

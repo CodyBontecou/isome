@@ -39,7 +39,9 @@ Enable this in **Settings > Tracking Defaults > Auto-Start on Activity**.
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
 ### Export & Import
-Export visits and location points as JSON, CSV, or Markdown. Optionally set a default export folder for one-tap saves. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
+Export visits and location points as JSON, CSV, or Markdown. Choose a date range, time-of-day window, and per-format field toggles, and either condense everything into a single file or split the export into **one file per day** for easier downstream slicing. Optionally set a default export folder for one-tap saves and schedule a daily auto-export. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
+
+Exports drop in cleanly to the [iso.me Maps Obsidian plugin](https://github.com/CodyBontecou/obsidian-iso-me-maps), which renders visits, routes, heatmaps, and outliers as Leaflet maps inline in your notes — point a code block at a single condensed export, a folder of per-day files, or a filename glob.
 
 ### Watch App
 Companion watchOS app showing today's visit count, distance traveled, and tracking status. Syncs with the main app via shared App Groups.

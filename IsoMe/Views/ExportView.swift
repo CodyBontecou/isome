@@ -34,6 +34,11 @@ struct ExportView: View {
         }
     }
 
+    private var splitFileCount: Int {
+        guard options.splitByDay else { return totalCount > 0 ? 1 : 0 }
+        return options.groupByDay(visits: filteredVisits, points: filteredPoints).count
+    }
+
     private var showsVisitFields: Bool {
         options.dataKind == .visits || options.dataKind == .all
     }
@@ -57,6 +62,7 @@ struct ExportView: View {
                                 dailyExportSection
                             }
                             filenameSection
+                            outputSection
                             dateRangeSection
                             timeOfDaySection
                             filtersSection
@@ -488,6 +494,25 @@ struct ExportView: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Output
+
+    private var outputSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "OUTPUT")
+
+            TECard {
+                TERow(showDivider: false) {
+                    toggleRow("ONE FILE PER DAY", isOn: $options.splitByDay)
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: options.splitByDay
+                ? "Each calendar day in the range becomes its own file. Use {date} or {day} in the filename to keep them distinct."
+                : "All filtered data is condensed into a single file.")
+        }
+    }
+
     // MARK: - Date Range
 
     private var dateRangeSection: some View {
@@ -728,7 +753,7 @@ struct ExportView: View {
             Button {
                 runExport()
             } label: {
-                Text(totalCount == 0 ? "NOTHING TO EXPORT" : "EXPORT")
+                Text(exportButtonLabel)
                     .font(TE.mono(.caption, weight: .bold))
                     .tracking(2)
                     .foregroundStyle(.white)
@@ -753,6 +778,17 @@ struct ExportView: View {
             .allowsHitTesting(false),
             alignment: .bottom
         )
+    }
+
+    private var exportButtonLabel: LocalizedStringKey {
+        if totalCount == 0 { return "NOTHING TO EXPORT" }
+        if options.splitByDay {
+            let n = splitFileCount
+            if n == 0 { return "NOTHING TO EXPORT" }
+            if n == 1 { return "EXPORT 1 FILE" }
+            return "EXPORT \(n) FILES"
+        }
+        return "EXPORT"
     }
 
     // MARK: - Reusable bits
@@ -784,13 +820,19 @@ struct ExportView: View {
     private func runExport() {
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
-                let url = try ExportService.saveToDefaultFolder(
+                let urls = try ExportService.saveToDefaultFolder(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
                     options: options,
                     filenamePattern: filenamePattern
                 )
-                exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                if urls.count == 1, let url = urls.first {
+                    exportSuccessMessage = "Saved to \(url.lastPathComponent)"
+                } else if let folder = urls.first?.deletingLastPathComponent().lastPathComponent {
+                    exportSuccessMessage = "Saved \(urls.count) files to \(folder)"
+                } else {
+                    exportSuccessMessage = "Saved \(urls.count) files"
+                }
                 showingExportSuccess = true
             } catch {
                 viewModel.exportError = error.localizedDescription

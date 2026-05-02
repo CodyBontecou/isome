@@ -731,6 +731,108 @@ extension ExportService {
         return (data, fileName)
     }
 
+    /// Renders one file per calendar day. Each day's file is produced by running
+    /// the standard `render` pipeline against just that day's data. The day's
+    /// `startOfDay` is threaded through `FilenameTemplate.resolve` so `{date}`
+    /// and `{day}` tokens reflect the day represented by the file.
+    static func renderPerDay(
+        visits: [Visit],
+        points: [LocationPoint],
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern
+    ) throws -> [(data: Data, fileName: String)] {
+        let filteredVisits = options.filterVisits(visits)
+        let filteredPoints = options.filterPoints(points)
+        let groups = options.groupByDay(visits: filteredVisits, points: filteredPoints)
+
+        var results: [(data: Data, fileName: String)] = []
+        var usedNames = Set<String>()
+
+        for group in groups {
+            // Build a single-day options copy with filters already applied so
+            // the inner exporters don't re-filter (which would drop visits/points
+            // outside the synthetic per-day range).
+            var dayOptions = options
+            dayOptions.datePreset = .allTime
+            dayOptions.timeOfDayEnabled = false
+            dayOptions.excludeOutliers = false
+            dayOptions.onlyCompletedVisits = false
+            dayOptions.minVisitDurationMinutes = 0
+            dayOptions.maxAccuracyMeters = 0
+            dayOptions.splitByDay = false
+
+            let data: Data
+            switch dayOptions.dataKind {
+            case .visits:
+                switch dayOptions.format {
+                case .json: data = try exportToJSON(visits: group.visits, options: dayOptions)
+                case .csv: data = exportToCSV(visits: group.visits, options: dayOptions)
+                case .markdown: data = exportToMarkdown(visits: group.visits, options: dayOptions)
+                }
+            case .points:
+                switch dayOptions.format {
+                case .json: data = try exportLocationPointsToJSON(points: group.points, options: dayOptions)
+                case .csv: data = exportLocationPointsToCSV(points: group.points, options: dayOptions)
+                case .markdown: data = exportLocationPointsToMarkdown(points: group.points, options: dayOptions)
+                }
+            case .all:
+                data = try combinedData(
+                    visits: group.visits,
+                    points: group.points,
+                    format: dayOptions.format,
+                    options: dayOptions
+                )
+            }
+
+            let baseName = FilenameTemplate.resolve(
+                pattern: filenamePattern,
+                dataKind: options.dataKind,
+                format: options.format,
+                date: group.day
+            )
+            let fileName = uniqueFilename(baseName, in: &usedNames, day: group.day, format: options.format)
+            results.append((data, fileName))
+        }
+
+        return results
+    }
+
+    /// Ensures per-day filenames don't collide if the user's pattern omits
+    /// date/day tokens. Falls back to prefixing the ISO date.
+    private static func uniqueFilename(
+        _ baseName: String,
+        in used: inout Set<String>,
+        day: Date,
+        format: ExportFormat
+    ) -> String {
+        if !used.contains(baseName) {
+            used.insert(baseName)
+            return baseName
+        }
+
+        let dateFmt = DateFormatter()
+        dateFmt.locale = Locale(identifier: "en_US_POSIX")
+        dateFmt.dateFormat = "yyyy-MM-dd"
+        let isoDay = dateFmt.string(from: day)
+
+        let ext = ".\(format.fileExtension)"
+        let stem: String
+        if baseName.hasSuffix(ext) {
+            stem = String(baseName.dropLast(ext.count))
+        } else {
+            stem = baseName
+        }
+
+        var candidate = "\(isoDay)_\(stem)\(ext)"
+        var counter = 2
+        while used.contains(candidate) {
+            candidate = "\(isoDay)_\(stem)_\(counter)\(ext)"
+            counter += 1
+        }
+        used.insert(candidate)
+        return candidate
+    }
+
     @MainActor
     static func share(
         visits: [Visit],
@@ -739,12 +841,26 @@ extension ExportService {
         filenamePattern: String = FilenameTemplate.defaultPattern,
         from viewController: UIViewController? = nil
     ) throws {
-        let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(rendered.fileName)
-        try rendered.data.write(to: tempURL)
+        let fileURLs: [URL]
+
+        if options.splitByDay {
+            let rendered = try renderPerDay(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
+            fileURLs = try rendered.map { item in
+                let url = FileManager.default.temporaryDirectory.appendingPathComponent(item.fileName)
+                try item.data.write(to: url)
+                return url
+            }
+        } else {
+            let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent(rendered.fileName)
+            try rendered.data.write(to: url)
+            fileURLs = [url]
+        }
+
+        guard !fileURLs.isEmpty else { return }
 
         let activityVC = UIActivityViewController(
-            activityItems: [tempURL],
+            activityItems: fileURLs,
             applicationActivities: nil
         )
 
@@ -770,11 +886,23 @@ extension ExportService {
         points: [LocationPoint],
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
-    ) throws -> URL {
-        let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-        guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: rendered.data, fileName: rendered.fileName) else {
-            throw ExportFolderError.noDefaultFolder
+    ) throws -> [URL] {
+        if options.splitByDay {
+            let rendered = try renderPerDay(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
+            var saved: [URL] = []
+            for item in rendered {
+                guard let url = try ExportFolderManager.shared.saveToDefaultFolder(data: item.data, fileName: item.fileName) else {
+                    throw ExportFolderError.noDefaultFolder
+                }
+                saved.append(url)
+            }
+            return saved
+        } else {
+            let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
+            guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: rendered.data, fileName: rendered.fileName) else {
+                throw ExportFolderError.noDefaultFolder
+            }
+            return [savedURL]
         }
-        return savedURL
     }
 }
