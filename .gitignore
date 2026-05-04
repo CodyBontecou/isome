@@ -2,3 +2,31 @@ build/
 .DS_Store
 .wrangler/
 .claude/
+
+# Secrets — real Gripe API key. Use Config/Gripe.xcconfig.example as the template.
+Config/Gripe.xcconfig
+
+# asc CLI build output (xcarchives, simulator builds).
+.asc/artifacts/
+
+# Large local design source (~86 MB).
+design/
+
+# ASO audit and ad-hoc capture output. Regenerable via the screenshot skills.
+screenshots/simulator/
+screenshots/current.png
+screenshots/paywall.png
+screenshots/showcase.png
+screenshots/01-keep-on-device/
+screenshots/02-capture-visits/
+screenshots/03-record-routes/
+screenshots/04-export-history/
+
+# Generated App Store screenshot bundles. Re-render before each submission.
+screenshots/final/
+screenshots/iphone67/
+screenshots/ipad13/
+screenshots/watch/
+
+# Reference metadata pulled from another app for ASO comparison.
+metadata/spotted-reference/
