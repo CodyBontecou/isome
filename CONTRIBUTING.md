@@ -43,17 +43,6 @@ For local development, change the bundle ID prefix to your own (e.g. `com.yourna
 
 The app, widget, and watch app share data via an App Group. Update the App Group identifier on each target's **Signing & Capabilities** tab to match your team prefix (e.g. `group.com.yourname.isome`). The corresponding string is read from `Shared/AppGroup.swift` — search for `group.com.bontecou.isome` and replace as needed.
 
-### Optional: Gripe analytics key
-
-The repo uses [Gripe](https://gripe.dev) for anonymous crash reporting. The real key is gitignored. To build without it:
-
-```bash
-cp Config/Gripe.xcconfig.example Config/Gripe.xcconfig
-# Leave GRIPE_API_KEY = REPLACE_WITH_GRIPE_API_KEY
-```
-
-The build will succeed and crash reports will be no-ops.
-
 ### Build & run
 
 1. Select the **IsoMe** scheme.
@@ -86,7 +75,7 @@ Then upload the IPA to App Store Connect via Transporter.app or `xcrun altool`.
 
 - **SwiftUI-first** — prefer SwiftUI over UIKit unless a feature genuinely requires it.
 - **No external dependencies** — the project deliberately uses only Apple frameworks. Adding a Swift Package needs a strong justification and discussion first.
-- **Privacy by default** — no analytics, no telemetry, no network calls that ship user data off-device. Crash reporting is the single exception (Gripe), and it is anonymous and opt-in.
+- **Privacy by default** — no analytics, no telemetry, no network calls that ship user data off-device.
 - **Match existing patterns** — read the surrounding files before adding a new model, service, or view.
 
 ## Pull request workflow

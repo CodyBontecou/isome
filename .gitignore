@@ -3,9 +3,6 @@ build/
 .wrangler/
 .claude/
 
-# Secrets — real Gripe API key. Use Config/Gripe.xcconfig.example as the template.
-Config/Gripe.xcconfig
-
 # asc CLI build output (xcarchives, simulator builds).
 .asc/artifacts/
 
