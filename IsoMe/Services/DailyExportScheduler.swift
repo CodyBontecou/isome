@@ -196,6 +196,8 @@ final class DailyExportScheduler: ObservableObject {
         case .json: return "json"
         case .csv: return "csv"
         case .markdown: return "markdown"
+        case .owntracks: return "owntracks"
+        case .overland: return "overland"
         }
     }
 
@@ -203,6 +205,8 @@ final class DailyExportScheduler: ObservableObject {
         switch raw {
         case "csv": return .csv
         case "markdown": return .markdown
+        case "owntracks": return .owntracks
+        case "overland": return .overland
         default: return .json
         }
     }

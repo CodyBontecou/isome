@@ -170,16 +170,31 @@ struct ExportView: View {
             TESectionHeader(title: "FORMAT")
 
             TECard {
-                HStack(spacing: 0) {
-                    segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
-                    Rectangle().fill(TE.border).frame(width: 1)
-                    segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
-                    Rectangle().fill(TE.border).frame(width: 1)
-                    segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
+                    }
+                    .frame(height: 44)
+
+                    Rectangle().fill(TE.border).frame(height: 1)
+
+                    HStack(spacing: 0) {
+                        segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
+                    }
+                    .frame(height: 44)
                 }
-                .frame(height: 44)
             }
             .padding(.horizontal, 16)
+
+            if options.format.isPointsOnly {
+                TESectionFooter(text: "Tracking-protocol formats only carry GPS fixes — visits and notes are dropped.")
+            }
         }
     }
 
@@ -339,6 +354,8 @@ struct ExportView: View {
                                     Text("JSON").tag(ExportFormat.json)
                                     Text("CSV").tag(ExportFormat.csv)
                                     Text("MARKDOWN").tag(ExportFormat.markdown)
+                                    Text("OWNTRACKS").tag(ExportFormat.owntracks)
+                                    Text("OVERLAND").tag(ExportFormat.overland)
                                 }
                                 .labelsHidden()
                                 .tint(TE.accent)

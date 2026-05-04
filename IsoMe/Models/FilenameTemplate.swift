@@ -11,7 +11,7 @@ struct FilenameTemplate {
         ("{time}", "14-30-15"),
         ("{day}", "Thursday"),
         ("{type}", "visits / points / all"),
-        ("{format}", "json / csv / md"),
+        ("{format}", "json / csv / md / owntracks / overland"),
     ]
 
     static func resolve(
@@ -53,7 +53,7 @@ struct FilenameTemplate {
         output = output.replacingOccurrences(of: "{time}", with: timeFmt.string(from: date))
         output = output.replacingOccurrences(of: "{day}", with: dayFmt.string(from: date))
         output = output.replacingOccurrences(of: "{type}", with: typeText)
-        output = output.replacingOccurrences(of: "{format}", with: format.fileExtension)
+        output = output.replacingOccurrences(of: "{format}", with: format.token)
 
         let sanitized = sanitize(output)
         return "\(sanitized).\(format.fileExtension)"

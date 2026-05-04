@@ -5,10 +5,12 @@ enum ExportFormat {
     case json
     case csv
     case markdown
+    case owntracks
+    case overland
 
     var fileExtension: String {
         switch self {
-        case .json: return "json"
+        case .json, .owntracks, .overland: return "json"
         case .csv: return "csv"
         case .markdown: return "md"
         }
@@ -16,9 +18,29 @@ enum ExportFormat {
 
     var mimeType: String {
         switch self {
-        case .json: return "application/json"
+        case .json, .owntracks, .overland: return "application/json"
         case .csv: return "text/csv"
         case .markdown: return "text/markdown"
+        }
+    }
+
+    /// Stable identifier for the `{format}` filename token and persisted prefs.
+    /// Distinct from `fileExtension` so two `.json`-extension formats don't collide.
+    var token: String {
+        switch self {
+        case .json: return "json"
+        case .csv: return "csv"
+        case .markdown: return "md"
+        case .owntracks: return "owntracks"
+        case .overland: return "overland"
+        }
+    }
+
+    /// Tracking-protocol formats only model continuous GPS fixes, not visits/stays.
+    var isPointsOnly: Bool {
+        switch self {
+        case .owntracks, .overland: return true
+        case .json, .csv, .markdown: return false
         }
     }
 }
@@ -242,6 +264,9 @@ struct ExportService {
             data = exportToCSV(visits: visits)
         case .markdown:
             data = exportToMarkdown(visits: visits)
+        case .owntracks, .overland:
+            // Tracking protocols can't represent visits; emit standard JSON instead.
+            data = try exportToJSON(visits: visits)
         }
 
         let fileURL = try createTemporaryFile(data: data, format: format)
@@ -283,6 +308,8 @@ struct ExportService {
             data = exportToCSV(visits: visits)
         case .markdown:
             data = exportToMarkdown(visits: visits)
+        case .owntracks, .overland:
+            data = try exportToJSON(visits: visits)
         }
         
         let fileName = "isome_visits_\(formattedDate()).\(format.fileExtension)"
@@ -487,6 +514,10 @@ extension ExportService {
             data = exportLocationPointsToCSV(points: points)
         case .markdown:
             data = exportLocationPointsToMarkdown(points: points)
+        case .owntracks:
+            data = try exportLocationPointsToOwnTracks(points: points)
+        case .overland:
+            data = try exportLocationPointsToOverland(points: points)
         }
         
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
@@ -514,6 +545,98 @@ extension ExportService {
         presenter.present(activityVC, animated: true)
     }
     
+    // MARK: - OwnTracks (https://owntracks.org/booklet/tech/json/)
+
+    /// One OwnTracks `_type:"location"` message. Field names and units match
+    /// the spec verbatim — short keys, integer units (`vel` km/h, `acc`/`alt`/`vac` m).
+    private struct OwnTracksLocation: Codable {
+        let _type: String
+        let lat: Double
+        let lon: Double
+        let tst: Int
+        let acc: Int?
+        let alt: Int?
+        let vel: Int?
+        let cog: Int?
+        let vac: Int?
+        let tid: String?
+    }
+
+    static func exportLocationPointsToOwnTracks(points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+
+        let messages = sortedPoints.map { p -> OwnTracksLocation in
+            OwnTracksLocation(
+                _type: "location",
+                lat: p.latitude,
+                lon: p.longitude,
+                tst: Int(p.timestamp.timeIntervalSince1970),
+                acc: options.includePointAccuracy ? Int(p.horizontalAccuracy.rounded()) : nil,
+                alt: (options.includePointAltitude ? p.altitude : nil).map { Int($0.rounded()) },
+                // OwnTracks `vel` is km/h; LocationPoint.speed is m/s.
+                vel: (options.includePointSpeed ? p.speed : nil).map { Int(($0 * 3.6).rounded()) },
+                cog: nil,
+                vac: nil,
+                tid: "IM"
+            )
+        }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        return try encoder.encode(messages)
+    }
+
+    // MARK: - Overland (https://github.com/aaronpk/Overland-iOS)
+
+    private struct OverlandFeature: Codable {
+        let type: String
+        let geometry: Geometry
+        let properties: Properties
+
+        struct Geometry: Codable {
+            let type: String
+            let coordinates: [Double]  // [lon, lat]
+        }
+        struct Properties: Codable {
+            let timestamp: String
+            let altitude: Double?
+            let speed: Double?
+            let horizontalAccuracy: Double?
+            let deviceId: String?
+        }
+    }
+
+    private struct OverlandPayload: Codable {
+        let locations: [OverlandFeature]
+        let current: OverlandFeature?
+    }
+
+    static func exportLocationPointsToOverland(points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+
+        let features = sortedPoints.map { p -> OverlandFeature in
+            OverlandFeature(
+                type: "Feature",
+                geometry: .init(type: "Point", coordinates: [p.longitude, p.latitude]),
+                properties: .init(
+                    timestamp: iso8601Formatter.string(from: p.timestamp),
+                    altitude: options.includePointAltitude ? p.altitude : nil,
+                    // Overland `speed` is m/s — same as LocationPoint, no conversion.
+                    speed: options.includePointSpeed ? p.speed : nil,
+                    horizontalAccuracy: options.includePointAccuracy ? p.horizontalAccuracy : nil,
+                    deviceId: "isome"
+                )
+            )
+        }
+
+        let payload = OverlandPayload(locations: features, current: features.last)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return try encoder.encode(payload)
+    }
+
     /// Export location points directly to the default export folder
     /// - Returns: The URL where the file was saved
     @MainActor
@@ -526,6 +649,10 @@ extension ExportService {
             data = exportLocationPointsToCSV(points: points)
         case .markdown:
             data = exportLocationPointsToMarkdown(points: points)
+        case .owntracks:
+            data = try exportLocationPointsToOwnTracks(points: points)
+        case .overland:
+            data = try exportLocationPointsToOverland(points: points)
         }
 
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
@@ -683,6 +810,8 @@ extension ExportService {
         case .json: return try exportCombinedToJSON(visits: visits, points: points, options: options)
         case .csv: return exportCombinedToCSV(visits: visits, points: points, options: options)
         case .markdown: return exportCombinedToMarkdown(visits: visits, points: points, options: options)
+        case .owntracks: return try exportLocationPointsToOwnTracks(points: points, options: options)
+        case .overland: return try exportLocationPointsToOverland(points: points, options: options)
         }
     }
 }
@@ -700,19 +829,26 @@ extension ExportService {
         let filteredVisits = options.filterVisits(visits)
         let filteredPoints = options.filterPoints(points)
 
+        // Tracking-protocol formats only carry GPS fixes; coerce to points-only output
+        // so the filename token and emitted payload agree.
+        let effectiveKind: ExportOptions.DataKind = options.format.isPointsOnly ? .points : options.dataKind
+
         let data: Data
-        switch options.dataKind {
+        switch effectiveKind {
         case .visits:
             switch options.format {
             case .json: data = try exportToJSON(visits: filteredVisits, options: options)
             case .csv: data = exportToCSV(visits: filteredVisits, options: options)
             case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
+            case .owntracks, .overland: data = try exportToJSON(visits: filteredVisits, options: options)
             }
         case .points:
             switch options.format {
             case .json: data = try exportLocationPointsToJSON(points: filteredPoints, options: options)
             case .csv: data = exportLocationPointsToCSV(points: filteredPoints, options: options)
             case .markdown: data = exportLocationPointsToMarkdown(points: filteredPoints, options: options)
+            case .owntracks: data = try exportLocationPointsToOwnTracks(points: filteredPoints, options: options)
+            case .overland: data = try exportLocationPointsToOverland(points: filteredPoints, options: options)
             }
         case .all:
             data = try combinedData(
@@ -725,7 +861,7 @@ extension ExportService {
 
         let fileName = FilenameTemplate.resolve(
             pattern: filenamePattern,
-            dataKind: options.dataKind,
+            dataKind: effectiveKind,
             format: options.format
         )
         return (data, fileName)
@@ -761,19 +897,24 @@ extension ExportService {
             dayOptions.maxAccuracyMeters = 0
             dayOptions.splitByDay = false
 
+            let effectiveKind: ExportOptions.DataKind = dayOptions.format.isPointsOnly ? .points : dayOptions.dataKind
+
             let data: Data
-            switch dayOptions.dataKind {
+            switch effectiveKind {
             case .visits:
                 switch dayOptions.format {
                 case .json: data = try exportToJSON(visits: group.visits, options: dayOptions)
                 case .csv: data = exportToCSV(visits: group.visits, options: dayOptions)
                 case .markdown: data = exportToMarkdown(visits: group.visits, options: dayOptions)
+                case .owntracks, .overland: data = try exportToJSON(visits: group.visits, options: dayOptions)
                 }
             case .points:
                 switch dayOptions.format {
                 case .json: data = try exportLocationPointsToJSON(points: group.points, options: dayOptions)
                 case .csv: data = exportLocationPointsToCSV(points: group.points, options: dayOptions)
                 case .markdown: data = exportLocationPointsToMarkdown(points: group.points, options: dayOptions)
+                case .owntracks: data = try exportLocationPointsToOwnTracks(points: group.points, options: dayOptions)
+                case .overland: data = try exportLocationPointsToOverland(points: group.points, options: dayOptions)
                 }
             case .all:
                 data = try combinedData(
@@ -786,7 +927,7 @@ extension ExportService {
 
             let baseName = FilenameTemplate.resolve(
                 pattern: filenamePattern,
-                dataKind: options.dataKind,
+                dataKind: effectiveKind,
                 format: options.format,
                 date: group.day
             )
