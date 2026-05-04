@@ -1,0 +1,15 @@
+{
+  "originHash" : "d64e52072e33ae951160f6872d9dd1a1aebe19da276a485fc16545ff56213853",
+  "pins" : [
+    {
+      "identity" : "gripe-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/codybontecou/gripe-sdk",
+      "state" : {
+        "revision" : "02aa9f2b67e3bbcba9da0ddb144b91769e255f60",
+        "version" : "0.1.11"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -1,0 +1,5 @@
+// Template for Config/Gripe.xcconfig.
+// Copy this file to Config/Gripe.xcconfig and fill in your real key.
+// The real Gripe.xcconfig is gitignored.
+
+GRIPE_API_KEY = REPLACE_WITH_GRIPE_API_KEY
