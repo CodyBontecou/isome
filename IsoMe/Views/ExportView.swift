@@ -186,6 +186,8 @@ struct ExportView: View {
                         segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
                         Rectangle().fill(TE.border).frame(width: 1)
                         segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
                     }
                     .frame(height: 44)
                 }
