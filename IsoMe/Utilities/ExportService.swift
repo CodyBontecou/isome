@@ -7,12 +7,14 @@ enum ExportFormat {
     case markdown
     case owntracks
     case overland
+    case gpx
 
     var fileExtension: String {
         switch self {
         case .json, .owntracks, .overland: return "json"
         case .csv: return "csv"
         case .markdown: return "md"
+        case .gpx: return "gpx"
         }
     }
 
@@ -21,6 +23,7 @@ enum ExportFormat {
         case .json, .owntracks, .overland: return "application/json"
         case .csv: return "text/csv"
         case .markdown: return "text/markdown"
+        case .gpx: return "application/gpx+xml"
         }
     }
 
@@ -33,6 +36,7 @@ enum ExportFormat {
         case .markdown: return "md"
         case .owntracks: return "owntracks"
         case .overland: return "overland"
+        case .gpx: return "gpx"
         }
     }
 
@@ -40,7 +44,7 @@ enum ExportFormat {
     var isPointsOnly: Bool {
         switch self {
         case .owntracks, .overland: return true
-        case .json, .csv, .markdown: return false
+        case .json, .csv, .markdown, .gpx: return false
         }
     }
 }
@@ -267,6 +271,8 @@ struct ExportService {
         case .owntracks, .overland:
             // Tracking protocols can't represent visits; emit standard JSON instead.
             data = try exportToJSON(visits: visits)
+        case .gpx:
+            data = exportVisitsToGPX(visits: visits)
         }
 
         let fileURL = try createTemporaryFile(data: data, format: format)
@@ -310,6 +316,8 @@ struct ExportService {
             data = exportToMarkdown(visits: visits)
         case .owntracks, .overland:
             data = try exportToJSON(visits: visits)
+        case .gpx:
+            data = exportVisitsToGPX(visits: visits)
         }
         
         let fileName = "isome_visits_\(formattedDate()).\(format.fileExtension)"
@@ -518,6 +526,8 @@ extension ExportService {
             data = try exportLocationPointsToOwnTracks(points: points)
         case .overland:
             data = try exportLocationPointsToOverland(points: points)
+        case .gpx:
+            data = exportLocationPointsToGPX(points: points)
         }
         
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
@@ -653,6 +663,8 @@ extension ExportService {
             data = try exportLocationPointsToOwnTracks(points: points)
         case .overland:
             data = try exportLocationPointsToOverland(points: points)
+        case .gpx:
+            data = exportLocationPointsToGPX(points: points)
         }
 
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
@@ -812,7 +824,166 @@ extension ExportService {
         case .markdown: return exportCombinedToMarkdown(visits: visits, points: points, options: options)
         case .owntracks: return try exportLocationPointsToOwnTracks(points: points, options: options)
         case .overland: return try exportLocationPointsToOverland(points: points, options: options)
+        case .gpx: return exportCombinedToGPX(visits: visits, points: points, options: options)
         }
+    }
+}
+
+// MARK: - GPX Export (https://www.topografix.com/GPX/1/1/)
+
+extension ExportService {
+    /// New <trkseg> when consecutive points are more than this many seconds apart.
+    private static let gpxSegmentGapSeconds: TimeInterval = 600
+
+    private static let gpxNamespace = "https://isome.isolated.tech/gpx/1.0"
+
+    private static func escapeXML(_ s: String) -> String {
+        var out = ""
+        out.reserveCapacity(s.count)
+        for c in s {
+            switch c {
+            case "&": out += "&amp;"
+            case "<": out += "&lt;"
+            case ">": out += "&gt;"
+            case "\"": out += "&quot;"
+            case "'": out += "&apos;"
+            default: out.append(c)
+            }
+        }
+        return out
+    }
+
+    private static func gpxCoord(_ d: Double) -> String {
+        String(format: "%.7f", d)
+    }
+
+    private static func gpxNumber(_ d: Double, decimals: Int = 2) -> String {
+        String(format: "%.\(decimals)f", d)
+    }
+
+    private static func gpxHeader() -> String {
+        let now = iso8601Formatter.string(from: Date())
+        return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" creator="iso.me" xmlns="http://www.topografix.com/GPX/1/1" xmlns:isome="\(gpxNamespace)">
+          <metadata>
+            <name>iso.me export</name>
+            <time>\(now)</time>
+          </metadata>
+        """
+    }
+
+    private static func gpxFooter() -> String { "</gpx>\n" }
+
+    private static func gpxWaypoint(_ visit: Visit, options: ExportOptions) -> String? {
+        // <wpt> requires lat/lon; if the user opted out of coordinates, skip.
+        guard options.includeVisitCoordinates else { return nil }
+
+        var xml = "  <wpt lat=\"\(gpxCoord(visit.latitude))\" lon=\"\(gpxCoord(visit.longitude))\">\n"
+        xml += "    <time>\(iso8601Formatter.string(from: visit.arrivedAt))</time>\n"
+
+        if options.includeVisitLocationName, let name = visit.locationName, !name.isEmpty {
+            xml += "    <name>\(escapeXML(name))</name>\n"
+        } else {
+            xml += "    <name>Visit</name>\n"
+        }
+
+        var descParts: [String] = []
+        if options.includeVisitAddress, let address = visit.address, !address.isEmpty {
+            descParts.append(address)
+        }
+        if options.includeVisitNotes, let notes = visit.notes, !notes.isEmpty {
+            descParts.append(notes)
+        }
+        if !descParts.isEmpty {
+            xml += "    <desc>\(escapeXML(descParts.joined(separator: " — ")))</desc>\n"
+        }
+
+        var ext = ""
+        if let departed = visit.departedAt {
+            ext += "      <isome:departedAt>\(iso8601Formatter.string(from: departed))</isome:departedAt>\n"
+        }
+        if options.includeVisitDuration, let mins = visit.durationMinutes {
+            ext += "      <isome:durationMinutes>\(gpxNumber(mins, decimals: 2))</isome:durationMinutes>\n"
+        }
+        if !ext.isEmpty {
+            xml += "    <extensions>\n\(ext)    </extensions>\n"
+        }
+
+        xml += "  </wpt>\n"
+        return xml
+    }
+
+    private static func gpxTrack(_ points: [LocationPoint], options: ExportOptions) -> String {
+        guard !points.isEmpty else { return "" }
+        let sorted = points.sorted { $0.timestamp < $1.timestamp }
+
+        var xml = "  <trk>\n    <name>iso.me track</name>\n"
+        xml += "    <trkseg>\n"
+
+        var previous: LocationPoint?
+        for p in sorted {
+            if let prev = previous,
+               p.timestamp.timeIntervalSince(prev.timestamp) > gpxSegmentGapSeconds {
+                xml += "    </trkseg>\n    <trkseg>\n"
+            }
+            xml += gpxTrackpoint(p, options: options)
+            previous = p
+        }
+
+        xml += "    </trkseg>\n  </trk>\n"
+        return xml
+    }
+
+    private static func gpxTrackpoint(_ p: LocationPoint, options: ExportOptions) -> String {
+        var xml = "      <trkpt lat=\"\(gpxCoord(p.latitude))\" lon=\"\(gpxCoord(p.longitude))\">\n"
+        if options.includePointAltitude, let alt = p.altitude {
+            xml += "        <ele>\(gpxNumber(alt, decimals: 2))</ele>\n"
+        }
+        xml += "        <time>\(iso8601Formatter.string(from: p.timestamp))</time>\n"
+
+        var ext = ""
+        if options.includePointSpeed, let speed = p.speed {
+            ext += "          <isome:speed>\(gpxNumber(speed, decimals: 2))</isome:speed>\n"
+        }
+        if options.includePointAccuracy {
+            ext += "          <isome:horizontalAccuracy>\(gpxNumber(p.horizontalAccuracy, decimals: 2))</isome:horizontalAccuracy>\n"
+        }
+        if options.includePointOutlierFlag, p.isOutlier {
+            ext += "          <isome:isOutlier>true</isome:isOutlier>\n"
+        }
+        if !ext.isEmpty {
+            xml += "        <extensions>\n\(ext)        </extensions>\n"
+        }
+
+        xml += "      </trkpt>\n"
+        return xml
+    }
+
+    static func exportVisitsToGPX(visits: [Visit], options: ExportOptions = ExportOptions()) -> Data {
+        var xml = gpxHeader() + "\n"
+        for v in visits {
+            if let wpt = gpxWaypoint(v, options: options) { xml += wpt }
+        }
+        xml += gpxFooter()
+        return xml.data(using: .utf8) ?? Data()
+    }
+
+    static func exportLocationPointsToGPX(points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
+        var xml = gpxHeader() + "\n"
+        xml += gpxTrack(points, options: options)
+        xml += gpxFooter()
+        return xml.data(using: .utf8) ?? Data()
+    }
+
+    static func exportCombinedToGPX(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
+        var xml = gpxHeader() + "\n"
+        for v in visits {
+            if let wpt = gpxWaypoint(v, options: options) { xml += wpt }
+        }
+        xml += gpxTrack(points, options: options)
+        xml += gpxFooter()
+        return xml.data(using: .utf8) ?? Data()
     }
 }
 
@@ -841,6 +1012,7 @@ extension ExportService {
             case .csv: data = exportToCSV(visits: filteredVisits, options: options)
             case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
             case .owntracks, .overland: data = try exportToJSON(visits: filteredVisits, options: options)
+            case .gpx: data = exportVisitsToGPX(visits: filteredVisits, options: options)
             }
         case .points:
             switch options.format {
@@ -849,6 +1021,7 @@ extension ExportService {
             case .markdown: data = exportLocationPointsToMarkdown(points: filteredPoints, options: options)
             case .owntracks: data = try exportLocationPointsToOwnTracks(points: filteredPoints, options: options)
             case .overland: data = try exportLocationPointsToOverland(points: filteredPoints, options: options)
+            case .gpx: data = exportLocationPointsToGPX(points: filteredPoints, options: options)
             }
         case .all:
             data = try combinedData(
@@ -907,6 +1080,7 @@ extension ExportService {
                 case .csv: data = exportToCSV(visits: group.visits, options: dayOptions)
                 case .markdown: data = exportToMarkdown(visits: group.visits, options: dayOptions)
                 case .owntracks, .overland: data = try exportToJSON(visits: group.visits, options: dayOptions)
+                case .gpx: data = exportVisitsToGPX(visits: group.visits, options: dayOptions)
                 }
             case .points:
                 switch dayOptions.format {
@@ -915,6 +1089,7 @@ extension ExportService {
                 case .markdown: data = exportLocationPointsToMarkdown(points: group.points, options: dayOptions)
                 case .owntracks: data = try exportLocationPointsToOwnTracks(points: group.points, options: dayOptions)
                 case .overland: data = try exportLocationPointsToOverland(points: group.points, options: dayOptions)
+                case .gpx: data = exportLocationPointsToGPX(points: group.points, options: dayOptions)
                 }
             case .all:
                 data = try combinedData(

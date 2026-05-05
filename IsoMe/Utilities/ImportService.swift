@@ -95,7 +95,7 @@ struct ImportService {
                 if text.contains("# iso.me Location Points Export") { return .locationPoints }
                 if text.contains("# iso.me Export") { return .visits }
             }
-        case .owntracks, .overland:
+        case .owntracks, .overland, .gpx:
             return .locationPoints
         }
         return .visits
@@ -123,7 +123,7 @@ struct ImportService {
         case .json: return try importVisitsFromJSON(data: data)
         case .csv: return try importVisitsFromCSV(data: data)
         case .markdown: return try importVisitsFromMarkdown(data: data)
-        case .owntracks, .overland: throw ImportError.unsupportedFormat
+        case .owntracks, .overland, .gpx: throw ImportError.unsupportedFormat
         }
     }
 
@@ -134,7 +134,7 @@ struct ImportService {
         case .json: return try importLocationPointsFromJSON(data: data)
         case .csv: return try importLocationPointsFromCSV(data: data)
         case .markdown: return try importLocationPointsFromMarkdown(data: data)
-        case .owntracks, .overland: throw ImportError.unsupportedFormat
+        case .owntracks, .overland, .gpx: throw ImportError.unsupportedFormat
         }
     }
 
