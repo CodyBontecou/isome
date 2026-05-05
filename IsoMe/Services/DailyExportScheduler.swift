@@ -198,6 +198,7 @@ final class DailyExportScheduler: ObservableObject {
         case .markdown: return "markdown"
         case .owntracks: return "owntracks"
         case .overland: return "overland"
+        case .gpx: return "gpx"
         }
     }
 
@@ -207,6 +208,7 @@ final class DailyExportScheduler: ObservableObject {
         case "markdown": return .markdown
         case "owntracks": return .owntracks
         case "overland": return .overland
+        case "gpx": return .gpx
         default: return .json
         }
     }
