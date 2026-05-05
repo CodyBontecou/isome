@@ -1,0 +1,176 @@
+# Fire when ASC review approves a build (iOS-only — iso.me has no macOS target).
+#
+# Triggered by repository_dispatch from the asc-webhook-worker (Cloudflare Worker
+# that verifies App Store Connect webhook signatures and routes by app id).
+#
+# Dispatch payload from the Worker:
+#   { state: "READY_FOR_DISTRIBUTION", appStoreVersionId: "<uuid>" }
+# Manual mode (workflow_dispatch) accepts version directly so the pipeline can
+# be smoke-tested without a real ASC approval.
+#
+# Effects:
+#   - Post the release announcement to #iso-me-updates on Discord
+#
+# This workflow is intentionally tolerant: it does NOT require a pre-existing
+# GitHub release. iso.me ships via `asc` directly (no tag-push pipeline), so
+# release notes are pulled from ASC's "What's New" text on the version itself
+# and we fall back to a generic announcement if that's also empty.
+#
+# Required secrets:
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_API_KEY_P8 (look up version + What's New)
+#   DISCORD_BOT_TOKEN
+
+name: Announce release
+
+on:
+  repository_dispatch:
+    types: [asc-approved]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 1.2.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  APP_NAME: iso.me
+  APP_STORE_URL: https://apps.apple.com/app/id6761960794
+  REPO_URL: https://github.com/CodyBontecou/isome
+  DISCORD_CHANNEL_ID: '1498086745336447078'
+  DISCORD_ROLE_ID: '1498086327705403432'
+
+jobs:
+  announce:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    steps:
+      - name: Configure asc CLI
+        env:
+          ASC_KEY_ID_SECRET: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID_SECRET: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          ASC_KEY_DIR="$RUNNER_TEMP/.asc-keys"
+          mkdir -p "$ASC_KEY_DIR"
+          chmod 700 "$ASC_KEY_DIR"
+          ASC_KEY_PATH="$ASC_KEY_DIR/AuthKey_${ASC_KEY_ID_SECRET}.p8"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$ASC_KEY_PATH"
+          chmod 600 "$ASC_KEY_PATH"
+          echo "ASC_KEY_ID=$ASC_KEY_ID_SECRET" >> "$GITHUB_ENV"
+          echo "ASC_ISSUER_ID=$ASC_ISSUER_ID_SECRET" >> "$GITHUB_ENV"
+          echo "ASC_PRIVATE_KEY_PATH=$ASC_KEY_PATH" >> "$GITHUB_ENV"
+          echo "ASC_BYPASS_KEYCHAIN=1" >> "$GITHUB_ENV"
+
+      - name: Resolve dispatch payload
+        id: meta
+        run: |
+          ASCV_ID='${{ github.event.client_payload.appStoreVersionId }}'
+          STATE='${{ github.event.client_payload.state }}'
+
+          if [[ -n "$ASCV_ID" ]]; then
+            echo "Webhook mode: appStoreVersionId=$ASCV_ID state=$STATE"
+            V_JSON=$(asc versions view --version-id "$ASCV_ID" --output json)
+            VERSION=$(printf '%s' "$V_JSON" | jq -r '.attributes.versionString // .data.attributes.versionString')
+            PLATFORM=$(printf '%s' "$V_JSON" | jq -r '.attributes.platform // .data.attributes.platform')
+            if [[ -z "$VERSION" || "$VERSION" == "null" ]]; then
+              echo "::error::asc versions view returned unexpected shape:"
+              printf '%s\n' "$V_JSON"
+              exit 1
+            fi
+          else
+            VERSION='${{ inputs.version }}'
+            PLATFORM='IOS'
+            echo "Manual mode: version=$VERSION"
+          fi
+
+          # iso.me is iOS-only; ignore other platform events defensively.
+          if [[ "$PLATFORM" != "IOS" ]]; then
+            echo "::notice::Ignoring non-iOS platform: $PLATFORM"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo "version=$VERSION"
+            echo "tag=v$VERSION"
+            echo "skip=false"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Pull release notes from ASC
+        if: steps.meta.outputs.skip != 'true'
+        id: notes
+        run: |
+          VERSION='${{ steps.meta.outputs.version }}'
+          NOTES_FILE="$RUNNER_TEMP/notes.md"
+
+          # Try ASC's localized What's New for the en-US locale on this version.
+          # Falls back gracefully — Discord post still goes out either way.
+          ASCV_ID='${{ github.event.client_payload.appStoreVersionId }}'
+          if [[ -z "$ASCV_ID" ]]; then
+            # Manual mode: look up the version id by string
+            ASCV_ID=$(asc versions list --app 6761960794 --output json \
+              | jq -r --arg v "$VERSION" '.data[] | select(.attributes.versionString==$v and .attributes.platform=="IOS") | .id' \
+              | head -1)
+          fi
+
+          NOTES=""
+          if [[ -n "$ASCV_ID" && "$ASCV_ID" != "null" ]]; then
+            NOTES=$(asc versions localizations list --version-id "$ASCV_ID" --output json 2>/dev/null \
+              | jq -r '.data[] | select(.attributes.locale=="en-US") | .attributes.whatsNew // empty' \
+              | head -c 1500 || true)
+          fi
+
+          if [[ -z "$NOTES" ]]; then
+            NOTES="$APP_NAME v$VERSION is now live on the App Store."
+          fi
+
+          printf '%s\n' "$NOTES" > "$NOTES_FILE"
+          echo "notes_file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Post Discord update
+        if: steps.meta.outputs.skip != 'true'
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: |
+          BODY_FILE="$RUNNER_TEMP/discord.md"
+          NOTES=$(cat '${{ steps.notes.outputs.notes_file }}')
+          cat > "$BODY_FILE" <<DISCORD_EOF
+          <@&${DISCORD_ROLE_ID}>
+
+          🟢 ${APP_NAME} v${{ steps.meta.outputs.version }} is live on iOS.
+
+          ${NOTES}
+
+          App Store: ${APP_STORE_URL}
+          Repo: ${REPO_URL}
+          DISCORD_EOF
+
+          PAYLOAD=$(jq -n \
+            --rawfile c "$BODY_FILE" \
+            --arg r "$DISCORD_ROLE_ID" \
+            '{ content: $c, allowed_mentions: { roles: [$r] } }')
+
+          RESP=$(curl -fsS -X POST "https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID}/messages" \
+            -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: DiscordBot (https://github.com/${{ github.repository }}, 1.0)" \
+            -d "$PAYLOAD")
+
+          MSG_ID=$(echo "$RESP" | jq -r .id)
+          echo "Posted to Discord: https://discord.com/channels/1443424100759634003/${DISCORD_CHANNEL_ID}/${MSG_ID}"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Announce ${{ steps.meta.outputs.tag }} (iOS)"
+            echo ""
+            if [[ "${{ steps.meta.outputs.skip }}" == "true" ]]; then
+              echo "- skipped (non-iOS platform)"
+            else
+              echo "- Discord: posted to #iso-me-updates"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
