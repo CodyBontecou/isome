@@ -24,17 +24,6 @@ Automatic background detection of places you arrive at and depart from, powered 
 ### Continuous Tracking
 High-accuracy GPS tracking that records your exact path. Configurable distance filter (5m-200m) and auto-off timer (30 min to never). Tracked points include altitude, speed, and accuracy metadata.
 
-### Auto-Start on Activity
-Continuous tracking can start automatically when the app detects you're driving, walking, running, or cycling. Uses CoreMotion's `CMMotionActivityManager` to classify device motion. When enabled:
-
-1. Significant location changes (~500m movement) wake the app in the background
-2. CoreMotion is queried for the current activity type
-3. If driving or exercising is detected, continuous tracking starts automatically
-4. When you become stationary, the auto-started session stops automatically
-5. Manually started sessions are never auto-stopped
-
-Enable this in **Settings > Tracking Defaults > Auto-Start on Activity**.
-
 ### Live Activities
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
