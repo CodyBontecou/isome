@@ -61,6 +61,8 @@
 		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
 		E1000003212F000100000003 /* LogViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000003212F000000000003 /* LogViewerView.swift */; };
 		AB000001212F000100000001 /* IsoMeIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000001212F000000000001 /* IsoMeIntents.swift */; };
+		C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E900BDC375415EB884300D /* WebhookManager.swift */; };
+		B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24650F0FA6274DB58B9869F5 /* WebhookSettingsView.swift */; };
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
 		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
@@ -150,6 +152,8 @@
 		E1000003212F000000000003 /* LogViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerView.swift; sourceTree = "<group>"; };
 		AB000001212F000000000001 /* IsoMeIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeIntents.swift; sourceTree = "<group>"; };
 		9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionPathMapView.swift; sourceTree = "<group>"; };
+		E4E900BDC375415EB884300D /* WebhookManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookManager.swift; sourceTree = "<group>"; };
+		24650F0FA6274DB58B9869F5 /* WebhookSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookSettingsView.swift; sourceTree = "<group>"; };
 		D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordPromoBanner.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* IsoMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
@@ -338,6 +342,7 @@
 				E1000002212F000000000002 /* LogManager.swift */,
 				AB000001212F000000000001 /* IsoMeIntents.swift */,
 				5F000002212F000000000001 /* DailyExportScheduler.swift */,
+				E4E900BDC375415EB884300D /* WebhookManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 				E1000003212F000000000003 /* LogViewerView.swift */,
 				D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */,
 				A1000031212F000000000031 /* ExportView.swift */,
+				24650F0FA6274DB58B9869F5 /* WebhookSettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -669,6 +675,8 @@
 				AB000001212F000100000001 /* IsoMeIntents.swift in Sources */,
 				F1000001212F000100000001 /* FilenameTemplate.swift in Sources */,
 				5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */,
+				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
+				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

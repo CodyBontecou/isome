@@ -40,6 +40,12 @@ struct ContentView: View {
                     locationManager: manager
                 )
 
+                // Wire up services that need the LocationManager
+                WebhookManager.shared.attach(
+                    modelContainer: modelContext.container,
+                    locationManager: manager
+                )
+
                 // Migrate existing users: if they already granted permissions or turned
                 // tracking on, skip onboarding automatically the first time this version runs.
                 if UserDefaults.standard.object(forKey: "hasCompletedOnboarding") == nil {

@@ -57,6 +57,7 @@ struct ExportView: View {
                         VStack(spacing: 0) {
                             formatSection
                             dataKindSection
+                            webhookSection
                             exportFolderSection
                             if exportFolderManager.hasDefaultFolder {
                                 dailyExportSection
@@ -217,6 +218,39 @@ struct ExportView: View {
                 .frame(height: 44)
             }
             .padding(.horizontal, 16)
+        }
+    }
+
+    // MARK: - Webhook
+
+    private var webhookSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "WEBHOOK")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        WebhookSettingsView()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("HTTP ENDPOINT")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "POST location data to an external API or self-hosted server in real-time or batches. Supports OwnTracks, Overland, Dawarich, and generic JSON endpoints.")
         }
     }
 
