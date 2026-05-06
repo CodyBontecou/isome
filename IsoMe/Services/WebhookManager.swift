@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import Security
 import SwiftData
 
 /// HTTP webhook delivery of location data to a user-configured endpoint.
@@ -57,7 +58,7 @@ final class WebhookManager: ObservableObject {
     // MARK: - Published state
 
     @Published var isEnabled: Bool {
-        didSet { defaults.set(isEnabled, forKey: Self.key(.enabled)); syncObservation() }
+        didSet { defaults.set(isEnabled, forKey: Self.key(.enabled)); syncObservation(); syncTimer() }
     }
     @Published var urlString: String {
         didSet { defaults.set(urlString, forKey: Self.key(.url)) }
@@ -69,25 +70,22 @@ final class WebhookManager: ObservableObject {
         didSet { defaults.set(authType.rawValue, forKey: Self.key(.authType)) }
     }
     @Published var authKey: String {
-        didSet { defaults.set(authKey, forKey: Self.key(.authKey)) }
+        didSet { Self.keychainWriteString(authKey, account: Self.keychainAccount(.authKey)) }
     }
     @Published var authValue: String {
-        didSet { defaults.set(authValue, forKey: Self.key(.authValue)) }
+        didSet { Self.keychainWriteString(authValue, account: Self.keychainAccount(.authValue)) }
     }
     @Published var authUsername: String {
-        didSet { defaults.set(authUsername, forKey: Self.key(.authUsername)) }
+        didSet { Self.keychainWriteString(authUsername, account: Self.keychainAccount(.authUsername)) }
     }
     @Published var sendMode: SendMode {
-        didSet { defaults.set(sendMode.rawValue, forKey: Self.key(.sendMode)); syncObservation() }
+        didSet { defaults.set(sendMode.rawValue, forKey: Self.key(.sendMode)); syncObservation(); syncTimer() }
     }
     @Published var batchCount: Int {
         didSet { defaults.set(batchCount, forKey: Self.key(.batchCount)) }
     }
     @Published var batchTimeMinutes: Int {
         didSet { defaults.set(batchTimeMinutes, forKey: Self.key(.batchTimeMinutes)); syncTimer() }
-    }
-    @Published var includeVisits: Bool {
-        didSet { defaults.set(includeVisits, forKey: Self.key(.includeVisits)) }
     }
 
     @Published private(set) var lastSentAt: Date?
@@ -103,14 +101,24 @@ final class WebhookManager: ObservableObject {
     private var pendingPoints: [LocationPoint] = []
     private weak var modelContainer: ModelContainer?
     private var urlSession: URLSession!
+    // Realtime cursor — nil means we haven't observed a tick yet. The first tick
+    // arms the cursor without sending so we never bulk-resend the historical DB
+    // after launch; subsequent ticks send everything strictly newer.
+    private var lastSentTimestamp: Date?
 
     private enum DefaultsKey: String {
-        case enabled, url, format, authType, authKey, authValue, authUsername
-        case sendMode, batchCount, batchTimeMinutes, includeVisits
+        case enabled, url, format, authType
+        case sendMode, batchCount, batchTimeMinutes
         case lastSentAt, lastError
     }
 
+    private enum KeychainKey: String {
+        case authKey, authValue, authUsername
+    }
+
     private static func key(_ k: DefaultsKey) -> String { "webhook.\(k.rawValue)" }
+    private static func keychainAccount(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
+    private static func legacyDefaultsKey(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
 
     private init() {
         let d = defaults
@@ -118,13 +126,14 @@ final class WebhookManager: ObservableObject {
         self.urlString = d.string(forKey: Self.key(.url)) ?? ""
         self.format = Self.formatFromToken(d.string(forKey: Self.key(.format)))
         self.authType = AuthType(rawValue: d.string(forKey: Self.key(.authType)) ?? "") ?? .none
-        self.authKey = d.string(forKey: Self.key(.authKey)) ?? "api_key"
-        self.authValue = d.string(forKey: Self.key(.authValue)) ?? ""
-        self.authUsername = d.string(forKey: Self.key(.authUsername)) ?? ""
+
+        self.authKey = Self.loadCredential(.authKey, defaultValue: "api_key")
+        self.authValue = Self.loadCredential(.authValue, defaultValue: "")
+        self.authUsername = Self.loadCredential(.authUsername, defaultValue: "")
+
         self.sendMode = SendMode(rawValue: d.string(forKey: Self.key(.sendMode)) ?? "") ?? .realtime
         self.batchCount = d.object(forKey: Self.key(.batchCount)) as? Int ?? 10
         self.batchTimeMinutes = d.object(forKey: Self.key(.batchTimeMinutes)) as? Int ?? 5
-        self.includeVisits = d.object(forKey: Self.key(.includeVisits)) as? Bool ?? true
         self.lastSentAt = d.object(forKey: Self.key(.lastSentAt)) as? Date
         self.lastError = d.string(forKey: Self.key(.lastError))
 
@@ -134,6 +143,23 @@ final class WebhookManager: ObservableObject {
         self.urlSession = URLSession(configuration: config)
 
         syncTimer()
+    }
+
+    /// Read a credential from Keychain. If absent but a non-empty legacy
+    /// UserDefaults value exists, migrate it into Keychain and clear the
+    /// plaintext copy.
+    private static func loadCredential(_ key: KeychainKey, defaultValue: String) -> String {
+        let account = keychainAccount(key)
+        if let stored = Self.keychainReadString(account: account) {
+            return stored
+        }
+        let legacyKey = legacyDefaultsKey(key)
+        if let legacy = UserDefaults.standard.string(forKey: legacyKey), !legacy.isEmpty {
+            Self.keychainWriteString(legacy, account: account)
+            UserDefaults.standard.removeObject(forKey: legacyKey)
+            return legacy
+        }
+        return defaultValue
     }
 
     // MARK: - Wiring
@@ -229,7 +255,7 @@ final class WebhookManager: ObservableObject {
     func sendNow() async {
         guard let context = modelContainer?.mainContext else { return }
         do {
-            let visits = includeVisits ? (try context.fetch(FetchDescriptor<Visit>())) : []
+            let visits = try context.fetch(FetchDescriptor<Visit>())
             let points = try context.fetch(FetchDescriptor<LocationPoint>())
             try await sendPoints(points, visits: visits)
         } catch {
@@ -239,16 +265,20 @@ final class WebhookManager: ObservableObject {
 
     /// Test the configured endpoint with a minimal payload.
     func testConnection() async throws -> String {
-        let testPayload = """
-        {"_type":"location","lat":0,"lon":0,"tst":\(Int(Date().timeIntervalSince1970)),"tid":"IM","topic":"owntracks/test/iso.me"}
-        """
+        let fakePoint = LocationPoint(
+            latitude: 0,
+            longitude: 0,
+            timestamp: Date(),
+            horizontalAccuracy: 0
+        )
+        let body = try formatPayload(points: [fakePoint])
         guard let url = buildURL() else {
             throw WebhookError.invalidURL
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = testPayload.data(using: .utf8)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+        request.setValue(format.mimeType, forHTTPHeaderField: "Content-Type")
         request.setValue("iso.me/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
         applyAuth(to: &request)
 
@@ -371,8 +401,12 @@ final class WebhookManager: ObservableObject {
     // MARK: - Helpers
 
     private func recordError(_ message: String) {
-        lastError = message
-        defaults.set(message, forKey: Self.key(.lastError))
+        var sanitized = message
+        if !authValue.isEmpty {
+            sanitized = sanitized.replacingOccurrences(of: authValue, with: "***")
+        }
+        lastError = sanitized
+        defaults.set(sanitized, forKey: Self.key(.lastError))
     }
 
     static func formatFromToken(_ token: String?) -> ExportFormat {
@@ -383,6 +417,50 @@ final class WebhookManager: ObservableObject {
         case "overland": return .overland
         case "gpx": return .gpx
         default: return .json
+        }
+    }
+
+    // MARK: - Keychain
+
+    private static func keychainReadString(account: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let string = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return string
+    }
+
+    private static func keychainWriteString(_ value: String, account: String) {
+        if value.isEmpty {
+            let deleteQuery: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrAccount as String: account,
+            ]
+            SecItemDelete(deleteQuery as CFDictionary)
+            return
+        }
+
+        guard let data = value.data(using: .utf8) else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: account,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+        ]
+        let updateAttributes: [String: Any] = [kSecValueData as String: data]
+        let status = SecItemUpdate(query as CFDictionary, updateAttributes as CFDictionary)
+        if status == errSecItemNotFound {
+            var addQuery = query
+            addQuery[kSecValueData as String] = data
+            SecItemAdd(addQuery as CFDictionary, nil)
         }
     }
 }
