@@ -9,6 +9,7 @@ struct WebhookSettingsView: View {
     @State private var testResult: String?
     @State private var testError: String?
     @State private var isTesting = false
+    @AppStorage("webhook.privacyWarningDismissed") private var privacyWarningDismissed = false
 
     var body: some View {
         ZStack {
@@ -17,7 +18,9 @@ struct WebhookSettingsView: View {
             if storeManager.isPurchased {
                 ScrollView {
                     VStack(spacing: 0) {
-                        privacyWarning
+                        if !privacyWarningDismissed {
+                            privacyWarning
+                        }
                         enableSection
                         if webhook.isEnabled {
                             endpointSection
@@ -100,6 +103,18 @@ struct WebhookSettingsView: View {
                             .foregroundStyle(TE.textMuted)
                             .lineSpacing(2)
                     }
+                    Spacer(minLength: 0)
+                    Button {
+                        privacyWarningDismissed = true
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(TE.textMuted)
+                            .frame(width: 22, height: 22)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Dismiss warning")
                 }
                 .padding(12)
             }
