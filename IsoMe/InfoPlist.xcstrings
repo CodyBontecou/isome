@@ -1,134 +1,160 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "NSLocationAlwaysAndWhenInUseUsageDescription": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotted uses your location to automatically detect places you visit and record your path throughout the day. Always access enables background visit detection."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PERMITIR ACCESO EN SEGUNDO PLANO"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "पृष्ठभूमि पहुंच को अनुमति दें"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "允许后台访问"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "السماح بالوصول في الخلفية"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "পটভূমিতে অ্যাক্সেস অনুমতি দিন"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PERMITIR ACESSO EM SEGUNDO PLANO"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "РАЗРЕШИТЬ ДОСТУП В ФОНе"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "バックグラウンドアクセスを許可"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AUTORISER L'ACCÈS EN ARRIÈRE-PLAN"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "iso.me"
           }
         }
       }
     },
-    "NSLocationWhenInUseUsageDescription": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotted uses your location to detect places you visit and show your current position on the map."
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "IsoMe"
+          }
+        }
+      }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription" : {
+      "comment" : "Privacy - Location Always and When In Use Usage Description",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السماح بالوصول في الخلفية"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permitir acceso a la ubicación"
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "পটভূমিতে অ্যাক্সেস অনুমতি দিন"
           }
         },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "स्थान पहुंच को अनुमति दें"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotted uses your location to automatically detect places you visit and record your path throughout the day. Always access enables background visit detection."
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "允许位置访问"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PERMITIR ACCESO EN SEGUNDO PLANO"
           }
         },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "السماح بالوصول إلى الموقع"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AUTORISER L'ACCÈS EN ARRIÈRE-PLAN"
           }
         },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "অবস্থান অ্যাক্সেস অনুমতি দিন"
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पृष्ठभूमि पहुंच को अनुमति दें"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permitir Acesso à Localização"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドアクセスを許可"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Разрешить доступ к местоположению"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PERMITIR ACESSO EM SEGUNDO PLANO"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "位置情報へのアクセスを許可"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "РАЗРЕШИТЬ ДОСТУП В ФОНе"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Autoriser l'accès à la localisation"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许后台访问"
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Privacy - Location When In Use Usage Description",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السماح بالوصول إلى الموقع"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "অবস্থান অ্যাক্সেস অনুমতি দিন"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotted uses your location to detect places you visit and show your current position on the map."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir acceso a la ubicación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser l'accès à la localisation"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्थान पहुंच को अनुमति दें"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置情報へのアクセスを許可"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir Acesso à Localização"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить доступ к местоположению"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许位置访问"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

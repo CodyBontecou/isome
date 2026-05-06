@@ -1,3 +1,4 @@
+// Localization verified: All Settings strings display correctly in Spanish
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers

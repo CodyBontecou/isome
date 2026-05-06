@@ -1,208 +1,237 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "Spotted": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotted"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ left" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld visits" : {
+
+    },
+    "%lld visits • %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld visits • %2$@"
           }
         }
       }
     },
-    "View your tracking status and today's stats.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View your tracking status and today's stats."
+    "iso.me" : {
+
+    },
+    "Off" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "معطل"
           }
         },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "اعرض حالة التتبع وإحصائيات اليوم."
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "বন্ধ"
           }
         },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "আপনার ট্র্যাকিং স্থিতি এবং আজকের পরিসংখ্যান দেখুন।"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Veja seu status de rastreamento e as estatísticas de hoje."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Посмотрите статус отслеживания и статистику на сегодня."
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トラッキングステータスと今日の統計を表示。"
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बंद"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voir votre statut de suivi et les statistiques d'aujourd'hui."
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オフ"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ve el estado de tu seguimiento y las estadísticas de hoy."
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado"
           }
         },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "अपनी ट्रैकिंग स्थिति और आज के आंकड़े देखें।"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выключено"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看您的跟踪状态和今天的统计数据。"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
           }
         }
       }
     },
-    "Tracking Off": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tracking Off"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "التتبع معطل"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ট্র্যাকিং বন্ধ"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rastreamento Desativado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отслеживание отключено"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トラッキングオフ"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suivi désactivé"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seguimiento desactivado"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ट्रैकिंग बंद"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "跟踪已关闭"
+    "Spotted" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotted"
           }
         }
       }
     },
-    "Off": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Off"
+    "Tracking" : {
+
+    },
+    "Tracking Off" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التتبع معطل"
           }
         },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "معطل"
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ট্র্যাকিং বন্ধ"
           }
         },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "বন্ধ"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tracking Off"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desativado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguimiento desactivado"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выключено"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suivi désactivé"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "オフ"
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ट्रैकिंग बंद"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Désactivé"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トラッキングオフ"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desactivado"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rastreamento Desativado"
           }
         },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "बंद"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отслеживание отключено"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "关闭"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟踪已关闭"
+          }
+        }
+      }
+    },
+    "Unknown" : {
+
+    },
+    "View your tracking status and today's stats." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اعرض حالة التتبع وإحصائيات اليوم."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "আপনার ট্র্যাকিং স্থিতি এবং আজকের পরিসংখ্যান দেখুন।"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View your tracking status and today's stats."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve el estado de tu seguimiento y las estadísticas de hoy."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir votre statut de suivi et les statistiques d'aujourd'hui."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपनी ट्रैकिंग स्थिति और आज के आंकड़े देखें।"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トラッキングステータスと今日の統計を表示。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veja seu status de rastreamento e as estatísticas de hoje."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Посмотрите статус отслеживания и статистику на сегодня."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看您的跟踪状态和今天的统计数据。"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
