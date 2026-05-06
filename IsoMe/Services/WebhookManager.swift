@@ -46,9 +46,9 @@ final class WebhookManager: ObservableObject {
 
         var label: String {
             switch self {
-            case .realtime: return "REAL‑TIME"
-            case .batchCount: return "BATCH (COUNT)"
-            case .batchTime: return "BATCH (TIME)"
+            case .realtime: return "REAL-TIME"
+            case .batchCount: return "BY COUNT"
+            case .batchTime: return "BY TIME"
             case .manual: return "MANUAL"
             }
         }

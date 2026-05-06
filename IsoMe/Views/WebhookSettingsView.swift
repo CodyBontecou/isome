@@ -141,7 +141,7 @@ struct WebhookSettingsView: View {
 
             TECard {
                 TERow {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("URL")
                             .font(TE.mono(.caption2, weight: .semibold))
                             .tracking(1)
@@ -156,11 +156,12 @@ struct WebhookSettingsView: View {
                 }
 
                 TERow(showDivider: false) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    HStack {
                         Text("FORMAT")
-                            .font(TE.mono(.caption2, weight: .semibold))
+                            .font(TE.mono(.caption, weight: .medium))
                             .tracking(1)
-                            .foregroundStyle(TE.textMuted)
+                            .foregroundStyle(TE.textPrimary)
+                        Spacer()
                         Picker("", selection: $webhook.format) {
                             Text("OWNTRACKS").tag(ExportFormat.owntracks)
                             Text("OVERLAND").tag(ExportFormat.overland)
@@ -188,11 +189,12 @@ struct WebhookSettingsView: View {
 
             TECard {
                 TERow {
-                    VStack(alignment: .leading, spacing: 4) {
+                    HStack {
                         Text("TYPE")
                             .font(TE.mono(.caption2, weight: .semibold))
                             .tracking(1)
                             .foregroundStyle(TE.textMuted)
+                        Spacer()
                         Picker("", selection: $webhook.authType) {
                             ForEach(WebhookManager.AuthType.allCases) { type in
                                 Text(LocalizedStringKey(type.label)).tag(type)
@@ -314,12 +316,13 @@ struct WebhookSettingsView: View {
             TESectionHeader(title: "SEND MODE")
 
             TECard {
-                TERow {
-                    VStack(alignment: .leading, spacing: 4) {
+                TERow(showDivider: webhook.sendMode == .batchCount || webhook.sendMode == .batchTime) {
+                    HStack {
                         Text("MODE")
-                            .font(TE.mono(.caption2, weight: .semibold))
+                            .font(TE.mono(.caption, weight: .medium))
                             .tracking(1)
-                            .foregroundStyle(TE.textMuted)
+                            .foregroundStyle(TE.textPrimary)
+                        Spacer()
                         Picker("", selection: $webhook.sendMode) {
                             ForEach(WebhookManager.SendMode.allCases) { mode in
                                 Text(LocalizedStringKey(mode.label)).tag(mode)
@@ -327,20 +330,10 @@ struct WebhookSettingsView: View {
                         }
                         .labelsHidden()
                         .tint(TE.accent)
-                        Text(sendModeDescription)
-                            .font(TE.mono(.caption2, weight: .regular))
-                            .foregroundStyle(TE.textMuted)
-                            .lineSpacing(2)
-                            .padding(.top, 4)
-                            .animation(.easeInOut(duration: 0.15), value: webhook.sendMode)
                     }
                 }
 
-                switch webhook.sendMode {
-                case .realtime:
-                    EmptyView()
-
-                case .batchCount:
+                if webhook.sendMode == .batchCount {
                     TERow(showDivider: false) {
                         HStack {
                             Text("COUNT")
@@ -359,8 +352,7 @@ struct WebhookSettingsView: View {
                             .tint(TE.accent)
                         }
                     }
-
-                case .batchTime:
+                } else if webhook.sendMode == .batchTime {
                     TERow(showDivider: false) {
                         HStack {
                             Text("INTERVAL")
@@ -379,27 +371,11 @@ struct WebhookSettingsView: View {
                             .tint(TE.accent)
                         }
                     }
-
-                case .manual:
-                    EmptyView()
                 }
             }
             .padding(.horizontal, 16)
 
             TESectionFooter(text: sendModeFooter)
-        }
-    }
-
-    private var sendModeDescription: LocalizedStringKey {
-        switch webhook.sendMode {
-        case .realtime:
-            return "Each new GPS fix is POSTed immediately as it arrives."
-        case .batchCount:
-            return "Points are queued in memory and sent as a single payload once the count is reached."
-        case .batchTime:
-            return "Points are queued and flushed as a batch on a fixed timer interval."
-        case .manual:
-            return "Data is only sent when you tap \"Send Now\" — nothing is sent automatically."
         }
     }
 
@@ -423,68 +399,72 @@ struct WebhookSettingsView: View {
             TESectionHeader(title: "STATUS")
 
             TECard {
-                TERow {
+                TERow(showDivider: hasQueuedPoints || webhook.lastError != nil) {
                     HStack {
                         Text("LAST SENT")
                             .font(TE.mono(.caption, weight: .medium))
                             .tracking(1)
-                            .foregroundStyle(TE.textMuted)
+                            .foregroundStyle(TE.textPrimary)
                         Spacer()
                         Text(lastSentText)
                             .font(TE.mono(.caption2, weight: .medium))
-                            .foregroundStyle(TE.textPrimary)
+                            .foregroundStyle(TE.textMuted)
                     }
                 }
 
-                if webhook.sendMode != .manual && webhook.queuedPointCount > 0 {
+                if hasQueuedPoints {
                     TERow {
                         HStack {
                             Text("QUEUED")
                                 .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textMuted)
-                                Spacer()
-                                Text("\(webhook.queuedPointCount) POINTS")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                            }
-                        }
-
-                        TERow {
-                            Button {
-                                Task { await webhook.flushBatch() }
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "paperplane.fill")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundStyle(TE.accent)
-                                    Text("FLUSH QUEUE")
-                                        .font(TE.mono(.caption, weight: .medium))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.accent)
-                                    Spacer()
-                                }
-                            }
-                            .buttonStyle(.plain)
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer()
+                            Text("\(webhook.queuedPointCount) POINTS")
+                                .font(TE.mono(.caption2, weight: .medium))
+                                .foregroundStyle(TE.accent)
                         }
                     }
 
-                    if let error = webhook.lastError {
-                        TERow(showDivider: false) {
-                            HStack(alignment: .top, spacing: 8) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(TE.danger)
-                                Text(error)
-                                    .font(TE.mono(.caption2, weight: .regular))
-                                    .foregroundStyle(TE.danger)
-                                    .lineSpacing(2)
+                    TERow(showDivider: webhook.lastError != nil) {
+                        Button {
+                            Task { await webhook.flushBatch() }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "paperplane.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(TE.accent)
+                                Text("FLUSH QUEUE")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                                Spacer()
                             }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                if let error = webhook.lastError {
+                    TERow(showDivider: false) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(TE.danger)
+                            Text(error)
+                                .font(TE.mono(.caption2, weight: .regular))
+                                .foregroundStyle(TE.danger)
+                                .lineSpacing(2)
                         }
                     }
                 }
             }
             .padding(.horizontal, 16)
+        }
+    }
+
+    private var hasQueuedPoints: Bool {
+        webhook.sendMode != .manual && webhook.queuedPointCount > 0
     }
 
     private var lastSentText: String {
