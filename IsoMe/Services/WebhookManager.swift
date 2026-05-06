@@ -112,13 +112,13 @@ final class WebhookManager: ObservableObject {
         case lastSentAt, lastError
     }
 
-    private enum KeychainKey: String {
+    enum KeychainKey: String {
         case authKey, authValue, authUsername
     }
 
     private static func key(_ k: DefaultsKey) -> String { "webhook.\(k.rawValue)" }
-    private static func keychainAccount(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
-    private static func legacyDefaultsKey(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
+    static func keychainAccount(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
+    static func legacyDefaultsKey(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
 
     private init() {
         let d = defaults
@@ -148,18 +148,24 @@ final class WebhookManager: ObservableObject {
     /// Read a credential from Keychain. If absent but a non-empty legacy
     /// UserDefaults value exists, migrate it into Keychain and clear the
     /// plaintext copy.
-    private static func loadCredential(_ key: KeychainKey, defaultValue: String) -> String {
-        let account = keychainAccount(key)
-        if let stored = Self.keychainReadString(account: account) {
+    static func loadCredential(account: String, legacyKey: String, defaultValue: String) -> String {
+        if let stored = keychainReadString(account: account) {
             return stored
         }
-        let legacyKey = legacyDefaultsKey(key)
         if let legacy = UserDefaults.standard.string(forKey: legacyKey), !legacy.isEmpty {
-            Self.keychainWriteString(legacy, account: account)
+            keychainWriteString(legacy, account: account)
             UserDefaults.standard.removeObject(forKey: legacyKey)
             return legacy
         }
         return defaultValue
+    }
+
+    private static func loadCredential(_ key: KeychainKey, defaultValue: String) -> String {
+        loadCredential(
+            account: keychainAccount(key),
+            legacyKey: legacyDefaultsKey(key),
+            defaultValue: defaultValue
+        )
     }
 
     // MARK: - Wiring
@@ -418,11 +424,13 @@ final class WebhookManager: ObservableObject {
 
     // MARK: - Helpers
 
+    static func sanitizeError(_ message: String, masking secret: String) -> String {
+        guard !secret.isEmpty else { return message }
+        return message.replacingOccurrences(of: secret, with: "***")
+    }
+
     private func recordError(_ message: String) {
-        var sanitized = message
-        if !authValue.isEmpty {
-            sanitized = sanitized.replacingOccurrences(of: authValue, with: "***")
-        }
+        let sanitized = Self.sanitizeError(message, masking: authValue)
         lastError = sanitized
         defaults.set(sanitized, forKey: Self.key(.lastError))
     }
@@ -440,7 +448,7 @@ final class WebhookManager: ObservableObject {
 
     // MARK: - Keychain
 
-    private static func keychainReadString(account: String) -> String? {
+    static func keychainReadString(account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: account,
@@ -457,7 +465,7 @@ final class WebhookManager: ObservableObject {
         return string
     }
 
-    private static func keychainWriteString(_ value: String, account: String) {
+    static func keychainWriteString(_ value: String, account: String) {
         if value.isEmpty {
             let deleteQuery: [String: Any] = [
                 kSecClass as String: kSecClassGenericPassword,
