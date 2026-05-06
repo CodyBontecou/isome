@@ -206,30 +206,48 @@ final class WebhookManager: ObservableObject {
     private func onNewPoint(locationManager: LocationManager) async {
         guard let context = modelContainer?.mainContext else { return }
         do {
-            var descriptor = FetchDescriptor<LocationPoint>()
-            descriptor.sortBy = [SortDescriptor(\.timestamp, order: .reverse)]
-            descriptor.fetchLimit = 1
-            let points = try context.fetch(descriptor)
-            guard let latest = points.first else { return }
-
-            if latest.isOutlier && !UserDefaults.standard.bool(forKey: "showOutliers") {
-                return
-            }
-
             switch sendMode {
             case .realtime:
-                try await sendPoints([latest])
-            case .batchCount:
-                pendingPoints.append(latest)
-                queuedPointCount = pendingPoints.count
-                if pendingPoints.count >= batchCount {
-                    await flushBatch()
+                guard let sentinel = lastSentTimestamp else {
+                    lastSentTimestamp = Date()
+                    return
                 }
-            case .batchTime:
-                pendingPoints.append(latest)
-                queuedPointCount = pendingPoints.count
-            case .manual:
-                break
+                let descriptor = FetchDescriptor<LocationPoint>(
+                    predicate: #Predicate<LocationPoint> { $0.timestamp > sentinel },
+                    sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+                )
+                let newPoints = try context.fetch(descriptor)
+                let showOutliers = UserDefaults.standard.bool(forKey: "showOutliers")
+                let filtered = newPoints.filter { !$0.isOutlier || showOutliers }
+                guard !filtered.isEmpty else { return }
+                try await sendPoints(filtered)
+                if let lastTimestamp = filtered.last?.timestamp {
+                    lastSentTimestamp = lastTimestamp
+                }
+            case .batchCount, .batchTime, .manual:
+                var descriptor = FetchDescriptor<LocationPoint>()
+                descriptor.sortBy = [SortDescriptor(\.timestamp, order: .reverse)]
+                descriptor.fetchLimit = 1
+                let points = try context.fetch(descriptor)
+                guard let latest = points.first else { return }
+
+                if latest.isOutlier && !UserDefaults.standard.bool(forKey: "showOutliers") {
+                    return
+                }
+
+                switch sendMode {
+                case .batchCount:
+                    pendingPoints.append(latest)
+                    queuedPointCount = pendingPoints.count
+                    if pendingPoints.count >= batchCount {
+                        await flushBatch()
+                    }
+                case .batchTime:
+                    pendingPoints.append(latest)
+                    queuedPointCount = pendingPoints.count
+                case .manual, .realtime:
+                    break
+                }
             }
         } catch {
             recordError(error.localizedDescription)
