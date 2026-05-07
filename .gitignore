@@ -3,8 +3,15 @@ build/
 .wrangler/
 .claude/
 
-# asc CLI build output (xcarchives, simulator builds).
+# asc CLI build output (xcarchives, simulator builds) and release scratch.
 .asc/artifacts/
+.asc/release/
+
+# asc CLI per-app working state.
+.pi/
+
+# xcode-build-server config — host/path-specific, regenerable.
+buildServer.json
 
 # Large local design source (~86 MB).
 design/
@@ -27,3 +34,6 @@ screenshots/watch/
 
 # Reference metadata pulled from another app for ASO comparison.
 metadata/spotted-reference/
+
+# In-flight 1.3.0 metadata pull — commit when the release ships.
+metadata/isome/version/1.3.0/

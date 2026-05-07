@@ -419,6 +419,11 @@ final class WebhookManager: ObservableObject {
                 return ExportService.exportCombinedToGPX(visits: visits, points: points)
             }
             return ExportService.exportLocationPointsToGPX(points: points)
+        case .geojson:
+            if hasVisits {
+                return try ExportService.exportCombinedToGeoJSON(visits: visits, points: points)
+            }
+            return try ExportService.exportLocationPointsToGeoJSON(points: points)
         }
     }
 

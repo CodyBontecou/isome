@@ -8,6 +8,7 @@ enum ExportFormat {
     case owntracks
     case overland
     case gpx
+    case geojson
 
     var fileExtension: String {
         switch self {
@@ -15,6 +16,7 @@ enum ExportFormat {
         case .csv: return "csv"
         case .markdown: return "md"
         case .gpx: return "gpx"
+        case .geojson: return "geojson"
         }
     }
 
@@ -24,6 +26,7 @@ enum ExportFormat {
         case .csv: return "text/csv"
         case .markdown: return "text/markdown"
         case .gpx: return "application/gpx+xml"
+        case .geojson: return "application/geo+json"
         }
     }
 
@@ -37,6 +40,7 @@ enum ExportFormat {
         case .owntracks: return "owntracks"
         case .overland: return "overland"
         case .gpx: return "gpx"
+        case .geojson: return "geojson"
         }
     }
 
@@ -44,7 +48,7 @@ enum ExportFormat {
     var isPointsOnly: Bool {
         switch self {
         case .owntracks, .overland: return true
-        case .json, .csv, .markdown, .gpx: return false
+        case .json, .csv, .markdown, .gpx, .geojson: return false
         }
     }
 }
@@ -273,6 +277,8 @@ struct ExportService {
             data = try exportToJSON(visits: visits)
         case .gpx:
             data = exportVisitsToGPX(visits: visits)
+        case .geojson:
+            data = try exportVisitsToGeoJSON(visits: visits)
         }
 
         let fileURL = try createTemporaryFile(data: data, format: format)
@@ -318,8 +324,10 @@ struct ExportService {
             data = try exportToJSON(visits: visits)
         case .gpx:
             data = exportVisitsToGPX(visits: visits)
+        case .geojson:
+            data = try exportVisitsToGeoJSON(visits: visits)
         }
-        
+
         let fileName = "isome_visits_\(formattedDate()).\(format.fileExtension)"
         
         guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: data, fileName: fileName) else {
@@ -528,8 +536,10 @@ extension ExportService {
             data = try exportLocationPointsToOverland(points: points)
         case .gpx:
             data = exportLocationPointsToGPX(points: points)
+        case .geojson:
+            data = try exportLocationPointsToGeoJSON(points: points)
         }
-        
+
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try data.write(to: tempURL)
@@ -665,6 +675,8 @@ extension ExportService {
             data = try exportLocationPointsToOverland(points: points)
         case .gpx:
             data = exportLocationPointsToGPX(points: points)
+        case .geojson:
+            data = try exportLocationPointsToGeoJSON(points: points)
         }
 
         let fileName = "isome_location_points_export_\(formattedDate()).\(format.fileExtension)"
@@ -825,6 +837,7 @@ extension ExportService {
         case .owntracks: return try exportLocationPointsToOwnTracks(points: points, options: options)
         case .overland: return try exportLocationPointsToOverland(points: points, options: options)
         case .gpx: return exportCombinedToGPX(visits: visits, points: points, options: options)
+        case .geojson: return try exportCombinedToGeoJSON(visits: visits, points: points, options: options)
         }
     }
 }
@@ -987,6 +1000,134 @@ extension ExportService {
     }
 }
 
+// MARK: - GeoJSON (https://datatracker.ietf.org/doc/html/rfc7946)
+
+extension ExportService {
+    private struct GeoJSONFeatureCollection: Encodable {
+        let type = "FeatureCollection"
+        let features: [GeoJSONFeature]
+        let generator: String
+        let exportDate: String
+    }
+
+    private struct GeoJSONFeature: Encodable {
+        let type = "Feature"
+        let geometry: GeoJSONGeometry
+        let properties: GeoJSONProperties
+    }
+
+    /// RFC 7946 only defines `Point`/`LineString`/etc. with a coordinates array
+    /// of `[lon, lat]` or `[lon, lat, altitude]`. Order matters: longitude first.
+    private struct GeoJSONGeometry: Encodable {
+        let type: String
+        let coordinates: [Double]
+    }
+
+    /// Wraps either visit or point property bags so a single `FeatureCollection`
+    /// can hold both kinds in the combined export.
+    private enum GeoJSONProperties: Encodable {
+        case visit(VisitProperties)
+        case point(PointProperties)
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .visit(let p): try container.encode(p)
+            case .point(let p): try container.encode(p)
+            }
+        }
+    }
+
+    private struct VisitProperties: Encodable {
+        let kind = "visit"
+        let arrivedAt: String
+        let departedAt: String?
+        let durationMinutes: Double?
+        let locationName: String?
+        let address: String?
+        let notes: String?
+    }
+
+    private struct PointProperties: Encodable {
+        let kind = "point"
+        let timestamp: String
+        let timestampUnix: Double
+        let altitude: Double?
+        let speed: Double?
+        let horizontalAccuracy: Double?
+        let isOutlier: Bool?
+    }
+
+    private static func geoJSONVisitFeature(_ visit: Visit, options: ExportOptions) -> GeoJSONFeature? {
+        // GeoJSON geometry needs valid coordinates; if the user opted out, skip.
+        guard options.includeVisitCoordinates else { return nil }
+
+        let props = VisitProperties(
+            arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
+            departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
+            durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
+            locationName: options.includeVisitLocationName ? visit.locationName : nil,
+            address: options.includeVisitAddress ? visit.address : nil,
+            notes: options.includeVisitNotes ? visit.notes : nil
+        )
+
+        return GeoJSONFeature(
+            geometry: GeoJSONGeometry(type: "Point", coordinates: [visit.longitude, visit.latitude]),
+            properties: .visit(props)
+        )
+    }
+
+    private static func geoJSONPointFeature(_ point: LocationPoint, options: ExportOptions) -> GeoJSONFeature {
+        var coords: [Double] = [point.longitude, point.latitude]
+        if options.includePointAltitude, let alt = point.altitude {
+            coords.append(alt)
+        }
+
+        let props = PointProperties(
+            timestamp: iso8601Formatter.string(from: point.timestamp),
+            timestampUnix: point.timestamp.timeIntervalSince1970,
+            altitude: options.includePointAltitude ? point.altitude : nil,
+            speed: options.includePointSpeed ? point.speed : nil,
+            horizontalAccuracy: options.includePointAccuracy ? point.horizontalAccuracy : nil,
+            isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil
+        )
+
+        return GeoJSONFeature(
+            geometry: GeoJSONGeometry(type: "Point", coordinates: coords),
+            properties: .point(props)
+        )
+    }
+
+    private static func encodeGeoJSON(_ features: [GeoJSONFeature]) throws -> Data {
+        let collection = GeoJSONFeatureCollection(
+            features: features,
+            generator: "iso.me",
+            exportDate: iso8601Formatter.string(from: Date())
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        return try encoder.encode(collection)
+    }
+
+    static func exportVisitsToGeoJSON(visits: [Visit], options: ExportOptions = ExportOptions()) throws -> Data {
+        let features = visits.compactMap { geoJSONVisitFeature($0, options: options) }
+        return try encodeGeoJSON(features)
+    }
+
+    static func exportLocationPointsToGeoJSON(points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
+        let sorted = points.sorted { $0.timestamp < $1.timestamp }
+        let features = sorted.map { geoJSONPointFeature($0, options: options) }
+        return try encodeGeoJSON(features)
+    }
+
+    static func exportCombinedToGeoJSON(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
+        var features = visits.compactMap { geoJSONVisitFeature($0, options: options) }
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        features.append(contentsOf: sortedPoints.map { geoJSONPointFeature($0, options: options) })
+        return try encodeGeoJSON(features)
+    }
+}
+
 // MARK: - Options-Driven Entrypoints
 
 extension ExportService {
@@ -1013,6 +1154,7 @@ extension ExportService {
             case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
             case .owntracks, .overland: data = try exportToJSON(visits: filteredVisits, options: options)
             case .gpx: data = exportVisitsToGPX(visits: filteredVisits, options: options)
+            case .geojson: data = try exportVisitsToGeoJSON(visits: filteredVisits, options: options)
             }
         case .points:
             switch options.format {
@@ -1022,6 +1164,7 @@ extension ExportService {
             case .owntracks: data = try exportLocationPointsToOwnTracks(points: filteredPoints, options: options)
             case .overland: data = try exportLocationPointsToOverland(points: filteredPoints, options: options)
             case .gpx: data = exportLocationPointsToGPX(points: filteredPoints, options: options)
+            case .geojson: data = try exportLocationPointsToGeoJSON(points: filteredPoints, options: options)
             }
         case .all:
             data = try combinedData(
@@ -1081,6 +1224,7 @@ extension ExportService {
                 case .markdown: data = exportToMarkdown(visits: group.visits, options: dayOptions)
                 case .owntracks, .overland: data = try exportToJSON(visits: group.visits, options: dayOptions)
                 case .gpx: data = exportVisitsToGPX(visits: group.visits, options: dayOptions)
+                case .geojson: data = try exportVisitsToGeoJSON(visits: group.visits, options: dayOptions)
                 }
             case .points:
                 switch dayOptions.format {
@@ -1090,6 +1234,7 @@ extension ExportService {
                 case .owntracks: data = try exportLocationPointsToOwnTracks(points: group.points, options: dayOptions)
                 case .overland: data = try exportLocationPointsToOverland(points: group.points, options: dayOptions)
                 case .gpx: data = exportLocationPointsToGPX(points: group.points, options: dayOptions)
+                case .geojson: data = try exportLocationPointsToGeoJSON(points: group.points, options: dayOptions)
                 }
             case .all:
                 data = try combinedData(

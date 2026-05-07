@@ -179,12 +179,20 @@ enum IsoMeExportFormat: String, AppEnum {
     case json
     case csv
     case markdown
+    case geojson
+    case gpx
+    case owntracks
+    case overland
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Export Format"
     static var caseDisplayRepresentations: [Self: DisplayRepresentation] = [
         .json: "JSON",
         .csv: "CSV",
         .markdown: "Markdown",
+        .geojson: "GeoJSON",
+        .gpx: "GPX",
+        .owntracks: "OwnTracks",
+        .overland: "Overland",
     ]
 
     var format: ExportFormat {
@@ -192,6 +200,10 @@ enum IsoMeExportFormat: String, AppEnum {
         case .json: return .json
         case .csv: return .csv
         case .markdown: return .markdown
+        case .geojson: return .geojson
+        case .gpx: return .gpx
+        case .owntracks: return .owntracks
+        case .overland: return .overland
         }
     }
 
@@ -200,6 +212,13 @@ enum IsoMeExportFormat: String, AppEnum {
         case .json: return .json
         case .csv: return .commaSeparatedText
         case .markdown: return UTType(filenameExtension: "md") ?? .plainText
+        // GeoJSON has no registered system UTType; declare the extension so the
+        // file lands with the .geojson suffix when handed to other apps.
+        case .geojson: return UTType(filenameExtension: "geojson") ?? .json
+        case .gpx: return UTType(filenameExtension: "gpx") ?? .xml
+        // OwnTracks and Overland are JSON payloads — keep the .json UTType so
+        // receiving apps treat them as JSON.
+        case .owntracks, .overland: return .json
         }
     }
 }

@@ -392,6 +392,7 @@ struct ExportView: View {
                                     Text("MARKDOWN").tag(ExportFormat.markdown)
                                     Text("OWNTRACKS").tag(ExportFormat.owntracks)
                                     Text("OVERLAND").tag(ExportFormat.overland)
+                                    Text("GEOJSON").tag(ExportFormat.geojson)
                                 }
                                 .labelsHidden()
                                 .tint(TE.accent)

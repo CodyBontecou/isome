@@ -183,6 +183,7 @@ struct WebhookSettingsView: View {
                             Text("JSON").tag(ExportFormat.json)
                             Text("CSV").tag(ExportFormat.csv)
                             Text("GPX").tag(ExportFormat.gpx)
+                            Text("GEOJSON").tag(ExportFormat.geojson)
                             Text("MARKDOWN").tag(ExportFormat.markdown)
                         }
                         .labelsHidden()
