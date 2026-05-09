@@ -69,7 +69,7 @@ struct SettingsView: View {
             }
             .fileImporter(
                 isPresented: $showingImportPicker,
-                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText],
+                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText, UTType(filenameExtension: "kml") ?? .xml],
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)
@@ -330,7 +330,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Import visits or points from a previously exported JSON, CSV, or Markdown file.")
+            TESectionFooter(text: "Import visits or points from JSON, CSV, or Markdown. KML, GPX, and GeoJSON are one-way map exports.")
         }
     }
 

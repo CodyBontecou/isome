@@ -1,0 +1,18 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABAjZmlQ",
+  "identifier": "CodyBontecou/isome#9",
+  "title": "Add KML export format (Google Earth)",
+  "description": "## Background\n\nKML is the format Google Earth uses, and many mapping tools (My Maps, QGIS, ArcGIS) consume it natively. Adding KML alongside the planned GPX export covers the Google ecosystem the same way GPX covers the outdoor/fitness one.\n\nExisting export pipeline lives in `IsoMe/Utilities/ExportService.swift` and is wired into `SettingsView`.\n\n## What to build\n\n- Extend the `ExportFormat` enum with `.kml`\n- Add a `kmlString(...)` method producing a valid KML 2.2 document\n  - Visits → `<Placemark>` with `<Point>` and `<TimeStamp>`\n  - Continuous tracking sessions → `<Placemark>` with `<LineString>` and `<gx:Track>` (so Google Earth animates the route)\n- Add the format to the export sheet\n\n## Acceptance\n\n- Exported `.kml` opens in Google Earth (web and desktop) and shows visits as pins, sessions as paths\n- UTI `com.google.earth.kml` is set on the share/save sheet\n- Round-trip: importing a previously exported KML produces equivalent data (or document this is one-way)\n\n## Reference\n\n- [KML 2.2 reference](https://developers.google.com/kml/documentation/kmlreference)",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/9",
+  "labels": [
+    "enhancement",
+    "good first issue"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-04-26T21:56:25Z",
+  "updated_at": "2026-05-04T19:10:10Z"
+}
