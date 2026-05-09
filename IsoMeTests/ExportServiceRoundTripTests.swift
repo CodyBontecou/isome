@@ -55,7 +55,10 @@ final class ExportServiceRoundTripTests: XCTestCase {
         ).points
 
         assertVisits(importedVisits, match: visits, coordinateAccuracy: 0.000001)
-        assertLocationPoints(importedPoints, match: points, coordinateAccuracy: 0.000001, valueAccuracy: 0.05)
+        // Markdown intentionally renders numeric point metadata with one decimal place.
+        // Allow a small epsilon over 0.05 to avoid binary floating-point edge cases
+        // (for example 1.75 round-trips through "1.8").
+        assertLocationPoints(importedPoints, match: points, coordinateAccuracy: 0.000001, valueAccuracy: 0.051)
     }
 
     func testMalformedJSONThrowsParsingError() {
