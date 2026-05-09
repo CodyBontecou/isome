@@ -18,6 +18,7 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @State private var selectedLocationPoint: LocationPoint?
+    @State private var selectedVehicleID: UUID?
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -35,10 +36,12 @@ struct LocationMapView: View {
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
+            .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
     }
 
     var filteredPoints: [LocationPoint] {
         let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+            .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
 
@@ -265,7 +268,9 @@ struct LocationMapView: View {
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
                     dateRange: $viewModel.mapDateRange,
+                    selectedVehicleID: $selectedVehicleID,
                     isPresented: $showingFilters,
+                    vehicles: viewModel.vehicles,
                     onApply: { activePreset = nil }
                 )
             }
@@ -818,7 +823,9 @@ struct DateRangeChip: View {
 
 struct DateRangeFilterSheet: View {
     @Binding var dateRange: ClosedRange<Date>
+    @Binding var selectedVehicleID: UUID?
     @Binding var isPresented: Bool
+    let vehicles: [Vehicle]
     var onApply: (() -> Void)? = nil
 
     @State private var startDate: Date
@@ -826,11 +833,15 @@ struct DateRangeFilterSheet: View {
 
     init(
         dateRange: Binding<ClosedRange<Date>>,
+        selectedVehicleID: Binding<UUID?> = .constant(nil),
         isPresented: Binding<Bool>,
+        vehicles: [Vehicle] = [],
         onApply: (() -> Void)? = nil
     ) {
         _dateRange = dateRange
+        _selectedVehicleID = selectedVehicleID
         _isPresented = isPresented
+        self.vehicles = vehicles
         self.onApply = onApply
         _startDate = State(initialValue: dateRange.wrappedValue.lowerBound)
         _endDate = State(initialValue: dateRange.wrappedValue.upperBound)
@@ -865,6 +876,15 @@ struct DateRangeFilterSheet: View {
                 Section("Custom Range") {
                     DatePicker("From", selection: $startDate, displayedComponents: .date)
                     DatePicker("To", selection: $endDate, displayedComponents: .date)
+                }
+
+                Section("Vehicle") {
+                    Picker("Vehicle", selection: $selectedVehicleID) {
+                        Text("All Vehicles").tag(nil as UUID?)
+                        ForEach(vehicles.filter { !$0.isArchived }) { vehicle in
+                            Text(vehicle.name).tag(Optional(vehicle.id))
+                        }
+                    }
                 }
             }
             .navigationTitle("Filter by Date")
@@ -989,6 +1009,10 @@ struct VisitQuickView: View {
                             .fontWeight(.medium)
                     }
                 }
+
+                Divider()
+
+                LabeledContent("Vehicle", value: viewModel.vehicleName(for: visit.vehicleID))
 
                 if let notes = visit.notes, !notes.isEmpty {
                     Divider()

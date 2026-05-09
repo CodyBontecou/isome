@@ -27,6 +27,9 @@ struct VisitDetailView: View {
                 // Classification
                 classificationSection
 
+                // Vehicle
+                vehicleSection
+
                 // Notes
                 notesSection
 
@@ -164,6 +167,54 @@ struct VisitDetailView: View {
         }
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var vehicleSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Vehicle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Picker("Vehicle", selection: Binding<UUID?>(
+                get: { visit.vehicleID },
+                set: { viewModel.assignVehicle($0, to: visit) }
+            )) {
+                Text("No Vehicle").tag(nil as UUID?)
+                ForEach(viewModel.activeVehicles) { vehicle in
+                    Text(vehicle.name).tag(Optional(vehicle.id))
+                }
+                if let vehicle = viewModel.vehicle(for: visit.vehicleID), vehicle.isArchived {
+                    Text("\(vehicle.name) (Archived)").tag(Optional(vehicle.id))
+                }
+            }
+            .pickerStyle(.menu)
+
+            if !viewModel.recentVehicles.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.recentVehicles) { vehicle in
+                            Button {
+                                viewModel.assignVehicle(vehicle.id, to: visit)
+                            } label: {
+                                Text(vehicle.name)
+                                    .font(.caption)
+                                    .fontWeight(visit.vehicleID == vehicle.id ? .semibold : .regular)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(visit.vehicleID == vehicle.id ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemBackground), in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onAppear {
+            viewModel.loadVehicles()
+        }
     }
 
     private var notesSection: some View {

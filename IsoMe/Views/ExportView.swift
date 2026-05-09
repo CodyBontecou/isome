@@ -888,6 +888,7 @@ struct ExportView: View {
                 let urls = try ExportService.saveToDefaultFolder(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
+                    vehicles: viewModel.vehicles,
                     options: options,
                     filenamePattern: filenamePattern
                 )
@@ -907,6 +908,7 @@ struct ExportView: View {
                 try ExportService.share(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
+                    vehicles: viewModel.vehicles,
                     options: options,
                     filenamePattern: filenamePattern
                 )
