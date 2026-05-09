@@ -18,6 +18,7 @@ struct LocationMapView: View {
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
+    @AppStorage("drivesOnlyMode") private var drivesOnlyMode = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
     init(viewModel: LocationViewModel) {
@@ -33,7 +34,8 @@ struct LocationMapView: View {
     private let minimumPointDistance: Double = 50
 
     var filteredVisits: [Visit] {
-        viewModel.visitsInDateRange(viewModel.mapDateRange)
+        guard !drivesOnlyMode else { return [] }
+        return viewModel.visitsInDateRange(viewModel.mapDateRange)
     }
 
     var filteredPoints: [LocationPoint] {

@@ -15,6 +15,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
         UserDefaults.standard.removeObject(forKey: "stopAfterHours")
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: LocationManager.drivesOnlyModeDefaultsKey)
         manager = LocationManager()
     }
 
@@ -23,6 +24,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
         UserDefaults.standard.removeObject(forKey: "stopAfterHours")
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: LocationManager.drivesOnlyModeDefaultsKey)
         super.tearDown()
     }
 
@@ -69,10 +71,26 @@ final class LocationManagerTrackingTests: XCTestCase {
         XCTAssertEqual(manager.distanceFilter, 5.0)
     }
 
+    /// Drives-only mode is off by default so existing users keep visit detection
+    /// until they opt into focused mileage tracking.
+    func testDrivesOnlyModeDefaultsToOff() {
+        XCTAssertFalse(manager.drivesOnlyMode)
+    }
+
     /// setStopAfterHours persists across reinstantiation.
     func testStopAfterHoursIsPersisted() {
         manager.setStopAfterHours(2.0)
         let fresh = LocationManager()
         XCTAssertEqual(fresh.stopAfterHours, 2.0)
+    }
+
+    /// Drives-only mode persists because it changes the Core Location APIs used
+    /// after relaunch.
+    func testDrivesOnlyModeIsPersisted() {
+        manager.setDrivesOnlyMode(true)
+
+        let fresh = LocationManager()
+
+        XCTAssertTrue(fresh.drivesOnlyMode)
     }
 }

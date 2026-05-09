@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBeT1Kw",
+  "identifier": "CodyBontecou/isome#22",
+  "title": "Epic: MileIQ feature parity for business mileage tracking",
+  "description": "## Summary\n\nUmbrella tracking issue for the work needed to make iso.me a viable MileIQ replacement for self-employed users and small businesses. Each child ticket can ship independently, but together they unlock the use case end-to-end.\n\n## Why\n\nMultiple users have asked whether iso.me can replace MileIQ. It's adjacent — we already do background drive detection, GPS tracking, and exports — but five concrete features are missing before the answer is \"yes\".\n\n## Child tickets\n\n- [ ] Classify trips as Business or Personal\n- [ ] Multi-vehicle support\n- [ ] Auto-detect active vehicle via Bluetooth connection (depends on multi-vehicle)\n- [ ] IRS-compliant mileage reporting (depends on classification + multi-vehicle)\n- [ ] Drives-only mode\n\n## Suggested order\n\n1. **Drives-only mode** — small, lands fast, immediately makes the app usable as a focused mileage tracker.\n2. **Trip classification** — the foundation for everything reporting-related.\n3. **Multi-vehicle support** — needed before Bluetooth pairing or per-vehicle reports.\n4. **IRS-compliant mileage reporting** — the actual deliverable people care about at tax time.\n5. **Bluetooth auto-detect** — quality-of-life polish that removes manual vehicle assignment.\n\n## Out of scope (for now)\n\n- Team / multi-user accounts (iso.me is on-device only by design).\n- Cloud sync of trips between devices.\n- Auto-classification rules (\"weekdays = business\").\n- Receipt / parking / toll capture.\n\nThese can be revisited once the core five ship and we see what users actually want next.\n\n<!-- isobot:discord-thread:1501667074962100425 -->",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/22",
+  "labels": [
+    "enhancement"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-06T19:28:47Z",
+  "updated_at": "2026-05-06T19:28:50Z"
+}

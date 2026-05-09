@@ -203,6 +203,16 @@ struct SettingsView: View {
                     }
 
                     TERow {
+                        settingsToggle(
+                            "DRIVES-ONLY MODE",
+                            isOn: Binding(
+                                get: { viewModel.locationManager.drivesOnlyMode },
+                                set: { viewModel.locationManager.setDrivesOnlyMode($0) }
+                            )
+                        )
+                    }
+
+                    TERow {
                         HStack {
                             Text("STOP AFTER")
                                 .font(TE.mono(.caption, weight: .medium))
@@ -232,7 +242,9 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
+            TESectionFooter(text: viewModel.locationManager.drivesOnlyMode
+                ? "Drives-only mode records route points for mileage tracking and skips visit detection. Distance filter controls how often points are saved while moving."
+                : "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
         }
     }
 

@@ -17,6 +17,7 @@ struct ExportView: View {
 
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
+    @AppStorage("drivesOnlyMode") private var drivesOnlyMode = false
 
     private var filteredVisits: [Visit] {
         options.filterVisits(viewModel.allVisits)
@@ -112,6 +113,11 @@ struct ExportView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
+            }
+            .onAppear {
+                if drivesOnlyMode && options.dataKind == .visits {
+                    options.dataKind = .points
+                }
             }
         }
     }

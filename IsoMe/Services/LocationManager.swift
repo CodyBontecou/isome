@@ -20,6 +20,7 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var trackingStartTime: Date?
     @Published var stopAfterHours: Double = 0.0
     @Published var distanceFilter: Double = 5.0
+    @Published var drivesOnlyMode: Bool = false
     @Published var currentLocation: CLLocation?
     @Published var lastError: String?
 
@@ -79,6 +80,9 @@ final class LocationManager: NSObject, ObservableObject {
         }
         if UserDefaults.standard.object(forKey: "distanceFilter") != nil {
             distanceFilter = UserDefaults.standard.double(forKey: "distanceFilter")
+        }
+        if UserDefaults.standard.object(forKey: Self.drivesOnlyModeDefaultsKey) != nil {
+            drivesOnlyMode = UserDefaults.standard.bool(forKey: Self.drivesOnlyModeDefaultsKey)
         }
         locationManager.distanceFilter = distanceFilter
 
@@ -154,7 +158,9 @@ final class LocationManager: NSObject, ObservableObject {
 
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = distanceFilter
-        locationManager.startMonitoringVisits()
+        if !drivesOnlyMode {
+            locationManager.startMonitoringVisits()
+        }
         locationManager.startMonitoringSignificantLocationChanges()
         locationManager.startUpdatingLocation()
 
@@ -209,6 +215,19 @@ final class LocationManager: NSObject, ObservableObject {
         }
     }
 
+    func setDrivesOnlyMode(_ enabled: Bool) {
+        drivesOnlyMode = enabled
+        UserDefaults.standard.set(enabled, forKey: Self.drivesOnlyModeDefaultsKey)
+
+        guard isTrackingEnabled else { return }
+
+        if enabled {
+            locationManager.stopMonitoringVisits()
+        } else {
+            locationManager.startMonitoringVisits()
+        }
+    }
+
     private func scheduleStopTrackingTimer() {
         stopTrackingTimer?.invalidate()
         stopTrackingTimer = nil
@@ -239,7 +258,10 @@ final class LocationManager: NSObject, ObservableObject {
 
     // MARK: - Data Storage
 
+    static let drivesOnlyModeDefaultsKey = "drivesOnlyMode"
+
     private func saveVisit(_ clVisit: CLVisit) {
+        guard !drivesOnlyMode else { return }
         guard let context = modelContext else { return }
 
         // Check if this is a departure update for an existing visit
