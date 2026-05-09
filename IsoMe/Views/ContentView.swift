@@ -329,8 +329,9 @@ private struct OnboardingView: View {
 
     @State private var selectedPage = 0
     @State private var startTrackingWhenDone = false
+    @State private var selectedTrackingMode: TrackingMode = .fullHistory
 
-    private let pageCount = 4
+    private let pageCount = 5
 
     init(viewModel: LocationViewModel, onComplete: @escaping (Bool) -> Void) {
         self.viewModel = viewModel
@@ -352,14 +353,17 @@ private struct OnboardingView: View {
                     welcomePage
                         .tag(0)
 
-                    featuresPage
+                    purposePage
                         .tag(1)
 
-                    permissionsPage
+                    featuresPage
                         .tag(2)
 
-                    finishPage
+                    permissionsPage
                         .tag(3)
+
+                    finishPage
+                        .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
@@ -371,10 +375,10 @@ private struct OnboardingView: View {
             }
         }
         .onChange(of: locationManager.authorizationStatus) { _, newStatus in
-            guard selectedPage == 2 else { return }
+            guard selectedPage == 3 else { return }
             if newStatus == .authorizedAlways {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                    selectedPage = 3
+                    selectedPage = 4
                 }
             }
         }
@@ -392,6 +396,35 @@ private struct OnboardingView: View {
                 OnboardingChecklistRow(icon: "mappin.and.ellipse", text: "Auto-detect places you visit")
                 OnboardingChecklistRow(icon: "point.topleft.down.to.point.bottomright.curvepath", text: "Capture detailed routes when needed")
                 OnboardingChecklistRow(icon: "lock.shield.fill", text: "Keep all location data on-device")
+            }
+        }
+    }
+
+    private var purposePage: some View {
+        LocationOnboardingPageView(
+            icon: "slider.horizontal.3",
+            eyebrow: "Tracking Mode",
+            title: "WHY ARE YOU USING ISO.ME?",
+            description: "Pick a starting mode. You can change it later in Settings."
+        ) {
+            VStack(spacing: 12) {
+                OnboardingModeOption(
+                    title: "Full history",
+                    description: "Visits, map pins, routes, and exports.",
+                    icon: "map.fill",
+                    isSelected: selectedTrackingMode == .fullHistory
+                ) {
+                    selectedTrackingMode = .fullHistory
+                }
+
+                OnboardingModeOption(
+                    title: "Mileage tracking",
+                    description: "Vehicle trips only, with visit logging turned off.",
+                    icon: "car.fill",
+                    isSelected: selectedTrackingMode == .drivesOnly
+                ) {
+                    selectedTrackingMode = .drivesOnly
+                }
             }
         }
     }
@@ -581,6 +614,12 @@ private struct OnboardingView: View {
                     title: "Privacy",
                     value: "Stored on-device"
                 )
+
+                OnboardingSummaryRow(
+                    icon: selectedTrackingMode == .drivesOnly ? "car.fill" : "map.fill",
+                    title: "Mode",
+                    value: selectedTrackingMode.title
+                )
             }
             .onboardingCard(padding: 14, fill: OnboardingPalette.card)
 
@@ -655,7 +694,7 @@ private struct OnboardingView: View {
     }
 
     private var isAwaitingPermissionRequest: Bool {
-        selectedPage == 2 && locationManager.authorizationStatus == .notDetermined
+        selectedPage == 3 && locationManager.authorizationStatus == .notDetermined
     }
 
     private var primaryButtonTitle: String {
@@ -678,6 +717,7 @@ private struct OnboardingView: View {
     }
 
     private func completeOnboarding() {
+        locationManager.setTrackingMode(selectedTrackingMode)
         let shouldStartTracking = startTrackingWhenDone && locationManager.hasLocationPermission
         onComplete(shouldStartTracking)
     }
@@ -790,6 +830,52 @@ private struct OnboardingFeatureCard: View {
             Spacer(minLength: 0)
         }
         .onboardingCard(padding: 14, fill: OnboardingPalette.card)
+    }
+}
+
+private struct OnboardingModeOption: View {
+    let title: String
+    let description: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(isSelected ? OnboardingPalette.accent.opacity(0.18) : OnboardingPalette.cardSoft)
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(isSelected ? OnboardingPalette.accent : OnboardingPalette.textSecondary)
+                }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(title)
+                        .font(.onboardingBody)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(OnboardingPalette.textPrimary)
+
+                    Text(description)
+                        .font(.onboardingCaption)
+                        .foregroundStyle(OnboardingPalette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(isSelected ? OnboardingPalette.accent : OnboardingPalette.textMuted)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onboardingCard(padding: 14, fill: isSelected ? OnboardingPalette.card : OnboardingPalette.cardSoft)
     }
 }
 
