@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBwgobw",
+  "identifier": "CodyBontecou/isome#24",
+  "title": "Map: show date/time when tapping a location point",
+  "description": "Add a way to press/tap any point on the map to see the date and time for that specific location. This lets users quickly check the timestamp for a single point without exporting the full data.\n\n<!-- isobot:discord-thread:1502693389601079387 -->",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/24",
+  "labels": [
+    "symphony"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-09T15:27:01Z",
+  "updated_at": "2026-05-09T15:34:34Z"
+}

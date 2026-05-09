@@ -17,6 +17,7 @@ struct LocationMapView: View {
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
+    @State private var selectedLocationPoint: LocationPoint?
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -64,10 +65,22 @@ struct LocationMapView: View {
         return result
     }
 
+    private var tappablePoints: [LocationPoint] {
+        var points = (showTravelPath || showPointMarkers || showStartEndMarkers) ? filteredPoints : []
+
+        if showSessionPath {
+            let existingIDs = Set(points.map(\.id))
+            points.append(contentsOf: activeSessionPoints.filter { !existingIDs.contains($0.id) })
+        }
+
+        return points
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Map(position: $cameraPosition, selection: $selectedVisit) {
+                MapReader { proxy in
+                    Map(position: $cameraPosition, selection: $selectedVisit) {
                     // Current user location
                     UserAnnotation()
 
@@ -126,13 +139,24 @@ struct LocationMapView: View {
                     if showPointMarkers {
                         ForEach(spacedPoints) { point in
                             Annotation("", coordinate: point.coordinate) {
-                                Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
-                                    .overlay {
-                                        Circle()
-                                            .stroke(.white, lineWidth: 1.5)
+                                LocationPointMarker(
+                                    isSelected: selectedLocationPoint?.id == point.id
+                                )
+                                .onTapGesture {
+                                    withAnimation(.spring(duration: 0.2)) {
+                                        selectedLocationPoint = point
                                     }
+                                }
+                            }
+                        }
+                    }
+
+                    if let selectedLocationPoint {
+                        Annotation("", coordinate: selectedLocationPoint.coordinate, anchor: .bottom) {
+                            LocationPointTimestampCallout(point: selectedLocationPoint) {
+                                withAnimation(.spring(duration: 0.2)) {
+                                    self.selectedLocationPoint = nil
+                                }
                             }
                         }
                     }
@@ -151,21 +175,25 @@ struct LocationMapView: View {
                         }
                     }
                 }
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                    MapScaleView()
-                }
-                .safeAreaInset(edge: .top, spacing: 0) {
-                    if !discordPromoDismissed {
-                        DiscordPromoBanner(onDismiss: dismissDiscordPromo)
-                            .padding(.horizontal, 12)
-                            .padding(.top, 6)
-                            .padding(.bottom, 4)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                    .onTapGesture(coordinateSpace: .local) { point in
+                        selectNearestLocationPoint(to: point, proxy: proxy)
                     }
+                    .mapControls {
+                        MapUserLocationButton()
+                        MapCompass()
+                        MapScaleView()
+                    }
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        if !discordPromoDismissed {
+                            DiscordPromoBanner(onDismiss: dismissDiscordPromo)
+                                .padding(.horizontal, 12)
+                                .padding(.top, 6)
+                                .padding(.bottom, 4)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                    }
+                    .animation(.spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
                 }
-                .animation(.spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -289,6 +317,34 @@ struct LocationMapView: View {
         pendingSessionAutoFocus = false
     }
 
+    private func selectNearestLocationPoint(to tapPoint: CGPoint, proxy: MapProxy) {
+        guard !tappablePoints.isEmpty else {
+            selectedLocationPoint = nil
+            return
+        }
+
+        let nearest = tappablePoints
+            .compactMap { point -> (point: LocationPoint, distance: CGFloat)? in
+                guard let projectedPoint = proxy.convert(point.coordinate, to: .local) else {
+                    return nil
+                }
+
+                return (
+                    point,
+                    hypot(projectedPoint.x - tapPoint.x, projectedPoint.y - tapPoint.y)
+                )
+            }
+            .min { $0.distance < $1.distance }
+
+        withAnimation(.spring(duration: 0.2)) {
+            if let nearest, nearest.distance <= 32 {
+                selectedLocationPoint = nearest.point
+            } else {
+                selectedLocationPoint = nil
+            }
+        }
+    }
+
     private func dismissDiscordPromo() {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
             discordPromoDismissed = true
@@ -303,6 +359,69 @@ struct LocationMapView: View {
                 viewModel.startTracking()
             }
         }
+    }
+}
+
+// MARK: - Location Point Selection
+
+struct LocationPointMarker: View {
+    let isSelected: Bool
+
+    var body: some View {
+        Circle()
+            .fill(isSelected ? TE.accent : .blue)
+            .frame(width: isSelected ? 12 : 8, height: isSelected ? 12 : 8)
+            .overlay {
+                Circle()
+                    .stroke(.white, lineWidth: isSelected ? 2 : 1.5)
+            }
+            .contentShape(Circle())
+            .shadow(color: .black.opacity(isSelected ? 0.22 : 0), radius: 4, y: 2)
+            .animation(.spring(duration: 0.2), value: isSelected)
+    }
+}
+
+struct LocationPointTimestampCallout: View {
+    let point: LocationPoint
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(point.timestamp.formatted(date: .abbreviated, time: .shortened))
+                    .font(TE.mono(.caption, weight: .semibold))
+                    .foregroundStyle(TE.textPrimary)
+
+                Text(coordinateText)
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+            }
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(TE.textMuted)
+                    .frame(width: 22, height: 22)
+                    .background(.thinMaterial, in: Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(.white.opacity(0.28), lineWidth: 0.8)
+                }
+                .shadow(color: .black.opacity(0.18), radius: 12, x: 0, y: 5)
+        }
+        .offset(y: -12)
+    }
+
+    private var coordinateText: String {
+        String(format: "%.5f, %.5f", point.latitude, point.longitude)
     }
 }
 
