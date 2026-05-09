@@ -1,0 +1,18 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABAjZozg",
+  "identifier": "CodyBontecou/isome#11",
+  "title": "VoiceOver accessibility audit for TrackingView",
+  "description": "## Background\n\niso.me has not been audited for VoiceOver. The Tracking screen (`IsoMe/Views/TrackingView.swift`) is the most-used surface and a good place to start — it has the start/stop button, status indicators, and live stats.\n\n## What to build\n\nRun VoiceOver on the Tracking screen and fix accessibility issues:\n\n- Every interactive control has a clear `accessibilityLabel`\n- Decorative icons are marked `accessibilityHidden(true)` so they don't add noise\n- Live stats (distance, points, time) announce as a single grouped element with a meaningful label, not as separate fragments\n- Start/Stop button announces its current state (\"Start tracking\" / \"Stop tracking\", not just \"Button\")\n- Tap target sizes meet the 44×44 minimum\n- Dynamic Type up to XXL doesn't truncate or overlap\n\n## Acceptance\n\n- Walk through the Tracking screen end-to-end with VoiceOver enabled — every element is announced clearly\n- Include a short Loom or screen recording in the PR if you can\n- No regressions to the visual layout\n\n## Out of scope\n\nOther screens (Map, Settings, Visit Detail) are intentionally left for follow-up issues.\n\n## Reference\n\n- [Apple: Accessibility in SwiftUI](https://developer.apple.com/documentation/swiftui/view-accessibility)\n- [Apple HIG: Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/11",
+  "labels": [
+    "enhancement",
+    "good first issue"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-04-26T21:56:42Z",
+  "updated_at": "2026-05-04T19:10:11Z"
+}
