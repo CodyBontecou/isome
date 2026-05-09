@@ -15,6 +15,50 @@ import SwiftData
 final class WebhookManager: ObservableObject {
     static let shared = WebhookManager()
 
+    // MARK: - Integration presets
+
+    enum Integration: String, CaseIterable, Identifiable {
+        case custom
+        case dawarich
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .custom: return "CUSTOM"
+            case .dawarich: return "DAWARICH"
+            }
+        }
+    }
+
+    enum DawarichProtocol: String, CaseIterable, Identifiable {
+        case overland
+        case owntracks
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .overland: return "OVERLAND BATCH"
+            case .owntracks: return "OWNTRACKS POINT"
+            }
+        }
+
+        var endpointPath: String {
+            switch self {
+            case .overland: return "/api/v1/overland/batches"
+            case .owntracks: return "/api/v1/owntracks/points"
+            }
+        }
+
+        var exportFormat: ExportFormat {
+            switch self {
+            case .overland: return .overland
+            case .owntracks: return .owntracks
+            }
+        }
+    }
+
     // MARK: - Auth types
 
     enum AuthType: String, CaseIterable, Identifiable {
@@ -59,6 +103,15 @@ final class WebhookManager: ObservableObject {
 
     @Published var isEnabled: Bool {
         didSet { defaults.set(isEnabled, forKey: Self.key(.enabled)); syncObservation(); syncTimer() }
+    }
+    @Published var integration: Integration {
+        didSet { defaults.set(integration.rawValue, forKey: Self.key(.integration)) }
+    }
+    @Published var dawarichServerURL: String {
+        didSet { defaults.set(dawarichServerURL, forKey: Self.key(.dawarichServerURL)) }
+    }
+    @Published var dawarichProtocol: DawarichProtocol {
+        didSet { defaults.set(dawarichProtocol.rawValue, forKey: Self.key(.dawarichProtocol)) }
     }
     @Published var urlString: String {
         didSet { defaults.set(urlString, forKey: Self.key(.url)) }
@@ -107,7 +160,8 @@ final class WebhookManager: ObservableObject {
     private var lastSentTimestamp: Date?
 
     private enum DefaultsKey: String {
-        case enabled, url, format, authType
+        case enabled, integration, dawarichServerURL, dawarichProtocol
+        case url, format, authType
         case sendMode, batchCount, batchTimeMinutes
         case lastSentAt, lastError
     }
@@ -123,6 +177,9 @@ final class WebhookManager: ObservableObject {
     private init() {
         let d = defaults
         self.isEnabled = d.bool(forKey: Self.key(.enabled))
+        self.integration = Integration(rawValue: d.string(forKey: Self.key(.integration)) ?? "") ?? .custom
+        self.dawarichServerURL = d.string(forKey: Self.key(.dawarichServerURL)) ?? ""
+        self.dawarichProtocol = DawarichProtocol(rawValue: d.string(forKey: Self.key(.dawarichProtocol)) ?? "") ?? .overland
         self.urlString = d.string(forKey: Self.key(.url)) ?? ""
         self.format = Self.formatFromToken(d.string(forKey: Self.key(.format)))
         self.authType = AuthType(rawValue: d.string(forKey: Self.key(.authType)) ?? "") ?? .none
@@ -295,9 +352,14 @@ final class WebhookManager: ObservableObject {
             timestamp: Date(),
             horizontalAccuracy: 0
         )
-        let body = try formatPayload(points: [fakePoint])
         guard let url = buildURL() else {
             throw WebhookError.invalidURL
+        }
+        let body: Data
+        if integration == .dawarich, format == .owntracks {
+            body = try ExportService.exportLocationPointToOwnTracks(point: fakePoint)
+        } else {
+            body = try formatPayload(points: [fakePoint])
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -319,6 +381,21 @@ final class WebhookManager: ObservableObject {
         }
     }
 
+    func applyDawarichConfiguration() {
+        guard let endpoint = Self.dawarichEndpoint(serverURL: dawarichServerURL, proto: dawarichProtocol) else {
+            recordError(WebhookError.invalidDawarichURL.localizedDescription)
+            return
+        }
+
+        integration = .dawarich
+        urlString = endpoint
+        format = dawarichProtocol.exportFormat
+        authType = .apiKeyQuery
+        authKey = "api_key"
+        lastError = nil
+        defaults.removeObject(forKey: Self.key(.lastError))
+    }
+
     // MARK: - Core send
 
     private func sendPoints(_ points: [LocationPoint], visits: [Visit] = []) async throws {
@@ -329,6 +406,11 @@ final class WebhookManager: ObservableObject {
 
         isSending = true
         defer { isSending = false }
+
+        if integration == .dawarich, format == .owntracks {
+            try await sendDawarichOwnTracksPoints(points, to: url)
+            return
+        }
 
         let body = try formatPayload(points: points, visits: visits)
         var request = URLRequest(url: url)
@@ -342,6 +424,29 @@ final class WebhookManager: ObservableObject {
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw WebhookError.httpError((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+
+        lastSentAt = Date()
+        defaults.set(lastSentAt, forKey: Self.key(.lastSentAt))
+        lastError = nil
+        defaults.removeObject(forKey: Self.key(.lastError))
+    }
+
+    private func sendDawarichOwnTracksPoints(_ points: [LocationPoint], to url: URL) async throws {
+        for point in points.sorted(by: { $0.timestamp < $1.timestamp }) {
+            let body = try ExportService.exportLocationPointToOwnTracks(point: point)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.httpBody = body
+            request.setValue(format.mimeType, forHTTPHeaderField: "Content-Type")
+            request.setValue("iso.me/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
+            applyAuth(to: &request)
+
+            let (_, response) = try await urlSession.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                throw WebhookError.httpError((response as? HTTPURLResponse)?.statusCode ?? 0)
+            }
         }
 
         lastSentAt = Date()
@@ -364,6 +469,25 @@ final class WebhookManager: ObservableObject {
         }
 
         return URL(string: urlStr)
+    }
+
+    static func dawarichEndpoint(serverURL: String, proto: DawarichProtocol) -> String? {
+        var trimmed = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if !trimmed.contains("://") {
+            trimmed = "https://\(trimmed)"
+        }
+
+        if trimmed.hasSuffix("/api/v1/overland/batches") || trimmed.hasSuffix("/api/v1/owntracks/points") {
+            return URL(string: trimmed) == nil ? nil : trimmed
+        }
+
+        while trimmed.hasSuffix("/") {
+            trimmed.removeLast()
+        }
+
+        let endpoint = trimmed + proto.endpointPath
+        return URL(string: endpoint) == nil ? nil : endpoint
     }
 
     // MARK: - Auth
@@ -447,6 +571,7 @@ final class WebhookManager: ObservableObject {
         case "owntracks": return .owntracks
         case "overland": return .overland
         case "gpx": return .gpx
+        case "geojson": return .geojson
         default: return .json
         }
     }
@@ -500,6 +625,7 @@ final class WebhookManager: ObservableObject {
 
 enum WebhookError: LocalizedError {
     case invalidURL
+    case invalidDawarichURL
     case httpError(Int)
     case unauthorized
 
@@ -507,6 +633,8 @@ enum WebhookError: LocalizedError {
         switch self {
         case .invalidURL:
             return "Invalid URL"
+        case .invalidDawarichURL:
+            return "Invalid Dawarich server URL"
         case .httpError(let code):
             return "Server returned HTTP \(code)"
         case .unauthorized:

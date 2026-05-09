@@ -582,23 +582,33 @@ extension ExportService {
         let tid: String?
     }
 
+    private static func ownTracksLocation(from point: LocationPoint, options: ExportOptions) -> OwnTracksLocation {
+        OwnTracksLocation(
+            _type: "location",
+            lat: point.latitude,
+            lon: point.longitude,
+            tst: Int(point.timestamp.timeIntervalSince1970),
+            acc: options.includePointAccuracy ? Int(point.horizontalAccuracy.rounded()) : nil,
+            alt: (options.includePointAltitude ? point.altitude : nil).map { Int($0.rounded()) },
+            // OwnTracks `vel` is km/h; LocationPoint.speed is m/s.
+            vel: (options.includePointSpeed ? point.speed : nil).map { Int(($0 * 3.6).rounded()) },
+            cog: nil,
+            vac: nil,
+            tid: "IM"
+        )
+    }
+
+    static func exportLocationPointToOwnTracks(point: LocationPoint, options: ExportOptions = ExportOptions()) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        return try encoder.encode(ownTracksLocation(from: point, options: options))
+    }
+
     static func exportLocationPointsToOwnTracks(points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
 
         let messages = sortedPoints.map { p -> OwnTracksLocation in
-            OwnTracksLocation(
-                _type: "location",
-                lat: p.latitude,
-                lon: p.longitude,
-                tst: Int(p.timestamp.timeIntervalSince1970),
-                acc: options.includePointAccuracy ? Int(p.horizontalAccuracy.rounded()) : nil,
-                alt: (options.includePointAltitude ? p.altitude : nil).map { Int($0.rounded()) },
-                // OwnTracks `vel` is km/h; LocationPoint.speed is m/s.
-                vel: (options.includePointSpeed ? p.speed : nil).map { Int(($0 * 3.6).rounded()) },
-                cog: nil,
-                vac: nil,
-                tid: "IM"
-            )
+            ownTracksLocation(from: p, options: options)
         }
 
         let encoder = JSONEncoder()

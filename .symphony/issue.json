@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBO8-_g",
+  "identifier": "CodyBontecou/isome#13",
+  "title": "Add direct integration/sync with Dawarich (dawarich.app)",
+  "description": "Summary: Support a direct integration/export from iso.me to Dawarich using their API to sync/upload location points.\n\n> have you considered adding direct integrations/sync to  dawarich (https://dawarich.app/) directly from the app? they have an api for development i believe\n\nContext: In the thread the commenter clarified they mean an export directly from iso.me to Dawarich; they also noted Dawarich can connect to a server and upload points from its app.\n\nSource: https://discord.com/channels/1443424100759634003/1498086747123355699/1500632015131901962",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/13",
+  "labels": [
+    "enhancement"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-04T15:30:36Z",
+  "updated_at": "2026-05-04T15:30:36Z"
+}
