@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
+    @ObservedObject private var locationManager: LocationManager
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
@@ -17,6 +18,11 @@ struct SettingsView: View {
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
+
+    init(viewModel: LocationViewModel) {
+        self.viewModel = viewModel
+        self.locationManager = viewModel.locationManager
+    }
 
     var body: some View {
         NavigationStack {
@@ -78,7 +84,7 @@ struct SettingsView: View {
                 handleImportResult(result)
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
-                viewModel.locationManager.refreshDistanceUnitPreference()
+                locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
@@ -145,26 +151,26 @@ struct SettingsView: View {
                     ForEach(Array(TrackingMode.allCases.enumerated()), id: \.element) { index, mode in
                         TrackingModeRow(
                             mode: mode,
-                            isSelected: viewModel.locationManager.trackingMode == mode
+                            isSelected: locationManager.trackingMode == mode
                         ) {
-                            viewModel.locationManager.setTrackingMode(mode)
+                            locationManager.setTrackingMode(mode)
                         }
 
                         if index < TrackingMode.allCases.count - 1 ||
-                            viewModel.locationManager.trackingMode == .custom {
+                            locationManager.trackingMode == .custom {
                             Divider()
                                 .background(TE.border)
                                 .padding(.leading, 16)
                         }
                     }
 
-                    if viewModel.locationManager.trackingMode == .custom {
+                    if locationManager.trackingMode == .custom {
                         TERow(showDivider: false) {
                             settingsToggle(
                                 "VISIT DETECTION",
                                 isOn: Binding(
-                                    get: { viewModel.locationManager.isVisitDetectionEnabled },
-                                    set: { viewModel.locationManager.setCustomVisitDetectionEnabled($0) }
+                                    get: { locationManager.isVisitDetectionEnabled },
+                                    set: { locationManager.setCustomVisitDetectionEnabled($0) }
                                 )
                             )
                         }
@@ -187,7 +193,7 @@ struct SettingsView: View {
                         settingsToggle(
                             "TRACKING",
                             isOn: Binding(
-                                get: { viewModel.locationManager.isTrackingEnabled },
+                                get: { locationManager.isTrackingEnabled },
                                 set: { newValue in
                                     if newValue {
                                         viewModel.startTracking()
@@ -213,7 +219,7 @@ struct SettingsView: View {
                         }
                     }
 
-                    if !viewModel.locationManager.hasAlwaysPermission {
+                    if !locationManager.hasAlwaysPermission {
                         TERow {
                             settingsButton("OPEN SETTINGS", icon: "arrow.up.right") {
                                 if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -231,8 +237,8 @@ struct SettingsView: View {
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.distanceFilter },
-                                set: { viewModel.locationManager.setDistanceFilter($0) }
+                                get: { locationManager.distanceFilter },
+                                set: { locationManager.setDistanceFilter($0) }
                             )) {
                                 Text("5m").tag(5.0)
                                 Text("10m").tag(10.0)
@@ -254,8 +260,8 @@ struct SettingsView: View {
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.stopAfterHours },
-                                set: { viewModel.locationManager.setStopAfterHours($0) }
+                                get: { locationManager.stopAfterHours },
+                                set: { locationManager.setStopAfterHours($0) }
                             )) {
                                 Text("Never").tag(0.0)
                                 Text("1h").tag(1.0)
@@ -276,12 +282,12 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: viewModel.locationManager.isDrivesOnlyMode ? "Tracking records high-accuracy movement paths for mileage. Visit detection stays off in Drives Only mode." : "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
+            TESectionFooter(text: locationManager.isDrivesOnlyMode ? "Tracking records high-accuracy movement paths for mileage. Visit detection stays off in Drives Only mode." : "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
         }
     }
 
     private var permissionStatusText: String {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .notDetermined: return String(localized: "Not Set")
         case .restricted: return String(localized: "Restricted")
         case .denied: return String(localized: "Denied")
@@ -292,7 +298,7 @@ struct SettingsView: View {
     }
 
     private var permissionStatusColor: Color {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .authorizedAlways: return TE.accent
         case .authorizedWhenInUse: return TE.accent.opacity(0.7)
         case .denied, .restricted: return TE.danger

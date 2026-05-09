@@ -35,10 +35,23 @@ struct ContentView: View {
             if viewModel == nil {
                 let manager = LocationManager()
                 locationManager = manager
-                viewModel = LocationViewModel(
+                let createdViewModel = LocationViewModel(
                     modelContext: modelContext,
                     locationManager: manager
                 )
+
+                #if DEBUG
+                if DebugSeedData.shouldSeed {
+                    DebugSeedData.seed(into: modelContext)
+                    manager.stopTracking()
+                    manager.setTrackingMode(.fullHistory)
+                    hasCompletedOnboarding = true
+                    createdViewModel.mapDateRange = Date.distantPast...Date()
+                    createdViewModel.loadData()
+                }
+                #endif
+
+                viewModel = createdViewModel
 
                 // Wire up services that need the LocationManager
                 WebhookManager.shared.attach(
@@ -82,6 +95,253 @@ struct ContentView: View {
         viewModel.startTracking()
     }
 }
+
+#if DEBUG
+private enum DebugSeedData {
+    static var shouldSeed: Bool {
+        ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data")
+    }
+
+    @MainActor
+    static func seed(into context: ModelContext) {
+        do {
+            try context.delete(model: Visit.self)
+            try context.delete(model: LocationPoint.self)
+            try context.delete(model: Vehicle.self)
+
+            let workCarID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+            let familyCarID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
+            let archivedCarID = UUID(uuidString: "33333333-3333-3333-3333-333333333333")!
+
+            let workCar = Vehicle(
+                id: workCarID,
+                name: "Tesla Model 3",
+                make: "Tesla",
+                model: "Model 3",
+                year: 2024,
+                licensePlate: "ISO-DEV",
+                odometerStart: 12_400,
+                odometerCurrent: 14_220,
+                isDefault: true,
+                bluetoothPortName: "Tesla Model 3",
+                bluetoothPortType: "BluetoothA2DPOutput",
+                createdAt: date(2025, 1, 2, 9, 0)
+            )
+
+            let familyCar = Vehicle(
+                id: familyCarID,
+                name: "Rivian R1S",
+                make: "Rivian",
+                model: "R1S",
+                year: 2023,
+                licensePlate: "FAM-42",
+                odometerStart: 8_100,
+                odometerCurrent: 9_050,
+                isDefault: false,
+                createdAt: date(2025, 1, 3, 9, 0)
+            )
+
+            let archivedCar = Vehicle(
+                id: archivedCarID,
+                name: "Old Subaru",
+                make: "Subaru",
+                model: "Outback",
+                year: 2016,
+                licensePlate: "OLD-ISO",
+                odometerStart: 92_000,
+                odometerCurrent: 99_800,
+                isDefault: false,
+                createdAt: date(2024, 1, 2, 9, 0),
+                archivedAt: date(2025, 5, 1, 9, 0)
+            )
+
+            [workCar, familyCar, archivedCar].forEach(context.insert)
+
+            let home = Visit(
+                latitude: 37.7749,
+                longitude: -122.4194,
+                arrivedAt: date(2025, 5, 9, 7, 30),
+                departedAt: date(2025, 5, 9, 8, 10),
+                locationName: "Home",
+                address: "Dolores Park, San Francisco, CA",
+                purpose: .unclassified,
+                vehicleID: workCarID,
+                vehicleName: workCar.name,
+                geocodingCompleted: true
+            )
+
+            let client = Visit(
+                latitude: 37.7890,
+                longitude: -122.4010,
+                arrivedAt: date(2025, 5, 9, 8, 42),
+                departedAt: date(2025, 5, 9, 10, 20),
+                locationName: "Client HQ",
+                address: "525 Market St, San Francisco, CA",
+                notes: "Quarterly onsite with Acme team.",
+                purpose: .business,
+                subPurpose: "Client Visit",
+                businessPurpose: "Client Visit",
+                businessSubPurpose: "Client Visit",
+                vehicleID: workCarID,
+                vehicleName: workCar.name,
+                vehicleDetectionSource: "bluetooth",
+                vehicleBluetoothPortName: "Tesla Model 3",
+                geocodingCompleted: true
+            )
+
+            let coffee = Visit(
+                latitude: 37.7814,
+                longitude: -122.4116,
+                arrivedAt: date(2025, 5, 9, 10, 44),
+                departedAt: date(2025, 5, 9, 11, 5),
+                locationName: "Blue Bottle Coffee",
+                address: "66 Mint St, San Francisco, CA",
+                notes: "Personal coffee stop.",
+                purpose: .personal,
+                vehicleID: workCarID,
+                vehicleName: workCar.name,
+                vehicleDetectionSource: "bluetooth",
+                vehicleBluetoothPortName: "Tesla Model 3",
+                geocodingCompleted: true
+            )
+
+            let studio = Visit(
+                latitude: 37.7665,
+                longitude: -122.3969,
+                arrivedAt: date(2025, 5, 9, 11, 28),
+                departedAt: date(2025, 5, 9, 12, 18),
+                locationName: "Design Studio",
+                address: "Potrero Hill, San Francisco, CA",
+                notes: "Prototype review and mileage QA.",
+                purpose: .business,
+                subPurpose: "Prototype Review",
+                businessPurpose: "Prototype Review",
+                businessSubPurpose: "Prototype Review",
+                vehicleID: familyCarID,
+                vehicleName: familyCar.name,
+                geocodingCompleted: true
+            )
+
+            let current = Visit(
+                latitude: 37.7749,
+                longitude: -122.4194,
+                arrivedAt: date(2025, 5, 9, 12, 50),
+                locationName: "Home Office",
+                address: "Dolores Park, San Francisco, CA",
+                notes: "Current seeded visit for QA.",
+                purpose: .commuting,
+                vehicleID: familyCarID,
+                vehicleName: familyCar.name,
+                geocodingCompleted: true
+            )
+
+            [home, client, coffee, studio, current].forEach(context.insert)
+
+            seedRoute(
+                into: context,
+                from: home,
+                to: client,
+                vehicle: workCar,
+                start: home.departedAt!,
+                end: client.arrivedAt,
+                bluetoothRoute: "Tesla Model 3"
+            )
+            seedRoute(
+                into: context,
+                from: client,
+                to: coffee,
+                vehicle: workCar,
+                start: client.departedAt!,
+                end: coffee.arrivedAt,
+                bluetoothRoute: "Tesla Model 3"
+            )
+            seedRoute(
+                into: context,
+                from: coffee,
+                to: studio,
+                vehicle: familyCar,
+                start: coffee.departedAt!,
+                end: studio.arrivedAt
+            )
+            seedRoute(
+                into: context,
+                from: studio,
+                to: current,
+                vehicle: familyCar,
+                start: studio.departedAt!,
+                end: current.arrivedAt
+            )
+
+            MileageVehicleStore.save([
+                MileageVehicle(
+                    id: workCarID,
+                    name: workCar.name,
+                    placedInService: workCar.createdAt,
+                    yearStartOdometer: [2025: 12_400],
+                    yearEndOdometer: [2025: 14_220]
+                ),
+                MileageVehicle(
+                    id: familyCarID,
+                    name: familyCar.name,
+                    placedInService: familyCar.createdAt,
+                    yearStartOdometer: [2025: 8_100],
+                    yearEndOdometer: [2025: 9_050]
+                )
+            ])
+
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+            UserDefaults.standard.set(false, forKey: "isTrackingEnabled")
+            UserDefaults.standard.set(TrackingMode.fullHistory.rawValue, forKey: "trackingMode")
+            UserDefaults.standard.set(["Client Visit", "Prototype Review", "Airport Run"], forKey: "frequentBusinessSubPurposes")
+
+            try context.save()
+        } catch {
+            assertionFailure("Failed to seed debug data: \(error)")
+        }
+    }
+
+    private static func seedRoute(
+        into context: ModelContext,
+        from origin: Visit,
+        to destination: Visit,
+        vehicle: Vehicle,
+        start: Date,
+        end: Date,
+        bluetoothRoute: String? = nil
+    ) {
+        let count = 9
+        for index in 0..<count {
+            let progress = Double(index) / Double(count - 1)
+            let timestamp = start.addingTimeInterval(end.timeIntervalSince(start) * progress)
+            let latitude = origin.latitude + (destination.latitude - origin.latitude) * progress + sin(progress * .pi) * 0.002
+            let longitude = origin.longitude + (destination.longitude - origin.longitude) * progress + cos(progress * .pi) * 0.001
+            context.insert(LocationPoint(
+                latitude: latitude,
+                longitude: longitude,
+                timestamp: timestamp,
+                altitude: 18 + progress * 5,
+                speed: index == 0 || index == count - 1 ? 0 : 13 + progress * 4,
+                horizontalAccuracy: 6,
+                vehicleID: vehicle.id,
+                vehicleName: vehicle.name,
+                vehicleDetectionSource: bluetoothRoute == nil ? nil : "bluetooth",
+                vehicleBluetoothPortName: bluetoothRoute
+            ))
+        }
+    }
+
+    private static func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) -> Date {
+        Calendar(identifier: .gregorian).date(from: DateComponents(
+            timeZone: TimeZone(identifier: "America/Los_Angeles"),
+            year: year,
+            month: month,
+            day: day,
+            hour: hour,
+            minute: minute
+        )) ?? Date()
+    }
+}
+#endif
 
 private struct MainTabView: View {
     let viewModel: LocationViewModel
