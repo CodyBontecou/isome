@@ -147,6 +147,43 @@ final class WebhookManagerTests: XCTestCase {
         XCTAssertEqual(WebhookManager.legacyDefaultsKey(.authUsername), "webhook.authUsername")
     }
 
+    // MARK: - Dawarich endpoints
+
+    func testDawarichEndpointBuildsOverlandBatchURL() {
+        XCTAssertEqual(
+            WebhookManager.dawarichEndpoint(serverURL: "https://example.com", proto: .overland),
+            "https://example.com/api/v1/overland/batches"
+        )
+    }
+
+    func testDawarichEndpointBuildsOwnTracksPointURL() {
+        XCTAssertEqual(
+            WebhookManager.dawarichEndpoint(serverURL: "http://example.com/", proto: .owntracks),
+            "http://example.com/api/v1/owntracks/points"
+        )
+    }
+
+    func testDawarichEndpointDefaultsMissingSchemeToHTTPS() {
+        XCTAssertEqual(
+            WebhookManager.dawarichEndpoint(serverURL: "example.com", proto: .overland),
+            "https://example.com/api/v1/overland/batches"
+        )
+    }
+
+    func testDawarichEndpointPreservesExplicitEndpoint() {
+        XCTAssertEqual(
+            WebhookManager.dawarichEndpoint(
+                serverURL: "https://example.com/api/v1/owntracks/points",
+                proto: .overland
+            ),
+            "https://example.com/api/v1/owntracks/points"
+        )
+    }
+
+    func testFormatFromTokenRestoresGeoJSON() {
+        XCTAssertEqual(WebhookManager.formatFromToken("geojson"), .geojson)
+    }
+
     // MARK: - Error sanitization
 
     func testSanitizeReplacesSecretWithMask() {

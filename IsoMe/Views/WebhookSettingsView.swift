@@ -23,6 +23,7 @@ struct WebhookSettingsView: View {
                         }
                         enableSection
                         if webhook.isEnabled {
+                            integrationSection
                             endpointSection
                             authSection
                             sendModeSection
@@ -148,6 +149,107 @@ struct WebhookSettingsView: View {
         }
     }
 
+    // MARK: - Integration
+
+    private var integrationSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "INTEGRATION")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: webhook.integration == .dawarich) {
+                        HStack {
+                            Text("TARGET")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer()
+                            Picker("", selection: $webhook.integration) {
+                                ForEach(WebhookManager.Integration.allCases) { integration in
+                                    Text(LocalizedStringKey(integration.label)).tag(integration)
+                                }
+                            }
+                            .labelsHidden()
+                            .tint(TE.accent)
+                        }
+                    }
+
+                    if webhook.integration == .dawarich {
+                        TERow {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("SERVER")
+                                    .font(TE.mono(.caption2, weight: .semibold))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textMuted)
+                                TextField("https://dawarich.example.com", text: $webhook.dawarichServerURL)
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .foregroundStyle(TE.textPrimary)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled(true)
+                                    .keyboardType(.URL)
+                            }
+                        }
+
+                        TERow {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("API KEY")
+                                    .font(TE.mono(.caption2, weight: .semibold))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textMuted)
+                                SecureField("••••••••", text: $webhook.authValue)
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .foregroundStyle(TE.textPrimary)
+                            }
+                        }
+
+                        TERow {
+                            HStack {
+                                Text("PROTOCOL")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textPrimary)
+                                Spacer()
+                                Picker("", selection: $webhook.dawarichProtocol) {
+                                    ForEach(WebhookManager.DawarichProtocol.allCases) { proto in
+                                        Text(LocalizedStringKey(proto.label)).tag(proto)
+                                    }
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+
+                        TERow(showDivider: false) {
+                            Button {
+                                webhook.applyDawarichConfiguration()
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "arrow.triangle.2.circlepath")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("APPLY DAWARICH SETTINGS")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: webhook.integration == .dawarich
+                ? "Builds the Dawarich endpoint and api_key auth from your server URL. Overland batch is recommended for uploading history."
+                : "Use a preset for supported services, or keep full control with a custom endpoint.")
+        }
+    }
+
     // MARK: - Endpoint
 
     private var endpointSection: some View {
@@ -194,7 +296,9 @@ struct WebhookSettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "OwnTracks format works with Dawarich (api/v1/owntracks/points), OwnTracks Recorder (/pub), and Traccar.")
+            TESectionFooter(text: webhook.integration == .dawarich
+                ? "Dawarich endpoints are /api/v1/overland/batches or /api/v1/owntracks/points with api_key auth."
+                : "OwnTracks format works with Dawarich (api/v1/owntracks/points), OwnTracks Recorder (/pub), and Traccar.")
         }
     }
 
