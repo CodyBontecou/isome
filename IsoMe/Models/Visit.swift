@@ -5,6 +5,7 @@ import CoreLocation
 enum TripPurpose: String, Codable, CaseIterable, Identifiable {
     case business
     case personal
+    case commuting
     case unclassified
 
     var id: String { rawValue }
@@ -13,6 +14,7 @@ enum TripPurpose: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .business: return "Business"
         case .personal: return "Personal"
+        case .commuting: return "Commuting"
         case .unclassified: return "Unclassified"
         }
     }
@@ -21,10 +23,13 @@ enum TripPurpose: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .business: return "briefcase.fill"
         case .personal: return "person.fill"
+        case .commuting: return "car.fill"
         case .unclassified: return "questionmark.circle.fill"
         }
     }
 }
+
+typealias TripClassification = TripPurpose
 
 @Model
 final class Visit {
@@ -38,6 +43,8 @@ final class Visit {
     var notes: String?
     var purposeRawValue: String = TripPurpose.unclassified.rawValue
     var subPurpose: String? = nil
+    var businessPurpose: String? = nil
+    var businessSubPurpose: String? = nil
     var vehicleID: UUID?
     var vehicleName: String?
     var vehicleDetectionSource: String?
@@ -57,6 +64,9 @@ final class Visit {
         notes: String? = nil,
         purpose: TripPurpose = .unclassified,
         subPurpose: String? = nil,
+        tripClassificationRaw: String? = nil,
+        businessPurpose: String? = nil,
+        businessSubPurpose: String? = nil,
         vehicleID: UUID? = nil,
         vehicleName: String? = nil,
         vehicleDetectionSource: String? = nil,
@@ -71,8 +81,11 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
-        self.purposeRawValue = purpose.rawValue
-        self.subPurpose = subPurpose
+        let resolvedPurpose = tripClassificationRaw.flatMap(TripPurpose.init(rawValue:)) ?? purpose
+        self.purposeRawValue = resolvedPurpose.rawValue
+        self.subPurpose = subPurpose ?? businessSubPurpose
+        self.businessPurpose = businessPurpose
+        self.businessSubPurpose = businessSubPurpose
         self.vehicleID = vehicleID
         self.vehicleName = vehicleName
         self.vehicleDetectionSource = vehicleDetectionSource
@@ -132,8 +145,15 @@ final class Visit {
             purposeRawValue = newValue.rawValue
             if newValue != .business {
                 subPurpose = nil
+                businessPurpose = nil
+                businessSubPurpose = nil
             }
         }
+    }
+
+    var tripClassification: TripClassification {
+        get { purpose }
+        set { purpose = newValue }
     }
 
     var isVehicleAutoDetected: Bool {

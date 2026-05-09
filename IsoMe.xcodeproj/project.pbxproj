@@ -32,6 +32,8 @@
 		A100000C212F00010000000C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000C212F00000000000C /* SettingsView.swift */; };
 		A100000D212F00010000000D /* VisitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000D212F00000000000D /* VisitDetailView.swift */; };
 		A1000041212F000100000041 /* VehiclesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000041212F000000000041 /* VehiclesSettingsView.swift */; };
+		D3300001212F000100000001 /* MileageReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3300001212F000000000001 /* MileageReport.swift */; };
+		D3300002212F000100000002 /* MileageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3300002212F000000000002 /* MileageReportView.swift */; };
 		A100000E212F00010000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E212F00000000000E /* Assets.xcassets */; };
 		A100000F212F00010000000F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000F212F00000000000F /* Preview Assets.xcassets */; };
 		A1000019212F000100000019 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019212F000000000019 /* AppDelegate.swift */; };
@@ -69,6 +71,7 @@
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 		E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */; };
 		A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */; };
+		D3300003212F000100000003 /* MileageReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3300003212F000000000003 /* MileageReportTests.swift */; };
 		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
 		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
@@ -177,6 +180,7 @@
 		A100000C212F00000000000C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A100000D212F00000000000D /* VisitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitDetailView.swift; sourceTree = "<group>"; };
 		A1000041212F000000000041 /* VehiclesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehiclesSettingsView.swift; sourceTree = "<group>"; };
+		D3300002212F000000000002 /* MileageReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReportView.swift; sourceTree = "<group>"; };
 		A100000E212F00000000000E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000F212F00000000000F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -209,7 +213,9 @@
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportServiceRoundTripTests.swift; sourceTree = "<group>"; };
+		D3300003212F000000000003 /* MileageReportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MileageReportTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
+		D3300001212F000000000001 /* MileageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReport.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -367,6 +373,7 @@
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				A1000041212F000000000041 /* VehiclesSettingsView.swift */,
+				D3300002212F000000000002 /* MileageReportView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 				E1000003212F000000000003 /* LogViewerView.swift */,
@@ -390,6 +397,7 @@
 			children = (
 				A1000007212F000000000007 /* ExportService.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
+				D3300001212F000000000001 /* MileageReport.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
 			);
@@ -448,6 +456,7 @@
 			children = (
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
 				E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */,
+				D3300003212F000000000003 /* MileageReportTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
 			);
@@ -695,6 +704,8 @@
 				5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */,
 				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
 				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
+				D3300001212F000100000001 /* MileageReport.swift in Sources */,
+				D3300002212F000100000002 /* MileageReportView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -739,6 +750,7 @@
 				E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
+				D3300003212F000100000003 /* MileageReportTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
