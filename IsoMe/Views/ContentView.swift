@@ -235,18 +235,33 @@ private struct TripListView: View {
     }
 
     private var bulkClassifyBar: some View {
-        VStack(spacing: 10) {
-            TextField("Business sub-purpose", text: $bulkSubPurpose)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, 12)
+        TECard {
+            VStack(spacing: 0) {
+                TERow {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        Text("PURPOSE")
+                            .font(TE.mono(.caption, weight: .medium))
+                            .tracking(1)
+                            .foregroundStyle(TE.textPrimary)
+                        Spacer(minLength: 12)
+                        TextField("Business sub-purpose", text: $bulkSubPurpose)
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                            .multilineTextAlignment(.trailing)
+                            .textFieldStyle(.plain)
+                    }
+                }
 
-            HStack(spacing: 10) {
-                bulkButton("Business", icon: TripPurpose.business.iconName, purpose: .business)
-                bulkButton("Personal", icon: TripPurpose.personal.iconName, purpose: .personal)
-                bulkButton("Clear", icon: TripPurpose.unclassified.iconName, purpose: .unclassified)
+                TERow(showDivider: false) {
+                    HStack(spacing: 8) {
+                        bulkButton("BUSINESS", icon: TripPurpose.business.iconName, purpose: .business)
+                        bulkButton("PERSONAL", icon: TripPurpose.personal.iconName, purpose: .personal)
+                        bulkButton("CLEAR", icon: TripPurpose.unclassified.iconName, purpose: .unclassified)
+                    }
+                }
             }
-            .padding(.horizontal, 12)
         }
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(.ultraThinMaterial)
     }
@@ -258,13 +273,19 @@ private struct TripListView: View {
             bulkSubPurpose = ""
             editMode = .inactive
         } label: {
-            Label(title, systemImage: icon)
-                .font(TE.mono(.caption, weight: .semibold))
-                .frame(maxWidth: .infinity)
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .semibold))
+                Text(title)
+                    .font(TE.mono(.caption2, weight: .bold))
+                    .tracking(1)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
+            .background(purpose.mapTint, in: RoundedRectangle(cornerRadius: 4))
         }
-        .buttonStyle(.borderedProminent)
-        .tint(purpose.mapTint)
-        .controlSize(.small)
+        .buttonStyle(.plain)
     }
 
     private func classify(_ visit: Visit, as purpose: TripPurpose) {

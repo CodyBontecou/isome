@@ -79,12 +79,17 @@ struct MileageReportView: View {
                         }
                     }
                     TERow(showDivider: false) {
-                        Picker("Preset", selection: $options.preset) {
-                            ForEach(MileageReportPreset.allCases) { preset in
-                                Text(preset.label).tag(preset)
+                        HStack(spacing: 0) {
+                            ForEach(Array(MileageReportPreset.allCases.enumerated()), id: \.element.id) { index, preset in
+                                segmentedButton(preset.label.uppercased(), value: preset, selection: $options.preset)
+                                if index < MileageReportPreset.allCases.count - 1 {
+                                    Rectangle()
+                                        .fill(TE.border)
+                                        .frame(width: 1)
+                                }
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .frame(height: 44)
                     }
                 }
             }
@@ -248,12 +253,17 @@ struct MileageReportView: View {
             TECard {
                 VStack(spacing: 0) {
                     TERow {
-                        Picker("Format", selection: $outputFormat) {
-                            ForEach(MileageOutputFormat.allCases) { format in
-                                Text(format.label).tag(format)
+                        HStack(spacing: 0) {
+                            ForEach(Array(MileageOutputFormat.allCases.enumerated()), id: \.element.id) { index, format in
+                                segmentedButton(format.label, value: format, selection: $outputFormat)
+                                if index < MileageOutputFormat.allCases.count - 1 {
+                                    Rectangle()
+                                        .fill(TE.border)
+                                        .frame(width: 1)
+                                }
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .frame(height: 44)
                     }
                     if ExportFolderManager.shared.hasDefaultFolder {
                         TERow {
@@ -330,6 +340,21 @@ struct MileageReportView: View {
         )
     }
 
+    private func segmentedButton<Value: Hashable>(_ title: String, value: Value, selection: Binding<Value>) -> some View {
+        let isSelected = selection.wrappedValue == value
+        return Button {
+            selection.wrappedValue = value
+        } label: {
+            Text(title)
+                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
+                .tracking(1.5)
+                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func runExport() {
         do {
             let exportFormat: ExportFormat = outputFormat == .csv ? .csv : .markdown
@@ -353,33 +378,125 @@ private struct MileageVehicleEditorView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                ForEach($vehicles) { $vehicle in
-                    Section(vehicle.name.isEmpty ? "Vehicle" : vehicle.name) {
-                        TextField("Vehicle name", text: $vehicle.name)
-                        DatePicker("Placed in service", selection: $vehicle.placedInService, displayedComponents: .date)
-                        TextField("Year-start odometer", value: odometerBinding(vehicleID: vehicle.id, isStart: true), format: .number.precision(.fractionLength(1)))
-                            .keyboardType(.decimalPad)
-                        TextField("Year-end odometer", value: odometerBinding(vehicleID: vehicle.id, isStart: false), format: .number.precision(.fractionLength(1)))
-                            .keyboardType(.decimalPad)
+            ZStack {
+                TE.surface.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach($vehicles) { $vehicle in
+                            vehicleSection(vehicle: $vehicle)
+                        }
+
+                        addVehicleSection
                     }
-                }
-                Section {
-                    Button {
-                        vehicles.append(MileageVehicle(name: "Vehicle \(vehicles.count + 1)", placedInService: Date()))
-                    } label: {
-                        Label("Add Vehicle", systemImage: "plus")
-                    }
+                    .padding(.bottom, 32)
                 }
             }
             .navigationTitle("Vehicles")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         MileageVehicleStore.save(vehicles)
                         dismiss()
                     }
+                    .foregroundStyle(TE.accent)
                 }
+            }
+        }
+    }
+
+    private func vehicleSection(vehicle: Binding<MileageVehicle>) -> some View {
+        let sectionTitle = vehicle.wrappedValue.name.isEmpty ? "VEHICLE" : vehicle.wrappedValue.name.uppercased()
+        return VStack(spacing: 0) {
+            TESectionHeader(title: LocalizedStringKey(sectionTitle))
+
+            TECard {
+                textFieldRow("NAME", text: vehicle.name, placeholder: "Vehicle name")
+                dateRow("PLACED IN SERVICE", date: vehicle.placedInService)
+                numberFieldRow("YEAR-START ODOMETER", value: odometerBinding(vehicleID: vehicle.wrappedValue.id, isStart: true))
+                numberFieldRow("YEAR-END ODOMETER", value: odometerBinding(vehicleID: vehicle.wrappedValue.id, isStart: false), showDivider: false)
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var addVehicleSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "ACTIONS")
+
+            TECard {
+                TERow(showDivider: false) {
+                    Button {
+                        vehicles.append(MileageVehicle(name: "Vehicle \(vehicles.count + 1)", placedInService: Date()))
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("ADD VEHICLE")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func textFieldRow(_ label: String, text: Binding<String>, placeholder: String, showDivider: Bool = true) -> some View {
+        TERow(showDivider: showDivider) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+                Spacer(minLength: 12)
+                TextField(placeholder, text: text)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(.plain)
+            }
+        }
+    }
+
+    private func dateRow(_ label: String, date: Binding<Date>, showDivider: Bool = true) -> some View {
+        TERow(showDivider: showDivider) {
+            HStack(spacing: 12) {
+                Text(label)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+                Spacer()
+                DatePicker("", selection: date, displayedComponents: .date)
+                    .labelsHidden()
+                    .tint(TE.accent)
+            }
+        }
+    }
+
+    private func numberFieldRow(_ label: String, value: Binding<Double?>, showDivider: Bool = true) -> some View {
+        TERow(showDivider: showDivider) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+                Spacer(minLength: 12)
+                TextField("Optional", value: value, format: .number.precision(.fractionLength(1)))
+                    .keyboardType(.decimalPad)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(.plain)
             }
         }
     }

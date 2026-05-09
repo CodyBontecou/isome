@@ -863,51 +863,26 @@ struct DateRangeFilterSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Quick Select") {
-                    Button("Today") {
-                        let today = Calendar.current.startOfDay(for: Date())
-                        startDate = today
-                        endDate = Date()
-                    }
+            ZStack {
+                TE.surface.ignoresSafeArea()
 
-                    Button("Last 7 Days") {
-                        endDate = Date()
-                        startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
+                ScrollView {
+                    VStack(spacing: 0) {
+                        quickSelectSection
+                        customRangeSection
+                        vehicleSection
                     }
-
-                    Button("Last 30 Days") {
-                        endDate = Date()
-                        startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate)!
-                    }
-
-                    Button("All Time") {
-                        startDate = Date.distantPast
-                        endDate = Date()
-                    }
-                }
-
-                Section("Custom Range") {
-                    DatePicker("From", selection: $startDate, displayedComponents: .date)
-                    DatePicker("To", selection: $endDate, displayedComponents: .date)
-                }
-
-                Section("Vehicle") {
-                    Picker("Vehicle", selection: $selectedVehicleID) {
-                        Text("All Vehicles").tag(nil as UUID?)
-                        ForEach(vehicles.filter { !$0.isArchived }) { vehicle in
-                            Text(vehicle.name).tag(Optional(vehicle.id))
-                        }
-                    }
+                    .padding(.bottom, 32)
                 }
             }
-            .navigationTitle("Filter by Date")
+            .navigationTitle("Filter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         isPresented = false
                     }
+                    .foregroundStyle(TE.textMuted)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -916,10 +891,115 @@ struct DateRangeFilterSheet: View {
                         onApply?()
                         isPresented = false
                     }
+                    .foregroundStyle(TE.accent)
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
+    }
+
+    private var quickSelectSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "QUICK SELECT")
+
+            TECard {
+                quickSelectRow("TODAY", showDivider: true) {
+                    let today = Calendar.current.startOfDay(for: Date())
+                    startDate = today
+                    endDate = Date()
+                }
+
+                quickSelectRow("LAST 7 DAYS", showDivider: true) {
+                    endDate = Date()
+                    startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
+                }
+
+                quickSelectRow("LAST 30 DAYS", showDivider: true) {
+                    endDate = Date()
+                    startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate)!
+                }
+
+                quickSelectRow("ALL TIME", showDivider: false) {
+                    startDate = Date.distantPast
+                    endDate = Date()
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var customRangeSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "CUSTOM RANGE")
+
+            TECard {
+                TERow {
+                    datePickerRow("FROM", selection: $startDate)
+                }
+                TERow(showDivider: false) {
+                    datePickerRow("TO", selection: $endDate)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var vehicleSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "VEHICLE")
+
+            TECard {
+                TERow(showDivider: false) {
+                    HStack(spacing: 12) {
+                        Text("SHOW")
+                            .font(TE.mono(.caption, weight: .medium))
+                            .tracking(1)
+                            .foregroundStyle(TE.textPrimary)
+                        Spacer()
+                        Picker("Vehicle", selection: $selectedVehicleID) {
+                            Text("All Vehicles").tag(nil as UUID?)
+                            ForEach(vehicles.filter { !$0.isArchived }) { vehicle in
+                                Text(vehicle.name).tag(Optional(vehicle.id))
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(TE.accent)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func quickSelectRow(_ title: String, showDivider: Bool, action: @escaping () -> Void) -> some View {
+        TERow(showDivider: showDivider) {
+            Button(action: action) {
+                HStack(spacing: 8) {
+                    Text(title)
+                        .font(TE.mono(.caption, weight: .medium))
+                        .tracking(1)
+                        .foregroundStyle(TE.accent)
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.accent.opacity(0.5))
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func datePickerRow(_ title: String, selection: Binding<Date>) -> some View {
+        HStack(spacing: 12) {
+            Text(title)
+                .font(TE.mono(.caption, weight: .medium))
+                .tracking(1)
+                .foregroundStyle(TE.textPrimary)
+            Spacer()
+            DatePicker("", selection: selection, displayedComponents: .date)
+                .labelsHidden()
+                .tint(TE.accent)
+        }
     }
 }
 
@@ -930,153 +1010,231 @@ struct VisitQuickView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(visit.displayName)
-                            .font(.title2)
-                            .fontWeight(.semibold)
+            ZStack {
+                TE.surface.ignoresSafeArea()
 
-                        if let address = visit.address {
-                            Text(address)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+                ScrollView {
+                    VStack(spacing: 0) {
+                        summarySection
+                        classificationSection
+                        detailsSection
+                        notesSection
+                        actionSection
                     }
-
-                    Spacer()
-
-                    if visit.isCurrentVisit {
-                        Text("Now")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.blue)
-                            .foregroundStyle(.white)
-                            .clipShape(Capsule())
-                    }
+                    .padding(.bottom, 24)
                 }
-
-                Divider()
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Classification")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Picker("Classification", selection: Binding(
-                        get: { visit.purpose },
-                        set: { newPurpose in
-                            viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
-                            if newPurpose != .business {
-                                subPurposeText = ""
-                            }
-                        }
-                    )) {
-                        ForEach(TripPurpose.allCases) { purpose in
-                            Label(purpose.label, systemImage: purpose.iconName)
-                                .tag(purpose)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-
-                    if visit.purpose == .business {
-                        TextField("Sub-purpose", text: $subPurposeText)
-                            .textFieldStyle(.roundedBorder)
-                            .submitLabel(.done)
-                            .onSubmit {
-                                viewModel.updateVisitClassification(visit, purpose: .business, subPurpose: subPurposeText)
-                            }
-                    }
-                }
-
-                // Time info
-                HStack(spacing: 24) {
-                    VStack(alignment: .leading) {
-                        Text("Arrived")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(visit.arrivedAt.formatted(date: .abbreviated, time: .shortened))
-                            .font(.subheadline)
-                    }
-
-                    if let departed = visit.departedAt {
-                        VStack(alignment: .leading) {
-                            Text("Departed")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Text(departed.formatted(date: .abbreviated, time: .shortened))
-                                .font(.subheadline)
-                        }
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing) {
-                        Text("Duration")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(visit.formattedDuration)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                    }
-                }
-
-                Divider()
-
-                LabeledContent("Vehicle", value: viewModel.vehicleName(for: visit.vehicleID))
-
-                if let notes = visit.notes, !notes.isEmpty {
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Notes")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(notes)
-                            .font(.subheadline)
-                    }
-                }
-
-                if let vehicleName = visit.vehicleName {
-                    Divider()
-
-                    HStack(spacing: 6) {
-                        Image(systemName: visit.isVehicleAutoDetected ? "bluetooth" : "car.fill")
-                            .font(.caption)
-                            .foregroundStyle(visit.isVehicleAutoDetected ? .blue : .secondary)
-                        Text(vehicleName)
-                            .font(.subheadline)
-                        if visit.isVehicleAutoDetected {
-                            Text("AUTO")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                }
-
-                NavigationLink {
-                    VisitDetailView(visit: visit, viewModel: viewModel)
-                } label: {
-                    HStack {
-                        Image(systemName: "info.circle")
-                        Text("Details")
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-
-                Spacer()
             }
-            .padding()
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 subPurposeText = visit.subPurpose ?? ""
             }
         }
+    }
+
+    private var summarySection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "TRIP")
+
+            TECard {
+                TERow(showDivider: false) {
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(visit.displayName.uppercased())
+                                .font(TE.mono(.caption, weight: .semibold))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+
+                            if let address = visit.address {
+                                Text(address)
+                                    .font(TE.mono(.caption2))
+                                    .foregroundStyle(TE.textMuted)
+                            }
+                        }
+
+                        Spacer()
+
+                        if visit.isCurrentVisit {
+                            Text("NOW")
+                                .font(TE.mono(.caption2, weight: .bold))
+                                .tracking(1)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(TE.accent, in: Capsule())
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var classificationSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "CLASSIFICATION")
+
+            TECard {
+                TERow(showDivider: visit.purpose == .business) {
+                    HStack(spacing: 0) {
+                        ForEach(Array(TripPurpose.allCases.enumerated()), id: \.element.id) { index, purpose in
+                            purposeSegment(purpose)
+                            if index < TripPurpose.allCases.count - 1 {
+                                Rectangle()
+                                    .fill(TE.border)
+                                    .frame(width: 1)
+                            }
+                        }
+                    }
+                    .frame(height: 44)
+                }
+
+                if visit.purpose == .business {
+                    TERow(showDivider: false) {
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                            Text("PURPOSE")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer(minLength: 12)
+                            TextField("Sub-purpose", text: $subPurposeText)
+                                .font(TE.mono(.caption, weight: .medium))
+                                .foregroundStyle(TE.textMuted)
+                                .multilineTextAlignment(.trailing)
+                                .textFieldStyle(.plain)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    viewModel.updateVisitClassification(visit, purpose: .business, subPurpose: subPurposeText)
+                                }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var detailsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "DETAILS")
+
+            TECard {
+                infoRow("ARRIVED", value: visit.arrivedAt.formatted(date: .abbreviated, time: .shortened))
+
+                if let departed = visit.departedAt {
+                    infoRow("DEPARTED", value: departed.formatted(date: .abbreviated, time: .shortened))
+                }
+
+                infoRow("DURATION", value: visit.formattedDuration)
+                infoRow("VEHICLE", value: viewModel.vehicleName(for: visit.vehicleID), showDivider: visit.vehicleName != nil)
+
+                if let vehicleName = visit.vehicleName {
+                    TERow(showDivider: false) {
+                        HStack(spacing: 8) {
+                            Image(systemName: visit.isVehicleAutoDetected ? "bluetooth" : "car.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(visit.isVehicleAutoDetected ? TE.accent : TE.textMuted)
+                            Text(vehicleName.uppercased())
+                                .font(TE.mono(.caption2, weight: .semibold))
+                                .tracking(1)
+                                .foregroundStyle(TE.textMuted)
+                            if visit.isVehicleAutoDetected {
+                                Text("AUTO")
+                                    .font(TE.mono(.caption2, weight: .bold))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    @ViewBuilder
+    private var notesSection: some View {
+        if let notes = visit.notes, !notes.isEmpty {
+            VStack(spacing: 0) {
+                TESectionHeader(title: "NOTES")
+
+                TECard {
+                    TERow(showDivider: false) {
+                        Text(notes)
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+    }
+
+    private var actionSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "ACTIONS")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        VisitDetailView(visit: visit, viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("DETAILS")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func infoRow(_ label: String, value: String, showDivider: Bool = true) -> some View {
+        TERow(showDivider: showDivider) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(label)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.textPrimary)
+                Spacer(minLength: 16)
+                Text(value)
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .multilineTextAlignment(.trailing)
+                    .foregroundStyle(TE.textMuted)
+            }
+        }
+    }
+
+    private func purposeSegment(_ purpose: TripPurpose) -> some View {
+        let isSelected = visit.purpose == purpose
+        return Button {
+            viewModel.updateVisitClassification(visit, purpose: purpose, subPurpose: subPurposeText)
+            if purpose != .business {
+                subPurposeText = ""
+            }
+        } label: {
+            Text(purpose.label.uppercased())
+                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
+                .tracking(1)
+                .foregroundStyle(isSelected ? purpose.mapTint : TE.textMuted)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? purpose.mapTint.opacity(0.08) : Color.clear)
+        }
+        .buttonStyle(.plain)
     }
 }
 
