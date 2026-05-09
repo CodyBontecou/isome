@@ -13,6 +13,9 @@ final class LocationPoint {
     var horizontalAccuracy: Double
     var isOutlier: Bool = false
     var vehicleID: UUID?
+    var vehicleName: String?
+    var vehicleDetectionSource: String?
+    var vehicleBluetoothPortName: String?
 
     init(
         id: UUID = UUID(),
@@ -23,7 +26,10 @@ final class LocationPoint {
         speed: Double? = nil,
         horizontalAccuracy: Double,
         isOutlier: Bool = false,
-        vehicleID: UUID? = nil
+        vehicleID: UUID? = nil,
+        vehicleName: String? = nil,
+        vehicleDetectionSource: String? = nil,
+        vehicleBluetoothPortName: String? = nil
     ) {
         self.id = id
         self.latitude = latitude
@@ -34,6 +40,9 @@ final class LocationPoint {
         self.horizontalAccuracy = horizontalAccuracy
         self.isOutlier = isOutlier
         self.vehicleID = vehicleID
+        self.vehicleName = vehicleName
+        self.vehicleDetectionSource = vehicleDetectionSource
+        self.vehicleBluetoothPortName = vehicleBluetoothPortName
     }
 
     convenience init(from location: CLLocation) {

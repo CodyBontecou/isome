@@ -38,6 +38,8 @@ final class LocationManager: NSObject, ObservableObject {
 
     // Daily distance history (recorded for stats; no longer drives auto-start)
     private let dailyDistanceTracker = DailyDistanceTracker.shared
+    let bluetoothVehicleDetector = BluetoothVehicleDetector.shared
+    private var cancellables = Set<AnyCancellable>()
 
     // Current location name for Live Activity
     private var currentLocationName: String?
@@ -104,6 +106,16 @@ final class LocationManager: NSObject, ObservableObject {
                 self?.stopTracking()
             }
         }
+
+        bluetoothVehicleDetector.$currentRoute
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    self?.applyBluetoothVehicleToCurrentVisit()
+                }
+            }
+            .store(in: &cancellables)
 
         // If tracking was on at last launch, resume it (re-attaches CL APIs + Live Activity).
         if isTrackingEnabled && hasLocationPermission {
@@ -271,6 +283,10 @@ final class LocationManager: NSObject, ObservableObject {
                     vehicleID: defaultVehicleID(in: context)
                 )
 
+                if let assignment = currentBluetoothVehicleAssignment() {
+                    apply(assignment, to: visit)
+                }
+
                 if clVisit.departureDate != Date.distantFuture {
                     visit.departedAt = clVisit.departureDate
                 }
@@ -297,7 +313,12 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         let point = LocationPoint(from: location)
-        point.vehicleID = defaultVehicleID(in: context)
+        if let assignment = currentBluetoothVehicleAssignment() {
+            apply(assignment, to: point)
+            applyBluetoothVehicleToCurrentVisit(assignment: assignment)
+        } else {
+            point.vehicleID = defaultVehicleID(in: context)
+        }
 
         // Flag obvious teleports: implied speed from the last saved point exceeds
         // what a human moves (~40 m/s / ~90 mph). Cheap check, catches end-of-trail spikes.
@@ -453,6 +474,73 @@ final class LocationManager: NSObject, ObservableObject {
     func refreshDistanceUnitPreference() {
         syncDataToWatch()
         liveActivityManager.refreshDistanceUnitPreference()
+    }
+
+    // MARK: - Vehicle Auto Detection
+
+    private struct VehicleAssignment {
+        let vehicleID: UUID
+        let vehicleName: String
+        let bluetoothPortName: String
+    }
+
+    private func currentBluetoothVehicleAssignment() -> VehicleAssignment? {
+        guard isTrackingEnabled, let route = bluetoothVehicleDetector.currentRoute else { return nil }
+        guard let vehicle = matchedVehicle(for: route) else { return nil }
+        return VehicleAssignment(
+            vehicleID: vehicle.id,
+            vehicleName: vehicle.name,
+            bluetoothPortName: route.portName
+        )
+    }
+
+    private func matchedVehicle(for route: BluetoothVehicleRoute) -> Vehicle? {
+        guard let context = modelContext else { return nil }
+        let descriptor = FetchDescriptor<Vehicle>(sortBy: [SortDescriptor(\.createdAt, order: .forward)])
+        guard let vehicles = try? context.fetch(descriptor) else { return nil }
+        let routeName = normalizedBluetoothName(route.portName)
+        return vehicles.first { vehicle in
+            guard let portName = vehicle.bluetoothPortName else { return false }
+            return normalizedBluetoothName(portName) == routeName
+        }
+    }
+
+    private func applyBluetoothVehicleToCurrentVisit() {
+        guard let assignment = currentBluetoothVehicleAssignment() else { return }
+        applyBluetoothVehicleToCurrentVisit(assignment: assignment)
+    }
+
+    private func applyBluetoothVehicleToCurrentVisit(assignment: VehicleAssignment) {
+        guard let context = modelContext else { return }
+        let descriptor = FetchDescriptor<Visit>(
+            predicate: #Predicate<Visit> { visit in
+                visit.departedAt == nil
+            },
+            sortBy: [SortDescriptor(\.arrivedAt, order: .reverse)]
+        )
+        guard let currentVisit = try? context.fetch(descriptor).first else { return }
+        guard currentVisit.vehicleID == nil || currentVisit.isVehicleAutoDetected else { return }
+
+        apply(assignment, to: currentVisit)
+        try? context.save()
+    }
+
+    private func apply(_ assignment: VehicleAssignment, to visit: Visit) {
+        visit.vehicleID = assignment.vehicleID
+        visit.vehicleName = assignment.vehicleName
+        visit.vehicleDetectionSource = "bluetooth"
+        visit.vehicleBluetoothPortName = assignment.bluetoothPortName
+    }
+
+    private func apply(_ assignment: VehicleAssignment, to point: LocationPoint) {
+        point.vehicleID = assignment.vehicleID
+        point.vehicleName = assignment.vehicleName
+        point.vehicleDetectionSource = "bluetooth"
+        point.vehicleBluetoothPortName = assignment.bluetoothPortName
+    }
+
+    private func normalizedBluetoothName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }
 

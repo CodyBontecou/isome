@@ -15,6 +15,7 @@ final class LocationViewModel {
     var locationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
     var vehicles: [Vehicle] = []
+    var vehiclePairingMessage: String?
 
     // UI State
     var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
@@ -284,10 +285,17 @@ final class LocationViewModel {
         loadData()
     }
 
-    func assignVehicle(_ vehicleID: UUID?, to visit: Visit) {
-        visit.vehicleID = vehicleID
+    func updateVisitVehicle(_ visit: Visit, vehicle: Vehicle?) {
+        visit.vehicleID = vehicle?.id
+        visit.vehicleName = vehicle?.name
+        visit.vehicleDetectionSource = vehicle == nil ? nil : "manual"
+        visit.vehicleBluetoothPortName = nil
         try? modelContext.save()
         loadData()
+    }
+
+    func assignVehicle(_ vehicleID: UUID?, to visit: Visit) {
+        updateVisitVehicle(visit, vehicle: vehicle(for: vehicleID))
     }
 
     func bulkUpdateClassification(_ visits: [Visit], purpose: TripPurpose, subPurpose: String? = nil) {
@@ -354,6 +362,21 @@ final class LocationViewModel {
         loadVehicles()
     }
 
+    func addVehicle(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        addVehicle(
+            name: trimmed,
+            make: nil,
+            model: nil,
+            year: nil,
+            licensePlate: nil,
+            odometerStart: nil,
+            odometerCurrent: nil,
+            isDefault: activeVehicles.isEmpty
+        )
+    }
+
     func updateVehicle(
         _ vehicle: Vehicle,
         name: String,
@@ -385,6 +408,31 @@ final class LocationViewModel {
         vehicle.isDefault = true
         try? modelContext.save()
         loadVehicles()
+    }
+
+    func pairVehicleWithBluetooth(_ vehicle: Vehicle) {
+        let detector = locationManager.bluetoothVehicleDetector
+        vehiclePairingMessage = "Waiting for a car audio or Bluetooth route..."
+
+        detector.beginPairing(vehicleID: vehicle.id) { [weak self] route in
+            guard let self else { return }
+            vehicle.bluetoothPortName = route.portName
+            vehicle.bluetoothPortType = route.portType
+            try? self.modelContext.save()
+            self.vehiclePairingMessage = "Paired \(vehicle.name) with \(route.portName)."
+            self.loadVehicles()
+        }
+    }
+
+    func clearBluetoothPairing(for vehicle: Vehicle) {
+        vehicle.bluetoothPortName = nil
+        vehicle.bluetoothPortType = nil
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func deleteVehicle(_ vehicle: Vehicle) {
+        archiveVehicle(vehicle)
     }
 
     func archiveVehicle(_ vehicle: Vehicle) {

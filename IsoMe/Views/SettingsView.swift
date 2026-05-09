@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showingImportResult = false
     @State private var importErrorMessage: String?
     @State private var showingImportError = false
+    @State private var newVehicleName = ""
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
@@ -27,6 +28,7 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         purchaseSection
                         trackingSection
+                        vehiclesSection
                         unitsSection
                         mapDisplaySection
                         importSection
@@ -82,6 +84,128 @@ struct SettingsView: View {
                 PaywallView(storeManager: storeManager)
             }
         }
+    }
+
+    // MARK: - Vehicles Section
+
+    private var vehiclesSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "VEHICLES")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: !viewModel.vehicles.isEmpty) {
+                        HStack(spacing: 10) {
+                            TextField("Vehicle name", text: $newVehicleName)
+                                .textInputAutocapitalization(.words)
+                                .font(TE.mono(.caption, weight: .medium))
+                                .foregroundStyle(TE.textPrimary)
+
+                            Button {
+                                viewModel.addVehicle(named: newVehicleName)
+                                newVehicleName = ""
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 28, height: 28)
+                                    .background(TE.accent, in: Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(newVehicleName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+
+                    ForEach(Array(viewModel.vehicles.enumerated()), id: \.element.id) { index, vehicle in
+                        vehicleRow(
+                            vehicle,
+                            showDivider: index < viewModel.vehicles.count - 1
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: vehicleFooterText)
+        }
+    }
+
+    private func vehicleRow(_ vehicle: Vehicle, showDivider: Bool) -> some View {
+        TERow(showDivider: showDivider) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Image(systemName: "car.fill")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(TE.accent)
+
+                    Text(vehicle.name.uppercased())
+                        .font(TE.mono(.caption, weight: .semibold))
+                        .tracking(1)
+                        .foregroundStyle(TE.textPrimary)
+
+                    Spacer()
+
+                    if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bluetooth")
+                                .font(.system(size: 10, weight: .semibold))
+                            Text("AUTO")
+                                .font(TE.mono(.caption2, weight: .bold))
+                                .tracking(1)
+                        }
+                        .foregroundStyle(TE.accent)
+                    }
+                }
+
+                if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
+                    Text(portName)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(TE.textMuted)
+                }
+
+                HStack(spacing: 14) {
+                    Button {
+                        viewModel.pairVehicleWithBluetooth(vehicle)
+                    } label: {
+                        Label("PAIR BLUETOOTH", systemImage: "antenna.radiowaves.left.and.right")
+                            .font(TE.mono(.caption2, weight: .semibold))
+                            .tracking(1)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(TE.accent)
+
+                    if vehicle.hasBluetoothPairing {
+                        Button {
+                            viewModel.clearBluetoothPairing(for: vehicle)
+                        } label: {
+                            Label("CLEAR", systemImage: "xmark.circle")
+                                .font(TE.mono(.caption2, weight: .semibold))
+                                .tracking(1)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(TE.textMuted)
+                    }
+
+                    Spacer()
+
+                    Button(role: .destructive) {
+                        viewModel.deleteVehicle(vehicle)
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(TE.danger)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var vehicleFooterText: LocalizedStringKey {
+        if let message = viewModel.vehiclePairingMessage {
+            return LocalizedStringKey(message)
+        }
+        return "Pair a vehicle with a CarPlay, hands-free, or Bluetooth audio route. iOS does not allow apps to scan raw Bluetooth peers."
     }
 
     // MARK: - Purchase Section
@@ -639,7 +763,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
         locationManager: LocationManager()
     ))
 }

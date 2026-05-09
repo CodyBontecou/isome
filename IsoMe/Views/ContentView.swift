@@ -1101,5 +1101,5 @@ private extension CLAuthorizationStatus {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Visit.self, LocationPoint.self], inMemory: true)
+        .modelContainer(for: [Visit.self, LocationPoint.self, Vehicle.self], inMemory: true)
 }

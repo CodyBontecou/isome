@@ -171,9 +171,23 @@ struct VisitDetailView: View {
 
     private var vehicleSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Vehicle")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            HStack {
+                Text("Vehicle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if visit.isVehicleAutoDetected {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bluetooth")
+                        Text("Auto")
+                    }
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.blue)
+                }
+            }
 
             Picker("Vehicle", selection: Binding<UUID?>(
                 get: { visit.vehicleID },
@@ -188,6 +202,12 @@ struct VisitDetailView: View {
                 }
             }
             .pickerStyle(.menu)
+
+            if visit.isVehicleAutoDetected, let portName = visit.vehicleBluetoothPortName {
+                Label("Detected via \(portName)", systemImage: "bluetooth")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             if !viewModel.recentVehicles.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {

@@ -13,6 +13,8 @@ final class Vehicle {
     var odometerCurrent: Int?
     var isDefault: Bool
     var bluetoothPortName: String?
+    var bluetoothPortType: String?
+    var createdAt: Date
     var archivedAt: Date?
 
     init(
@@ -26,6 +28,8 @@ final class Vehicle {
         odometerCurrent: Int? = nil,
         isDefault: Bool = false,
         bluetoothPortName: String? = nil,
+        bluetoothPortType: String? = nil,
+        createdAt: Date = Date(),
         archivedAt: Date? = nil
     ) {
         self.id = id
@@ -38,11 +42,17 @@ final class Vehicle {
         self.odometerCurrent = odometerCurrent
         self.isDefault = isDefault
         self.bluetoothPortName = bluetoothPortName
+        self.bluetoothPortType = bluetoothPortType
+        self.createdAt = createdAt
         self.archivedAt = archivedAt
     }
 
     var isArchived: Bool {
         archivedAt != nil
+    }
+
+    var hasBluetoothPairing: Bool {
+        bluetoothPortName?.isEmpty == false
     }
 
     var displaySubtitle: String {

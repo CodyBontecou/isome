@@ -921,7 +921,7 @@ struct ExportView: View {
 
 #Preview {
     ExportView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
         locationManager: LocationManager()
     ))
 }

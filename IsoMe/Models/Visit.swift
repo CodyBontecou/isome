@@ -39,6 +39,9 @@ final class Visit {
     var purposeRawValue: String = TripPurpose.unclassified.rawValue
     var subPurpose: String? = nil
     var vehicleID: UUID?
+    var vehicleName: String?
+    var vehicleDetectionSource: String?
+    var vehicleBluetoothPortName: String?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -55,6 +58,9 @@ final class Visit {
         purpose: TripPurpose = .unclassified,
         subPurpose: String? = nil,
         vehicleID: UUID? = nil,
+        vehicleName: String? = nil,
+        vehicleDetectionSource: String? = nil,
+        vehicleBluetoothPortName: String? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -68,6 +74,9 @@ final class Visit {
         self.purposeRawValue = purpose.rawValue
         self.subPurpose = subPurpose
         self.vehicleID = vehicleID
+        self.vehicleName = vehicleName
+        self.vehicleDetectionSource = vehicleDetectionSource
+        self.vehicleBluetoothPortName = vehicleBluetoothPortName
         self.geocodingCompleted = geocodingCompleted
     }
 
@@ -125,6 +134,10 @@ final class Visit {
                 subPurpose = nil
             }
         }
+    }
+
+    var isVehicleAutoDetected: Bool {
+        vehicleDetectionSource == "bluetooth"
     }
 }
 
