@@ -113,6 +113,11 @@ struct ExportView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+            .onAppear {
+                if viewModel.locationManager.isDrivesOnlyMode && options.dataKind == .visits {
+                    options.dataKind = .points
+                }
+            }
         }
     }
 
