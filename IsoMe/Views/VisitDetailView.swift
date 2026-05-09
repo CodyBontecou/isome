@@ -367,6 +367,7 @@ extension TripPurpose {
         switch self {
         case .business: return TE.success
         case .personal: return TE.accent
+        case .commuting: return .blue
         case .unclassified: return TE.warning
         }
     }
