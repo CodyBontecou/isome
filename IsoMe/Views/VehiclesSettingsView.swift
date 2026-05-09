@@ -137,6 +137,34 @@ private struct VehicleDetailView: View {
             }
 
             if !vehicle.isArchived {
+                Section("Bluetooth Auto-Detection") {
+                    if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
+                        LabeledContent("Paired route", value: portName)
+                    } else {
+                        Text("Pair with a CarPlay, hands-free, or Bluetooth audio route to auto-tag drives for this vehicle.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Button(vehicle.hasBluetoothPairing ? "Pair Different Bluetooth Route" : "Pair Bluetooth Route") {
+                        viewModel.pairVehicleWithBluetooth(vehicle)
+                    }
+
+                    if vehicle.hasBluetoothPairing {
+                        Button("Clear Bluetooth Pairing", role: .destructive) {
+                            viewModel.clearBluetoothPairing(for: vehicle)
+                        }
+                    }
+
+                    if let message = viewModel.vehiclePairingMessage {
+                        Text(message)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            if !vehicle.isArchived {
                 Section {
                     if !vehicle.isDefault {
                         Button("Make Default") {
