@@ -617,6 +617,7 @@ struct ImportService {
         let lines = content.components(separatedBy: "\n")
 
         var currentDate: Date?
+        var header: [String] = []
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .full
@@ -635,50 +636,61 @@ struct ImportService {
                 if let date = dateFormatter.date(from: dateStr) {
                     currentDate = date
                 }
+                header = []
                 continue
             }
 
-            // Table row: | 9:00:15 AM | 37.775000 | -122.419400 | 1.5 m/s | 10.5 m |
-            if trimmed.hasPrefix("|") && !trimmed.contains("---") && !trimmed.contains("Time") {
-                guard let date = currentDate else { continue }
-                let cells = trimmed.components(separatedBy: "|")
-                    .map { $0.trimmingCharacters(in: .whitespaces) }
-                    .filter { !$0.isEmpty }
+            guard trimmed.hasPrefix("|") else { continue }
+            if trimmed.contains("---") { continue }
 
-                guard cells.count >= 3 else { continue }
-
-                guard let time = timeFormatter.date(from: cells[0]) else { continue }
-                guard let lat = Double(cells[1]), let lon = Double(cells[2]) else { continue }
-
-                let timestamp = combineDateAndTime(date: date, time: time)
-
-                let speed: Double? = cells.count >= 4 ? {
-                    let val = cells[3].replacingOccurrences(of: " m/s", with: "")
-                    return val == "-" ? nil : Double(val)
-                }() : nil
-
-                let altitude: Double? = cells.count >= 5 ? {
-                    let val = cells[4].replacingOccurrences(of: " m", with: "")
-                    return val == "-" ? nil : Double(val)
-                }() : nil
-
-                let horizontalAccuracy: Double = cells.count >= 6 ? {
-                    let val = cells[5].replacingOccurrences(of: " m", with: "")
-                    return Double(val) ?? 0
-                }() : 0
-
-                let isOutlier: Bool = cells.count >= 7 && cells[6].lowercased() == "yes"
-
-                points.append(ImportedLocationPoint(
-                    latitude: lat,
-                    longitude: lon,
-                    timestamp: timestamp,
-                    altitude: altitude,
-                    speed: speed,
-                    horizontalAccuracy: horizontalAccuracy,
-                    isOutlier: isOutlier
-                ))
+            let cells = parseMarkdownTableCells(trimmed)
+            if cells.first == "Time" {
+                header = cells
+                continue
             }
+
+            guard let date = currentDate, !header.isEmpty, cells.count >= header.count else { continue }
+            let colIndex = Dictionary(uniqueKeysWithValues: header.enumerated().map { ($1, $0) })
+
+            guard let timeCol = colIndex["Time"],
+                  let latCol = colIndex["Lat"],
+                  let lonCol = colIndex["Lon"] else {
+                throw ImportError.invalidData("Markdown location point table is missing required columns")
+            }
+
+            guard let time = timeFormatter.date(from: cells[timeCol]) else { continue }
+            guard let lat = Double(cells[latCol]), let lon = Double(cells[lonCol]) else { continue }
+
+            let timestamp = combineDateAndTime(date: date, time: time)
+
+            let speed: Double? = colIndex["Speed"].flatMap { col in
+                let val = cells[col].replacingOccurrences(of: " m/s", with: "")
+                return val == "-" ? nil : Double(val)
+            }
+
+            let altitude: Double? = colIndex["Altitude"].flatMap { col in
+                let val = cells[col].replacingOccurrences(of: " m", with: "")
+                return val == "-" ? nil : Double(val)
+            }
+
+            let horizontalAccuracy: Double = colIndex["Accuracy"].flatMap { col in
+                let val = cells[col].replacingOccurrences(of: " m", with: "")
+                return Double(val)
+            } ?? 0
+
+            let isOutlier: Bool = colIndex["Outlier"].map { col in
+                cells[col].lowercased() == "yes"
+            } ?? false
+
+            points.append(ImportedLocationPoint(
+                latitude: lat,
+                longitude: lon,
+                timestamp: timestamp,
+                altitude: altitude,
+                speed: speed,
+                horizontalAccuracy: horizontalAccuracy,
+                isOutlier: isOutlier
+            ))
         }
 
         if points.isEmpty {
