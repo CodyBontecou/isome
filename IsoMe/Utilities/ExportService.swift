@@ -86,6 +86,8 @@ struct ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     struct ExportData: Codable {
@@ -103,7 +105,9 @@ struct ExportService {
                 durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
                 locationName: options.includeVisitLocationName ? visit.locationName : nil,
                 address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
+                notes: options.includeVisitNotes ? visit.notes : nil,
+                purpose: visit.purpose.rawValue,
+                subPurpose: visit.subPurpose
             )
         }
 
@@ -130,6 +134,8 @@ struct ExportService {
         if options.includeVisitLocationName { headers.append("location_name") }
         if options.includeVisitAddress { headers.append("address") }
         if options.includeVisitNotes { headers.append("notes") }
+        headers.append("purpose")
+        headers.append("sub_purpose")
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -153,6 +159,8 @@ struct ExportService {
             if options.includeVisitNotes {
                 fields.append(escapeCSVField(visit.notes ?? ""))
             }
+            fields.append(visit.purpose.rawValue)
+            fields.append(escapeCSVField(visit.subPurpose ?? ""))
             csvString.append(fields.joined(separator: ",") + "\n")
         }
 
@@ -199,6 +207,8 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
+        headerCols.append("Purpose")
+        headerCols.append("Sub-purpose")
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -235,6 +245,8 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
+                cells.append(visit.purpose.label)
+                cells.append(escapeMarkdownTableCell(visit.subPurpose))
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -775,7 +787,9 @@ extension ExportService {
                 durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
                 locationName: options.includeVisitLocationName ? visit.locationName : nil,
                 address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
+                notes: options.includeVisitNotes ? visit.notes : nil,
+                purpose: visit.purpose.rawValue,
+                subPurpose: visit.subPurpose
             )
         }
 
@@ -1287,6 +1301,8 @@ extension ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     private struct PointProperties: Encodable {
@@ -1309,7 +1325,9 @@ extension ExportService {
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            purpose: visit.purpose.rawValue,
+            subPurpose: visit.subPurpose
         )
 
         return GeoJSONFeature(

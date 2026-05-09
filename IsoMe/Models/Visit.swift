@@ -2,6 +2,30 @@ import Foundation
 import SwiftData
 import CoreLocation
 
+enum TripPurpose: String, Codable, CaseIterable, Identifiable {
+    case business
+    case personal
+    case unclassified
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .business: return "Business"
+        case .personal: return "Personal"
+        case .unclassified: return "Unclassified"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .business: return "briefcase.fill"
+        case .personal: return "person.fill"
+        case .unclassified: return "questionmark.circle.fill"
+        }
+    }
+}
+
 @Model
 final class Visit {
     var id: UUID
@@ -12,6 +36,8 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
+    var purposeRawValue: String = TripPurpose.unclassified.rawValue
+    var subPurpose: String? = nil
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -25,6 +51,8 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
+        purpose: TripPurpose = .unclassified,
+        subPurpose: String? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -35,6 +63,8 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
+        self.purposeRawValue = purpose.rawValue
+        self.subPurpose = subPurpose
         self.geocodingCompleted = geocodingCompleted
     }
 
@@ -82,6 +112,16 @@ final class Visit {
 
     var isCurrentVisit: Bool {
         departedAt == nil
+    }
+
+    var purpose: TripPurpose {
+        get { TripPurpose(rawValue: purposeRawValue) ?? .unclassified }
+        set {
+            purposeRawValue = newValue.rawValue
+            if newValue != .business {
+                subPurpose = nil
+            }
+        }
     }
 }
 
