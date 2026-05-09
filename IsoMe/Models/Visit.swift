@@ -2,6 +2,24 @@ import Foundation
 import SwiftData
 import CoreLocation
 
+enum TripClassification: String, CaseIterable, Identifiable, Codable {
+    case unclassified
+    case business
+    case personal
+    case commuting
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .unclassified: return "Unclassified"
+        case .business: return "Business"
+        case .personal: return "Personal"
+        case .commuting: return "Commuting"
+        }
+    }
+}
+
 @Model
 final class Visit {
     var id: UUID
@@ -12,6 +30,10 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
+    var tripClassificationRaw: String
+    var businessPurpose: String?
+    var businessSubPurpose: String?
+    var vehicleID: UUID?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -25,6 +47,10 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
+        tripClassificationRaw: String = TripClassification.unclassified.rawValue,
+        businessPurpose: String? = nil,
+        businessSubPurpose: String? = nil,
+        vehicleID: UUID? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -35,6 +61,10 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
+        self.tripClassificationRaw = tripClassificationRaw
+        self.businessPurpose = businessPurpose
+        self.businessSubPurpose = businessSubPurpose
+        self.vehicleID = vehicleID
         self.geocodingCompleted = geocodingCompleted
     }
 
@@ -82,6 +112,11 @@ final class Visit {
 
     var isCurrentVisit: Bool {
         departedAt == nil
+    }
+
+    var tripClassification: TripClassification {
+        get { TripClassification(rawValue: tripClassificationRaw) ?? .unclassified }
+        set { tripClassificationRaw = newValue.rawValue }
     }
 }
 

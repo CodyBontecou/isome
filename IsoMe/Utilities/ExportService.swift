@@ -54,7 +54,7 @@ enum ExportFormat {
 }
 
 struct ExportService {
-    private static let iso8601Formatter: ISO8601DateFormatter = {
+    static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
@@ -144,7 +144,7 @@ struct ExportService {
         return csvString.data(using: .utf8) ?? Data()
     }
 
-    private static func escapeCSVField(_ field: String) -> String {
+    static func escapeCSVField(_ field: String) -> String {
         if field.contains(",") || field.contains("\"") || field.contains("\n") {
             let escaped = field.replacingOccurrences(of: "\"", with: "\"\"")
             return "\"\(escaped)\""
@@ -256,7 +256,7 @@ struct ExportService {
         return tempURL
     }
 
-    private static func formattedDate() -> String {
+    static func formattedDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd_HHmmss"
         return formatter.string(from: Date())

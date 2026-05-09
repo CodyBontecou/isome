@@ -29,6 +29,7 @@ struct SettingsView: View {
                         trackingSection
                         unitsSection
                         mapDisplaySection
+                        reportsSection
                         importSection
                         dataSection
                         onboardingSection
@@ -310,6 +311,39 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
 
             TESectionFooter(text: "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.")
+        }
+    }
+
+    // MARK: - Reports Section
+
+    private var reportsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "REPORTS")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        MileageReportView(viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("MILEAGE REPORT")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Generate IRS-ready CSV or PDF mileage reports from classified trips.")
         }
     }
 

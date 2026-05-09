@@ -8,6 +8,9 @@ struct VisitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
     @State private var notesText: String = ""
+    @State private var purposeText: String = ""
+    @State private var subPurposeText: String = ""
+    @State private var vehicles = MileageVehicleStore.load()
     @FocusState private var isNotesFieldFocused: Bool
 
     var body: some View {
@@ -22,6 +25,9 @@ struct VisitDetailView: View {
                 // Time Info
                 timeInfoSection
 
+                // Mileage classification
+                mileageSection
+
                 // Notes
                 notesSection
 
@@ -34,6 +40,11 @@ struct VisitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             notesText = visit.notes ?? ""
+            purposeText = visit.businessPurpose ?? ""
+            subPurposeText = visit.businessSubPurpose ?? ""
+            if visit.vehicleID == nil {
+                visit.vehicleID = vehicles.first?.id
+            }
         }
         .alert("Delete Visit?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -179,6 +190,52 @@ struct VisitDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var mileageSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Mileage")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Picker("Classification", selection: Binding(
+                get: { visit.tripClassification },
+                set: {
+                    visit.tripClassification = $0
+                    viewModel.saveVisitChanges()
+                }
+            )) {
+                ForEach(TripClassification.allCases) { classification in
+                    Text(classification.label).tag(classification)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Picker("Vehicle", selection: Binding(
+                get: { visit.vehicleID ?? vehicles.first?.id ?? UUID() },
+                set: {
+                    visit.vehicleID = $0
+                    viewModel.saveVisitChanges()
+                }
+            )) {
+                ForEach(vehicles) { vehicle in
+                    Text(vehicle.name).tag(vehicle.id)
+                }
+            }
+
+            TextField("Business purpose", text: $purposeText)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit { saveMileageFields() }
+                .onChange(of: purposeText) { _, _ in saveMileageFields() }
+
+            TextField("Sub-purpose (optional)", text: $subPurposeText)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit { saveMileageFields() }
+                .onChange(of: subPurposeText) { _, _ in saveMileageFields() }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     private var actionsSection: some View {
         VStack(spacing: 12) {
             // Open in Maps
@@ -212,6 +269,12 @@ struct VisitDetailView: View {
 
     private func saveNotes() {
         viewModel.updateVisitNotes(visit, notes: notesText)
+    }
+
+    private func saveMileageFields() {
+        visit.businessPurpose = purposeText.isEmpty ? nil : purposeText
+        visit.businessSubPurpose = subPurposeText.isEmpty ? nil : subPurposeText
+        viewModel.saveVisitChanges()
     }
 
     private func openInMaps() {

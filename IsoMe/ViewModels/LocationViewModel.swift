@@ -232,6 +232,11 @@ final class LocationViewModel {
         try? modelContext.save()
     }
 
+    func saveVisitChanges() {
+        try? modelContext.save()
+        loadAllVisits()
+    }
+
     // MARK: - Export
 
     func exportVisits(format: ExportFormat, dateRange: ClosedRange<Date>? = nil) {
