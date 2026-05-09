@@ -191,6 +191,15 @@ struct ExportView: View {
                         segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
                     }
                     .frame(height: 44)
+
+                    Rectangle().fill(TE.border).frame(height: 1)
+
+                    HStack(spacing: 0) {
+                        segmentedButton("KML", isSelected: options.format == .kml) { options.format = .kml }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("GEOJSON", isSelected: options.format == .geojson) { options.format = .geojson }
+                    }
+                    .frame(height: 44)
                 }
             }
             .padding(.horizontal, 16)
@@ -392,6 +401,8 @@ struct ExportView: View {
                                     Text("MARKDOWN").tag(ExportFormat.markdown)
                                     Text("OWNTRACKS").tag(ExportFormat.owntracks)
                                     Text("OVERLAND").tag(ExportFormat.overland)
+                                    Text("GPX").tag(ExportFormat.gpx)
+                                    Text("KML").tag(ExportFormat.kml)
                                     Text("GEOJSON").tag(ExportFormat.geojson)
                                 }
                                 .labelsHidden()
