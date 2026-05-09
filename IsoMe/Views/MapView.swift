@@ -6,6 +6,7 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
+    @State private var selectedPoint: LocationPoint?
     @State private var showingFilters = false
     @State private var showFilterBar = false
     @State private var trackingPillExpanded = false
@@ -31,6 +32,7 @@ struct LocationMapView: View {
 
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    private let maximumPointSelectionDistance: Double = 120
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
@@ -64,97 +66,126 @@ struct LocationMapView: View {
         return result
     }
 
+    var selectablePoints: [LocationPoint] {
+        var seenIDs = Set<UUID>()
+        return (filteredPoints + activeSessionPoints).filter { point in
+            seenIDs.insert(point.id).inserted
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Map(position: $cameraPosition, selection: $selectedVisit) {
-                    // Current user location
-                    UserAnnotation()
+                MapReader { mapProxy in
+                    Map(position: $cameraPosition, selection: $selectedVisit) {
+                        // Current user location
+                        UserAnnotation()
 
-                    // Travel path from location points
-                    if showTravelPath && !filteredPoints.isEmpty {
-                        let coordinates = filteredPoints.map { $0.coordinate }
-                        MapPolyline(coordinates: coordinates)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ),
-                                lineWidth: 4
-                            )
-                    }
-                    
-                    // Live session path (moved from Track tab)
-                    if showSessionPath && activeSessionPoints.count >= 2 {
-                        let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
-                        MapPolyline(coordinates: sessionCoordinates)
-                            .stroke(.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-                    }
-                    
-                    if showSessionPath, let firstSessionPoint = activeSessionPoints.first {
-                        Annotation("Session Start", coordinate: firstSessionPoint.coordinate) {
-                            StartMarker()
+                        // Travel path from location points
+                        if showTravelPath && !filteredPoints.isEmpty {
+                            let coordinates = filteredPoints.map { $0.coordinate }
+                            MapPolyline(coordinates: coordinates)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ),
+                                    lineWidth: 4
+                                )
                         }
-                    }
-                    
-                    if showSessionPath,
-                       let lastSessionPoint = activeSessionPoints.last,
-                       activeSessionPoints.count > 1 {
-                        Annotation("Current", coordinate: lastSessionPoint.coordinate) {
-                            CurrentLocationMarker()
+                        
+                        // Live session path (moved from Track tab)
+                        if showSessionPath && activeSessionPoints.count >= 2 {
+                            let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
+                            MapPolyline(coordinates: sessionCoordinates)
+                                .stroke(.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
                         }
-                    }
-                    
-                    // Start marker (oldest point in range)
-                    if showStartEndMarkers, let firstPoint = filteredPoints.first {
-                        Annotation("", coordinate: firstPoint.coordinate) {
-                            PathStartMarker(timestamp: firstPoint.timestamp)
+                        
+                        if showSessionPath, let firstSessionPoint = activeSessionPoints.first {
+                            Annotation("Session Start", coordinate: firstSessionPoint.coordinate) {
+                                StartMarker()
+                            }
                         }
-                    }
-                    
-                    // End marker (newest point in range, if different from start)
-                    if showStartEndMarkers, 
-                       let lastPoint = filteredPoints.last,
-                       filteredPoints.count > 1 {
-                        Annotation("", coordinate: lastPoint.coordinate) {
-                            PathEndMarker(timestamp: lastPoint.timestamp)
+                        
+                        if showSessionPath,
+                           let lastSessionPoint = activeSessionPoints.last,
+                           activeSessionPoints.count > 1 {
+                            Annotation("Current", coordinate: lastSessionPoint.coordinate) {
+                                CurrentLocationMarker()
+                            }
                         }
-                    }
-                    
-                    // Point markers (spaced apart)
-                    if showPointMarkers {
-                        ForEach(spacedPoints) { point in
-                            Annotation("", coordinate: point.coordinate) {
-                                Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
-                                    .overlay {
-                                        Circle()
-                                            .stroke(.white, lineWidth: 1.5)
+                        
+                        // Start marker (oldest point in range)
+                        if showStartEndMarkers, let firstPoint = filteredPoints.first {
+                            Annotation("", coordinate: firstPoint.coordinate) {
+                                PathStartMarker(timestamp: firstPoint.timestamp)
+                            }
+                        }
+                        
+                        // End marker (newest point in range, if different from start)
+                        if showStartEndMarkers, 
+                           let lastPoint = filteredPoints.last,
+                           filteredPoints.count > 1 {
+                            Annotation("", coordinate: lastPoint.coordinate) {
+                                PathEndMarker(timestamp: lastPoint.timestamp)
+                            }
+                        }
+                        
+                        // Point markers (spaced apart)
+                        if showPointMarkers {
+                            ForEach(spacedPoints) { point in
+                                Annotation("", coordinate: point.coordinate) {
+                                    Circle()
+                                        .fill(selectedPoint?.id == point.id ? TE.accent : .blue)
+                                        .frame(width: selectedPoint?.id == point.id ? 12 : 8, height: selectedPoint?.id == point.id ? 12 : 8)
+                                        .overlay {
+                                            Circle()
+                                                .stroke(.white, lineWidth: 1.5)
+                                        }
+                                        .contentShape(Circle())
+                                        .onTapGesture {
+                                            select(point)
+                                        }
+                                }
+                            }
+                        }
+
+                        if let selectedPoint {
+                            Annotation("", coordinate: selectedPoint.coordinate, anchor: .bottom) {
+                                LocationPointTimestampCallout(point: selectedPoint) {
+                                    withAnimation(.spring(duration: 0.2)) {
+                                        self.selectedPoint = nil
                                     }
+                                }
                             }
                         }
-                    }
 
-                    // Visit markers
-                    if showVisitMarkers {
-                        ForEach(filteredVisits) { visit in
-                            Annotation(
-                                visit.displayName,
-                                coordinate: visit.coordinate,
-                                anchor: .bottom
-                            ) {
-                                VisitMarker(visit: visit, isSelected: selectedVisit?.id == visit.id)
+                        // Visit markers
+                        if showVisitMarkers {
+                            ForEach(filteredVisits) { visit in
+                                Annotation(
+                                    visit.displayName,
+                                    coordinate: visit.coordinate,
+                                    anchor: .bottom
+                                ) {
+                                    VisitMarker(visit: visit, isSelected: selectedVisit?.id == visit.id)
+                                }
+                                .tag(visit)
                             }
-                            .tag(visit)
                         }
                     }
-                }
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                    MapScaleView()
+                    .mapControls {
+                        MapUserLocationButton()
+                        MapCompass()
+                        MapScaleView()
+                    }
+                    .simultaneousGesture(
+                        SpatialTapGesture()
+                            .onEnded { value in
+                                selectNearestPoint(to: value.location, using: mapProxy)
+                            }
+                    )
                 }
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if !discordPromoDismissed {
@@ -245,6 +276,11 @@ struct LocationMapView: View {
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
             }
+            .onChange(of: selectedVisit) { _, newValue in
+                if newValue != nil {
+                    selectedPoint = nil
+                }
+            }
             .onAppear {
                 viewModel.loadAllVisits()
                 viewModel.loadLocationPoints()
@@ -264,6 +300,44 @@ struct LocationMapView: View {
                 if pendingSessionAutoFocus {
                     attemptAutoFocusSession()
                 }
+            }
+            .onChange(of: viewModel.mapDateRange) { _, _ in
+                selectedPoint = nil
+            }
+        }
+    }
+
+    private func select(_ point: LocationPoint) {
+        withAnimation(.spring(duration: 0.2)) {
+            selectedVisit = nil
+            selectedPoint = point
+        }
+    }
+
+    private func selectNearestPoint(to tapLocation: CGPoint, using mapProxy: MapProxy) {
+        guard let coordinate = mapProxy.convert(tapLocation, from: .local) else { return }
+
+        let tappedLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let nearestPoint = selectablePoints.min { lhs, rhs in
+            let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
+            let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
+            return lhsLocation.distance(from: tappedLocation) < rhsLocation.distance(from: tappedLocation)
+        }
+
+        guard let nearestPoint else {
+            selectedPoint = nil
+            return
+        }
+
+        let nearestLocation = CLLocation(latitude: nearestPoint.latitude, longitude: nearestPoint.longitude)
+        let selectionDistance = nearestLocation.distance(from: tappedLocation)
+        let tolerance = max(maximumPointSelectionDistance, nearestPoint.horizontalAccuracy * 2)
+
+        if selectionDistance <= tolerance {
+            select(nearestPoint)
+        } else {
+            withAnimation(.spring(duration: 0.2)) {
+                selectedPoint = nil
             }
         }
     }
@@ -522,6 +596,64 @@ struct Triangle: Shape {
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.closeSubpath()
         return path
+    }
+}
+
+struct LocationPointTimestampCallout: View {
+    let point: LocationPoint
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(point.timestamp.formatted(date: .abbreviated, time: .omitted))
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.1)
+                        .foregroundStyle(TE.textMuted)
+
+                    Text(point.timestamp.formatted(date: .omitted, time: .shortened))
+                        .font(TE.mono(.title3, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                }
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.textMuted)
+                        .frame(width: 24, height: 24)
+                        .background(Color.primary.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Color.white.opacity(0.45), lineWidth: 0.8)
+                    }
+                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
+            }
+
+            Triangle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 14, height: 9)
+                .rotationEffect(.degrees(180))
+
+            Circle()
+                .fill(TE.accent)
+                .frame(width: 10, height: 10)
+                .overlay {
+                    Circle()
+                        .stroke(.white, lineWidth: 1.5)
+                }
+                .shadow(color: TE.accent.opacity(0.35), radius: 5, y: 2)
+        }
+        .transition(.scale(scale: 0.92, anchor: .bottom).combined(with: .opacity))
     }
 }
 

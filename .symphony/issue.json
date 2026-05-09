@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBv7uXg",
+  "identifier": "CodyBontecou/isome#23",
+  "title": "Map: show date/time when tapping a location point",
+  "description": "Add a way to press/tap any point on the map to see the date and time for that specific location. This lets users quickly check the timestamp for a single point without exporting the full data.\n\n> Hi, found your app iso.me via a now removed reddit post. I really like it. I’ve been missing the old Google location history reports. Battery life seems minimally affected which is great. It would be good if on the map I could press in any point and see the date/time of that point. I used to use location history to narrow down times I was somewhere. I realise I can export the data but I usually just want to check one specific point (used for ensuring my manual timesheets at the end of the day are accurate). Do you think you could add that feature?\n\nSource: https://discord.com/channels/1443424100759634003/1498086805264928859/1502631664961065071\n\n@codex implement this\n\n<!-- isobot:discord-thread:1502631708674097166 -->",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/23",
+  "labels": [
+    "enhancement"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-09T11:21:54Z",
+  "updated_at": "2026-05-09T12:31:30Z"
+}
