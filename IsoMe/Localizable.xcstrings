@@ -14924,7 +14924,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El seguimiento registra visitas, cambios significativos y una ruta continua de alta precisión. El filtro de distancia controla con qué frecuencia se guardan puntos al moverte. Detener después detiene automáticamente como medida de seguridad."
+            "value": "El seguimiento registra visitas, cambios significativos y un recorrido continuo de alta precisión. El filtro de distancia controla la frecuencia con que se guardan puntos en movimiento. Detener después se detiene automáticamente como medida de seguridad."
           }
         }
       }
@@ -15373,6 +15373,246 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se importaron datos."
+          }
+        }
+      }
+    },
+    "Full History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full History"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historial completo"
+          }
+        }
+      }
+    },
+    "Drives Only": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drives Only"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo conducción"
+          }
+        }
+      }
+    },
+    "Custom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizado"
+          }
+        }
+      }
+    },
+    "Records visits plus high-accuracy movement paths.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Records visits plus high-accuracy movement paths."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra visitas y recorridos de alta precisión."
+          }
+        }
+      }
+    },
+    "Skips visit logging and optimizes tracking for vehicle mileage.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skips visit logging and optimizes tracking for vehicle mileage."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omite el registro de visitas y optimiza el seguimiento para el kilometraje del vehículo."
+          }
+        }
+      }
+    },
+    "Use granular controls for visits and tracking behavior.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use granular controls for visits and tracking behavior."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa controles detallados para visitas y comportamiento de seguimiento."
+          }
+        }
+      }
+    },
+    "TRACKING MODE": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRACKING MODE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MODO DE SEGUIMIENTO"
+          }
+        }
+      }
+    },
+    "Presets update the underlying tracking behavior immediately. Drives Only stops visit detection and tunes Core Location for automotive navigation.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presets update the underlying tracking behavior immediately. Drives Only stops visit detection and tunes Core Location for automotive navigation."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los ajustes predefinidos actualizan el comportamiento de seguimiento inmediatamente. Solo conducción detiene la detección de visitas y ajusta Core Location para navegación en automóvil."
+          }
+        }
+      }
+    },
+    "Tracking records high-accuracy movement paths for mileage. Visit detection stays off in Drives Only mode.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracking records high-accuracy movement paths for mileage. Visit detection stays off in Drives Only mode."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El seguimiento registra recorridos de alta precisión para kilometraje. La detección de visitas permanece desactivada en el modo Solo conducción."
+          }
+        }
+      }
+    },
+    "REPORTS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REPORTS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INFORMES"
+          }
+        }
+      }
+    },
+    "MILEAGE REPORT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MILEAGE REPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INFORME DE KILOMETRAJE"
+          }
+        }
+      }
+    },
+    "Generate IRS-ready CSV or PDF mileage reports from classified trips.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate IRS-ready CSV or PDF mileage reports from classified trips."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genera informes de kilometraje en CSV o PDF listos para el IRS a partir de viajes clasificados."
+          }
+        }
+      }
+    },
+    "VEHICLES": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VEHICLES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VEHÍCULOS"
+          }
+        }
+      }
+    },
+    "MANAGE VEHICLES": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MANAGE VEHICLES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GESTIONAR VEHÍCULOS"
+          }
+        }
+      }
+    },
+    "New drives use your default vehicle. Archived vehicles stay attached to past data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New drives use your default vehicle. Archived vehicles stay attached to past data."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los nuevos trayectos usan tu vehículo predeterminado. Los vehículos archivados permanecen asociados a datos anteriores."
           }
         }
       }

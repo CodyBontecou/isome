@@ -15,20 +15,20 @@ enum TrackingMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .fullHistory: return "Full History"
-        case .drivesOnly: return "Drives Only"
-        case .custom: return "Custom"
+        case .fullHistory: return String(localized: "Full History")
+        case .drivesOnly: return String(localized: "Drives Only")
+        case .custom: return String(localized: "Custom")
         }
     }
 
     var settingsDescription: String {
         switch self {
         case .fullHistory:
-            return "Records visits plus high-accuracy movement paths."
+            return String(localized: "Records visits plus high-accuracy movement paths.")
         case .drivesOnly:
-            return "Skips visit logging and optimizes tracking for vehicle mileage."
+            return String(localized: "Skips visit logging and optimizes tracking for vehicle mileage.")
         case .custom:
-            return "Use granular controls for visits and tracking behavior."
+            return String(localized: "Use granular controls for visits and tracking behavior.")
         }
     }
 }
