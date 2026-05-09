@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBeTakw",
+  "identifier": "CodyBontecou/isome#17",
+  "title": "Classify trips as Business or Personal",
+  "description": "## Summary\n\nAllow users to mark each tracked drive (and visit, where relevant) as **Business** or **Personal**, so the app can drive mileage reporting and reimbursement workflows the same way MileIQ does.\n\n## Motivation\n\nThis is the foundational feature for using iso.me as a MileIQ replacement. Without trip classification, none of the downstream business-mileage features (IRS reports, deduction totals, per-purpose summaries) are useful.\n\n## Proposed UX\n\n- After a continuous-tracking session ends, surface a lightweight classifier card on the session detail view: **Business** / **Personal** / **Unclassified**.\n- Optional sub-purpose tag for Business (e.g. *Client Visit*, *Errand*, *Meeting*, *Between Offices*) — free-text or chips, MileIQ-style.\n- Quick-classify swipe gestures on the trip list (left = Personal, right = Business), like MileIQ's swipe deck.\n- Bulk classify from the trip list (multi-select → set purpose).\n- Per-classification color/icon on the map and list views.\n\n## Data model\n\n- Extend the continuous-tracking session model with:\n  - `purpose: TripPurpose` (`.business`, `.personal`, `.unclassified`)\n  - `subPurpose: String?` (optional free-form tag)\n  - `notes: String?`\n- Store the user's frequent sub-purposes for autocomplete.\n- Migration: existing sessions default to `.unclassified`.\n\n## Out of scope\n\n- Auto-classification rules (e.g. \"weekdays 9–5 = business\") — track separately if requested.\n- IRS report generation — covered by a separate ticket.\n\n## Acceptance criteria\n\n- [ ] User can tag any past drive as Business or Personal from the trip detail view.\n- [ ] User can swipe-classify from the trip list.\n- [ ] Bulk classify works from a multi-select on the trip list.\n- [ ] Trip purpose persists across app restarts and is included in JSON/CSV/Markdown exports.\n- [ ] Existing data migrates safely to `.unclassified`.\n\n<!-- isobot:discord-thread:1501666799907897354 -->",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/17",
+  "labels": [
+    "enhancement"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-06T19:27:42Z",
+  "updated_at": "2026-05-06T19:27:45Z"
+}
