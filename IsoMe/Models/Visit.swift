@@ -12,6 +12,10 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
+    var vehicleID: UUID?
+    var vehicleName: String?
+    var vehicleDetectionSource: String?
+    var vehicleBluetoothPortName: String?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -25,6 +29,10 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
+        vehicleID: UUID? = nil,
+        vehicleName: String? = nil,
+        vehicleDetectionSource: String? = nil,
+        vehicleBluetoothPortName: String? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -35,6 +43,10 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
+        self.vehicleID = vehicleID
+        self.vehicleName = vehicleName
+        self.vehicleDetectionSource = vehicleDetectionSource
+        self.vehicleBluetoothPortName = vehicleBluetoothPortName
         self.geocodingCompleted = geocodingCompleted
     }
 
@@ -82,6 +94,10 @@ final class Visit {
 
     var isCurrentVisit: Bool {
         departedAt == nil
+    }
+
+    var isVehicleAutoDetected: Bool {
+        vehicleDetectionSource == "bluetooth"
     }
 }
 

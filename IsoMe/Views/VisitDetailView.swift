@@ -22,6 +22,9 @@ struct VisitDetailView: View {
                 // Time Info
                 timeInfoSection
 
+                // Vehicle
+                vehicleSection
+
                 // Notes
                 notesSection
 
@@ -34,6 +37,7 @@ struct VisitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             notesText = visit.notes ?? ""
+            viewModel.loadVehicles()
         }
         .alert("Delete Visit?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -158,6 +162,60 @@ struct VisitDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var vehicleSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Vehicle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if visit.isVehicleAutoDetected {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bluetooth")
+                        Text("Auto")
+                    }
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.blue)
+                }
+            }
+
+            Picker("Vehicle", selection: Binding(
+                get: { visit.vehicleID },
+                set: { newValue in
+                    let vehicle = viewModel.vehicles.first { $0.id == newValue }
+                    viewModel.updateVisitVehicle(visit, vehicle: vehicle)
+                }
+            )) {
+                Text("Unset").tag(Optional<UUID>.none)
+                ForEach(viewModel.vehicles) { vehicle in
+                    Text(vehicle.name).tag(Optional(vehicle.id))
+                }
+            }
+            .pickerStyle(.menu)
+
+            if let vehicleName = visit.vehicleName {
+                HStack(spacing: 6) {
+                    Image(systemName: visit.isVehicleAutoDetected ? "bluetooth" : "car.fill")
+                        .font(.caption)
+                    Text(vehicleName)
+                        .font(.subheadline)
+                    if visit.isVehicleAutoDetected, let portName = visit.vehicleBluetoothPortName {
+                        Text("via \(portName)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Notes")
@@ -227,7 +285,7 @@ struct VisitDetailView: View {
         VisitDetailView(
             visit: Visit.preview,
             viewModel: LocationViewModel(
-                modelContext: try! ModelContainer(for: Visit.self).mainContext,
+                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
                 locationManager: LocationManager()
             )
         )

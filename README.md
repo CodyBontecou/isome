@@ -24,6 +24,11 @@ Automatic background detection of places you arrive at and depart from, powered 
 ### Continuous Tracking
 High-accuracy GPS tracking that records your exact path. Configurable distance filter (5m-200m) and auto-off timer (30 min to never). Tracked points include altitude, speed, and accuracy metadata.
 
+### Vehicles
+Add vehicles in Settings and pair each one with a compatible in-car audio route. When iOS reports a matching CarPlay, hands-free (`bluetoothHFP`), Bluetooth audio (`bluetoothA2DP`), or Bluetooth LE audio route through `AVAudioSession`, iso.me auto-tags newly recorded tracking points and the active visit with that vehicle. Visit details show a Bluetooth "Auto" indicator and can be manually overridden.
+
+iOS does not expose a general raw Bluetooth peer scan to third-party apps, so iso.me cannot list every nearby or connected Bluetooth device. Vehicle auto-detection depends on routes that appear in the system audio session, such as head units and hands-free profiles. If no paired route is visible, tracking continues normally and the vehicle remains unset.
+
 ### Live Activities
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
@@ -75,9 +80,11 @@ IsoMe/
   Models/
     Visit.swift                    # Visit data model (coordinates, times, address)
     LocationPoint.swift            # Continuous tracking point model
+    Vehicle.swift                  # Vehicle metadata and Bluetooth pairing
     LocationActivityAttributes.swift  # Live Activity state
   Services/
     LocationManager.swift          # Core location tracking logic
+    BluetoothVehicleDetector.swift # Car audio / Bluetooth route detection
     ActivityDetectionManager.swift # CoreMotion activity detection
     LiveActivityManager.swift      # Live Activity lifecycle
     GeocodingService.swift         # Reverse geocoding with caching

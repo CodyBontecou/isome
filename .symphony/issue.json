@@ -1,0 +1,17 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABBeTgOQ",
+  "identifier": "CodyBontecou/isome#18",
+  "title": "Auto-detect active vehicle via Bluetooth connection",
+  "description": "## Summary\n\nWhen the phone connects to a known vehicle's Bluetooth (head unit, hands-free profile, or registered BLE accessory), automatically tag the resulting drive with that vehicle. Mirrors MileIQ's \"Vehicles\" auto-pairing behavior.\n\n## Motivation\n\nRemoves the manual \"which car was I in?\" classification step for users with multiple vehicles, which is the main friction point for self-employed drivers and households with shared cars.\n\n## Approach\n\niOS does **not** expose general Bluetooth peer info to third-party apps. The realistic options:\n\n1. **CarPlay / handsfree route detection** — `AVAudioSession.routeChange` notifications include the connected device's `portType` (`.carAudio`, `.bluetoothHFP`, `.bluetoothA2DP`) and `portName` (the head unit's advertised name). On route-change to one of those ports while tracking is active, look up the matching vehicle by saved `portName` and tag the session.\n2. **External Accessory framework** — for users with a registered MFi/BLE OBD dongle, watch for the accessory's UID.\n3. **Manual fallback** — let the user tap \"use this vehicle for this trip\" if no match was found, and remember the choice.\n\n## Proposed UX\n\n- In **Settings → Vehicles**, each vehicle has a \"Pair with Bluetooth device\" button that listens for the next route-change and saves the current `portName` (e.g. \"Mazda CX-5\", \"Tesla Model 3\").\n- On the next trip that triggers that route, the session is auto-tagged with the vehicle, and the trip card shows a small Bluetooth icon to indicate auto-detection (so the user can trust/verify it).\n- If multiple vehicles share a head-unit name (rare), prompt the user once and remember the choice.\n\n## Dependencies\n\n- Requires the **multi-vehicle support** ticket to land first (need a vehicle list to pair against).\n\n## Acceptance criteria\n\n- [ ] User can pair a vehicle with a Bluetooth device by tapping a button while connected to it.\n- [ ] On subsequent connections, drives started during that route are auto-tagged with the paired vehicle.\n- [ ] Trip detail view shows the auto-detected vehicle with a clear \"auto\" indicator and lets the user override.\n- [ ] If no pairing matches, tracking still works and the trip is left vehicle-unset.\n- [ ] Documented in the README under Vehicles, including the iOS limitations (no raw BT peer scan).\n\n<!-- isobot:discord-thread:1501666862415610079 -->",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/18",
+  "labels": [
+    "enhancement"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-05-06T19:27:57Z",
+  "updated_at": "2026-05-06T19:28:00Z"
+}

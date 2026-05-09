@@ -15,6 +15,8 @@
 		D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */; };
 		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
+		B1800011212F000100000011 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1800011212F000000000011 /* Vehicle.swift */; };
+		B1800012212F000100000012 /* BluetoothVehicleDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1800012212F000000000012 /* BluetoothVehicleDetector.swift */; };
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
@@ -199,6 +201,8 @@
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4000004212F000000000004 /* IsoMeWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatchWidget.entitlements; sourceTree = "<group>"; };
 		AF000001212F000000000001 /* DailyDistanceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyDistanceTracker.swift; sourceTree = "<group>"; };
+		B1800011212F000000000011 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
+		B1800012212F000000000012 /* BluetoothVehicleDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothVehicleDetector.swift; sourceTree = "<group>"; };
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
@@ -325,6 +329,7 @@
 			children = (
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
+				B1800011212F000000000011 /* Vehicle.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 				A1000030212F000000000030 /* ExportOptions.swift */,
 				F1000001212F000000000001 /* FilenameTemplate.swift */,
@@ -336,6 +341,7 @@
 			isa = PBXGroup;
 			children = (
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
+				B1800012212F000000000012 /* BluetoothVehicleDetector.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
@@ -651,6 +657,8 @@
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
+				B1800011212F000100000011 /* Vehicle.swift in Sources */,
+				B1800012212F000100000012 /* BluetoothVehicleDetector.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,

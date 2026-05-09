@@ -14,6 +14,8 @@ final class LocationViewModel {
     var allVisits: [Visit] = []
     var locationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
+    var vehicles: [Vehicle] = []
+    var vehiclePairingMessage: String?
 
     // UI State
     var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
@@ -47,6 +49,7 @@ final class LocationViewModel {
         loadAllVisits()
         loadLocationPoints()
         loadTodayLocationPoints()
+        loadVehicles()
     }
 
     func loadTodayVisits() {
@@ -110,6 +113,18 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch today's location points: \(error)")
             todayLocationPoints = []
+        }
+    }
+
+    func loadVehicles() {
+        var descriptor = FetchDescriptor<Vehicle>()
+        descriptor.sortBy = [SortDescriptor(\.createdAt, order: .forward)]
+
+        do {
+            vehicles = try modelContext.fetch(descriptor)
+        } catch {
+            print("Failed to fetch vehicles: \(error)")
+            vehicles = []
         }
     }
 
@@ -232,6 +247,52 @@ final class LocationViewModel {
         try? modelContext.save()
     }
 
+    func updateVisitVehicle(_ visit: Visit, vehicle: Vehicle?) {
+        visit.vehicleID = vehicle?.id
+        visit.vehicleName = vehicle?.name
+        visit.vehicleDetectionSource = vehicle == nil ? nil : "manual"
+        visit.vehicleBluetoothPortName = nil
+        try? modelContext.save()
+        loadData()
+    }
+
+    // MARK: - Vehicles
+
+    func addVehicle(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        modelContext.insert(Vehicle(name: trimmed))
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func deleteVehicle(_ vehicle: Vehicle) {
+        modelContext.delete(vehicle)
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func pairVehicleWithBluetooth(_ vehicle: Vehicle) {
+        let detector = locationManager.bluetoothVehicleDetector
+        vehiclePairingMessage = "Waiting for a car audio or Bluetooth route..."
+
+        detector.beginPairing(vehicleID: vehicle.id) { [weak self] route in
+            guard let self else { return }
+            vehicle.bluetoothPortName = route.portName
+            vehicle.bluetoothPortType = route.portType
+            try? self.modelContext.save()
+            self.vehiclePairingMessage = "Paired \(vehicle.name) with \(route.portName)."
+            self.loadVehicles()
+        }
+    }
+
+    func clearBluetoothPairing(for vehicle: Vehicle) {
+        vehicle.bluetoothPortName = nil
+        vehicle.bluetoothPortType = nil
+        try? modelContext.save()
+        loadVehicles()
+    }
+
     // MARK: - Export
 
     func exportVisits(format: ExportFormat, dateRange: ClosedRange<Date>? = nil) {
@@ -335,6 +396,7 @@ final class LocationViewModel {
         do {
             try modelContext.delete(model: Visit.self)
             try modelContext.delete(model: LocationPoint.self)
+            try modelContext.delete(model: Vehicle.self)
             try modelContext.save()
             loadData()
         } catch {

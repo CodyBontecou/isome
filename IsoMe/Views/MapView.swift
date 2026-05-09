@@ -778,6 +778,35 @@ struct VisitQuickView: View {
                     }
                 }
 
+                if let vehicleName = visit.vehicleName {
+                    Divider()
+
+                    HStack(spacing: 6) {
+                        Image(systemName: visit.isVehicleAutoDetected ? "bluetooth" : "car.fill")
+                            .font(.caption)
+                            .foregroundStyle(visit.isVehicleAutoDetected ? .blue : .secondary)
+                        Text(vehicleName)
+                            .font(.subheadline)
+                        if visit.isVehicleAutoDetected {
+                            Text("AUTO")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+
+                NavigationLink {
+                    VisitDetailView(visit: visit, viewModel: viewModel)
+                } label: {
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("Details")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
                 Spacer()
             }
             .padding()
@@ -1044,7 +1073,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
         locationManager: LocationManager()
     ))
 }
