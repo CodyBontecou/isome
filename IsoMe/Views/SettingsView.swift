@@ -30,6 +30,7 @@ struct SettingsView: View {
                         unitsSection
                         mapDisplaySection
                         importSection
+                        vehiclesSection
                         dataSection
                         onboardingSection
                         supportSection
@@ -335,6 +336,40 @@ struct SettingsView: View {
     }
 
     // MARK: - Data Section
+
+    private var vehiclesSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "VEHICLES")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        VehiclesSettingsView(viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("MANAGE VEHICLES")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Text("\(viewModel.activeVehicles.count)")
+                                .font(TE.mono(.caption2, weight: .medium))
+                                .foregroundStyle(TE.textMuted)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "New drives use your default vehicle. Archived vehicles stay attached to past data.")
+        }
+    }
 
     private var dataSection: some View {
         VStack(spacing: 0) {

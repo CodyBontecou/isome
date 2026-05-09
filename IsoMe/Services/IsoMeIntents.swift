@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 private enum IntentSupport {
     /// A dedicated container for intent-side reads. Uses the same on-disk store as the app.
     static let modelContainer: ModelContainer = {
-        let schema = Schema([Visit.self, LocationPoint.self])
+        let schema = Schema([Visit.self, LocationPoint.self, Vehicle.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
         do {
             return try ModelContainer(for: schema, configurations: [config])
@@ -240,6 +240,7 @@ private struct ExportRunner {
 
         let visits = (try? context.fetch(visitDescriptor)) ?? []
         let points = (try? context.fetch(pointDescriptor)) ?? []
+        let vehicles = (try? context.fetch(FetchDescriptor<Vehicle>())) ?? []
 
         var options = ExportOptions()
         options.dataKind = .all
@@ -248,7 +249,7 @@ private struct ExportRunner {
         options.customStart = range.lowerBound
         options.customEnd = range.upperBound
 
-        let rendered = try ExportService.render(visits: visits, points: points, options: options)
+        let rendered = try ExportService.render(visits: visits, points: points, vehicles: vehicles, options: options)
         return IntentFile(data: rendered.data, filename: rendered.fileName, type: format.contentType)
     }
 }

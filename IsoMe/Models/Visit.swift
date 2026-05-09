@@ -12,6 +12,7 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
+    var vehicleID: UUID?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -25,6 +26,7 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
+        vehicleID: UUID? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -35,6 +37,7 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
+        self.vehicleID = vehicleID
         self.geocodingCompleted = geocodingCompleted
     }
 
