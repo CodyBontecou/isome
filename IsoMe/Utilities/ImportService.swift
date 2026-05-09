@@ -8,11 +8,11 @@ enum ImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me."
+            return String(localized: "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me.")
         case .invalidData(let detail):
-            return "Invalid data: \(detail)"
+            return String(format: String(localized: "Invalid data: %@"), detail)
         case .parsingFailed(let detail):
-            return "Parsing failed: \(detail)"
+            return String(format: String(localized: "Parsing failed: %@"), detail)
         }
     }
 }
@@ -47,10 +47,26 @@ struct ImportResult {
     let pointCount: Int
 
     var summary: String {
-        var parts: [String] = []
-        if visitCount > 0 { parts.append("\(visitCount) visit\(visitCount == 1 ? "" : "s")") }
-        if pointCount > 0 { parts.append("\(pointCount) point\(pointCount == 1 ? "" : "s")") }
-        return "Imported \(parts.joined(separator: " and "))."
+        switch (visitCount, pointCount) {
+        case (0, 0):
+            return String(localized: "No data imported.")
+        case (1, 0):
+            return String(localized: "Imported 1 visit.")
+        case (let visits, 0):
+            return String(format: String(localized: "Imported %d visits."), visits)
+        case (0, 1):
+            return String(localized: "Imported 1 point.")
+        case (0, let points):
+            return String(format: String(localized: "Imported %d points."), points)
+        case (1, 1):
+            return String(localized: "Imported 1 visit and 1 point.")
+        case (1, let points):
+            return String(format: String(localized: "Imported 1 visit and %d points."), points)
+        case (let visits, 1):
+            return String(format: String(localized: "Imported %d visits and 1 point."), visits)
+        case (let visits, let points):
+            return String(format: String(localized: "Imported %d visits and %d points."), visits, points)
+        }
     }
 }
 
