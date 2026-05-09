@@ -593,7 +593,9 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: optionalMarkdownCell(colIndex["Location"].map { cells[$0] }),
                 address: optionalMarkdownCell(colIndex["Address"].map { cells[$0] }),
-                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] })
+                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] }),
+                purpose: parsePurpose(colIndex["Purpose"].map { cells[$0] }),
+                subPurpose: optionalMarkdownCell(colIndex["Sub-purpose"].map { cells[$0] })
             ))
         }
 
