@@ -4,6 +4,7 @@ import MapKit
 /// A map view that displays a session's recorded path with start/end markers
 /// and a gradient polyline showing direction of travel
 struct SessionPathMapView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let points: [LocationPoint]
     @State private var cameraPosition: MapCameraPosition = .automatic
     
@@ -78,7 +79,7 @@ struct SessionPathMapView: View {
         let coordinates = points.map { $0.coordinate }
         let region = MKCoordinateRegion(coordinates: coordinates, padding: 1.3)
         
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
             cameraPosition = .region(region)
         }
     }
@@ -102,6 +103,7 @@ struct StartMarker: View {
 }
 
 struct CurrentLocationMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isPulsing = false
     
     var body: some View {
@@ -123,12 +125,25 @@ struct CurrentLocationMarker: View {
         }
         .shadow(color: .blue.opacity(0.3), radius: 4, y: 2)
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.5)
-                .repeatForever(autoreverses: false)
-            ) {
-                isPulsing = true
-            }
+            updatePulseAnimation(reduceMotion: reduceMotion)
+        }
+        .onChange(of: reduceMotion) { _, shouldReduceMotion in
+            updatePulseAnimation(reduceMotion: shouldReduceMotion)
+        }
+    }
+
+    private func updatePulseAnimation(reduceMotion: Bool) {
+        guard !reduceMotion else {
+            isPulsing = false
+            return
+        }
+
+        isPulsing = false
+        withAnimation(
+            .easeInOut(duration: 1.5)
+            .repeatForever(autoreverses: false)
+        ) {
+            isPulsing = true
         }
     }
 }
