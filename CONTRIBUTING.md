@@ -78,6 +78,16 @@ Then upload the IPA to App Store Connect via Transporter.app or `xcrun altool`.
 - **Privacy by default** — no analytics, no telemetry, no network calls that ship user data off-device.
 - **Match existing patterns** — read the surrounding files before adding a new model, service, or view.
 
+## Tests
+
+Run the iOS unit tests from the command line with:
+
+```bash
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+`IsoMeTests/WebhookManagerTests.swift` uses a custom `URLProtocol` fixture to mock webhook HTTP responses. Queue responses with `MockWebhookURLProtocol.enqueue(statusCode:)`, inject the matching ephemeral `URLSession` into `WebhookManager`, and keep retry tests fast by passing a `sleep` closure that records requested backoff delays instead of waiting.
+
 ## Pull request workflow
 
 1. Fork the repo and create a feature branch off `main`.
