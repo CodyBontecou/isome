@@ -3,6 +3,7 @@ import SwiftData
 import CoreLocation
 
 struct ContentView: View {
+    let isTemporaryStore: Bool
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: LocationViewModel?
     @State private var locationManager: LocationManager?
@@ -10,26 +11,38 @@ struct ContentView: View {
     @State private var crashLog: String?
     @State private var pendingTrackingStart = false
 
+    init(isTemporaryStore: Bool = false) {
+        self.isTemporaryStore = isTemporaryStore
+    }
+
     var body: some View {
-        Group {
-            if let viewModel = viewModel {
-                if hasCompletedOnboarding {
-                    MainTabView(viewModel: viewModel)
-                        .onAppear {
-                            if pendingTrackingStart {
-                                pendingTrackingStart = false
-                                startTrackingFromOnboarding(viewModel: viewModel)
-                            }
-                        }
-                } else {
-                    OnboardingView(viewModel: viewModel) { shouldStartTracking in
-                        pendingTrackingStart = shouldStartTracking
-                        hasCompletedOnboarding = true
-                    }
-                }
-            } else {
-                ProgressView("Loading...")
+        VStack(spacing: 0) {
+            if isTemporaryStore {
+                TemporaryStoreBanner()
             }
+
+            Group {
+                if let viewModel = viewModel {
+                    if hasCompletedOnboarding {
+                        MainTabView(viewModel: viewModel)
+                            .onAppear {
+                                if pendingTrackingStart {
+                                    pendingTrackingStart = false
+                                    startTrackingFromOnboarding(viewModel: viewModel)
+                                }
+                            }
+                    } else {
+                        OnboardingView(viewModel: viewModel) { shouldStartTracking in
+                            pendingTrackingStart = shouldStartTracking
+                            hasCompletedOnboarding = true
+                        }
+                    }
+                } else {
+                    ProgressView("Loading...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .task {
             if viewModel == nil {
@@ -80,6 +93,25 @@ struct ContentView: View {
 
     private func startTrackingFromOnboarding(viewModel: LocationViewModel) {
         viewModel.startTracking()
+    }
+}
+
+private struct TemporaryStoreBanner: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(TE.warning)
+
+            Text("TEMPORARY MODE: DATA RECORDED NOW IS NOT SAVED AFTER ISO.ME CLOSES")
+                .font(TE.mono(.caption2, weight: .bold))
+                .tracking(1)
+                .foregroundStyle(TE.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(TE.warning.opacity(0.14))
     }
 }
 

@@ -13,6 +13,8 @@
 		5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000002212F000000000001 /* DailyExportScheduler.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */; };
+		D0000001212F000100000001 /* ModelContainerRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0000001212F000000000001 /* ModelContainerRecovery.swift */; };
+		D0000002212F000100000002 /* ModelContainerRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0000002212F000000000002 /* ModelContainerRecoveryTests.swift */; };
 		97FD16435F21B5EE1723E9EF /* UsageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
@@ -156,6 +158,8 @@
 		E4E900BDC375415EB884300D /* WebhookManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookManager.swift; sourceTree = "<group>"; };
 		24650F0FA6274DB58B9869F5 /* WebhookSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookSettingsView.swift; sourceTree = "<group>"; };
 		D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordPromoBanner.swift; sourceTree = "<group>"; };
+		D0000001212F000000000001 /* ModelContainerRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerRecovery.swift; sourceTree = "<group>"; };
+		D0000002212F000000000002 /* ModelContainerRecoveryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelContainerRecoveryTests.swift; sourceTree = "<group>"; };
 		A1000000212F000000000000 /* IsoMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -342,6 +346,7 @@
 				DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */,
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
 				E1000002212F000000000002 /* LogManager.swift */,
+				D0000001212F000000000001 /* ModelContainerRecovery.swift */,
 				AB000001212F000000000001 /* IsoMeIntents.swift */,
 				5F000002212F000000000001 /* DailyExportScheduler.swift */,
 				E4E900BDC375415EB884300D /* WebhookManager.swift */,
@@ -436,6 +441,7 @@
 			isa = PBXGroup;
 			children = (
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
+				D0000002212F000000000002 /* ModelContainerRecoveryTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
 			);
@@ -673,6 +679,7 @@
 				DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */,
 				E1000001212F000100000001 /* AppInfo.swift in Sources */,
 				E1000002212F000100000002 /* LogManager.swift in Sources */,
+				D0000001212F000100000001 /* ModelContainerRecovery.swift in Sources */,
 				E1000003212F000100000003 /* LogViewerView.swift in Sources */,
 				D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */,
 				AB000001212F000100000001 /* IsoMeIntents.swift in Sources */,
@@ -721,6 +728,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
+				D0000002212F000100000002 /* ModelContainerRecoveryTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
 			);
