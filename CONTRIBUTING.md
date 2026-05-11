@@ -50,6 +50,22 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 3. ⌘R to build and run.
 4. On first launch the app requests **Location (Always)** and **Motion & Fitness** permissions — both are required to exercise visit detection and auto-start.
 
+### Run tests
+
+Pull requests run the shared `IsoMe` scheme's XCTest suite in GitHub Actions. To run the same gate locally against the first available iPhone simulator:
+
+```bash
+SIMULATOR_UDID=$(xcrun simctl list devices available -j | jq -r \
+  '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.isAvailable == true and (.name | startswith("iPhone")))] | .[0].udid')
+
+xcodebuild test \
+  -project IsoMe.xcodeproj \
+  -scheme IsoMe \
+  -destination "platform=iOS Simulator,id=$SIMULATOR_UDID"
+```
+
+The current tests use isolated in-memory or system test state where possible. Tests that touch `UserDefaults` clean up their keys in `setUp`/`tearDown`, and Keychain tests write only to test-specific account names.
+
 ## Testing on TestFlight
 
 If you have a paid Apple Developer account and want to dogfood your fork via TestFlight:
