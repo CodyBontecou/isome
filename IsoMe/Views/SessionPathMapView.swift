@@ -94,7 +94,7 @@ struct StartMarker: View {
                 .frame(width: 24, height: 24)
             
             Image(systemName: "flag.fill")
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundStyle(.white)
         }
         .shadow(color: .green.opacity(0.3), radius: 4, y: 2)

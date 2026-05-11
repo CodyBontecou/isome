@@ -15,7 +15,7 @@ struct PaywallView: View {
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 40))
+                    .font(.largeTitle)
                     .foregroundStyle(.blue)
             }
 
@@ -94,7 +94,7 @@ struct PaywallView: View {
     private func featureRow(icon: String, text: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(.blue)
                 .frame(width: 24)
 

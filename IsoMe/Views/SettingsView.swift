@@ -410,7 +410,7 @@ struct SettingsView: View {
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("VIEW LOGS")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -418,7 +418,7 @@ struct SettingsView: View {
                                     .foregroundStyle(TE.accent)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
@@ -428,7 +428,7 @@ struct SettingsView: View {
                         Link(destination: discordInviteURL) {
                             HStack(spacing: 8) {
                                 Image(systemName: "bubble.left.and.bubble.right.fill")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("JOIN DISCORD")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -436,7 +436,7 @@ struct SettingsView: View {
                                     .foregroundStyle(TE.accent)
                                 Spacer()
                                 Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
@@ -494,7 +494,7 @@ struct SettingsView: View {
                         Link(destination: URL(string: "https://isome.isolated.tech/privacy")!) {
                             HStack(spacing: 8) {
                                 Image(systemName: "hand.raised")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("PRIVACY POLICY")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -502,7 +502,7 @@ struct SettingsView: View {
                                     .foregroundStyle(TE.accent)
                                 Spacer()
                                 Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
@@ -512,7 +512,7 @@ struct SettingsView: View {
                         Link(destination: URL(string: "https://isome.isolated.tech/terms")!) {
                             HStack(spacing: 8) {
                                 Image(systemName: "doc.text")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("TERMS OF SERVICE")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -520,7 +520,7 @@ struct SettingsView: View {
                                     .foregroundStyle(TE.accent)
                                 Spacer()
                                 Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
@@ -567,7 +567,7 @@ struct SettingsView: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(color)
                 Text(label)
                     .font(TE.mono(.caption, weight: .medium))
@@ -575,7 +575,7 @@ struct SettingsView: View {
                     .foregroundStyle(color)
                 Spacer()
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.caption2.weight(.bold))
                     .foregroundStyle(color.opacity(0.5))
             }
         }

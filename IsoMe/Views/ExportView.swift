@@ -121,7 +121,7 @@ struct ExportView: View {
     private var lockedState: some View {
         VStack(spacing: 18) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 32, weight: .light))
+                .font(.title.weight(.light))
                 .foregroundStyle(TE.textMuted)
 
             Text("EXPORT LOCKED")
@@ -234,7 +234,7 @@ struct ExportView: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundStyle(TE.accent)
                             Text("HTTP ENDPOINT")
                                 .font(TE.mono(.caption, weight: .medium))
@@ -242,7 +242,7 @@ struct ExportView: View {
                                 .foregroundStyle(TE.accent)
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.caption2.weight(.bold))
                                 .foregroundStyle(TE.accent.opacity(0.5))
                         }
                     }
@@ -266,7 +266,7 @@ struct ExportView: View {
                         TERow {
                             HStack {
                                 Image(systemName: "folder.fill")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text(folderName.uppercased())
                                     .font(TE.mono(.caption, weight: .medium))
@@ -296,7 +296,7 @@ struct ExportView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: "folder.badge.minus")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(.caption.weight(.medium))
                                         .foregroundStyle(TE.danger)
                                     Text("REMOVE FOLDER")
                                         .font(TE.mono(.caption, weight: .medium))
@@ -304,7 +304,7 @@ struct ExportView: View {
                                         .foregroundStyle(TE.danger)
                                     Spacer()
                                     Image(systemName: "arrow.right")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.caption2.weight(.bold))
                                         .foregroundStyle(TE.danger.opacity(0.5))
                                 }
                             }
@@ -317,7 +317,7 @@ struct ExportView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: "folder.badge.plus")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(.caption.weight(.medium))
                                         .foregroundStyle(TE.accent)
                                     Text("SELECT FOLDER")
                                         .font(TE.mono(.caption, weight: .medium))
@@ -325,7 +325,7 @@ struct ExportView: View {
                                         .foregroundStyle(TE.accent)
                                     Spacer()
                                     Image(systemName: "arrow.right")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.caption2.weight(.bold))
                                         .foregroundStyle(TE.accent.opacity(0.5))
                                 }
                             }
@@ -438,7 +438,7 @@ struct ExportView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: "arrow.down.doc.fill")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(.caption.weight(.medium))
                                         .foregroundStyle(TE.accent)
                                     Text("RUN NOW")
                                         .font(TE.mono(.caption, weight: .medium))
@@ -446,7 +446,7 @@ struct ExportView: View {
                                         .foregroundStyle(TE.accent)
                                     Spacer()
                                     Image(systemName: "arrow.right")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.caption2.weight(.bold))
                                         .foregroundStyle(TE.accent.opacity(0.5))
                                 }
                             }
@@ -590,7 +590,7 @@ struct ExportView: View {
                                     Spacer()
                                     if options.datePreset == preset {
                                         Image(systemName: "checkmark")
-                                            .font(.system(size: 11, weight: .bold))
+                                            .font(.caption.weight(.bold))
                                             .foregroundStyle(TE.accent)
                                     }
                                 }

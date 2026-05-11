@@ -55,7 +55,7 @@ struct WebhookSettingsView: View {
     private var lockedState: some View {
         VStack(spacing: 18) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 32, weight: .light))
+                .font(.title.weight(.light))
                 .foregroundStyle(TE.textMuted)
             Text("WEBHOOK LOCKED")
                 .font(TE.mono(.caption, weight: .bold))
@@ -91,7 +91,7 @@ struct WebhookSettingsView: View {
             TECard {
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 14))
+                        .font(.callout)
                         .foregroundStyle(TE.warning)
                     VStack(alignment: .leading, spacing: 4) {
                         Text("DATA LEAVES YOUR DEVICE")
@@ -108,7 +108,7 @@ struct WebhookSettingsView: View {
                         privacyWarningDismissed = true
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.caption.weight(.bold))
                             .foregroundStyle(TE.textMuted)
                             .frame(width: 22, height: 22)
                             .contentShape(Rectangle())
@@ -448,7 +448,7 @@ struct WebhookSettingsView: View {
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "paperplane.fill")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("FLUSH QUEUE")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -465,7 +465,7 @@ struct WebhookSettingsView: View {
                     TERow(showDivider: false) {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.caption)
                                 .foregroundStyle(TE.danger)
                             Text(error)
                                 .font(TE.mono(.caption2, weight: .regular))
@@ -514,7 +514,7 @@ struct WebhookSettingsView: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundStyle(TE.accent)
                             Text(isTesting ? "TESTING…" : "TEST CONNECTION")
                                 .font(TE.mono(.caption, weight: .medium))
@@ -527,7 +527,7 @@ struct WebhookSettingsView: View {
                                     .tint(TE.accent)
                             } else {
                                 Image(systemName: "arrow.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
@@ -540,7 +540,7 @@ struct WebhookSettingsView: View {
                     TERow(showDivider: true) {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.caption)
                                 .foregroundStyle(TE.success)
                             Text(result)
                                 .font(TE.mono(.caption2, weight: .medium))
@@ -553,7 +553,7 @@ struct WebhookSettingsView: View {
                     TERow(showDivider: true) {
                         HStack(spacing: 6) {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.caption)
                                 .foregroundStyle(TE.danger)
                             Text(error)
                                 .font(TE.mono(.caption2, weight: .medium))
@@ -568,7 +568,7 @@ struct WebhookSettingsView: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "paperplane.fill")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundStyle(TE.accent)
                             Text("SEND NOW")
                                 .font(TE.mono(.caption, weight: .medium))
@@ -576,7 +576,7 @@ struct WebhookSettingsView: View {
                                 .foregroundStyle(TE.accent)
                             Spacer()
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.caption2.weight(.bold))
                                 .foregroundStyle(TE.accent.opacity(0.5))
                         }
                     }

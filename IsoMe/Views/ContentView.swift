@@ -427,7 +427,7 @@ private struct OnboardingView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.caption.weight(.semibold))
                         Text("BACK")
                     }
                 }
@@ -447,7 +447,7 @@ private struct OnboardingView: View {
                         Text(primaryButtonTitle.uppercased())
 
                         Image(systemName: selectedPage == pageCount - 1 ? "checkmark" : "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.caption.weight(.semibold))
                     }
                 }
                 .buttonStyle(OnboardingPrimaryButtonStyle())
@@ -523,7 +523,7 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
                         }
 
                     Image(systemName: icon)
-                        .font(.system(size: 36, weight: .light))
+                        .font(.largeTitle.weight(.light))
                         .foregroundStyle(OnboardingPalette.accent)
                 }
             }
@@ -574,7 +574,7 @@ private struct OnboardingFeatureCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(OnboardingPalette.accent)
 
                     Text(title)
@@ -603,7 +603,7 @@ private struct OnboardingStatusRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.callout.weight(.semibold))
                 .foregroundStyle(color)
                 .frame(width: 22)
 
@@ -632,7 +632,7 @@ private struct OnboardingSummaryRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(OnboardingPalette.accent)
                 .frame(width: 20)
 
@@ -657,7 +657,7 @@ private struct OnboardingChecklistRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(OnboardingPalette.accent)
                 .frame(width: 18)
 
