@@ -90,6 +90,8 @@ struct TERow<Content: View>: View {
 /// TE-styled toggle: cream-paper-friendly off track with stronger border,
 /// solid accent on track. Gives clear contrast on TE.surface backgrounds.
 struct TEToggleStyle: ToggleStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let trackWidth: CGFloat = 50
     private let trackHeight: CGFloat = 30
     private let thumbInset: CGFloat = 2
@@ -114,7 +116,7 @@ struct TEToggleStyle: ToggleStyle {
                     .padding(.horizontal, thumbInset)
             }
             .frame(width: trackWidth, height: trackHeight)
-            .animation(.easeInOut(duration: 0.18), value: isOn)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: isOn)
             .contentShape(Capsule())
             .onTapGesture {
                 configuration.isOn.toggle()

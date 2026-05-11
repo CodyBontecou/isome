@@ -3,6 +3,7 @@ import MapKit
 import SwiftData
 
 struct LocationMapView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
@@ -174,7 +175,7 @@ struct LocationMapView: View {
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
-                .animation(.spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
+                .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -225,7 +226,7 @@ struct LocationMapView: View {
                         }
 
                         FilterBarToggle(isOpen: showFilterBar) {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                            withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
                                 showFilterBar.toggle()
                             }
                         }
@@ -233,10 +234,10 @@ struct LocationMapView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+                .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
                 .onChange(of: isTracking) { _, newValue in
                     if !newValue {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
                             trackingPillExpanded = false
                         }
                     }
@@ -299,13 +300,13 @@ struct LocationMapView: View {
     }
 
     private func dismissDiscordPromo() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
             discordPromoDismissed = true
         }
     }
 
     private func handleTrackingTap() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.8)) {
             if isTracking {
                 viewModel.stopTracking()
             } else {
@@ -330,6 +331,7 @@ struct LocationMapView: View {
 // MARK: - Tracking Control Pills
 
 struct MapTrackingControlPill: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject var locationManager: LocationManager
     let isTracking: Bool
@@ -342,7 +344,7 @@ struct MapTrackingControlPill: View {
         HStack(spacing: 10) {
             if isTracking {
                 Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                    withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
                         isExpanded.toggle()
                     }
                 } label: {
@@ -391,9 +393,12 @@ struct MapTrackingControlPill: View {
                     .transition(.opacity)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
-        .onAppear { pulseOpacity = 0.35 }
+        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
+        .onAppear { pulseOpacity = reduceMotion ? 1.0 : 0.35 }
+        .onChange(of: reduceMotion) { _, shouldReduceMotion in
+            pulseOpacity = shouldReduceMotion ? 1.0 : 0.35
+        }
     }
 
     private var statusBlock: some View {
@@ -404,9 +409,9 @@ struct MapTrackingControlPill: View {
                 .opacity(isTracking ? pulseOpacity : 1.0)
                 .accessibilityHidden(true)
                 .animation(
-                    isTracking
+                    isTracking && !reduceMotion
                         ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-                        : .default,
+                        : nil,
                     value: pulseOpacity
                 )
 
@@ -416,7 +421,7 @@ struct MapTrackingControlPill: View {
                         .font(TE.mono(.subheadline, weight: .semibold))
                         .foregroundStyle(TE.textMuted)
                         .monospacedDigit()
-                        .contentTransition(.numericText())
+                        .contentTransition(reduceMotion ? .identity : .numericText())
                 }
             } else {
                 Text("STANDBY")
@@ -538,6 +543,7 @@ struct MapAutoOffPill: View {
 }
 
 struct VisitMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visit: Visit
     let isSelected: Bool
 
@@ -561,7 +567,7 @@ struct VisitMarker: View {
                 .accessibilityHidden(true)
         }
         .frame(minWidth: 44, minHeight: 44)
-        .animation(.spring(duration: 0.2), value: isSelected)
+        .animation(reduceMotion ? nil : .spring(duration: 0.2), value: isSelected)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(visit.accessibilityLabel)
         .accessibilityValue(visit.accessibilityValue)
@@ -584,12 +590,13 @@ struct Triangle: Shape {
 // MARK: - Path Start/End Markers
 
 struct PathStartMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let timestamp: Date
     @State private var showingTooltip = false
     
     var body: some View {
         Button {
-            withAnimation(.spring(duration: 0.2)) {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
         } label: {
@@ -627,12 +634,13 @@ struct PathStartMarker: View {
 }
 
 struct PathEndMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let timestamp: Date
     @State private var showingTooltip = false
     
     var body: some View {
         Button {
-            withAnimation(.spring(duration: 0.2)) {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
         } label: {
@@ -899,6 +907,7 @@ enum MapDatePreset: CaseIterable, Hashable {
 }
 
 struct FilterBarToggle: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let isOpen: Bool
     let action: () -> Void
 
@@ -924,7 +933,7 @@ struct FilterBarToggle: View {
                         }
                         .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
                 }
-                .contentTransition(.symbolEffect(.replace))
+                .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isOpen ? "Close map filters" : "Open map filters")
@@ -1042,13 +1051,14 @@ struct PresetPill: View {
 }
 
 struct LayerToggleButton: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let systemImage: String
     let label: String
     @Binding var isOn: Bool
 
     var body: some View {
         Button {
-            withAnimation(.spring(duration: 0.25)) {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.25)) {
                 isOn.toggle()
             }
         } label: {
