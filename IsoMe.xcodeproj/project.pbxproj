@@ -56,6 +56,7 @@
 		A4000004212F000100000004 /* IsoMeWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
+		D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E7A1580000000000000058 /* ExportRoundTripTests.swift */; };
 		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
 		E1000001212F000100000001 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000001212F000000000001 /* AppInfo.swift */; };
 		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
@@ -147,6 +148,7 @@
 		F1000001212F000000000001 /* FilenameTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilenameTemplate.swift; sourceTree = "<group>"; };
 		5F000002212F000000000001 /* DailyExportScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExportScheduler.swift; sourceTree = "<group>"; };
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
+		D5E7A1580000000000000058 /* ExportRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportRoundTripTests.swift; sourceTree = "<group>"; };
 		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		E1000001212F000000000001 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		E1000002212F000000000002 /* LogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogManager.swift; sourceTree = "<group>"; };
@@ -435,6 +437,7 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
@@ -720,6 +723,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */,
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
