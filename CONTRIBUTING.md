@@ -50,6 +50,16 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 3. ⌘R to build and run.
 4. On first launch the app requests **Location (Always)** and **Motion & Fitness** permissions — both are required to exercise visit detection and auto-start.
 
+### Tests
+
+Run the focused unit tests from the command line with:
+
+```bash
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+The tracking audit tests use in-memory SwiftData containers for `Visit`, `LocationPoint`, and `Vehicle` fixtures. Bluetooth attribution is tested through stored attribution metadata and export fallback behavior, so the suite does not require a real Bluetooth route or Core Location movement.
+
 ## Testing on TestFlight
 
 If you have a paid Apple Developer account and want to dogfood your fork via TestFlight:

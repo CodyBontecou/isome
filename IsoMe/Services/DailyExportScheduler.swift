@@ -135,6 +135,7 @@ final class DailyExportScheduler: ObservableObject {
         do {
             let visits = try context.fetch(FetchDescriptor<Visit>())
             let points = try context.fetch(FetchDescriptor<LocationPoint>())
+            let vehicles = try context.fetch(FetchDescriptor<Vehicle>())
 
             var options = ExportOptions()
             options.format = format
@@ -145,6 +146,7 @@ final class DailyExportScheduler: ObservableObject {
             _ = try ExportService.saveToDefaultFolder(
                 visits: visits,
                 points: points,
+                vehicles: vehicles,
                 options: options,
                 filenamePattern: pattern
             )

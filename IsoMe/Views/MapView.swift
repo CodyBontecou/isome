@@ -17,6 +17,7 @@ struct LocationMapView: View {
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
+    @State private var selectedVehicleID: UUID?
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -29,15 +30,22 @@ struct LocationMapView: View {
         locationManager.isTrackingEnabled
     }
 
+    private var showsVisitSurfaces: Bool {
+        !locationManager.isDrivesOnlyMode
+    }
+
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
 
     var filteredVisits: [Visit] {
-        viewModel.visitsInDateRange(viewModel.mapDateRange)
+        guard showsVisitSurfaces else { return [] }
+        return viewModel.visitsInDateRange(viewModel.mapDateRange)
+            .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
     }
 
     var filteredPoints: [LocationPoint] {
         let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+            .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
 
@@ -196,6 +204,7 @@ struct LocationMapView: View {
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                showsVisitLayer: showsVisitSurfaces,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
                                     activePreset = preset
@@ -237,7 +246,9 @@ struct LocationMapView: View {
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
                     dateRange: $viewModel.mapDateRange,
+                    selectedVehicleID: $selectedVehicleID,
                     isPresented: $showingFilters,
+                    vehicles: viewModel.vehicles,
                     onApply: { activePreset = nil }
                 )
             }
@@ -258,6 +269,14 @@ struct LocationMapView: View {
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
                     attemptAutoFocusSession()
+                }
+            }
+            .onChange(of: locationManager.trackingMode) { _, _ in
+                selectedVisit = nil
+                if locationManager.isDrivesOnlyMode {
+                    showVisitMarkers = false
+                } else {
+                    showVisitMarkers = true
                 }
             }
             .onChange(of: activeSessionPoints.count) { _, _ in
@@ -626,7 +645,9 @@ struct DateRangeChip: View {
 
 struct DateRangeFilterSheet: View {
     @Binding var dateRange: ClosedRange<Date>
+    @Binding var selectedVehicleID: UUID?
     @Binding var isPresented: Bool
+    let vehicles: [Vehicle]
     var onApply: (() -> Void)? = nil
 
     @State private var startDate: Date
@@ -634,11 +655,15 @@ struct DateRangeFilterSheet: View {
 
     init(
         dateRange: Binding<ClosedRange<Date>>,
+        selectedVehicleID: Binding<UUID?> = .constant(nil),
         isPresented: Binding<Bool>,
+        vehicles: [Vehicle] = [],
         onApply: (() -> Void)? = nil
     ) {
         _dateRange = dateRange
+        _selectedVehicleID = selectedVehicleID
         _isPresented = isPresented
+        self.vehicles = vehicles
         self.onApply = onApply
         _startDate = State(initialValue: dateRange.wrappedValue.lowerBound)
         _endDate = State(initialValue: dateRange.wrappedValue.upperBound)
@@ -673,6 +698,15 @@ struct DateRangeFilterSheet: View {
                 Section("Custom Range") {
                     DatePicker("From", selection: $startDate, displayedComponents: .date)
                     DatePicker("To", selection: $endDate, displayedComponents: .date)
+                }
+
+                Section("Vehicle") {
+                    Picker("Vehicle", selection: $selectedVehicleID) {
+                        Text("All Vehicles").tag(nil as UUID?)
+                        ForEach(vehicles.filter { !$0.isArchived }) { vehicle in
+                            Text(vehicle.name).tag(Optional(vehicle.id))
+                        }
+                    }
                 }
             }
             .navigationTitle("Filter by Date")
@@ -766,6 +800,10 @@ struct VisitQuickView: View {
                     }
                 }
 
+                Divider()
+
+                LabeledContent("Vehicle", value: viewModel.vehicleName(for: visit.vehicleID))
+
                 if let notes = visit.notes, !notes.isEmpty {
                     Divider()
 
@@ -777,6 +815,35 @@ struct VisitQuickView: View {
                             .font(.subheadline)
                     }
                 }
+
+                if let vehicleName = visit.vehicleName {
+                    Divider()
+
+                    HStack(spacing: 6) {
+                        Image(systemName: visit.isVehicleAutoDetected ? "bluetooth" : "car.fill")
+                            .font(.caption)
+                            .foregroundStyle(visit.isVehicleAutoDetected ? .blue : .secondary)
+                        Text(vehicleName)
+                            .font(.subheadline)
+                        if visit.isVehicleAutoDetected {
+                            Text("AUTO")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+
+                NavigationLink {
+                    VisitDetailView(visit: visit, viewModel: viewModel)
+                } label: {
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("Details")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
 
                 Spacer()
             }
@@ -855,6 +922,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    let showsVisitLayer: Bool
     let hasSessionPoints: Bool
     let onSelectPreset: (MapDatePreset) -> Void
     let onSelectCustom: () -> Void
@@ -883,7 +951,9 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
+                if showsVisitLayer {
+                    LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
+                }
                 LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $showTravelPath)
                 LayerToggleButton(systemImage: "smallcircle.filled.circle", isOn: $showPointMarkers)
                 LayerToggleButton(systemImage: "flag.fill", isOn: $showStartEndMarkers)
@@ -1044,7 +1114,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
         locationManager: LocationManager()
     ))
 }
