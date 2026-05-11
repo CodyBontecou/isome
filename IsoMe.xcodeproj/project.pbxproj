@@ -65,6 +65,7 @@
 		B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24650F0FA6274DB58B9869F5 /* WebhookSettingsView.swift */; };
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 		A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */; };
+		150143000000000000000001 /* ProductionCoverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150143000000000000000002 /* ProductionCoverageTests.swift */; };
 		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
 		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
@@ -202,6 +203,7 @@
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
+		150143000000000000000002 /* ProductionCoverageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductionCoverageTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
+				150143000000000000000002 /* ProductionCoverageTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
 			);
@@ -721,6 +724,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
+				150143000000000000000001 /* ProductionCoverageTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
 			);

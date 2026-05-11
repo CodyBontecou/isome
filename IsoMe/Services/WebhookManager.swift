@@ -112,6 +112,10 @@ final class WebhookManager: ObservableObject {
         case lastSentAt, lastError
     }
 
+    #if DEBUG
+    private static var debugKeychainFallback: [String: String] = [:]
+    #endif
+
     enum KeychainKey: String {
         case authKey, authValue, authUsername
     }
@@ -144,6 +148,40 @@ final class WebhookManager: ObservableObject {
 
         syncTimer()
     }
+
+    #if DEBUG
+    func configureForTesting(urlSession: URLSession? = nil) {
+        flushTimer?.invalidate()
+        flushTimer = nil
+        cancellables.removeAll()
+        pendingPoints.removeAll()
+        queuedPointCount = 0
+        isSending = false
+        lastError = nil
+        lastSentAt = nil
+        lastSentTimestamp = nil
+        if let urlSession {
+            self.urlSession = urlSession
+        }
+    }
+
+    func enqueueForTesting(_ points: [LocationPoint]) {
+        pendingPoints = points
+        queuedPointCount = points.count
+    }
+
+    func sendPointsForTesting(_ points: [LocationPoint], visits: [Visit] = []) async throws {
+        try await sendPoints(points, visits: visits)
+    }
+
+    func buildURLForTesting() -> URL? {
+        buildURL()
+    }
+
+    func formatPayloadForTesting(points: [LocationPoint], visits: [Visit] = []) throws -> Data {
+        try formatPayload(points: points, visits: visits)
+    }
+    #endif
 
     /// Read a credential from Keychain. If absent but a non-empty legacy
     /// UserDefaults value exists, migrate it into Keychain and clear the
@@ -447,6 +485,7 @@ final class WebhookManager: ObservableObject {
         case "owntracks": return .owntracks
         case "overland": return .overland
         case "gpx": return .gpx
+        case "geojson": return .geojson
         default: return .json
         }
     }
@@ -465,7 +504,11 @@ final class WebhookManager: ObservableObject {
         guard status == errSecSuccess,
               let data = result as? Data,
               let string = String(data: data, encoding: .utf8) else {
+            #if DEBUG
+            return debugKeychainFallback[account]
+            #else
             return nil
+            #endif
         }
         return string
     }
@@ -477,6 +520,9 @@ final class WebhookManager: ObservableObject {
                 kSecAttrAccount as String: account,
             ]
             SecItemDelete(deleteQuery as CFDictionary)
+            #if DEBUG
+            debugKeychainFallback.removeValue(forKey: account)
+            #endif
             return
         }
 
@@ -491,7 +537,20 @@ final class WebhookManager: ObservableObject {
         if status == errSecItemNotFound {
             var addQuery = query
             addQuery[kSecValueData as String] = data
-            SecItemAdd(addQuery as CFDictionary, nil)
+            let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+            #if DEBUG
+            if addStatus != errSecSuccess {
+                debugKeychainFallback[account] = value
+            }
+            #endif
+        } else {
+            #if DEBUG
+            if status != errSecSuccess {
+                debugKeychainFallback[account] = value
+            } else {
+                debugKeychainFallback.removeValue(forKey: account)
+            }
+            #endif
         }
     }
 }

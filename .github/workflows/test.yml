@@ -1,0 +1,35 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  xcodebuild-test:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          DESTINATION=$(xcrun simctl list devices available \
+            | awk -F '[()]' '/iPhone/ && /Booted|Shutdown/ { print $2; exit }')
+          if [[ -z "$DESTINATION" ]]; then
+            echo "::error::No available iPhone simulator found"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          xcodebuild test \
+            -project IsoMe.xcodeproj \
+            -scheme IsoMe \
+            -destination "platform=iOS Simulator,id=${DESTINATION}" \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO
