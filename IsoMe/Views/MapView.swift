@@ -32,6 +32,8 @@ struct LocationMapView: View {
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
 
+    static let mapAccessibilityLabel = "Location history map"
+
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
     }
@@ -156,6 +158,7 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .accessibilityLabel(Self.mapAccessibilityLabel)
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if !discordPromoDismissed {
                         DiscordPromoBanner(onDismiss: dismissDiscordPromo)
@@ -445,6 +448,7 @@ struct MapTrackingControlPill: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
+        .accessibilityLabel(isTracking ? "Stop tracking" : "Start tracking")
     }
 }
 
@@ -845,6 +849,7 @@ struct FilterBarToggle: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(flexibility: .soft), trigger: isOpen)
+        .accessibilityLabel(isOpen ? "Close map filters" : "Open map filters")
     }
 }
 
@@ -968,6 +973,18 @@ struct LayerToggleButton: View {
                 }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        switch systemImage {
+        case "mappin.circle.fill": return isOn ? "Hide visits" : "Show visits"
+        case "point.topleft.down.to.point.bottomright.curvepath": return isOn ? "Hide travel path" : "Show travel path"
+        case "smallcircle.filled.circle": return isOn ? "Hide location points" : "Show location points"
+        case "flag.fill": return isOn ? "Hide start and end markers" : "Show start and end markers"
+        case "waveform.path.ecg": return isOn ? "Hide active session path" : "Show active session path"
+        default: return isOn ? "Hide map layer" : "Show map layer"
+        }
     }
 }
 
@@ -1004,6 +1021,7 @@ struct FitMenuButton: View {
                 .frame(width: 32, height: 32)
                 .foregroundStyle(Color.primary.opacity(0.7))
         }
+        .accessibilityLabel("Fit map")
     }
 }
 

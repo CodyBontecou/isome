@@ -189,6 +189,15 @@ final class DailyExportScheduler: ObservableObject {
         return true
     }
 
+    #if DEBUG
+    func isDueForTesting(at now: Date, lastRun: Date?) -> Bool {
+        let original = self.lastRun
+        self.lastRun = lastRun
+        defer { self.lastRun = original }
+        return isDue(at: now)
+    }
+    #endif
+
     // MARK: - Format helpers
 
     private static func rawFormat(_ format: ExportFormat) -> String {
