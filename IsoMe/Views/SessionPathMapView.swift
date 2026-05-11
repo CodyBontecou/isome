@@ -26,14 +26,20 @@ struct SessionPathMapView: View {
             // Start marker (first point)
             if let firstPoint = points.first {
                 Annotation("Start", coordinate: firstPoint.coordinate) {
-                    StartMarker()
+                    StartMarker(
+                        accessibilityLabel: "Session path start",
+                        accessibilityValue: firstPoint.accessibilityValue
+                    )
                 }
             }
             
             // End/Current marker (last point)
             if let lastPoint = points.last, points.count > 1 {
                 Annotation("Current", coordinate: lastPoint.coordinate) {
-                    CurrentLocationMarker()
+                    CurrentLocationMarker(
+                        accessibilityLabel: "Session path current location",
+                        accessibilityValue: lastPoint.accessibilityValue
+                    )
                 }
             }
             
@@ -43,6 +49,7 @@ struct SessionPathMapView: View {
                     Circle()
                         .fill(.blue.opacity(0.6))
                         .frame(width: 6, height: 6)
+                        .accessibilityHidden(true)
                 }
             }
         }
@@ -56,6 +63,8 @@ struct SessionPathMapView: View {
         .onAppear {
             updateCameraPosition()
         }
+        .accessibilityLabel("Session path map")
+        .accessibilityValue(sessionAccessibilitySummary)
     }
     
     /// Returns intermediate points (every 10th point, excluding first and last)
@@ -82,26 +91,69 @@ struct SessionPathMapView: View {
             cameraPosition = .region(region)
         }
     }
+
+    private var sessionAccessibilitySummary: String {
+        guard let first = points.first else {
+            return "No path points."
+        }
+
+        var parts = ["\(points.count) \(points.count == 1 ? "point" : "points")"]
+        parts.append("Started \(first.accessibilityTimestamp)")
+
+        if let last = points.last, points.count > 1 {
+            parts.append("Ended \(last.accessibilityTimestamp)")
+            parts.append("Distance \(formattedDistance(totalDistance))")
+        }
+
+        return parts.joined(separator: ". ")
+    }
+
+    private var totalDistance: Double {
+        guard points.count > 1 else { return 0 }
+        var distance: Double = 0
+        for index in 1..<points.count {
+            distance += points[index - 1].distance(to: points[index])
+        }
+        return distance
+    }
+
+    private func formattedDistance(_ meters: Double) -> String {
+        if meters >= 1_000 {
+            return String(format: "%.1f kilometers", meters / 1_000)
+        }
+        return String(format: "%.0f meters", meters)
+    }
 }
 
 // MARK: - Marker Views
 
 struct StartMarker: View {
+    var accessibilityLabel = "Path start"
+    var accessibilityValue = ""
+
     var body: some View {
         ZStack {
             Circle()
                 .fill(.green)
                 .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
             
             Image(systemName: "flag.fill")
                 .font(.system(size: 12))
                 .foregroundStyle(.white)
+                .accessibilityHidden(true)
         }
+        .frame(width: 44, height: 44)
         .shadow(color: .green.opacity(0.3), radius: 4, y: 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
     }
 }
 
 struct CurrentLocationMarker: View {
+    var accessibilityLabel = "Current location"
+    var accessibilityValue = ""
     @State private var isPulsing = false
     
     var body: some View {
@@ -112,15 +164,19 @@ struct CurrentLocationMarker: View {
                 .frame(width: 32, height: 32)
                 .scaleEffect(isPulsing ? 1.5 : 1.0)
                 .opacity(isPulsing ? 0 : 0.5)
+                .accessibilityHidden(true)
             
             Circle()
                 .fill(.blue)
                 .frame(width: 20, height: 20)
+                .accessibilityHidden(true)
             
             Circle()
                 .fill(.white)
                 .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
         }
+        .frame(width: 44, height: 44)
         .shadow(color: .blue.opacity(0.3), radius: 4, y: 2)
         .onAppear {
             withAnimation(
@@ -130,6 +186,9 @@ struct CurrentLocationMarker: View {
                 isPulsing = true
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
     }
 }
 
