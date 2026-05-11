@@ -64,7 +64,8 @@ final class LiveActivityManager: ObservableObject {
     }
 
     private func startActivityInternal(autoStopSeconds: Int?) async {
-        startTime = Date()
+        let startedAt = Date()
+        startTime = startedAt
         locationsRecorded = 0
         totalDistance = 0
         lastLocation = nil
@@ -73,7 +74,7 @@ final class LiveActivityManager: ObservableObject {
         trackedCoordinates = []
         mapSnapshotVersion = 0
 
-        let attributes = LocationActivityAttributes(startTime: startTime!)
+        let attributes = LocationActivityAttributes(startTime: startedAt)
         let initialState = LocationActivityAttributes.ContentState(
             locationName: nil,
             locationsRecorded: 0,
@@ -232,10 +233,9 @@ final class LiveActivityManager: ObservableObject {
     }
 
     private static func renderMapSnapshot(coordinates: [CLLocationCoordinate2D]) async -> UIImage? {
-        guard !coordinates.isEmpty else { return nil }
+        guard let current = coordinates.last else { return nil }
 
         // Center on current (latest) location
-        let current = coordinates.last!
         let spanLat: CLLocationDegrees = 0.005
         let spanLon: CLLocationDegrees = 0.005
 

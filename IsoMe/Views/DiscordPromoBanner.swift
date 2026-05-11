@@ -1,7 +1,5 @@
 import SwiftUI
 
-let discordInviteURL = URL(string: "https://discord.gg/RaQYS4t6gn")!
-
 struct DiscordPromoBanner: View {
     @Environment(\.openURL) private var openURL
     let onDismiss: () -> Void
@@ -9,7 +7,9 @@ struct DiscordPromoBanner: View {
     var body: some View {
         HStack(spacing: 10) {
             Button {
-                openURL(discordInviteURL)
+                if let discordInviteURL = IsoMeURLs.discordInvite {
+                    openURL(discordInviteURL)
+                }
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")

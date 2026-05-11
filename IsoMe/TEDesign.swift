@@ -93,6 +93,7 @@ struct TERow<Content: View>: View {
 /// solid accent on track. Gives clear contrast on TE.surface backgrounds.
 struct TEToggleStyle: ToggleStyle {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var trackWidth: CGFloat = 50
     @ScaledMetric(relativeTo: .body) private var trackHeight: CGFloat = 30
     @ScaledMetric(relativeTo: .body) private var thumbInset: CGFloat = 2
@@ -107,22 +108,7 @@ struct TEToggleStyle: ToggleStyle {
                 configuration.label
                     .fixedSize(horizontal: false, vertical: true)
 
-                ZStack(alignment: isOn ? .trailing : .leading) {
-                    Capsule()
-                        .fill(isOn ? TE.accent : TE.border)
-                    Capsule()
-                        .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
-
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: thumbDiameter, height: thumbDiameter)
-                        .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
-                        .padding(.horizontal, thumbInset)
-                }
-                .frame(width: trackWidth, height: trackHeight)
-                .animation(.easeInOut(duration: 0.18), value: isOn)
-                .contentShape(Capsule())
-                .onTapGesture {
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
                     configuration.isOn.toggle()
                 }
                 .accessibilityRepresentation {
@@ -135,22 +121,7 @@ struct TEToggleStyle: ToggleStyle {
                 configuration.label
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 12)
-                ZStack(alignment: isOn ? .trailing : .leading) {
-                    Capsule()
-                        .fill(isOn ? TE.accent : TE.border)
-                    Capsule()
-                        .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
-
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: thumbDiameter, height: thumbDiameter)
-                        .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
-                        .padding(.horizontal, thumbInset)
-                }
-                .frame(width: trackWidth, height: trackHeight)
-                .animation(.easeInOut(duration: 0.18), value: isOn)
-                .contentShape(Capsule())
-                .onTapGesture {
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
                     configuration.isOn.toggle()
                 }
                 .accessibilityRepresentation {
@@ -158,6 +129,25 @@ struct TEToggleStyle: ToggleStyle {
                 }
             }
         }
+    }
+
+    private func toggleTrack(isOn: Bool, thumbDiameter: CGFloat, action: @escaping () -> Void) -> some View {
+        ZStack(alignment: isOn ? .trailing : .leading) {
+            Capsule()
+                .fill(isOn ? TE.accent : TE.border)
+            Capsule()
+                .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
+
+            Circle()
+                .fill(Color.white)
+                .frame(width: thumbDiameter, height: thumbDiameter)
+                .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
+                .padding(.horizontal, thumbInset)
+        }
+        .frame(width: trackWidth, height: trackHeight)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: isOn)
+        .contentShape(Capsule())
+        .onTapGesture(perform: action)
     }
 }
 

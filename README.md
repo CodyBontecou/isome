@@ -82,7 +82,6 @@ IsoMe/
     LiveActivityManager.swift      # Live Activity lifecycle
     GeocodingService.swift         # Reverse geocoding with caching
     StoreManager.swift             # In-app purchase management
-    UsageTracker.swift             # Free tier usage tracking
     LogManager.swift               # Crash and debug logging
   ViewModels/
     LocationViewModel.swift        # Data coordination between UI and services
@@ -126,6 +125,16 @@ Shared/                            # Shared code (App Group data sync)
 3. Set your development team for all four targets
 4. Configure the App Group entitlement (`group.com.bontecou.isome`) for your team
 5. Build and run on a physical device (location features require real hardware)
+
+## Testing
+
+Run the app unit tests with:
+
+```bash
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+Export round-trip coverage lives in `IsoMeTests/ExportRoundTripTests.swift`. It uses inline representative visit and route-point fixtures, renders JSON, CSV, Markdown, GeoJSON, GPX, OwnTracks, and Overland through `ExportService.render`, then parses each payload back into normalized records while asserting the emitted schema keys. OwnTracks and Overland are points-only protocols, so their cases verify route points and explicitly assert that visits are not emitted.
 
 ### Required Permissions
 
