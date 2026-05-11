@@ -15,6 +15,19 @@ import SwiftData
 final class WebhookManager: ObservableObject {
     static let shared = WebhookManager()
 
+    struct RetryPolicy {
+        let maxAttempts: Int
+        let baseDelay: TimeInterval
+        let multiplier: Double
+
+        static let `default` = RetryPolicy(maxAttempts: 3, baseDelay: 1, multiplier: 2)
+
+        func delay(beforeAttempt attempt: Int) -> TimeInterval {
+            guard attempt > 1 else { return 0 }
+            return baseDelay * pow(multiplier, Double(attempt - 2))
+        }
+    }
+
     // MARK: - Auth types
 
     enum AuthType: String, CaseIterable, Identifiable {
@@ -95,12 +108,14 @@ final class WebhookManager: ObservableObject {
 
     // MARK: - Private
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
     private var cancellables = Set<AnyCancellable>()
     private var flushTimer: Timer?
     private var pendingPoints: [LocationPoint] = []
     private weak var modelContainer: ModelContainer?
     private var urlSession: URLSession!
+    private let retryPolicy: RetryPolicy
+    private let sleep: (TimeInterval) async -> Void
     // Realtime cursor — nil means we haven't observed a tick yet. The first tick
     // arms the cursor without sending so we never bulk-resend the historical DB
     // after launch; subsequent ticks send everything strictly newer.
@@ -120,16 +135,26 @@ final class WebhookManager: ObservableObject {
     static func keychainAccount(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
     static func legacyDefaultsKey(_ k: KeychainKey) -> String { "webhook.\(k.rawValue)" }
 
-    private init() {
+    init(
+        defaults: UserDefaults = .standard,
+        urlSession: URLSession? = nil,
+        retryPolicy: RetryPolicy = .default,
+        sleep: @escaping (TimeInterval) async -> Void = { delay in
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
+    ) {
+        self.defaults = defaults
+        self.retryPolicy = retryPolicy
+        self.sleep = sleep
         let d = defaults
         self.isEnabled = d.bool(forKey: Self.key(.enabled))
         self.urlString = d.string(forKey: Self.key(.url)) ?? ""
         self.format = Self.formatFromToken(d.string(forKey: Self.key(.format)))
         self.authType = AuthType(rawValue: d.string(forKey: Self.key(.authType)) ?? "") ?? .none
 
-        self.authKey = Self.loadCredential(.authKey, defaultValue: "api_key")
-        self.authValue = Self.loadCredential(.authValue, defaultValue: "")
-        self.authUsername = Self.loadCredential(.authUsername, defaultValue: "")
+        self.authKey = Self.loadCredential(.authKey, defaults: d, defaultValue: "api_key")
+        self.authValue = Self.loadCredential(.authValue, defaults: d, defaultValue: "")
+        self.authUsername = Self.loadCredential(.authUsername, defaults: d, defaultValue: "")
 
         self.sendMode = SendMode(rawValue: d.string(forKey: Self.key(.sendMode)) ?? "") ?? .realtime
         self.batchCount = d.object(forKey: Self.key(.batchCount)) as? Int ?? 10
@@ -137,10 +162,14 @@ final class WebhookManager: ObservableObject {
         self.lastSentAt = d.object(forKey: Self.key(.lastSentAt)) as? Date
         self.lastError = d.string(forKey: Self.key(.lastError))
 
-        let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForRequest = 30
-        config.timeoutIntervalForResource = 60
-        self.urlSession = URLSession(configuration: config)
+        if let urlSession {
+            self.urlSession = urlSession
+        } else {
+            let config = URLSessionConfiguration.ephemeral
+            config.timeoutIntervalForRequest = 30
+            config.timeoutIntervalForResource = 60
+            self.urlSession = URLSession(configuration: config)
+        }
 
         syncTimer()
     }
@@ -148,23 +177,29 @@ final class WebhookManager: ObservableObject {
     /// Read a credential from Keychain. If absent but a non-empty legacy
     /// UserDefaults value exists, migrate it into Keychain and clear the
     /// plaintext copy.
-    static func loadCredential(account: String, legacyKey: String, defaultValue: String) -> String {
+    static func loadCredential(
+        account: String,
+        legacyKey: String,
+        defaultValue: String,
+        defaults: UserDefaults = .standard
+    ) -> String {
         if let stored = keychainReadString(account: account) {
             return stored
         }
-        if let legacy = UserDefaults.standard.string(forKey: legacyKey), !legacy.isEmpty {
+        if let legacy = defaults.string(forKey: legacyKey), !legacy.isEmpty {
             keychainWriteString(legacy, account: account)
-            UserDefaults.standard.removeObject(forKey: legacyKey)
+            defaults.removeObject(forKey: legacyKey)
             return legacy
         }
         return defaultValue
     }
 
-    private static func loadCredential(_ key: KeychainKey, defaultValue: String) -> String {
+    private static func loadCredential(_ key: KeychainKey, defaults: UserDefaults, defaultValue: String) -> String {
         loadCredential(
             account: keychainAccount(key),
             legacyKey: legacyDefaultsKey(key),
-            defaultValue: defaultValue
+            defaultValue: defaultValue,
+            defaults: defaults
         )
     }
 
@@ -243,14 +278,12 @@ final class WebhookManager: ObservableObject {
 
                 switch sendMode {
                 case .batchCount:
-                    pendingPoints.append(latest)
-                    queuedPointCount = pendingPoints.count
+                    enqueuePendingPoint(latest)
                     if pendingPoints.count >= batchCount {
                         await flushBatch()
                     }
                 case .batchTime:
-                    pendingPoints.append(latest)
-                    queuedPointCount = pendingPoints.count
+                    enqueuePendingPoint(latest)
                 case .manual, .realtime:
                     break
                 }
@@ -273,6 +306,11 @@ final class WebhookManager: ObservableObject {
             queuedPointCount = pendingPoints.count
             recordError(error.localizedDescription)
         }
+    }
+
+    func enqueuePendingPoint(_ point: LocationPoint) {
+        pendingPoints.append(point)
+        queuedPointCount = pendingPoints.count
     }
 
     /// Send a manual export of all saved data.
@@ -338,7 +376,7 @@ final class WebhookManager: ObservableObject {
         request.setValue("iso.me/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
         applyAuth(to: &request)
 
-        let (_, response) = try await urlSession.data(for: request)
+        let (_, response) = try await sendRequestWithRetry(request)
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw WebhookError.httpError((response as? HTTPURLResponse)?.statusCode ?? 0)
@@ -348,6 +386,50 @@ final class WebhookManager: ObservableObject {
         defaults.set(lastSentAt, forKey: Self.key(.lastSentAt))
         lastError = nil
         defaults.removeObject(forKey: Self.key(.lastError))
+    }
+
+    private func sendRequestWithRetry(_ request: URLRequest) async throws -> (Data, URLResponse) {
+        let attempts = max(1, retryPolicy.maxAttempts)
+
+        for attempt in 1...attempts {
+            if attempt > 1 {
+                await sleep(retryPolicy.delay(beforeAttempt: attempt))
+            }
+
+            do {
+                let result = try await urlSession.data(for: request)
+                guard let httpResponse = result.1 as? HTTPURLResponse else {
+                    throw WebhookError.httpError(0)
+                }
+                if (200...299).contains(httpResponse.statusCode) {
+                    return result
+                }
+                throw WebhookError.httpError(httpResponse.statusCode)
+            } catch {
+                guard attempt < attempts, Self.shouldRetry(error) else {
+                    throw error
+                }
+            }
+        }
+
+        throw WebhookError.httpError(0)
+    }
+
+    private static func shouldRetry(_ error: Error) -> Bool {
+        if error is URLError {
+            return true
+        }
+
+        guard let webhookError = error as? WebhookError else {
+            return false
+        }
+
+        switch webhookError {
+        case .httpError(let code):
+            return code == 0 || code == 408 || code == 429 || code >= 500
+        case .invalidURL, .unauthorized:
+            return false
+        }
     }
 
     // MARK: - URL building

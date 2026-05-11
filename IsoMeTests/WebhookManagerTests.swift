@@ -10,14 +10,23 @@ final class WebhookManagerTests: XCTestCase {
 
     private let testAccount = "webhook.tests.authValue"
     private let testLegacyKey = "webhook.tests.authValue"
+    private var defaults: UserDefaults!
+    private var defaultsSuiteName: String!
 
     override func setUp() {
         super.setUp()
+        defaultsSuiteName = "WebhookManagerTests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: defaultsSuiteName)!
         WebhookManager.keychainWriteString("", account: testAccount)
         UserDefaults.standard.removeObject(forKey: testLegacyKey)
+        MockWebhookURLProtocol.reset()
     }
 
     override func tearDown() {
+        MockWebhookURLProtocol.reset()
+        defaults.removePersistentDomain(forName: defaultsSuiteName)
+        defaults = nil
+        defaultsSuiteName = nil
         WebhookManager.keychainWriteString("", account: testAccount)
         UserDefaults.standard.removeObject(forKey: testLegacyKey)
         super.tearDown()
@@ -182,5 +191,190 @@ final class WebhookManagerTests: XCTestCase {
             masking: secret
         )
         XCTAssertEqual(scrubbed, "url contains *** in the query")
+    }
+
+    // MARK: - Delivery
+
+    func testFlushBatchPostsPayloadAndClearsQueueOnSuccess() async {
+        MockWebhookURLProtocol.enqueue(statusCode: 201)
+        let manager = makeWebhookManager(retryPolicy: .init(maxAttempts: 1, baseDelay: 0, multiplier: 1))
+        manager.urlString = "https://example.com/hooks/location"
+        manager.enqueuePendingPoint(makePoint(latitude: 10.1, longitude: -20.2))
+
+        await manager.flushBatch()
+
+        XCTAssertEqual(manager.queuedPointCount, 0)
+        XCTAssertNil(manager.lastError)
+        XCTAssertNotNil(manager.lastSentAt)
+        XCTAssertEqual(MockWebhookURLProtocol.requests.count, 1)
+        XCTAssertEqual(MockWebhookURLProtocol.requests.first?.httpMethod, "POST")
+        XCTAssertEqual(MockWebhookURLProtocol.requests.first?.value(forHTTPHeaderField: "Content-Type"), "application/json")
+
+        let body = String(data: MockWebhookURLProtocol.requestBodies.first ?? Data(), encoding: .utf8)
+        XCTAssertTrue(body?.contains("10.1") == true)
+        XCTAssertTrue(body?.contains("-20.2") == true)
+    }
+
+    func testFlushBatchRetainsQueueAndRecordsUserVisibleErrorOnNon2xx() async {
+        MockWebhookURLProtocol.enqueue(statusCode: 500)
+        let manager = makeWebhookManager(retryPolicy: .init(maxAttempts: 1, baseDelay: 0, multiplier: 1))
+        manager.urlString = "https://example.com/hooks/location"
+        manager.enqueuePendingPoint(makePoint())
+
+        await manager.flushBatch()
+
+        XCTAssertEqual(manager.queuedPointCount, 1)
+        XCTAssertEqual(manager.lastError, "Server returned HTTP 500")
+        XCTAssertNil(manager.lastSentAt)
+        XCTAssertEqual(defaults.string(forKey: "webhook.lastError"), "Server returned HTTP 500")
+        XCTAssertEqual(MockWebhookURLProtocol.requests.count, 1)
+    }
+
+    func testFlushBatchRetriesWithBackoffBeforeSuccess() async {
+        MockWebhookURLProtocol.enqueue(statusCode: 500)
+        MockWebhookURLProtocol.enqueue(statusCode: 502)
+        MockWebhookURLProtocol.enqueue(statusCode: 204)
+        var requestedDelays: [TimeInterval] = []
+        let manager = makeWebhookManager(
+            retryPolicy: .init(maxAttempts: 3, baseDelay: 0.25, multiplier: 3),
+            sleep: { requestedDelays.append($0) }
+        )
+        manager.urlString = "https://example.com/hooks/location"
+        manager.enqueuePendingPoint(makePoint())
+
+        await manager.flushBatch()
+
+        XCTAssertEqual(MockWebhookURLProtocol.requests.count, 3)
+        XCTAssertEqual(requestedDelays, [0.25, 0.75])
+        XCTAssertEqual(manager.queuedPointCount, 0)
+        XCTAssertNil(manager.lastError)
+        XCTAssertNotNil(manager.lastSentAt)
+    }
+
+    func testTestConnectionThrowsUnauthorizedFor401() async {
+        MockWebhookURLProtocol.enqueue(statusCode: 401)
+        let manager = makeWebhookManager(retryPolicy: .init(maxAttempts: 1, baseDelay: 0, multiplier: 1))
+        manager.urlString = "https://example.com/hooks/location"
+
+        do {
+            _ = try await manager.testConnection()
+            XCTFail("Expected unauthorized webhook error")
+        } catch {
+            XCTAssertEqual(error.localizedDescription, "Unauthorized (HTTP 401). Check your credentials.")
+        }
+    }
+
+    private func makeWebhookManager(
+        retryPolicy: WebhookManager.RetryPolicy,
+        sleep: @escaping (TimeInterval) async -> Void = { _ in }
+    ) -> WebhookManager {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockWebhookURLProtocol.self]
+        let session = URLSession(configuration: config)
+        return WebhookManager(
+            defaults: defaults,
+            urlSession: session,
+            retryPolicy: retryPolicy,
+            sleep: sleep
+        )
+    }
+
+    private func makePoint(latitude: Double = 37.7749, longitude: Double = -122.4194) -> LocationPoint {
+        LocationPoint(
+            latitude: latitude,
+            longitude: longitude,
+            timestamp: Date(timeIntervalSince1970: 1_776_000_000),
+            horizontalAccuracy: 5
+        )
+    }
+}
+
+private final class MockWebhookURLProtocol: URLProtocol {
+    private struct Response {
+        let statusCode: Int
+        let body: Data
+    }
+
+    private static let lock = NSLock()
+    private static var queuedResponses: [Response] = []
+    private(set) static var requests: [URLRequest] = []
+    private(set) static var requestBodies: [Data] = []
+
+    static func reset() {
+        lock.withLock {
+            queuedResponses = []
+            requests = []
+            requestBodies = []
+        }
+    }
+
+    static func enqueue(statusCode: Int, body: Data = Data()) {
+        lock.withLock {
+            queuedResponses.append(Response(statusCode: statusCode, body: body))
+        }
+    }
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        let next: Response? = Self.lock.withLock {
+            Self.requests.append(request)
+            Self.requestBodies.append(Self.bodyData(from: request))
+            return Self.queuedResponses.isEmpty ? nil : Self.queuedResponses.removeFirst()
+        }
+
+        guard let next else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
+            return
+        }
+
+        let response = HTTPURLResponse(
+            url: request.url!,
+            statusCode: next.statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: nil
+        )!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: next.body)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+
+    private static func bodyData(from request: URLRequest) -> Data {
+        if let body = request.httpBody {
+            return body
+        }
+        guard let stream = request.httpBodyStream else {
+            return Data()
+        }
+        stream.open()
+        defer { stream.close() }
+
+        var data = Data()
+        let bufferSize = 1024
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+        defer { buffer.deallocate() }
+
+        while stream.hasBytesAvailable {
+            let count = stream.read(buffer, maxLength: bufferSize)
+            guard count > 0 else { break }
+            data.append(buffer, count: count)
+        }
+        return data
+    }
+}
+
+private extension NSLock {
+    func withLock<T>(_ body: () -> T) -> T {
+        lock()
+        defer { unlock() }
+        return body()
     }
 }
