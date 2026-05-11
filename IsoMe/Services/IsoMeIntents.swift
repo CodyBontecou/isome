@@ -7,28 +7,26 @@ import UniformTypeIdentifiers
 
 @MainActor
 private enum IntentSupport {
-    /// A dedicated container for intent-side reads. Uses the same on-disk store as the app.
-    static let modelContainer: ModelContainer = {
-        let schema = Schema([Visit.self, LocationPoint.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
+    static func makeContext() throws -> ModelContext {
         do {
-            return try ModelContainer(for: schema, configurations: [config])
+            return ModelContext(try ModelContainerRecovery.makePersistentContainer())
         } catch {
-            fatalError("Could not open IsoMe model container in intent: \(error)")
+            let failure = ModelContainerRecovery.sanitizedFailure(
+                operation: "Intent SwiftData container initialization",
+                error: error
+            )
+            LogManager.shared.error(failure.diagnosticSummary)
+            throw IsoMeIntentError.dataStoreUnavailable(failure.message)
         }
-    }()
-
-    static func makeContext() -> ModelContext {
-        ModelContext(modelContainer)
     }
 
     /// Returns the live LocationManager if one exists, otherwise creates a background-launch
     /// instance wired to the shared store. Lets Start/Stop intents work even when the app's
     /// UI hasn't booted yet.
-    static func ensureLocationManager() -> LocationManager {
+    static func ensureLocationManager() throws -> LocationManager {
         if let existing = LocationManager.shared { return existing }
         let manager = LocationManager()
-        manager.setModelContext(makeContext())
+        manager.setModelContext(try makeContext())
         return manager
     }
 
@@ -65,11 +63,14 @@ private enum IntentSupport {
 
 enum IsoMeIntentError: Swift.Error, CustomLocalizedStringResourceConvertible {
     case noLocationPermission
+    case dataStoreUnavailable(String)
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .noLocationPermission:
             return "IsoMe needs location permission. Open the app to enable it."
+        case .dataStoreUnavailable:
+            return "IsoMe could not load local data. Open the app to retry or reset the local store."
         }
     }
 }
@@ -83,7 +84,7 @@ struct StartTrackingIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let manager = IntentSupport.ensureLocationManager()
+        let manager = try IntentSupport.ensureLocationManager()
         guard manager.hasLocationPermission else {
             throw IsoMeIntentError.noLocationPermission
         }
@@ -226,7 +227,7 @@ enum IsoMeExportFormat: String, AppEnum {
 private struct ExportRunner {
     @MainActor
     static func run(range: ClosedRange<Date>, format: IsoMeExportFormat) throws -> IntentFile {
-        let context = IntentSupport.makeContext()
+        let context = try IntentSupport.makeContext()
 
         var visitDescriptor = FetchDescriptor<Visit>(
             predicate: #Predicate { $0.arrivedAt >= range.lowerBound && $0.arrivedAt <= range.upperBound }
