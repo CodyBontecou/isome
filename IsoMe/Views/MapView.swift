@@ -94,7 +94,10 @@ struct LocationMapView: View {
                     
                     if showSessionPath, let firstSessionPoint = activeSessionPoints.first {
                         Annotation("Session Start", coordinate: firstSessionPoint.coordinate) {
-                            StartMarker()
+                            StartMarker(
+                                accessibilityLabel: "Active session start",
+                                accessibilityValue: firstSessionPoint.accessibilityValue
+                            )
                         }
                     }
                     
@@ -102,7 +105,10 @@ struct LocationMapView: View {
                        let lastSessionPoint = activeSessionPoints.last,
                        activeSessionPoints.count > 1 {
                         Annotation("Current", coordinate: lastSessionPoint.coordinate) {
-                            CurrentLocationMarker()
+                            CurrentLocationMarker(
+                                accessibilityLabel: "Active session current location",
+                                accessibilityValue: lastSessionPoint.accessibilityValue
+                            )
                         }
                     }
                     
@@ -133,6 +139,7 @@ struct LocationMapView: View {
                                         Circle()
                                             .stroke(.white, lineWidth: 1.5)
                                     }
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
@@ -156,6 +163,8 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .accessibilityLabel("Location map")
+                .accessibilityValue(mapAccessibilitySummary)
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if !discordPromoDismissed {
                         DiscordPromoBanner(onDismiss: dismissDiscordPromo)
@@ -304,6 +313,18 @@ struct LocationMapView: View {
             }
         }
     }
+
+    private var mapAccessibilitySummary: String {
+        var parts: [String] = []
+        parts.append("\(filteredVisits.count) \(filteredVisits.count == 1 ? "visit" : "visits")")
+        parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+
+        if !activeSessionPoints.isEmpty {
+            parts.append("Active session: \(viewModel.sessionAccessibilitySummary)")
+        }
+
+        return parts.joined(separator: ". ")
+    }
 }
 
 // MARK: - Tracking Control Pills
@@ -326,12 +347,19 @@ struct MapTrackingControlPill: View {
                     }
                 } label: {
                     statusBlock
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Session summary")
+                .accessibilityValue(viewModel.sessionAccessibilitySummary)
+                .accessibilityHint(isExpanded ? "Collapses session details." : "Expands session details.")
                 .transition(.opacity.combined(with: .move(edge: .trailing)))
 
                 if isExpanded {
                     statsBlock
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Session details")
+                        .accessibilityValue(viewModel.sessionAccessibilitySummary)
                         .transition(.asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .trailing)),
                             removal: .opacity.combined(with: .move(edge: .trailing))
@@ -374,6 +402,7 @@ struct MapTrackingControlPill: View {
                 .fill(isTracking ? TE.accent : TE.textMuted.opacity(0.35))
                 .frame(width: 7, height: 7)
                 .opacity(isTracking ? pulseOpacity : 1.0)
+                .accessibilityHidden(true)
                 .animation(
                     isTracking
                         ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
@@ -408,6 +437,7 @@ struct MapTrackingControlPill: View {
             Rectangle()
                 .fill(Color.primary.opacity(0.15))
                 .frame(width: 1, height: 12)
+                .accessibilityHidden(true)
 
             Text("\(viewModel.sessionLocationPoints.count) PTS")
                 .font(TE.mono(.caption, weight: .medium))
@@ -442,8 +472,12 @@ struct MapTrackingControlPill: View {
                             y: 3
                         )
                 }
+                .frame(width: 44, height: 44)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isTracking ? "Stop tracking" : "Start tracking")
+        .accessibilityValue(isTracking ? viewModel.sessionAccessibilitySummary : "Tracking is off.")
+        .accessibilityHint(isTracking ? "Stops the active session." : "Starts a new location tracking session.")
         .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
     }
 }
@@ -456,6 +490,7 @@ struct MapAutoOffPill: View {
             Image(systemName: "timer")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(TE.textMuted)
+                .accessibilityHidden(true)
 
             Text("AUTO-OFF  \(formatTime(remaining))")
                 .font(TE.mono(.caption2, weight: .semibold))
@@ -480,6 +515,9 @@ struct MapAutoOffPill: View {
                 }
                 .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Tracking auto-off")
+        .accessibilityValue("Stops in \(spokenTime(remaining)).")
     }
 
     private func formatTime(_ interval: TimeInterval) -> String {
@@ -487,6 +525,15 @@ struct MapAutoOffPill: View {
         let minutes = (Int(interval) % 3600) / 60
         if hours > 0 { return "\(hours)H \(minutes)M" }
         return "\(minutes) MIN"
+    }
+
+    private func spokenTime(_ interval: TimeInterval) -> String {
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+        if hours > 0 {
+            return "\(hours) \(hours == 1 ? "hour" : "hours") and \(minutes) \(minutes == 1 ? "minute" : "minutes")"
+        }
+        return "\(minutes) \(minutes == 1 ? "minute" : "minutes")"
     }
 }
 
@@ -500,17 +547,26 @@ struct VisitMarker: View {
                 Circle()
                     .fill(visit.isCurrentVisit ? .blue : .red)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
+                    .accessibilityHidden(true)
 
                 Image(systemName: "mappin")
                     .font(.system(size: isSelected ? 18 : 14))
                     .foregroundStyle(.white)
+                    .accessibilityHidden(true)
             }
 
             Triangle()
                 .fill(visit.isCurrentVisit ? .blue : .red)
                 .frame(width: 10, height: 8)
+                .accessibilityHidden(true)
         }
+        .frame(minWidth: 44, minHeight: 44)
         .animation(.spring(duration: 0.2), value: isSelected)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(visit.accessibilityLabel)
+        .accessibilityValue(visit.accessibilityValue)
+        .accessibilityHint(visit.accessibilityHint)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -532,32 +588,41 @@ struct PathStartMarker: View {
     @State private var showingTooltip = false
     
     var body: some View {
-        VStack(spacing: 2) {
-            if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .transition(.scale.combined(with: .opacity))
-            }
-            
-            ZStack {
-                Circle()
-                    .fill(.green)
-                    .frame(width: 28, height: 28)
-                
-                Image(systemName: "flag.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white)
-            }
-            .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
-        }
-        .onTapGesture {
+        Button {
             withAnimation(.spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
+        } label: {
+            VStack(spacing: 2) {
+                if showingTooltip {
+                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityHidden(true)
+                }
+
+                ZStack {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 28, height: 28)
+                        .accessibilityHidden(true)
+
+                    Image(systemName: "flag.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
+                }
+                .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
+            }
+            .frame(minWidth: 44, minHeight: 44)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Path start")
+        .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
+        .accessibilityHint(showingTooltip ? "Hides the start time." : "Shows the start time.")
     }
 }
 
@@ -566,32 +631,41 @@ struct PathEndMarker: View {
     @State private var showingTooltip = false
     
     var body: some View {
-        VStack(spacing: 2) {
-            if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .transition(.scale.combined(with: .opacity))
-            }
-            
-            ZStack {
-                Circle()
-                    .fill(.red)
-                    .frame(width: 28, height: 28)
-                
-                Image(systemName: "flag.checkered")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white)
-            }
-            .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
-        }
-        .onTapGesture {
+        Button {
             withAnimation(.spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
+        } label: {
+            VStack(spacing: 2) {
+                if showingTooltip {
+                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityHidden(true)
+                }
+
+                ZStack {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 28, height: 28)
+                        .accessibilityHidden(true)
+
+                    Image(systemName: "flag.checkered")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
+                }
+                .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
+            }
+            .frame(minWidth: 44, minHeight: 44)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Path end")
+        .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
+        .accessibilityHint(showingTooltip ? "Hides the end time." : "Shows the end time.")
     }
 }
 
@@ -800,6 +874,15 @@ enum MapDatePreset: CaseIterable, Hashable {
         }
     }
 
+    var accessibilityLabel: String {
+        switch self {
+        case .today: return "Today"
+        case .sevenDays: return "Last 7 days"
+        case .thirtyDays: return "Last 30 days"
+        case .all: return "All time"
+        }
+    }
+
     func range(referenceDate: Date = Date()) -> ClosedRange<Date> {
         let calendar = Calendar.current
         switch self {
@@ -824,7 +907,7 @@ struct FilterBarToggle: View {
             Image(systemName: isOpen ? "xmark" : "slider.horizontal.3")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(isOpen ? Color.white : Color.primary.opacity(0.75))
-                .frame(width: 42, height: 42)
+                .frame(width: 44, height: 44)
                 .background {
                     Circle()
                         .fill(isOpen ? AnyShapeStyle(TE.accent) : AnyShapeStyle(.ultraThinMaterial))
@@ -844,6 +927,8 @@ struct FilterBarToggle: View {
                 .contentTransition(.symbolEffect(.replace))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isOpen ? "Close map filters" : "Open map filters")
+        .accessibilityHint(isOpen ? "Hides date, layer, and fit controls." : "Shows date, layer, and fit controls.")
         .sensoryFeedback(.impact(flexibility: .soft), trigger: isOpen)
     }
 }
@@ -867,6 +952,7 @@ struct QuickFilterBar: View {
                 ForEach(MapDatePreset.allCases, id: \.self) { preset in
                     PresetPill(
                         label: preset.label,
+                        accessibilityLabel: preset.accessibilityLabel,
                         isActive: activePreset == preset
                     ) {
                         onSelectPreset(preset)
@@ -876,6 +962,7 @@ struct QuickFilterBar: View {
                 PresetPill(
                     label: "Custom",
                     icon: "calendar",
+                    accessibilityLabel: "Custom date range",
                     isActive: activePreset == nil
                 ) {
                     onSelectCustom()
@@ -883,12 +970,12 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
-                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $showTravelPath)
-                LayerToggleButton(systemImage: "smallcircle.filled.circle", isOn: $showPointMarkers)
-                LayerToggleButton(systemImage: "flag.fill", isOn: $showStartEndMarkers)
+                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
+                LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
+                LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
                 if hasSessionPoints {
-                    LayerToggleButton(systemImage: "waveform.path.ecg", isOn: $showSessionPath)
+                    LayerToggleButton(systemImage: "waveform.path.ecg", label: "Active session path", isOn: $showSessionPath)
                 }
 
                 PillSeparator()
@@ -923,6 +1010,7 @@ struct QuickFilterBar: View {
 struct PresetPill: View {
     let label: String
     var icon: String? = nil
+    var accessibilityLabel: String? = nil
     let isActive: Bool
     let action: () -> Void
 
@@ -932,6 +1020,7 @@ struct PresetPill: View {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(.system(size: 11, weight: .medium))
+                        .accessibilityHidden(true)
                 }
                 Text(label)
                     .font(.system(size: 13, weight: .semibold))
@@ -939,17 +1028,22 @@ struct PresetPill: View {
             .foregroundStyle(isActive ? Color.white : Color.primary)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
+            .frame(minHeight: 44)
             .background {
                 Capsule()
                     .fill(isActive ? TE.accent : Color.clear)
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel ?? label)
+        .accessibilityValue(isActive ? "Selected" : "Not selected")
+        .accessibilityHint("Filters the map date range.")
     }
 }
 
 struct LayerToggleButton: View {
     let systemImage: String
+    let label: String
     @Binding var isOn: Bool
 
     var body: some View {
@@ -960,7 +1054,7 @@ struct LayerToggleButton: View {
         } label: {
             Image(systemName: systemImage)
                 .font(.system(size: 13, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
                 .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
                 .background {
                     Circle()
@@ -968,6 +1062,9 @@ struct LayerToggleButton: View {
                 }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityValue(isOn ? "Shown" : "Hidden")
+        .accessibilityHint("Toggles this map layer.")
     }
 }
 
@@ -977,6 +1074,7 @@ struct PillSeparator: View {
             .fill(Color.primary.opacity(0.12))
             .frame(width: 1, height: 20)
             .padding(.horizontal, 2)
+            .accessibilityHidden(true)
     }
 }
 
@@ -1001,9 +1099,11 @@ struct FitMenuButton: View {
         } label: {
             Image(systemName: "scope")
                 .font(.system(size: 13, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
                 .foregroundStyle(Color.primary.opacity(0.7))
         }
+        .accessibilityLabel("Fit map")
+        .accessibilityHint("Shows options for zooming the map to available content.")
     }
 }
 
