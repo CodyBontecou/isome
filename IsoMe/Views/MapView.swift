@@ -329,6 +329,8 @@ struct MapTrackingControlPill: View {
                 }
                 .buttonStyle(.plain)
                 .transition(.opacity.combined(with: .move(edge: .trailing)))
+                .accessibilityLabel(MapAccessibility.trackingDetailsLabel)
+                .accessibilityHint(MapAccessibility.trackingDetailsHint(isExpanded: isExpanded))
 
                 if isExpanded {
                     statsBlock
@@ -445,6 +447,8 @@ struct MapTrackingControlPill: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
+        .accessibilityLabel(MapAccessibility.trackingPrimaryLabel(isTracking: isTracking))
+        .accessibilityHint(MapAccessibility.trackingPrimaryHint(isTracking: isTracking))
     }
 }
 
@@ -511,6 +515,10 @@ struct VisitMarker: View {
                 .frame(width: 10, height: 8)
         }
         .animation(.spring(duration: 0.2), value: isSelected)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(MapAccessibility.visitMarkerLabel(for: visit))
+        .accessibilityValue(MapAccessibility.visitMarkerValue(for: visit))
+        .accessibilityHint(MapAccessibility.visitMarkerHint)
     }
 }
 
@@ -534,11 +542,7 @@ struct PathStartMarker: View {
     var body: some View {
         VStack(spacing: 2) {
             if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
+                MapMarkerTimestampCallout(timestamp: timestamp)
                     .transition(.scale.combined(with: .opacity))
             }
             
@@ -558,6 +562,10 @@ struct PathStartMarker: View {
                 showingTooltip.toggle()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(MapAccessibility.pathStartLabel)
+        .accessibilityValue(MapAccessibility.timestampValue(timestamp))
+        .accessibilityHint(MapAccessibility.pathTimestampHint)
     }
 }
 
@@ -568,11 +576,7 @@ struct PathEndMarker: View {
     var body: some View {
         VStack(spacing: 2) {
             if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
+                MapMarkerTimestampCallout(timestamp: timestamp)
                     .transition(.scale.combined(with: .opacity))
             }
             
@@ -592,6 +596,22 @@ struct PathEndMarker: View {
                 showingTooltip.toggle()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(MapAccessibility.pathEndLabel)
+        .accessibilityValue(MapAccessibility.timestampValue(timestamp))
+        .accessibilityHint(MapAccessibility.pathTimestampHint)
+    }
+}
+
+struct MapMarkerTimestampCallout: View {
+    let timestamp: Date
+
+    var body: some View {
+        Text(MapAccessibility.timestampValue(timestamp))
+            .font(.caption2)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.ultraThinMaterial, in: Capsule())
     }
 }
 
@@ -845,6 +865,8 @@ struct FilterBarToggle: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.impact(flexibility: .soft), trigger: isOpen)
+        .accessibilityLabel(MapAccessibility.filterToggleLabel(isOpen: isOpen))
+        .accessibilityHint(MapAccessibility.filterToggleHint(isOpen: isOpen))
     }
 }
 
@@ -883,12 +905,12 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
-                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $showTravelPath)
-                LayerToggleButton(systemImage: "smallcircle.filled.circle", isOn: $showPointMarkers)
-                LayerToggleButton(systemImage: "flag.fill", isOn: $showStartEndMarkers)
+                LayerToggleButton(layer: .visits, isOn: $showVisitMarkers)
+                LayerToggleButton(layer: .travelPath, isOn: $showTravelPath)
+                LayerToggleButton(layer: .points, isOn: $showPointMarkers)
+                LayerToggleButton(layer: .startEndMarkers, isOn: $showStartEndMarkers)
                 if hasSessionPoints {
-                    LayerToggleButton(systemImage: "waveform.path.ecg", isOn: $showSessionPath)
+                    LayerToggleButton(layer: .sessionPath, isOn: $showSessionPath)
                 }
 
                 PillSeparator()
@@ -945,11 +967,37 @@ struct PresetPill: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(MapAccessibility.datePresetLabel(label))
+        .accessibilityHint(MapAccessibility.datePresetHint(label))
+    }
+}
+
+enum MapLayerKind: CaseIterable {
+    case visits, travelPath, points, startEndMarkers, sessionPath
+
+    var systemImage: String {
+        switch self {
+        case .visits: return "mappin.circle.fill"
+        case .travelPath: return "point.topleft.down.to.point.bottomright.curvepath"
+        case .points: return "smallcircle.filled.circle"
+        case .startEndMarkers: return "flag.fill"
+        case .sessionPath: return "waveform.path.ecg"
+        }
+    }
+
+    var accessibilityName: String {
+        switch self {
+        case .visits: return "Visit markers"
+        case .travelPath: return "Travel path"
+        case .points: return "Point markers"
+        case .startEndMarkers: return "Start and end markers"
+        case .sessionPath: return "Active session path"
+        }
     }
 }
 
 struct LayerToggleButton: View {
-    let systemImage: String
+    let layer: MapLayerKind
     @Binding var isOn: Bool
 
     var body: some View {
@@ -958,7 +1006,7 @@ struct LayerToggleButton: View {
                 isOn.toggle()
             }
         } label: {
-            Image(systemName: systemImage)
+            Image(systemName: layer.systemImage)
                 .font(.system(size: 13, weight: .semibold))
                 .frame(width: 32, height: 32)
                 .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
@@ -968,6 +1016,9 @@ struct LayerToggleButton: View {
                 }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(MapAccessibility.layerToggleLabel(for: layer))
+        .accessibilityValue(MapAccessibility.layerToggleValue(isOn: isOn))
+        .accessibilityHint(MapAccessibility.layerToggleHint(for: layer, isOn: isOn))
     }
 }
 
@@ -1004,6 +1055,73 @@ struct FitMenuButton: View {
                 .frame(width: 32, height: 32)
                 .foregroundStyle(Color.primary.opacity(0.7))
         }
+        .accessibilityLabel(MapAccessibility.fitMenuLabel)
+        .accessibilityHint(MapAccessibility.fitMenuHint(hasSession: onFitSession != nil))
+    }
+}
+
+enum MapAccessibility {
+    static let pathStartLabel = "Path start"
+    static let pathEndLabel = "Path end"
+    static let pathTimestampHint = "Double tap to show or hide the timestamp callout."
+    static let visitMarkerHint = "Double tap to open visit details."
+    static let trackingDetailsLabel = "Tracking details"
+    static let fitMenuLabel = "Fit map"
+
+    static func timestampValue(_ timestamp: Date) -> String {
+        timestamp.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    static func visitMarkerLabel(for visit: Visit) -> String {
+        "Visit at \(visit.displayName)"
+    }
+
+    static func visitMarkerValue(for visit: Visit) -> String {
+        visit.isCurrentVisit ? "Current visit" : visit.formattedTimeRange
+    }
+
+    static func trackingDetailsHint(isExpanded: Bool) -> String {
+        isExpanded ? "Collapses tracking distance and point count." : "Expands tracking distance and point count."
+    }
+
+    static func trackingPrimaryLabel(isTracking: Bool) -> String {
+        isTracking ? "Stop tracking" : "Start tracking"
+    }
+
+    static func trackingPrimaryHint(isTracking: Bool) -> String {
+        isTracking ? "Stops the active location tracking session." : "Starts a new location tracking session."
+    }
+
+    static func filterToggleLabel(isOpen: Bool) -> String {
+        isOpen ? "Hide map controls" : "Show map controls"
+    }
+
+    static func filterToggleHint(isOpen: Bool) -> String {
+        isOpen ? "Closes date, layer, and fit controls." : "Opens date, layer, and fit controls."
+    }
+
+    static func datePresetLabel(_ label: String) -> String {
+        "Map date range \(label)"
+    }
+
+    static func datePresetHint(_ label: String) -> String {
+        "Filters map content to \(label)."
+    }
+
+    static func layerToggleLabel(for layer: MapLayerKind) -> String {
+        layer.accessibilityName
+    }
+
+    static func layerToggleValue(isOn: Bool) -> String {
+        isOn ? "Shown" : "Hidden"
+    }
+
+    static func layerToggleHint(for layer: MapLayerKind, isOn: Bool) -> String {
+        "\(isOn ? "Hides" : "Shows") \(layer.accessibilityName.lowercased()) on the map."
+    }
+
+    static func fitMenuHint(hasSession: Bool) -> String {
+        hasSession ? "Opens fit options for all visits or the active session." : "Fits the map to visible visits and paths."
     }
 }
 

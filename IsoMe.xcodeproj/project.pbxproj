@@ -56,6 +56,7 @@
 		A4000004212F000100000004 /* IsoMeWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
+		D61000012162000100000001 /* MapSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61000002162000100000001 /* MapSmokeTests.swift */; };
 		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
 		E1000001212F000100000001 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000001212F000000000001 /* AppInfo.swift */; };
 		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
@@ -202,6 +203,7 @@
 		DC23CB11FCF0EFE290C70FD6 /* UsageTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsageTracker.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
+		D61000002162000100000001 /* MapSmokeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MapSmokeTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -438,6 +440,7 @@
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
+				D61000002162000100000001 /* MapSmokeTests.swift */,
 			);
 			name = IsoMeTests;
 			path = IsoMeTests;
@@ -723,6 +726,7 @@
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
+				D61000012162000100000001 /* MapSmokeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

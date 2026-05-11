@@ -50,6 +50,21 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 3. ⌘R to build and run.
 4. On first launch the app requests **Location (Always)** and **Motion & Fitness** permissions — both are required to exercise visit detection and auto-start.
 
+### Test
+
+Run the unit and SwiftUI smoke suite from the command line with an available simulator destination:
+
+```bash
+xcodebuild test \
+  -project IsoMe.xcodeproj \
+  -scheme IsoMe \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
+Use `xcrun simctl list devices available` if you need to swap in a simulator installed on your machine.
+
+`IsoMeTests/MapSmokeTests.swift` covers map timestamp callouts and icon-only map controls without live GPS, network, or MapKit tile fixtures. The tests use fixed `Visit` and `Date` fixtures, host the SwiftUI marker/control views in `UIHostingController`, and assert the accessibility labels, values, and hints through the shared `MapAccessibility` copy used by the production views.
+
 ## Testing on TestFlight
 
 If you have a paid Apple Developer account and want to dogfood your fork via TestFlight:
