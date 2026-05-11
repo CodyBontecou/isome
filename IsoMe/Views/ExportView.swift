@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ExportView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable var viewModel: LocationViewModel
     @StateObject private var exportFolderManager = ExportFolderManager.shared
     @StateObject private var dailyScheduler = DailyExportScheduler.shared
@@ -53,29 +54,23 @@ struct ExportView: View {
                 TE.surface.ignoresSafeArea()
 
                 if storeManager.isPurchased {
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            formatSection
-                            dataKindSection
-                            webhookSection
-                            exportFolderSection
-                            if exportFolderManager.hasDefaultFolder {
-                                dailyExportSection
+                    if dynamicTypeSize.isAccessibilitySize {
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                exportSections
+                                exportFooter
+                                    .padding(.top, 20)
                             }
-                            filenameSection
-                            outputSection
-                            dateRangeSection
-                            timeOfDaySection
-                            filtersSection
-                            if showsVisitFields { visitFieldsSection }
-                            if showsPointFields { pointFieldsSection }
-                            Spacer().frame(height: 110)
+                            .padding(.bottom, 170)
                         }
-                    }
-
-                    VStack {
-                        Spacer()
-                        exportFooter
+                    } else {
+                        ScrollView {
+                            exportSections
+                                .padding(.bottom, 32)
+                        }
+                        .safeAreaInset(edge: .bottom, spacing: 0) {
+                            exportFooter
+                        }
                     }
                 } else {
                     lockedState
@@ -113,6 +108,25 @@ struct ExportView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+        }
+    }
+
+    private var exportSections: some View {
+        VStack(spacing: 0) {
+            formatSection
+            dataKindSection
+            webhookSection
+            exportFolderSection
+            if exportFolderManager.hasDefaultFolder {
+                dailyExportSection
+            }
+            filenameSection
+            outputSection
+            dateRangeSection
+            timeOfDaySection
+            filtersSection
+            if showsVisitFields { visitFieldsSection }
+            if showsPointFields { pointFieldsSection }
         }
     }
 
@@ -172,25 +186,37 @@ struct ExportView: View {
 
             TECard {
                 VStack(spacing: 0) {
-                    HStack(spacing: 0) {
+                    if dynamicTypeSize.isAccessibilitySize {
                         segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
-                        Rectangle().fill(TE.border).frame(width: 1)
+                        Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
-                        Rectangle().fill(TE.border).frame(width: 1)
+                        Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
-                    }
-                    .frame(height: 44)
-
-                    Rectangle().fill(TE.border).frame(height: 1)
-
-                    HStack(spacing: 0) {
+                        Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
-                        Rectangle().fill(TE.border).frame(width: 1)
+                        Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
-                        Rectangle().fill(TE.border).frame(width: 1)
+                        Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                    } else {
+                        HStack(spacing: 0) {
+                            segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
+                        }
+
+                        Rectangle().fill(TE.border).frame(height: 1)
+
+                        HStack(spacing: 0) {
+                            segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                        }
                     }
-                    .frame(height: 44)
                 }
             }
             .padding(.horizontal, 16)
@@ -208,14 +234,21 @@ struct ExportView: View {
             TESectionHeader(title: "DATA")
 
             TECard {
-                HStack(spacing: 0) {
+                if dynamicTypeSize.isAccessibilitySize {
                     segmentedButton("VISITS", isSelected: options.dataKind == .visits) { options.dataKind = .visits }
-                    Rectangle().fill(TE.border).frame(width: 1)
+                    Rectangle().fill(TE.border).frame(height: 1)
                     segmentedButton("POINTS", isSelected: options.dataKind == .points) { options.dataKind = .points }
-                    Rectangle().fill(TE.border).frame(width: 1)
+                    Rectangle().fill(TE.border).frame(height: 1)
                     segmentedButton("ALL", isSelected: options.dataKind == .all) { options.dataKind = .all }
+                } else {
+                    HStack(spacing: 0) {
+                        segmentedButton("VISITS", isSelected: options.dataKind == .visits) { options.dataKind = .visits }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("POINTS", isSelected: options.dataKind == .points) { options.dataKind = .points }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("ALL", isSelected: options.dataKind == .all) { options.dataKind = .all }
+                    }
                 }
-                .frame(height: 44)
             }
             .padding(.horizontal, 16)
         }
@@ -264,25 +297,54 @@ struct ExportView: View {
                 VStack(spacing: 0) {
                     if let folderName = exportFolderManager.selectedFolderName {
                         TERow {
-                            HStack {
-                                Image(systemName: "folder.fill")
-                                    .font(.caption.weight(.medium))
-                                    .foregroundStyle(TE.accent)
-                                Text(folderName.uppercased())
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(0.5)
-                                    .foregroundStyle(TE.textPrimary)
-                                    .lineLimit(1)
-                                Spacer()
-                                Button {
-                                    showingFolderPicker = true
-                                } label: {
-                                    Text("CHANGE")
-                                        .font(TE.mono(.caption2, weight: .semibold))
-                                        .tracking(1)
-                                        .foregroundStyle(TE.accent)
+                            if dynamicTypeSize.isAccessibilitySize {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "folder.fill")
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(TE.accent)
+                                        Text(folderName.uppercased())
+                                            .font(TE.mono(.caption, weight: .medium))
+                                            .tracking(0.5)
+                                            .foregroundStyle(TE.textPrimary)
+                                            .lineLimit(2)
+                                            .truncationMode(.middle)
+                                    }
+
+                                    Button {
+                                        showingFolderPicker = true
+                                    } label: {
+                                        Text("CHANGE")
+                                            .font(TE.mono(.caption2, weight: .semibold))
+                                            .tracking(0.5)
+                                            .foregroundStyle(TE.accent)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "folder.fill")
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text(folderName.uppercased())
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(0.5)
+                                        .foregroundStyle(TE.textPrimary)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                    Spacer(minLength: 12)
+                                    Button {
+                                        showingFolderPicker = true
+                                    } label: {
+                                        Text("CHANGE")
+                                            .font(TE.mono(.caption2, weight: .semibold))
+                                            .tracking(1)
+                                            .foregroundStyle(TE.accent)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
                         }
 
@@ -486,16 +548,25 @@ struct ExportView: View {
             TECard {
                 VStack(spacing: 0) {
                     TERow {
-                        HStack(spacing: 0) {
+                        if dynamicTypeSize.isAccessibilitySize {
                             presetButton("READABLE", isSelected: filenamePattern == FilenameTemplate.readablePattern) {
                                 filenamePattern = FilenameTemplate.readablePattern
                             }
-                            Rectangle().fill(TE.border).frame(width: 1)
+                            Rectangle().fill(TE.border).frame(height: 1)
                             presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
                                 filenamePattern = FilenameTemplate.compactPattern
                             }
+                        } else {
+                            HStack(spacing: 0) {
+                                presetButton("READABLE", isSelected: filenamePattern == FilenameTemplate.readablePattern) {
+                                    filenamePattern = FilenameTemplate.readablePattern
+                                }
+                                Rectangle().fill(TE.border).frame(width: 1)
+                                presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
+                                    filenamePattern = FilenameTemplate.compactPattern
+                                }
+                            }
                         }
-                        .frame(height: 36)
                     }
 
                     TERow {
@@ -540,9 +611,14 @@ struct ExportView: View {
         Button(action: action) {
             Text(title)
                 .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
                 .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .multilineTextAlignment(.center)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 8)
+                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
+                .frame(maxWidth: .infinity, minHeight: 36)
                 .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
         }
         .buttonStyle(.plain)
@@ -809,10 +885,14 @@ struct ExportView: View {
             } label: {
                 Text(exportButtonLabel)
                     .font(TE.mono(.caption, weight: .bold))
-                    .tracking(2)
+                    .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 2)
                     .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
+                    .frame(minHeight: 48)
                     .background(totalCount == 0 ? TE.textMuted.opacity(0.3) : TE.accent)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
             }
@@ -851,9 +931,14 @@ struct ExportView: View {
         Button(action: action) {
             Text(title)
                 .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
                 .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .multilineTextAlignment(.center)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 8)
+                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
         }
         .buttonStyle(.plain)
@@ -863,8 +948,9 @@ struct ExportView: View {
         Toggle(isOn: isOn) {
             Text(label)
                 .font(TE.mono(.caption, weight: .medium))
-                .tracking(1)
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1)
                 .foregroundStyle(TE.textPrimary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
         .toggleStyle(TEToggleStyle())
     }
