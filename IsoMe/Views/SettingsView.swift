@@ -424,20 +424,22 @@ struct SettingsView: View {
                         }
                     }
 
-                    TERow(showDivider: false) {
-                        Link(destination: discordInviteURL) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "bubble.left.and.bubble.right.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("JOIN DISCORD")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let discordInviteURL = IsoMeURLs.discordInvite {
+                        TERow(showDivider: false) {
+                            Link(destination: discordInviteURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("JOIN DISCORD")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }
@@ -490,38 +492,42 @@ struct SettingsView: View {
                         }
                     }
 
-                    TERow {
-                        Link(destination: URL(string: "https://isome.isolated.tech/privacy")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "hand.raised")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("PRIVACY POLICY")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let privacyPolicyURL = IsoMeURLs.privacyPolicy {
+                        TERow {
+                            Link(destination: privacyPolicyURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "hand.raised")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("PRIVACY POLICY")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }
 
-                    TERow(showDivider: false) {
-                        Link(destination: URL(string: "https://isome.isolated.tech/terms")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "doc.text")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("TERMS OF SERVICE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let termsOfServiceURL = IsoMeURLs.termsOfService {
+                        TERow(showDivider: false) {
+                            Link(destination: termsOfServiceURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "doc.text")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("TERMS OF SERVICE")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }

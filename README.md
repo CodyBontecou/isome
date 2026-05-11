@@ -82,7 +82,6 @@ IsoMe/
     LiveActivityManager.swift      # Live Activity lifecycle
     GeocodingService.swift         # Reverse geocoding with caching
     StoreManager.swift             # In-app purchase management
-    UsageTracker.swift             # Free tier usage tracking
     LogManager.swift               # Crash and debug logging
   ViewModels/
     LocationViewModel.swift        # Data coordination between UI and services
