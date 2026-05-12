@@ -12,9 +12,24 @@ iso.me is a location tracking app for iOS and watchOS. It automatically records 
 
 ## Screenshots
 
-| Capture every visit | Keep it on-device | Export your history |
-|---|---|---|
-| ![Map view with visit pins](screenshots/final/02-capture-visits.jpg) | ![Settings showing on-device tracking](screenshots/final/01-keep-on-device.jpg) | ![Export format picker — JSON, CSV, Markdown](screenshots/final/04-export-history.jpg) |
+Latest 6.9-inch App Store screenshots (`1290×2796`):
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/final/01_quiet_map_of_your_days.png" alt="Quiet map of your days" width="160"></td>
+    <td align="center"><img src="screenshots/final/02_one_panel_total_control.png" alt="One panel, total control" width="160"></td>
+    <td align="center"><img src="screenshots/final/03_export_in_open_formats.png" alt="Export in open formats" width="160"></td>
+    <td align="center"><img src="screenshots/final/04_choose_exactly_what_to_export.png" alt="Choose exactly what to export" width="160"></td>
+    <td align="center"><img src="screenshots/final/05_your_data_your_endpoint.png" alt="Your data, your endpoint" width="160"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Quiet map of your days</strong></td>
+    <td align="center"><strong>One panel, total control</strong></td>
+    <td align="center"><strong>Export in open formats</strong></td>
+    <td align="center"><strong>Choose exactly what to export</strong></td>
+    <td align="center"><strong>Your data, your endpoint</strong></td>
+  </tr>
+</table>
 
 ## Features
 
