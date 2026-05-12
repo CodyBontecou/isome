@@ -108,30 +108,34 @@ struct TEToggleStyle: ToggleStyle {
                 configuration.label
                     .fixedSize(horizontal: false, vertical: true)
 
-                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
-                    configuration.isOn.toggle()
-                }
-                .accessibilityRepresentation {
-                    Toggle(isOn: configuration.$isOn) { configuration.label }
-                }
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                configuration.isOn.toggle()
+            }
+            .accessibilityRepresentation {
+                Toggle(isOn: configuration.$isOn) { configuration.label }
+            }
         } else {
             HStack(alignment: .center, spacing: 12) {
                 configuration.label
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 12)
-                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
-                    configuration.isOn.toggle()
-                }
-                .accessibilityRepresentation {
-                    Toggle(isOn: configuration.$isOn) { configuration.label }
-                }
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                configuration.isOn.toggle()
+            }
+            .accessibilityRepresentation {
+                Toggle(isOn: configuration.$isOn) { configuration.label }
             }
         }
     }
 
-    private func toggleTrack(isOn: Bool, thumbDiameter: CGFloat, action: @escaping () -> Void) -> some View {
+    private func toggleTrack(isOn: Bool, thumbDiameter: CGFloat) -> some View {
         ZStack(alignment: isOn ? .trailing : .leading) {
             Capsule()
                 .fill(isOn ? TE.accent : TE.border)
@@ -146,8 +150,6 @@ struct TEToggleStyle: ToggleStyle {
         }
         .frame(width: trackWidth, height: trackHeight)
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: isOn)
-        .contentShape(Capsule())
-        .onTapGesture(perform: action)
     }
 }
 

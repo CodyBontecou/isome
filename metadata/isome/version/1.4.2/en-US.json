@@ -1,0 +1,8 @@
+{
+  "description": "iso.me uses GPS to track your location visits and movement paths — all stored privately on your device.\n\nFeatures:\n• Automatic visit detection with place names and addresses\n• High-accuracy GPS tracking with path recording\n• Live Activity showing real-time tracking on your Lock Screen\n• Interactive map with visit markers, travel paths, and date filtering\n• Export your data in JSON, CSV, or Markdown format\n• Import previously exported data\n• Apple Watch companion app\n• Free to use; unlock data export with a one-time purchase\n\nYour data never leaves your device. No accounts, no servers, no tracking of you.",
+  "keywords": "map,path,travel,privacy,movement,geolocation,journey,route,trip,history,journal,hike,walk,commute",
+  "marketingUrl": "https://isome.isolated.tech",
+  "supportUrl": "https://isome.isolated.tech",
+  "whatsNew": "You can now control the Live Activity monitor from Settings. Turn it on or off for tracking sessions, and iso.me remembers your choice for the future. This update also improves how Settings toggles respond to taps.",
+  "promotionalText": "Summer's here — let iso.me track your road trips, beach days, and adventures privately on-device. No accounts, no servers, no compromises. Capture your summer."
+}

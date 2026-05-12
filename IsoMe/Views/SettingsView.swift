@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable var viewModel: LocationViewModel
+    @ObservedObject private var locationManager: LocationManager
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
@@ -19,6 +20,11 @@ struct SettingsView: View {
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
 
+    init(viewModel: LocationViewModel) {
+        _viewModel = Bindable(wrappedValue: viewModel)
+        _locationManager = ObservedObject(initialValue: viewModel.locationManager)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -28,6 +34,7 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         purchaseSection
                         trackingSection
+                        liveActivitySection
                         unitsSection
                         mapDisplaySection
                         importSection
@@ -76,7 +83,7 @@ struct SettingsView: View {
                 handleImportResult(result)
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
-                viewModel.locationManager.refreshDistanceUnitPreference()
+                locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
@@ -166,7 +173,7 @@ struct SettingsView: View {
                         settingsToggle(
                             "TRACKING",
                             isOn: Binding(
-                                get: { viewModel.locationManager.isTrackingEnabled },
+                                get: { locationManager.isTrackingEnabled },
                                 set: { newValue in
                                     if newValue {
                                         viewModel.startTracking()
@@ -186,7 +193,7 @@ struct SettingsView: View {
                         )
                     }
 
-                    if !viewModel.locationManager.hasAlwaysPermission {
+                    if !locationManager.hasAlwaysPermission {
                         TERow {
                             settingsButton("OPEN SETTINGS", icon: "arrow.up.right") {
                                 if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -199,8 +206,8 @@ struct SettingsView: View {
                     TERow {
                         settingsPickerRow(title: "DISTANCE FILTER") {
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.distanceFilter },
-                                set: { viewModel.locationManager.setDistanceFilter($0) }
+                                get: { locationManager.distanceFilter },
+                                set: { locationManager.setDistanceFilter($0) }
                             )) {
                                 Text("5m").tag(5.0)
                                 Text("10m").tag(10.0)
@@ -217,8 +224,8 @@ struct SettingsView: View {
                     TERow {
                         settingsPickerRow(title: "STOP AFTER") {
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.stopAfterHours },
-                                set: { viewModel.locationManager.setStopAfterHours($0) }
+                                get: { locationManager.stopAfterHours },
+                                set: { locationManager.setStopAfterHours($0) }
                             )) {
                                 Text("Never").tag(0.0)
                                 Text("1h").tag(1.0)
@@ -244,7 +251,7 @@ struct SettingsView: View {
     }
 
     private var permissionStatusText: String {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .notDetermined: return String(localized: "Not Set")
         case .restricted: return String(localized: "Restricted")
         case .denied: return String(localized: "Denied")
@@ -255,11 +262,34 @@ struct SettingsView: View {
     }
 
     private var permissionStatusColor: Color {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .authorizedAlways: return TE.accent
         case .authorizedWhenInUse: return TE.accent.opacity(0.7)
         case .denied, .restricted: return TE.danger
         default: return TE.textMuted
+        }
+    }
+
+    // MARK: - Live Activity Section
+
+    private var liveActivitySection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "LIVE ACTIVITY MONITOR")
+
+            TECard {
+                TERow(showDivider: false) {
+                    settingsToggle(
+                        "ENABLED",
+                        isOn: Binding(
+                            get: { locationManager.isLiveActivityEnabled },
+                            set: { locationManager.setLiveActivityEnabled($0) }
+                        )
+                    )
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Show tracking progress on the Lock Screen and Dynamic Island. Your choice is saved for future tracking sessions.")
         }
     }
 
