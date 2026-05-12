@@ -140,7 +140,7 @@ struct StartMarker: View {
                 .accessibilityHidden(true)
             
             Image(systemName: "flag.fill")
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundStyle(.white)
                 .accessibilityHidden(true)
         }

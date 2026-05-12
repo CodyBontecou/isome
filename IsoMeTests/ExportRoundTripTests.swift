@@ -34,6 +34,7 @@ final class ExportRoundTripTests: XCTestCase {
         ExportCase(name: "Markdown", format: .markdown, expectedFileExtension: "md"),
         ExportCase(name: "GeoJSON", format: .geojson, expectedFileExtension: "geojson"),
         ExportCase(name: "GPX", format: .gpx, expectedFileExtension: "gpx"),
+        ExportCase(name: "KML", format: .kml, expectedFileExtension: "kml"),
         ExportCase(name: "OwnTracks", format: .owntracks, expectedFileExtension: "json"),
         ExportCase(name: "Overland", format: .overland, expectedFileExtension: "json")
     ]
@@ -142,6 +143,8 @@ final class ExportRoundTripTests: XCTestCase {
             return try parseGeoJSON(data)
         case .gpx:
             return try parseGPX(data)
+        case .kml:
+            return try parseKML(data)
         case .owntracks:
             return try parseOwnTracks(data)
         case .overland:
@@ -375,6 +378,19 @@ final class ExportRoundTripTests: XCTestCase {
         return (visits: parser.visits, points: parser.points)
     }
 
+    private func parseKML(_ data: Data) throws -> (visits: [NormalizedVisit], points: [NormalizedPoint]) {
+        let parser = KMLRoundTripParser()
+        let xmlParser = XMLParser(data: data)
+        xmlParser.delegate = parser
+        XCTAssertTrue(xmlParser.parse(), xmlParser.parserError?.localizedDescription ?? "KML parse failed")
+
+        XCTAssertEqual(parser.rootAttributes["xmlns"], "http://www.opengis.net/kml/2.2")
+        XCTAssertEqual(parser.rootAttributes["xmlns:gx"], "http://www.google.com/kml/ext/2.2")
+        XCTAssertEqual(parser.rootAttributes["xmlns:isome"], "https://isome.isolated.tech/gpx/1.0")
+
+        return (visits: parser.visits, points: parser.points)
+    }
+
     private func parseJSONVisit(_ dict: [String: Any]) -> NormalizedVisit {
         XCTAssertEqual(Set(dict.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "latitude", "locationName", "longitude", "notes"])
         return NormalizedVisit(
@@ -426,9 +442,15 @@ final class ExportRoundTripTests: XCTestCase {
             if let timestamp = pair.0.timestamp {
                 XCTAssertEqual(timestamp.timeIntervalSince1970, pair.1.timestamp.timeIntervalSince1970, accuracy: 1.0, "\(formatName) point \(index) timestamp")
             }
-            XCTAssertEqual(pair.0.altitude ?? 0, pair.1.altitude ?? 0, accuracy: 0.51, "\(formatName) point \(index) altitude")
-            XCTAssertEqual(pair.0.speed ?? 0, pair.1.speed ?? 0, accuracy: 0.15, "\(formatName) point \(index) speed")
-            XCTAssertEqual(pair.0.horizontalAccuracy ?? 0, pair.1.horizontalAccuracy, accuracy: 0.51, "\(formatName) point \(index) accuracy")
+            if let altitude = pair.0.altitude {
+                XCTAssertEqual(altitude, pair.1.altitude ?? 0, accuracy: 0.51, "\(formatName) point \(index) altitude")
+            }
+            if let speed = pair.0.speed {
+                XCTAssertEqual(speed, pair.1.speed ?? 0, accuracy: 0.15, "\(formatName) point \(index) speed")
+            }
+            if let horizontalAccuracy = pair.0.horizontalAccuracy {
+                XCTAssertEqual(horizontalAccuracy, pair.1.horizontalAccuracy, accuracy: 0.51, "\(formatName) point \(index) accuracy")
+            }
             if let isOutlier = pair.0.isOutlier {
                 XCTAssertEqual(isOutlier, pair.1.isOutlier, "\(formatName) point \(index) outlier flag")
             }
@@ -519,6 +541,155 @@ final class ExportRoundTripTests: XCTestCase {
         }
 
         return rows
+    }
+}
+
+private final class KMLRoundTripParser: NSObject, XMLParserDelegate {
+    private(set) var rootAttributes: [String: String] = [:]
+    private(set) var visits: [ExportRoundTripTests.NormalizedVisit] = []
+    private(set) var points: [ExportRoundTripTests.NormalizedPoint] = []
+
+    private var elementStack: [String] = []
+    private var textBuffer = ""
+    private var currentPlacemark: CurrentPlacemark?
+    private var currentDataName: String?
+
+    func parser(
+        _ parser: XMLParser,
+        didStartElement elementName: String,
+        namespaceURI: String?,
+        qualifiedName qName: String?,
+        attributes attributeDict: [String: String] = [:]
+    ) {
+        elementStack.append(elementName)
+        textBuffer = ""
+
+        if elementName == "kml" {
+            rootAttributes = attributeDict
+        } else if elementName == "Placemark" {
+            currentPlacemark = CurrentPlacemark()
+        } else if elementName == "Data", currentPlacemark != nil {
+            currentDataName = attributeDict["name"]
+        }
+    }
+
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        textBuffer += string
+    }
+
+    func parser(
+        _ parser: XMLParser,
+        didEndElement elementName: String,
+        namespaceURI: String?,
+        qualifiedName qName: String?
+    ) {
+        let value = textBuffer.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if currentPlacemark != nil {
+            switch elementName {
+            case "name":
+                currentPlacemark?.name = value
+            case "description":
+                currentPlacemark?.description = value
+            case "value":
+                if let currentDataName {
+                    currentPlacemark?.data[currentDataName] = value
+                    self.currentDataName = nil
+                }
+            case "when":
+                if elementStack.contains("gx:Track") {
+                    currentPlacemark?.trackTimestamps.append(ExportRoundTripTests.iso8601.date(from: value))
+                } else {
+                    currentPlacemark?.timestamp = ExportRoundTripTests.iso8601.date(from: value)
+                }
+            case "gx:coord":
+                if let coordinate = parseGXCoordinate(value) {
+                    currentPlacemark?.trackCoordinates.append(coordinate)
+                }
+            case "coordinates":
+                if currentPlacemark?.data["kind"] == "visit",
+                   currentPlacemark?.visitCoordinate == nil,
+                   let coordinate = parseKMLCoordinate(value) {
+                    currentPlacemark?.visitCoordinate = coordinate
+                }
+            default:
+                break
+            }
+        }
+
+        if elementName == "Placemark", let placemark = currentPlacemark {
+            finalize(placemark)
+            currentPlacemark = nil
+        }
+
+        _ = elementStack.popLast()
+        textBuffer = ""
+    }
+
+    private func finalize(_ placemark: CurrentPlacemark) {
+        switch placemark.data["kind"] {
+        case "visit":
+            guard let coordinate = placemark.visitCoordinate else { return }
+            visits.append(ExportRoundTripTests.NormalizedVisit(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude,
+                arrivedAt: placemark.data["arrivedAt"].flatMap(ExportRoundTripTests.iso8601.date(from:)) ?? placemark.timestamp,
+                departedAt: placemark.data["departedAt"].flatMap(ExportRoundTripTests.iso8601.date(from:)),
+                locationName: placemark.name == "Visit" ? nil : placemark.name,
+                address: placemark.data["address"],
+                notes: placemark.data["notes"]
+            ))
+        case "trackingSession":
+            for (index, coordinate) in placemark.trackCoordinates.enumerated() {
+                let timestamp = index < placemark.trackTimestamps.count ? placemark.trackTimestamps[index] : nil
+                points.append(ExportRoundTripTests.NormalizedPoint(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
+                    timestamp: timestamp,
+                    altitude: coordinate.altitude,
+                    speed: nil,
+                    horizontalAccuracy: nil,
+                    isOutlier: nil
+                ))
+            }
+        default:
+            break
+        }
+    }
+
+    private func parseKMLCoordinate(_ value: String) -> Coordinate? {
+        guard let firstCoordinate = value.split(whereSeparator: { $0.isWhitespace }).first else { return nil }
+        let parts = firstCoordinate.split(separator: ",").map(String.init)
+        guard parts.count >= 2,
+              let longitude = Double(parts[0]),
+              let latitude = Double(parts[1]) else { return nil }
+        let altitude = parts.count >= 3 ? Double(parts[2]) : nil
+        return Coordinate(latitude: latitude, longitude: longitude, altitude: altitude)
+    }
+
+    private func parseGXCoordinate(_ value: String) -> Coordinate? {
+        let parts = value.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+        guard parts.count >= 2,
+              let longitude = Double(parts[0]),
+              let latitude = Double(parts[1]) else { return nil }
+        let altitude = parts.count >= 3 ? Double(parts[2]) : nil
+        return Coordinate(latitude: latitude, longitude: longitude, altitude: altitude)
+    }
+
+    private struct CurrentPlacemark {
+        var name: String?
+        var description: String?
+        var timestamp: Date?
+        var data: [String: String] = [:]
+        var visitCoordinate: Coordinate?
+        var trackTimestamps: [Date?] = []
+        var trackCoordinates: [Coordinate] = []
+    }
+
+    private struct Coordinate {
+        let latitude: Double
+        let longitude: Double
+        let altitude: Double?
     }
 }
 

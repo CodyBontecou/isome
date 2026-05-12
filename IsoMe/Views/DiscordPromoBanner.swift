@@ -13,7 +13,7 @@ struct DiscordPromoBanner: View {
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.callout.weight(.semibold))
                         .foregroundStyle(TE.accent)
                         .frame(width: 22)
 
@@ -54,7 +54,7 @@ struct DiscordPromoBanner: View {
 
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.caption.weight(.bold))
                     .foregroundStyle(TE.textMuted)
                     .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
