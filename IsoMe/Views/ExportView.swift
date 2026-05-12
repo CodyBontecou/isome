@@ -198,6 +198,10 @@ struct ExportView: View {
                         segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
                         Rectangle().fill(TE.border).frame(height: 1)
                         segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                        Rectangle().fill(TE.border).frame(height: 1)
+                        segmentedButton("KML", isSelected: options.format == .kml) { options.format = .kml }
+                        Rectangle().fill(TE.border).frame(height: 1)
+                        segmentedButton("GEOJSON", isSelected: options.format == .geojson) { options.format = .geojson }
                     } else {
                         HStack(spacing: 0) {
                             segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
@@ -215,6 +219,14 @@ struct ExportView: View {
                             segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
                             Rectangle().fill(TE.border).frame(width: 1)
                             segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                        }
+
+                        Rectangle().fill(TE.border).frame(height: 1)
+
+                        HStack(spacing: 0) {
+                            segmentedButton("KML", isSelected: options.format == .kml) { options.format = .kml }
+                            Rectangle().fill(TE.border).frame(width: 1)
+                            segmentedButton("GEOJSON", isSelected: options.format == .geojson) { options.format = .geojson }
                         }
                     }
                 }
@@ -454,6 +466,8 @@ struct ExportView: View {
                                     Text("MARKDOWN").tag(ExportFormat.markdown)
                                     Text("OWNTRACKS").tag(ExportFormat.owntracks)
                                     Text("OVERLAND").tag(ExportFormat.overland)
+                                    Text("GPX").tag(ExportFormat.gpx)
+                                    Text("KML").tag(ExportFormat.kml)
                                     Text("GEOJSON").tag(ExportFormat.geojson)
                                 }
                                 .labelsHidden()

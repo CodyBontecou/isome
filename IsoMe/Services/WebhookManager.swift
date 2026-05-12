@@ -5,7 +5,7 @@ import SwiftData
 
 /// HTTP webhook delivery of location data to a user-configured endpoint.
 ///
-/// Supports OwnTracks, Overland, GPX, JSON, CSV, and Markdown payload formats.
+/// Supports OwnTracks, Overland, GPX, KML, GeoJSON, JSON, CSV, and Markdown payload formats.
 /// Multiple auth methods (none, API key query param, Bearer, Basic, custom header).
 /// Multiple send modes (realtime per-point, batch count, batch time, manual).
 ///
@@ -501,6 +501,11 @@ final class WebhookManager: ObservableObject {
                 return ExportService.exportCombinedToGPX(visits: visits, points: points)
             }
             return ExportService.exportLocationPointsToGPX(points: points)
+        case .kml:
+            if hasVisits {
+                return ExportService.exportCombinedToKML(visits: visits, points: points)
+            }
+            return ExportService.exportLocationPointsToKML(points: points)
         case .geojson:
             if hasVisits {
                 return try ExportService.exportCombinedToGeoJSON(visits: visits, points: points)
@@ -529,6 +534,8 @@ final class WebhookManager: ObservableObject {
         case "owntracks": return .owntracks
         case "overland": return .overland
         case "gpx": return .gpx
+        case "kml": return .kml
+        case "geojson": return .geojson
         default: return .json
         }
     }

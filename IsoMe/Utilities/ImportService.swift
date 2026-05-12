@@ -8,7 +8,7 @@ enum ImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me."
+            return "Unsupported file format. Import currently supports JSON, CSV, or Markdown files exported from iso.me. KML, GPX, and GeoJSON exports are one-way map files."
         case .invalidData(let detail):
             return "Invalid data: \(detail)"
         case .parsingFailed(let detail):
@@ -74,6 +74,7 @@ struct ImportService {
         case "json": return .json
         case "csv": return .csv
         case "md", "markdown": return .markdown
+        case "kml": return .kml
         case "geojson": return .geojson
         default: return nil
         }
@@ -96,7 +97,7 @@ struct ImportService {
                 if text.contains("# iso.me Location Points Export") { return .locationPoints }
                 if text.contains("# iso.me Export") { return .visits }
             }
-        case .owntracks, .overland, .gpx, .geojson:
+        case .owntracks, .overland, .gpx, .kml, .geojson:
             return .locationPoints
         }
         return .visits
@@ -124,7 +125,7 @@ struct ImportService {
         case .json: return try importVisitsFromJSON(data: data)
         case .csv: return try importVisitsFromCSV(data: data)
         case .markdown: return try importVisitsFromMarkdown(data: data)
-        case .owntracks, .overland, .gpx, .geojson: throw ImportError.unsupportedFormat
+        case .owntracks, .overland, .gpx, .kml, .geojson: throw ImportError.unsupportedFormat
         }
     }
 
@@ -135,7 +136,7 @@ struct ImportService {
         case .json: return try importLocationPointsFromJSON(data: data)
         case .csv: return try importLocationPointsFromCSV(data: data)
         case .markdown: return try importLocationPointsFromMarkdown(data: data)
-        case .owntracks, .overland, .gpx, .geojson: throw ImportError.unsupportedFormat
+        case .owntracks, .overland, .gpx, .kml, .geojson: throw ImportError.unsupportedFormat
         }
     }
 
