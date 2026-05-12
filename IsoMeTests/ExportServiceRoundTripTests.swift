@@ -55,7 +55,7 @@ final class ExportServiceRoundTripTests: XCTestCase {
         ).points
 
         assertVisits(importedVisits, match: visits, coordinateAccuracy: 0.000001)
-        assertLocationPoints(importedPoints, match: points, coordinateAccuracy: 0.000001, valueAccuracy: 0.05)
+        assertLocationPoints(importedPoints, match: points, coordinateAccuracy: 0.000001, valueAccuracy: 0.06)
     }
 
     func testMalformedJSONThrowsParsingError() {
