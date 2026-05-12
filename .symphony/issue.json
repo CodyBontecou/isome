@@ -1,0 +1,18 @@
+{
+  "id": "I_kwDOQwWY1M8AAAABAjZprw",
+  "identifier": "CodyBontecou/isome#12",
+  "title": "Add unit tests for ExportService round-trip",
+  "description": "## Background\n\n`IsoMe/Utilities/ExportService.swift` and `ImportService.swift` form a round-trip — export to JSON/CSV/Markdown, then re-import. There are currently no tests covering that round-trip, which means a small refactor could silently break import compatibility for users who rely on backups.\n\nThe test target is `IsoMeTests/`.\n\n## What to build\n\nAdd unit tests that:\n\n1. Build a small fixture: a handful of `Visit` records and a tracking session with several `LocationPoint`s\n2. For each format (JSON, CSV, Markdown):\n   - Export the fixture\n   - Re-import the exported string\n   - Assert the round-tripped data matches the original (timestamps, coordinates, names, distances)\n3. Add at least one test for malformed input — e.g. a corrupt CSV row should throw a clear error, not crash\n\n## Acceptance\n\n- New tests live in `IsoMeTests/`\n- All tests pass via `xcodebuild test` and inside Xcode\n- Coverage includes both happy path and at least one error path per format\n\n## Tips\n\n- Use `XCTAssertEqual` with floating-point tolerance for coordinates\n- Don't assert on exact string output — assert on the parsed back-and-forth",
+  "author": "CodyBontecou",
+  "priority": null,
+  "state": "open",
+  "branch_name": null,
+  "url": "https://github.com/CodyBontecou/isome/issues/12",
+  "labels": [
+    "enhancement",
+    "good first issue"
+  ],
+  "blocked_by": [],
+  "created_at": "2026-04-26T21:56:49Z",
+  "updated_at": "2026-05-04T19:10:12Z"
+}
