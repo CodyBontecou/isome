@@ -29,7 +29,7 @@ struct ContentView: View {
     private var trackingStatusView: some View {
         VStack(spacing: 8) {
             Image(systemName: statusIcon)
-                .font(.system(size: 36))
+                .font(.largeTitle)
                 .foregroundStyle(statusColor)
 
             Text(locationData.trackingStatus)

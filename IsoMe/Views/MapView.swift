@@ -453,7 +453,7 @@ struct MapTrackingControlPill: View {
     private var primaryButton: some View {
         Button(action: onPrimaryTap) {
             Image(systemName: isTracking ? "stop.fill" : "play.fill")
-                .font(.system(size: 12, weight: .bold))
+                .font(.caption.weight(.bold))
                 .foregroundStyle(.white)
                 .frame(width: 34, height: 34)
                 .background {
@@ -493,7 +493,7 @@ struct MapAutoOffPill: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "timer")
-                .font(.system(size: 10, weight: .medium))
+                .font(.caption2.weight(.medium))
                 .foregroundStyle(TE.textMuted)
                 .accessibilityHidden(true)
 
@@ -556,7 +556,7 @@ struct VisitMarker: View {
                     .accessibilityHidden(true)
 
                 Image(systemName: "mappin")
-                    .font(.system(size: isSelected ? 18 : 14))
+                    .font(isSelected ? .title3 : .callout)
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
@@ -618,7 +618,7 @@ struct PathStartMarker: View {
                         .accessibilityHidden(true)
 
                     Image(systemName: "flag.fill")
-                        .font(.system(size: 14))
+                        .font(.callout)
                         .foregroundStyle(.white)
                         .accessibilityHidden(true)
                 }
@@ -662,7 +662,7 @@ struct PathEndMarker: View {
                         .accessibilityHidden(true)
 
                     Image(systemName: "flag.checkered")
-                        .font(.system(size: 14))
+                        .font(.callout)
                         .foregroundStyle(.white)
                         .accessibilityHidden(true)
                 }
@@ -914,7 +914,7 @@ struct FilterBarToggle: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: isOpen ? "xmark" : "slider.horizontal.3")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(isOpen ? Color.white : Color.primary.opacity(0.75))
                 .frame(width: 44, height: 44)
                 .background {
@@ -1028,11 +1028,11 @@ struct PresetPill: View {
             HStack(spacing: 4) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption.weight(.medium))
                         .accessibilityHidden(true)
                 }
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
             }
             .foregroundStyle(isActive ? Color.white : Color.primary)
             .padding(.horizontal, 12)
@@ -1063,7 +1063,7 @@ struct LayerToggleButton: View {
             }
         } label: {
             Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .frame(width: 44, height: 44)
                 .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
                 .background {
@@ -1108,7 +1108,7 @@ struct FitMenuButton: View {
             }
         } label: {
             Image(systemName: "scope")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .frame(width: 44, height: 44)
                 .foregroundStyle(Color.primary.opacity(0.7))
         }

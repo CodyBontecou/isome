@@ -28,12 +28,14 @@ enum TE {
 /// TE-styled section header: uppercase, tracked, monospaced.
 struct TESectionHeader: View {
     let title: LocalizedStringKey
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Text(title)
             .font(TE.mono(.caption2, weight: .semibold))
-            .tracking(2)
+            .tracking(dynamicTypeSize.isAccessibilitySize ? 1 : 2)
             .foregroundStyle(TE.textMuted)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.top, 20)
@@ -90,41 +92,62 @@ struct TERow<Content: View>: View {
 /// TE-styled toggle: cream-paper-friendly off track with stronger border,
 /// solid accent on track. Gives clear contrast on TE.surface backgrounds.
 struct TEToggleStyle: ToggleStyle {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var trackWidth: CGFloat = 50
+    @ScaledMetric(relativeTo: .body) private var trackHeight: CGFloat = 30
+    @ScaledMetric(relativeTo: .body) private var thumbInset: CGFloat = 2
 
-    private let trackWidth: CGFloat = 50
-    private let trackHeight: CGFloat = 30
-    private let thumbInset: CGFloat = 2
-
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
         let isOn = configuration.isOn
         let thumbDiameter = trackHeight - thumbInset * 2
 
-        return HStack {
-            configuration.label
-            Spacer()
-            ZStack(alignment: isOn ? .trailing : .leading) {
-                Capsule()
-                    .fill(isOn ? TE.accent : TE.border)
-                Capsule()
-                    .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 12) {
+                configuration.label
+                    .fixedSize(horizontal: false, vertical: true)
 
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: thumbDiameter, height: thumbDiameter)
-                    .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
-                    .padding(.horizontal, thumbInset)
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
+                    configuration.isOn.toggle()
+                }
+                .accessibilityRepresentation {
+                    Toggle(isOn: configuration.$isOn) { configuration.label }
+                }
             }
-            .frame(width: trackWidth, height: trackHeight)
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: isOn)
-            .contentShape(Capsule())
-            .onTapGesture {
-                configuration.isOn.toggle()
-            }
-            .accessibilityRepresentation {
-                Toggle(isOn: configuration.$isOn) { configuration.label }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(alignment: .center, spacing: 12) {
+                configuration.label
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 12)
+                toggleTrack(isOn: isOn, thumbDiameter: thumbDiameter) {
+                    configuration.isOn.toggle()
+                }
+                .accessibilityRepresentation {
+                    Toggle(isOn: configuration.$isOn) { configuration.label }
+                }
             }
         }
+    }
+
+    private func toggleTrack(isOn: Bool, thumbDiameter: CGFloat, action: @escaping () -> Void) -> some View {
+        ZStack(alignment: isOn ? .trailing : .leading) {
+            Capsule()
+                .fill(isOn ? TE.accent : TE.border)
+            Capsule()
+                .strokeBorder(isOn ? TE.accent : TE.textMuted.opacity(0.35), lineWidth: 1)
+
+            Circle()
+                .fill(Color.white)
+                .frame(width: thumbDiameter, height: thumbDiameter)
+                .shadow(color: .black.opacity(0.18), radius: 1.5, x: 0, y: 1)
+                .padding(.horizontal, thumbInset)
+        }
+        .frame(width: trackWidth, height: trackHeight)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: isOn)
+        .contentShape(Capsule())
+        .onTapGesture(perform: action)
     }
 }
 
@@ -136,6 +159,7 @@ struct TESectionFooter: View {
         Text(text)
             .font(TE.mono(.caption2, weight: .regular))
             .foregroundStyle(TE.textMuted)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.top, 4)

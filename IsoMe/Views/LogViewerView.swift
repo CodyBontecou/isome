@@ -11,7 +11,7 @@ struct LogViewerView: View {
             if logManager.entries.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "doc.text")
-                        .font(.system(size: 24, weight: .light))
+                        .font(.title3.weight(.light))
                         .foregroundStyle(TE.textMuted)
                     Text("NO LOG ENTRIES")
                         .font(TE.mono(.caption, weight: .medium))
@@ -44,14 +44,14 @@ struct LogViewerView: View {
                         showingCopyConfirmation = true
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.callout.weight(.medium))
                             .foregroundStyle(TE.accent)
                     }
                     Button {
                         logManager.clear()
                     } label: {
                         Image(systemName: "trash")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.callout.weight(.medium))
                             .foregroundStyle(TE.danger)
                     }
                 }
