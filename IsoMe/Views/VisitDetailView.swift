@@ -75,6 +75,8 @@ struct VisitDetailView: View {
         }
         .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityLabel("Visit map")
+        .accessibilityValue("\(visit.accessibilityLabel). \(visit.accessibilityValue)")
     }
 
     private var locationInfoSection: some View {
@@ -95,6 +97,7 @@ struct VisitDetailView: View {
                         .background(.blue)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
+                        .accessibilityLabel("Current visit")
                 }
             }
 
@@ -130,6 +133,7 @@ struct VisitDetailView: View {
 
                 Image(systemName: "arrow.right")
                     .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
 
                 Spacer()
 
@@ -252,11 +256,15 @@ struct VisitDetailView: View {
             } label: {
                 HStack {
                     Image(systemName: "map")
+                        .accessibilityHidden(true)
                     Text("Open in Maps")
                 }
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
+            .accessibilityLabel("Open visit in Maps")
+            .accessibilityValue(visit.displayName)
+            .accessibilityHint("Opens this location in Apple Maps.")
 
             // Delete
             Button(role: .destructive) {
@@ -264,12 +272,14 @@ struct VisitDetailView: View {
             } label: {
                 HStack {
                     Image(systemName: "trash")
+                        .accessibilityHidden(true)
                     Text("Delete Visit")
                 }
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
             .tint(.red)
+            .accessibilityHint("Deletes this visit after confirmation.")
         }
     }
 

@@ -14784,6 +14784,598 @@
           }
         }
       }
+    },
+    "Clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar"
+          }
+        }
+      }
+    },
+    "Import Complete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Complete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importación completada"
+          }
+        }
+      }
+    },
+    "Import Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Failed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error de importación"
+          }
+        }
+      }
+    },
+    "ISO.ME PRO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ISO.ME PRO"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ISO.ME PRO"
+          }
+        }
+      }
+    },
+    "EXPORT UNLOCKED": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORT UNLOCKED"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORTACIÓN DESBLOQUEADA"
+          }
+        }
+      }
+    },
+    "UNLOCK EXPORT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNLOCK EXPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DESBLOQUEAR EXPORTACIÓN"
+          }
+        }
+      }
+    },
+    "Tracking is free and unlimited. Unlock data export with a one-time purchase.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracking is free and unlimited. Unlock data export with a one-time purchase."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El seguimiento es gratis e ilimitado. Desbloquea la exportación de datos con una compra única."
+          }
+        }
+      }
+    },
+    "STOP AFTER": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STOP AFTER"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DETENER DESPUÉS DE"
+          }
+        }
+      }
+    },
+    "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El seguimiento registra visitas, cambios significativos y una ruta continua de alta precisión. El filtro de distancia controla con qué frecuencia se guardan puntos al moverte. Detener después detiene automáticamente como medida de seguridad."
+          }
+        }
+      }
+    },
+    "MAP DISPLAY": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MAP DISPLAY"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VISUALIZACIÓN DEL MAPA"
+          }
+        }
+      }
+    },
+    "SHOW GPS GLITCHES": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SHOW GPS GLITCHES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MOSTRAR ERRORES DE GPS"
+          }
+        }
+      }
+    },
+    "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los puntos marcados como errores de GPS (saltos repentinos que vuelven a tu ruta) se ocultan de forma predeterminada. Actívalo para inspeccionar los datos sin procesar."
+          }
+        }
+      }
+    },
+    "DATA IMPORT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DATA IMPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMPORTACIÓN DE DATOS"
+          }
+        }
+      }
+    },
+    "IMPORT FILE": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMPORT FILE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMPORTAR ARCHIVO"
+          }
+        }
+      }
+    },
+    "Import visits or points from a previously exported JSON, CSV, or Markdown file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import visits or points from a previously exported JSON, CSV, or Markdown file."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importa visitas o puntos desde un archivo JSON, CSV o Markdown exportado anteriormente."
+          }
+        }
+      }
+    },
+    "SUPPORT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SUPPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOPORTE"
+          }
+        }
+      }
+    },
+    "VIEW LOGS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VIEW LOGS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VER REGISTROS"
+          }
+        }
+      }
+    },
+    "JOIN DISCORD": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JOIN DISCORD"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNIRSE A DISCORD"
+          }
+        }
+      }
+    },
+    "View app activity logs or chat with the community.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View app activity logs or chat with the community."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulta los registros de actividad de la app o chatea con la comunidad."
+          }
+        }
+      }
+    },
+    "SEND FEEDBACK": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEND FEEDBACK"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENVIAR COMENTARIOS"
+          }
+        }
+      }
+    },
+    "PRIVACY POLICY": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PRIVACY POLICY"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POLÍTICA DE PRIVACIDAD"
+          }
+        }
+      }
+    },
+    "TERMS OF SERVICE": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TERMS OF SERVICE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TÉRMINOS DEL SERVICIO"
+          }
+        }
+      }
+    },
+    "NO LOG ENTRIES": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NO LOG ENTRIES"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NO HAY REGISTROS"
+          }
+        }
+      }
+    },
+    "LOGS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LOGS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REGISTROS"
+          }
+        }
+      }
+    },
+    "Copied to Clipboard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied to Clipboard"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado al portapapeles"
+          }
+        }
+      }
+    },
+    "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported file format. Please use JSON, CSV, or Markdown files exported from iso.me."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formato de archivo no compatible. Usa archivos JSON, CSV o Markdown exportados desde iso.me."
+          }
+        }
+      }
+    },
+    "Invalid data: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid data: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos no válidos: %@"
+          }
+        }
+      }
+    },
+    "Parsing failed: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parsing failed: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al analizar: %@"
+          }
+        }
+      }
+    },
+    "Imported 1 visit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported 1 visit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importó 1 visita."
+          }
+        }
+      }
+    },
+    "Imported %d visits.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported %d visits."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importaron %d visitas."
+          }
+        }
+      }
+    },
+    "Imported 1 point.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported 1 point."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importó 1 punto."
+          }
+        }
+      }
+    },
+    "Imported %d points.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported %d points."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importaron %d puntos."
+          }
+        }
+      }
+    },
+    "Imported 1 visit and 1 point.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported 1 visit and 1 point."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importó 1 visita y 1 punto."
+          }
+        }
+      }
+    },
+    "Imported 1 visit and %d points.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported 1 visit and %d points."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importó 1 visita y %d puntos."
+          }
+        }
+      }
+    },
+    "Imported %d visits and 1 point.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported %d visits and 1 point."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importaron %d visitas y 1 punto."
+          }
+        }
+      }
+    },
+    "Imported %d visits and %d points.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported %d visits and %d points."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se importaron %d visitas y %d puntos."
+          }
+        }
+      }
+    },
+    "No data imported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No data imported."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se importaron datos."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -322,6 +322,7 @@ private struct TripListRow: View {
 }
 
 private struct OnboardingView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let viewModel: LocationViewModel
     let onComplete: (Bool) -> Void
 
@@ -362,7 +363,7 @@ private struct OnboardingView: View {
                         .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
+                .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
 
                 controls
                     .padding(.horizontal, 24)
@@ -373,7 +374,7 @@ private struct OnboardingView: View {
         .onChange(of: locationManager.authorizationStatus) { _, newStatus in
             guard selectedPage == 2 else { return }
             if newStatus == .authorizedAlways {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.85)) {
                     selectedPage = 3
                 }
             }
@@ -611,7 +612,7 @@ private struct OnboardingView: View {
                 Capsule()
                     .fill(index <= selectedPage ? OnboardingPalette.accent : OnboardingPalette.border)
                     .frame(height: 4)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.88), value: selectedPage)
+                    .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.88), value: selectedPage)
             }
         }
     }
@@ -620,13 +621,13 @@ private struct OnboardingView: View {
         HStack(spacing: 12) {
             if selectedPage > 0 {
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.85)) {
                         selectedPage -= 1
                     }
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.caption.weight(.semibold))
                         Text("BACK")
                     }
                 }
@@ -646,7 +647,7 @@ private struct OnboardingView: View {
                         Text(primaryButtonTitle.uppercased())
 
                         Image(systemName: selectedPage == pageCount - 1 ? "checkmark" : "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.caption.weight(.semibold))
                     }
                 }
                 .buttonStyle(OnboardingPrimaryButtonStyle())
@@ -672,7 +673,7 @@ private struct OnboardingView: View {
             return
         }
 
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.85)) {
             selectedPage += 1
         }
     }
@@ -722,7 +723,7 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
                         }
 
                     Image(systemName: icon)
-                        .font(.system(size: 36, weight: .light))
+                        .font(.largeTitle.weight(.light))
                         .foregroundStyle(OnboardingPalette.accent)
                 }
             }
@@ -773,7 +774,7 @@ private struct OnboardingFeatureCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(OnboardingPalette.accent)
 
                     Text(title)
@@ -802,7 +803,7 @@ private struct OnboardingStatusRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.callout.weight(.semibold))
                 .foregroundStyle(color)
                 .frame(width: 22)
 
@@ -831,7 +832,7 @@ private struct OnboardingSummaryRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(OnboardingPalette.accent)
                 .frame(width: 20)
 
@@ -856,7 +857,7 @@ private struct OnboardingChecklistRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(OnboardingPalette.accent)
                 .frame(width: 18)
 
@@ -871,6 +872,7 @@ private struct OnboardingChecklistRow: View {
 }
 
 private struct OnboardingSignalColumn: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let delay: Double
     @State private var isAnimating = false
 
@@ -883,13 +885,26 @@ private struct OnboardingSignalColumn: View {
             }
         }
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.0)
-                .repeatForever(autoreverses: true)
-                .delay(delay)
-            ) {
-                isAnimating = true
-            }
+            updateSignalAnimation(reduceMotion: reduceMotion)
+        }
+        .onChange(of: reduceMotion) { _, shouldReduceMotion in
+            updateSignalAnimation(reduceMotion: shouldReduceMotion)
+        }
+    }
+
+    private func updateSignalAnimation(reduceMotion: Bool) {
+        guard !reduceMotion else {
+            isAnimating = true
+            return
+        }
+
+        isAnimating = false
+        withAnimation(
+            .easeInOut(duration: 1.0)
+            .repeatForever(autoreverses: true)
+            .delay(delay)
+        ) {
+            isAnimating = true
         }
     }
 }
@@ -959,6 +974,8 @@ private extension View {
 }
 
 private struct OnboardingPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.onboardingButton)
@@ -978,11 +995,13 @@ private struct OnboardingPrimaryButtonStyle: ButtonStyle {
             .shadow(color: OnboardingPalette.accent.opacity(0.24), radius: 10, x: 0, y: 6)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
 private struct OnboardingSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.onboardingButton)
@@ -1001,11 +1020,13 @@ private struct OnboardingSecondaryButtonStyle: ButtonStyle {
             }
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
 private struct OnboardingTextButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.onboardingMicro)
@@ -1017,7 +1038,7 @@ private struct OnboardingTextButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(OnboardingPalette.card.opacity(configuration.isPressed ? 0.8 : 0.001))
             )
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
