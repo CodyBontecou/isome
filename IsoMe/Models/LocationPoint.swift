@@ -56,6 +56,36 @@ final class LocationPoint {
         let to = CLLocation(latitude: other.latitude, longitude: other.longitude)
         return from.distance(from: to)
     }
+
+    var accessibilityTimestamp: String {
+        timestamp.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    var accessibilityCoordinateSummary: String {
+        String(format: "Latitude %.4f, longitude %.4f", latitude, longitude)
+    }
+
+    var accessibilityAccuracySummary: String {
+        String(format: "Accuracy about %.0f meters", horizontalAccuracy)
+    }
+
+    var accessibilityValue: String {
+        var parts = [
+            accessibilityTimestamp,
+            accessibilityCoordinateSummary,
+            accessibilityAccuracySummary
+        ]
+
+        if let speed {
+            parts.append(String(format: "Speed %.1f meters per second", speed))
+        }
+
+        if isOutlier {
+            parts.append("Marked as an outlier")
+        }
+
+        return parts.joined(separator: ". ")
+    }
 }
 
 extension LocationPoint {

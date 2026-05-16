@@ -205,6 +205,29 @@ final class LocationViewModel {
         formatDistance(sessionDistanceTraveled)
     }
 
+    var sessionAccessibilitySummary: String {
+        let pointCount = sessionLocationPoints.count
+        guard pointCount > 0 else {
+            return "No active session path points."
+        }
+
+        var parts = [
+            "\(pointCount) \(pointCount == 1 ? "point" : "points")",
+            "Duration \(formattedSessionTrackingDuration)",
+            "Distance \(formattedSessionDistance)"
+        ]
+
+        if let first = sessionLocationPoints.first {
+            parts.append("Started \(first.accessibilityTimestamp)")
+        }
+
+        if let last = sessionLocationPoints.last, pointCount > 1 {
+            parts.append("Latest point \(last.accessibilityTimestamp)")
+        }
+
+        return parts.joined(separator: ". ")
+    }
+
     // Today's tracking stats (kept for other views)
     var todayTrackingDuration: TimeInterval {
         guard let first = todayLocationPoints.first,

@@ -4,6 +4,7 @@ import MapKit
 /// A map view that displays a session's recorded path with start/end markers
 /// and a gradient polyline showing direction of travel
 struct SessionPathMapView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let points: [LocationPoint]
     @State private var cameraPosition: MapCameraPosition = .automatic
     
@@ -26,14 +27,20 @@ struct SessionPathMapView: View {
             // Start marker (first point)
             if let firstPoint = points.first {
                 Annotation("Start", coordinate: firstPoint.coordinate) {
-                    StartMarker()
+                    StartMarker(
+                        accessibilityLabel: "Session path start",
+                        accessibilityValue: firstPoint.accessibilityValue
+                    )
                 }
             }
             
             // End/Current marker (last point)
             if let lastPoint = points.last, points.count > 1 {
                 Annotation("Current", coordinate: lastPoint.coordinate) {
-                    CurrentLocationMarker()
+                    CurrentLocationMarker(
+                        accessibilityLabel: "Session path current location",
+                        accessibilityValue: lastPoint.accessibilityValue
+                    )
                 }
             }
             
@@ -43,6 +50,7 @@ struct SessionPathMapView: View {
                     Circle()
                         .fill(.blue.opacity(0.6))
                         .frame(width: 6, height: 6)
+                        .accessibilityHidden(true)
                 }
             }
         }
@@ -56,6 +64,8 @@ struct SessionPathMapView: View {
         .onAppear {
             updateCameraPosition()
         }
+        .accessibilityLabel("Session path map")
+        .accessibilityValue(sessionAccessibilitySummary)
     }
     
     /// Returns intermediate points (every 10th point, excluding first and last)
@@ -78,30 +88,74 @@ struct SessionPathMapView: View {
         let coordinates = points.map { $0.coordinate }
         let region = MKCoordinateRegion(coordinates: coordinates, padding: 1.3)
         
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
             cameraPosition = .region(region)
         }
+    }
+
+    private var sessionAccessibilitySummary: String {
+        guard let first = points.first else {
+            return "No path points."
+        }
+
+        var parts = ["\(points.count) \(points.count == 1 ? "point" : "points")"]
+        parts.append("Started \(first.accessibilityTimestamp)")
+
+        if let last = points.last, points.count > 1 {
+            parts.append("Ended \(last.accessibilityTimestamp)")
+            parts.append("Distance \(formattedDistance(totalDistance))")
+        }
+
+        return parts.joined(separator: ". ")
+    }
+
+    private var totalDistance: Double {
+        guard points.count > 1 else { return 0 }
+        var distance: Double = 0
+        for index in 1..<points.count {
+            distance += points[index - 1].distance(to: points[index])
+        }
+        return distance
+    }
+
+    private func formattedDistance(_ meters: Double) -> String {
+        if meters >= 1_000 {
+            return String(format: "%.1f kilometers", meters / 1_000)
+        }
+        return String(format: "%.0f meters", meters)
     }
 }
 
 // MARK: - Marker Views
 
 struct StartMarker: View {
+    var accessibilityLabel = "Path start"
+    var accessibilityValue = ""
+
     var body: some View {
         ZStack {
             Circle()
                 .fill(.green)
                 .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
             
             Image(systemName: "flag.fill")
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundStyle(.white)
+                .accessibilityHidden(true)
         }
+        .frame(width: 44, height: 44)
         .shadow(color: .green.opacity(0.3), radius: 4, y: 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
     }
 }
 
 struct CurrentLocationMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var accessibilityLabel = "Current location"
+    var accessibilityValue = ""
     @State private var isPulsing = false
     
     var body: some View {
@@ -112,23 +166,43 @@ struct CurrentLocationMarker: View {
                 .frame(width: 32, height: 32)
                 .scaleEffect(isPulsing ? 1.5 : 1.0)
                 .opacity(isPulsing ? 0 : 0.5)
+                .accessibilityHidden(true)
             
             Circle()
                 .fill(.blue)
                 .frame(width: 20, height: 20)
+                .accessibilityHidden(true)
             
             Circle()
                 .fill(.white)
                 .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
         }
+        .frame(width: 44, height: 44)
         .shadow(color: .blue.opacity(0.3), radius: 4, y: 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.5)
-                .repeatForever(autoreverses: false)
-            ) {
-                isPulsing = true
-            }
+            updatePulseAnimation(reduceMotion: reduceMotion)
+        }
+        .onChange(of: reduceMotion) { _, shouldReduceMotion in
+            updatePulseAnimation(reduceMotion: shouldReduceMotion)
+        }
+    }
+
+    private func updatePulseAnimation(reduceMotion: Bool) {
+        guard !reduceMotion else {
+            isPulsing = false
+            return
+        }
+
+        isPulsing = false
+        withAnimation(
+            .easeInOut(duration: 1.5)
+            .repeatForever(autoreverses: false)
+        ) {
+            isPulsing = true
         }
     }
 }

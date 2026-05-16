@@ -3,6 +3,7 @@ import MapKit
 import SwiftData
 
 struct LocationMapView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
@@ -97,7 +98,10 @@ struct LocationMapView: View {
                     
                     if showSessionPath, let firstSessionPoint = activeSessionPoints.first {
                         Annotation("Session Start", coordinate: firstSessionPoint.coordinate) {
-                            StartMarker()
+                            StartMarker(
+                                accessibilityLabel: "Active session start",
+                                accessibilityValue: firstSessionPoint.accessibilityValue
+                            )
                         }
                     }
                     
@@ -105,7 +109,10 @@ struct LocationMapView: View {
                        let lastSessionPoint = activeSessionPoints.last,
                        activeSessionPoints.count > 1 {
                         Annotation("Current", coordinate: lastSessionPoint.coordinate) {
-                            CurrentLocationMarker()
+                            CurrentLocationMarker(
+                                accessibilityLabel: "Active session current location",
+                                accessibilityValue: lastSessionPoint.accessibilityValue
+                            )
                         }
                     }
                     
@@ -136,6 +143,7 @@ struct LocationMapView: View {
                                         Circle()
                                             .stroke(.white, lineWidth: 1.5)
                                     }
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
@@ -159,6 +167,8 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .accessibilityLabel("Location map")
+                .accessibilityValue(mapAccessibilitySummary)
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if !discordPromoDismissed {
                         DiscordPromoBanner(onDismiss: dismissDiscordPromo)
@@ -168,7 +178,7 @@ struct LocationMapView: View {
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
-                .animation(.spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
+                .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -219,7 +229,7 @@ struct LocationMapView: View {
                         }
 
                         FilterBarToggle(isOpen: showFilterBar) {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                            withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
                                 showFilterBar.toggle()
                             }
                         }
@@ -227,10 +237,10 @@ struct LocationMapView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
-                .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+                .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
                 .onChange(of: isTracking) { _, newValue in
                     if !newValue {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
                             trackingPillExpanded = false
                         }
                     }
@@ -295,13 +305,13 @@ struct LocationMapView: View {
     }
 
     private func dismissDiscordPromo() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
             discordPromoDismissed = true
         }
     }
 
     private func handleTrackingTap() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.8)) {
             if isTracking {
                 viewModel.stopTracking()
             } else {
@@ -309,11 +319,24 @@ struct LocationMapView: View {
             }
         }
     }
+
+    private var mapAccessibilitySummary: String {
+        var parts: [String] = []
+        parts.append("\(filteredVisits.count) \(filteredVisits.count == 1 ? "visit" : "visits")")
+        parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+
+        if !activeSessionPoints.isEmpty {
+            parts.append("Active session: \(viewModel.sessionAccessibilitySummary)")
+        }
+
+        return parts.joined(separator: ". ")
+    }
 }
 
 // MARK: - Tracking Control Pills
 
 struct MapTrackingControlPill: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject var locationManager: LocationManager
     let isTracking: Bool
@@ -326,17 +349,24 @@ struct MapTrackingControlPill: View {
         HStack(spacing: 10) {
             if isTracking {
                 Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
+                    withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
                         isExpanded.toggle()
                     }
                 } label: {
                     statusBlock
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Session summary")
+                .accessibilityValue(viewModel.sessionAccessibilitySummary)
+                .accessibilityHint(isExpanded ? "Collapses session details." : "Expands session details.")
                 .transition(.opacity.combined(with: .move(edge: .trailing)))
 
                 if isExpanded {
                     statsBlock
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Session details")
+                        .accessibilityValue(viewModel.sessionAccessibilitySummary)
                         .transition(.asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .trailing)),
                             removal: .opacity.combined(with: .move(edge: .trailing))
@@ -368,9 +398,12 @@ struct MapTrackingControlPill: View {
                     .transition(.opacity)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
-        .onAppear { pulseOpacity = 0.35 }
+        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isExpanded)
+        .onAppear { pulseOpacity = reduceMotion ? 1.0 : 0.35 }
+        .onChange(of: reduceMotion) { _, shouldReduceMotion in
+            pulseOpacity = shouldReduceMotion ? 1.0 : 0.35
+        }
     }
 
     private var statusBlock: some View {
@@ -379,10 +412,11 @@ struct MapTrackingControlPill: View {
                 .fill(isTracking ? TE.accent : TE.textMuted.opacity(0.35))
                 .frame(width: 7, height: 7)
                 .opacity(isTracking ? pulseOpacity : 1.0)
+                .accessibilityHidden(true)
                 .animation(
-                    isTracking
+                    isTracking && !reduceMotion
                         ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-                        : .default,
+                        : nil,
                     value: pulseOpacity
                 )
 
@@ -392,7 +426,7 @@ struct MapTrackingControlPill: View {
                         .font(TE.mono(.subheadline, weight: .semibold))
                         .foregroundStyle(TE.textMuted)
                         .monospacedDigit()
-                        .contentTransition(.numericText())
+                        .contentTransition(reduceMotion ? .identity : .numericText())
                 }
             } else {
                 Text("STANDBY")
@@ -413,6 +447,7 @@ struct MapTrackingControlPill: View {
             Rectangle()
                 .fill(Color.primary.opacity(0.15))
                 .frame(width: 1, height: 12)
+                .accessibilityHidden(true)
 
             Text("\(viewModel.sessionLocationPoints.count) PTS")
                 .font(TE.mono(.caption, weight: .medium))
@@ -423,7 +458,7 @@ struct MapTrackingControlPill: View {
     private var primaryButton: some View {
         Button(action: onPrimaryTap) {
             Image(systemName: isTracking ? "stop.fill" : "play.fill")
-                .font(.system(size: 12, weight: .bold))
+                .font(.caption.weight(.bold))
                 .foregroundStyle(.white)
                 .frame(width: 34, height: 34)
                 .background {
@@ -447,8 +482,12 @@ struct MapTrackingControlPill: View {
                             y: 3
                         )
                 }
+                .frame(width: 44, height: 44)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isTracking ? "Stop tracking" : "Start tracking")
+        .accessibilityValue(isTracking ? viewModel.sessionAccessibilitySummary : "Tracking is off.")
+        .accessibilityHint(isTracking ? "Stops the active session." : "Starts a new location tracking session.")
         .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
     }
 }
@@ -459,8 +498,9 @@ struct MapAutoOffPill: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "timer")
-                .font(.system(size: 10, weight: .medium))
+                .font(.caption2.weight(.medium))
                 .foregroundStyle(TE.textMuted)
+                .accessibilityHidden(true)
 
             Text("AUTO-OFF  \(formatTime(remaining))")
                 .font(TE.mono(.caption2, weight: .semibold))
@@ -485,6 +525,9 @@ struct MapAutoOffPill: View {
                 }
                 .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Tracking auto-off")
+        .accessibilityValue("Stops in \(spokenTime(remaining)).")
     }
 
     private func formatTime(_ interval: TimeInterval) -> String {
@@ -493,9 +536,19 @@ struct MapAutoOffPill: View {
         if hours > 0 { return "\(hours)H \(minutes)M" }
         return "\(minutes) MIN"
     }
+
+    private func spokenTime(_ interval: TimeInterval) -> String {
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+        if hours > 0 {
+            return "\(hours) \(hours == 1 ? "hour" : "hours") and \(minutes) \(minutes == 1 ? "minute" : "minutes")"
+        }
+        return "\(minutes) \(minutes == 1 ? "minute" : "minutes")"
+    }
 }
 
 struct VisitMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visit: Visit
     let isSelected: Bool
 
@@ -505,17 +558,26 @@ struct VisitMarker: View {
                 Circle()
                     .fill(visit.isCurrentVisit ? .blue : .red)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
+                    .accessibilityHidden(true)
 
                 Image(systemName: "mappin")
-                    .font(.system(size: isSelected ? 18 : 14))
+                    .font(isSelected ? .title3 : .callout)
                     .foregroundStyle(.white)
+                    .accessibilityHidden(true)
             }
 
             Triangle()
                 .fill(visit.isCurrentVisit ? .blue : .red)
                 .frame(width: 10, height: 8)
+                .accessibilityHidden(true)
         }
-        .animation(.spring(duration: 0.2), value: isSelected)
+        .frame(minWidth: 44, minHeight: 44)
+        .animation(reduceMotion ? nil : .spring(duration: 0.2), value: isSelected)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(visit.accessibilityLabel)
+        .accessibilityValue(visit.accessibilityValue)
+        .accessibilityHint(visit.accessibilityHint)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -533,70 +595,90 @@ struct Triangle: Shape {
 // MARK: - Path Start/End Markers
 
 struct PathStartMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let timestamp: Date
     @State private var showingTooltip = false
     
     var body: some View {
-        VStack(spacing: 2) {
-            if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .transition(.scale.combined(with: .opacity))
-            }
-            
-            ZStack {
-                Circle()
-                    .fill(.green)
-                    .frame(width: 28, height: 28)
-                
-                Image(systemName: "flag.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white)
-            }
-            .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
-        }
-        .onTapGesture {
-            withAnimation(.spring(duration: 0.2)) {
+        Button {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
+        } label: {
+            VStack(spacing: 2) {
+                if showingTooltip {
+                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityHidden(true)
+                }
+
+                ZStack {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 28, height: 28)
+                        .accessibilityHidden(true)
+
+                    Image(systemName: "flag.fill")
+                        .font(.callout)
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
+                }
+                .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
+            }
+            .frame(minWidth: 44, minHeight: 44)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Path start")
+        .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
+        .accessibilityHint(showingTooltip ? "Hides the start time." : "Shows the start time.")
     }
 }
 
 struct PathEndMarker: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let timestamp: Date
     @State private var showingTooltip = false
     
     var body: some View {
-        VStack(spacing: 2) {
-            if showingTooltip {
-                Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .transition(.scale.combined(with: .opacity))
-            }
-            
-            ZStack {
-                Circle()
-                    .fill(.red)
-                    .frame(width: 28, height: 28)
-                
-                Image(systemName: "flag.checkered")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white)
-            }
-            .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
-        }
-        .onTapGesture {
-            withAnimation(.spring(duration: 0.2)) {
+        Button {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
                 showingTooltip.toggle()
             }
+        } label: {
+            VStack(spacing: 2) {
+                if showingTooltip {
+                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityHidden(true)
+                }
+
+                ZStack {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 28, height: 28)
+                        .accessibilityHidden(true)
+
+                    Image(systemName: "flag.checkered")
+                        .font(.callout)
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
+                }
+                .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
+            }
+            .frame(minWidth: 44, minHeight: 44)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Path end")
+        .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
+        .accessibilityHint(showingTooltip ? "Hides the end time." : "Shows the end time.")
     }
 }
 
@@ -824,6 +906,15 @@ enum MapDatePreset: CaseIterable, Hashable {
         }
     }
 
+    var accessibilityLabel: String {
+        switch self {
+        case .today: return "Today"
+        case .sevenDays: return "Last 7 days"
+        case .thirtyDays: return "Last 30 days"
+        case .all: return "All time"
+        }
+    }
+
     func range(referenceDate: Date = Date()) -> ClosedRange<Date> {
         let calendar = Calendar.current
         switch self {
@@ -840,15 +931,16 @@ enum MapDatePreset: CaseIterable, Hashable {
 }
 
 struct FilterBarToggle: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let isOpen: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: isOpen ? "xmark" : "slider.horizontal.3")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(isOpen ? Color.white : Color.primary.opacity(0.75))
-                .frame(width: 42, height: 42)
+                .frame(width: 44, height: 44)
                 .background {
                     Circle()
                         .fill(isOpen ? AnyShapeStyle(TE.accent) : AnyShapeStyle(.ultraThinMaterial))
@@ -865,9 +957,11 @@ struct FilterBarToggle: View {
                         }
                         .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
                 }
-                .contentTransition(.symbolEffect(.replace))
+                .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isOpen ? "Close map filters" : "Open map filters")
+        .accessibilityHint(isOpen ? "Hides date, layer, and fit controls." : "Shows date, layer, and fit controls.")
         .sensoryFeedback(.impact(flexibility: .soft), trigger: isOpen)
     }
 }
@@ -891,6 +985,7 @@ struct QuickFilterBar: View {
                 ForEach(MapDatePreset.allCases, id: \.self) { preset in
                     PresetPill(
                         label: preset.label,
+                        accessibilityLabel: preset.accessibilityLabel,
                         isActive: activePreset == preset
                     ) {
                         onSelectPreset(preset)
@@ -900,6 +995,7 @@ struct QuickFilterBar: View {
                 PresetPill(
                     label: "Custom",
                     icon: "calendar",
+                    accessibilityLabel: "Custom date range",
                     isActive: activePreset == nil
                 ) {
                     onSelectCustom()
@@ -907,12 +1003,12 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", isOn: $showVisitMarkers)
-                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $showTravelPath)
-                LayerToggleButton(systemImage: "smallcircle.filled.circle", isOn: $showPointMarkers)
-                LayerToggleButton(systemImage: "flag.fill", isOn: $showStartEndMarkers)
+                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
+                LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
+                LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
                 if hasSessionPoints {
-                    LayerToggleButton(systemImage: "waveform.path.ecg", isOn: $showSessionPath)
+                    LayerToggleButton(systemImage: "waveform.path.ecg", label: "Active session path", isOn: $showSessionPath)
                 }
 
                 PillSeparator()
@@ -947,6 +1043,7 @@ struct QuickFilterBar: View {
 struct PresetPill: View {
     let label: String
     var icon: String? = nil
+    var accessibilityLabel: String? = nil
     let isActive: Bool
     let action: () -> Void
 
@@ -955,36 +1052,43 @@ struct PresetPill: View {
             HStack(spacing: 4) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.caption.weight(.medium))
+                        .accessibilityHidden(true)
                 }
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
             }
             .foregroundStyle(isActive ? Color.white : Color.primary)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
+            .frame(minHeight: 44)
             .background {
                 Capsule()
                     .fill(isActive ? TE.accent : Color.clear)
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel ?? label)
+        .accessibilityValue(isActive ? "Selected" : "Not selected")
+        .accessibilityHint("Filters the map date range.")
     }
 }
 
 struct LayerToggleButton: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let systemImage: String
+    let label: String
     @Binding var isOn: Bool
 
     var body: some View {
         Button {
-            withAnimation(.spring(duration: 0.25)) {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.25)) {
                 isOn.toggle()
             }
         } label: {
             Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .font(.subheadline.weight(.semibold))
+                .frame(width: 44, height: 44)
                 .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
                 .background {
                     Circle()
@@ -992,6 +1096,9 @@ struct LayerToggleButton: View {
                 }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityValue(isOn ? "Shown" : "Hidden")
+        .accessibilityHint("Toggles this map layer.")
     }
 }
 
@@ -1001,6 +1108,7 @@ struct PillSeparator: View {
             .fill(Color.primary.opacity(0.12))
             .frame(width: 1, height: 20)
             .padding(.horizontal, 2)
+            .accessibilityHidden(true)
     }
 }
 
@@ -1024,10 +1132,12 @@ struct FitMenuButton: View {
             }
         } label: {
             Image(systemName: "scope")
-                .font(.system(size: 13, weight: .semibold))
-                .frame(width: 32, height: 32)
+                .font(.subheadline.weight(.semibold))
+                .frame(width: 44, height: 44)
                 .foregroundStyle(Color.primary.opacity(0.7))
         }
+        .accessibilityLabel("Fit map")
+        .accessibilityHint("Shows options for zooming the map to available content.")
     }
 }
 
