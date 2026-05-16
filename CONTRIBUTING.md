@@ -50,20 +50,23 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 3. ⌘R to build and run.
 4. On first launch the app requests **Location (Always)** and **Motion & Fitness** permissions — both are required to exercise visit detection and auto-start.
 
-### Test
+### Run tests
 
-Run the unit and SwiftUI smoke suite from the command line with an available simulator destination:
+Pull requests run the shared `IsoMe` scheme's XCTest suite in GitHub Actions. To run the same gate locally against the first available iPhone simulator:
 
 ```bash
+SIMULATOR_UDID=$(xcrun simctl list devices available -j | jq -r \
+  '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.isAvailable == true and (.name | startswith("iPhone")))] | .[0].udid')
+
 xcodebuild test \
   -project IsoMe.xcodeproj \
   -scheme IsoMe \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+  -destination "platform=iOS Simulator,id=$SIMULATOR_UDID"
 ```
 
-Use `xcrun simctl list devices available` if you need to swap in a simulator installed on your machine.
+The current tests use isolated in-memory or system test state where possible. Tests that touch `UserDefaults` clean up their keys in `setUp`/`tearDown`, and Keychain tests write only to test-specific account names.
 
-`IsoMeTests/MapSmokeTests.swift` covers map timestamp callouts and icon-only map controls without live GPS, network, or MapKit tile fixtures. The tests use fixed `Visit` and `Date` fixtures, host the SwiftUI marker/control views in `UIHostingController`, and assert the accessibility labels, values, and hints through the shared `MapAccessibility` copy used by the production views.
+`IsoMeTests/MapSmokeTests.swift` covers map timestamp markers, visit-marker accessibility contracts, and icon-only map controls without live GPS, network, or MapKit tile fixtures. The smoke fixtures use fixed `Visit`, `LocationPoint`, and `Date` data, host SwiftUI marker/control views in `UIHostingController`, and assert current public accessibility contracts such as `Visit.accessibilityLabel`, `Visit.accessibilityValue`, `LocationPoint.accessibilityValue`, and `MapDatePreset.accessibilityLabel`.
 
 ## Testing on TestFlight
 
@@ -92,6 +95,16 @@ Then upload the IPA to App Store Connect via Transporter.app or `xcrun altool`.
 - **No external dependencies** — the project deliberately uses only Apple frameworks. Adding a Swift Package needs a strong justification and discussion first.
 - **Privacy by default** — no analytics, no telemetry, no network calls that ship user data off-device.
 - **Match existing patterns** — read the surrounding files before adding a new model, service, or view.
+
+## Tests
+
+Run the iOS unit tests from the command line with:
+
+```bash
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+`IsoMeTests/WebhookManagerTests.swift` uses a custom `URLProtocol` fixture to mock webhook HTTP responses. Queue responses with `MockWebhookURLProtocol.enqueue(statusCode:)`, inject the matching ephemeral `URLSession` into `WebhookManager`, and keep retry tests fast by passing a `sleep` closure that records requested backoff delays instead of waiting.
 
 ## Pull request workflow
 

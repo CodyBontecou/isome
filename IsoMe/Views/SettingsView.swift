@@ -3,7 +3,9 @@ import SwiftData
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable var viewModel: LocationViewModel
+    @ObservedObject private var locationManager: LocationManager
     @ObservedObject private var storeManager = StoreManager.shared
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
@@ -18,6 +20,11 @@ struct SettingsView: View {
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
 
+    init(viewModel: LocationViewModel) {
+        _viewModel = Bindable(wrappedValue: viewModel)
+        _locationManager = ObservedObject(initialValue: viewModel.locationManager)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -27,6 +34,7 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         purchaseSection
                         trackingSection
+                        liveActivitySection
                         unitsSection
                         mapDisplaySection
                         importSection
@@ -35,7 +43,7 @@ struct SettingsView: View {
                         supportSection
                         aboutSection
                     }
-                    .padding(.bottom, 32)
+                    .padding(.bottom, dynamicTypeSize.isAccessibilitySize ? 170 : 96)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -69,13 +77,13 @@ struct SettingsView: View {
             }
             .fileImporter(
                 isPresented: $showingImportPicker,
-                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText],
+                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText, UTType(filenameExtension: "kml") ?? .xml],
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
-                viewModel.locationManager.refreshDistanceUnitPreference()
+                locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
@@ -93,19 +101,41 @@ struct SettingsView: View {
                 VStack(spacing: 0) {
                     if storeManager.isPurchased {
                         TERow(showDivider: false) {
-                            HStack {
-                                Circle()
-                                    .fill(TE.success)
-                                    .frame(width: 6, height: 6)
-                                Text("EXPORT UNLOCKED")
-                                    .font(TE.mono(.caption, weight: .semibold))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.textPrimary)
-                                Spacer()
-                                Text("PURCHASED")
-                                    .font(TE.mono(.caption2, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.success)
+                            if dynamicTypeSize.isAccessibilitySize {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                        Circle()
+                                            .fill(TE.success)
+                                            .frame(width: 6, height: 6)
+                                        Text("EXPORT UNLOCKED")
+                                            .font(TE.mono(.caption, weight: .semibold))
+                                            .tracking(0.5)
+                                            .foregroundStyle(TE.textPrimary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+
+                                    Text("PURCHASED")
+                                        .font(TE.mono(.caption2, weight: .medium))
+                                        .tracking(0.5)
+                                        .foregroundStyle(TE.success)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                HStack {
+                                    Circle()
+                                        .fill(TE.success)
+                                        .frame(width: 6, height: 6)
+                                    Text("EXPORT UNLOCKED")
+                                        .font(TE.mono(.caption, weight: .semibold))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.textPrimary)
+                                    Spacer()
+                                    Text("PURCHASED")
+                                        .font(TE.mono(.caption2, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.success)
+                                }
                             }
                         }
                     } else {
@@ -143,7 +173,7 @@ struct SettingsView: View {
                         settingsToggle(
                             "TRACKING",
                             isOn: Binding(
-                                get: { viewModel.locationManager.isTrackingEnabled },
+                                get: { locationManager.isTrackingEnabled },
                                 set: { newValue in
                                     if newValue {
                                         viewModel.startTracking()
@@ -156,20 +186,14 @@ struct SettingsView: View {
                     }
 
                     TERow {
-                        HStack {
-                            Text("PERMISSION")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text(permissionStatusText.uppercased())
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(permissionStatusColor)
-                        }
+                        settingsValueRow(
+                            title: "PERMISSION",
+                            value: LocalizedStringKey(permissionStatusText.uppercased()),
+                            valueColor: permissionStatusColor
+                        )
                     }
 
-                    if !viewModel.locationManager.hasAlwaysPermission {
+                    if !locationManager.hasAlwaysPermission {
                         TERow {
                             settingsButton("OPEN SETTINGS", icon: "arrow.up.right") {
                                 if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -180,15 +204,10 @@ struct SettingsView: View {
                     }
 
                     TERow {
-                        HStack {
-                            Text("DISTANCE FILTER")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
+                        settingsPickerRow(title: "DISTANCE FILTER") {
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.distanceFilter },
-                                set: { viewModel.locationManager.setDistanceFilter($0) }
+                                get: { locationManager.distanceFilter },
+                                set: { locationManager.setDistanceFilter($0) }
                             )) {
                                 Text("5m").tag(5.0)
                                 Text("10m").tag(10.0)
@@ -203,15 +222,10 @@ struct SettingsView: View {
                     }
 
                     TERow {
-                        HStack {
-                            Text("STOP AFTER")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
+                        settingsPickerRow(title: "STOP AFTER") {
                             Picker("", selection: Binding(
-                                get: { viewModel.locationManager.stopAfterHours },
-                                set: { viewModel.locationManager.setStopAfterHours($0) }
+                                get: { locationManager.stopAfterHours },
+                                set: { locationManager.setStopAfterHours($0) }
                             )) {
                                 Text("Never").tag(0.0)
                                 Text("1h").tag(1.0)
@@ -237,7 +251,7 @@ struct SettingsView: View {
     }
 
     private var permissionStatusText: String {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .notDetermined: return String(localized: "Not Set")
         case .restricted: return String(localized: "Restricted")
         case .denied: return String(localized: "Denied")
@@ -248,11 +262,34 @@ struct SettingsView: View {
     }
 
     private var permissionStatusColor: Color {
-        switch viewModel.locationManager.authorizationStatus {
+        switch locationManager.authorizationStatus {
         case .authorizedAlways: return TE.accent
         case .authorizedWhenInUse: return TE.accent.opacity(0.7)
         case .denied, .restricted: return TE.danger
         default: return TE.textMuted
+        }
+    }
+
+    // MARK: - Live Activity Section
+
+    private var liveActivitySection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "LIVE ACTIVITY MONITOR")
+
+            TECard {
+                TERow(showDivider: false) {
+                    settingsToggle(
+                        "ENABLED",
+                        isOn: Binding(
+                            get: { locationManager.isLiveActivityEnabled },
+                            set: { locationManager.setLiveActivityEnabled($0) }
+                        )
+                    )
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Show tracking progress on the Lock Screen and Dynamic Island. Your choice is saved for future tracking sessions.")
         }
     }
 
@@ -264,18 +301,29 @@ struct SettingsView: View {
 
             TECard {
                 VStack(spacing: 0) {
-                    HStack(spacing: 0) {
+                    if dynamicTypeSize.isAccessibilitySize {
                         unitButton("METRIC", isSelected: usesMetricDistanceUnits) {
                             usesMetricDistanceUnits = true
                         }
                         Rectangle()
                             .fill(TE.border)
-                            .frame(width: 1)
+                            .frame(height: 1)
                         unitButton("US STANDARD", isSelected: !usesMetricDistanceUnits) {
                             usesMetricDistanceUnits = false
                         }
+                    } else {
+                        HStack(spacing: 0) {
+                            unitButton("METRIC", isSelected: usesMetricDistanceUnits) {
+                                usesMetricDistanceUnits = true
+                            }
+                            Rectangle()
+                                .fill(TE.border)
+                                .frame(width: 1)
+                            unitButton("US STANDARD", isSelected: !usesMetricDistanceUnits) {
+                                usesMetricDistanceUnits = false
+                            }
+                        }
                     }
-                    .frame(height: 44)
                 }
             }
             .padding(.horizontal, 16)
@@ -288,9 +336,14 @@ struct SettingsView: View {
         Button(action: action) {
             Text(title)
                 .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
-                .tracking(1.5)
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
                 .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .multilineTextAlignment(.center)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 8)
+                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
         }
         .buttonStyle(.plain)
@@ -330,7 +383,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Import visits or points from a previously exported JSON, CSV, or Markdown file.")
+            TESectionFooter(text: "Import visits or points from JSON, CSV, or Markdown. KML, GPX, and GeoJSON are one-way map exports.")
         }
     }
 
@@ -410,7 +463,7 @@ struct SettingsView: View {
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "doc.text.magnifyingglass")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundStyle(TE.accent)
                                 Text("VIEW LOGS")
                                     .font(TE.mono(.caption, weight: .medium))
@@ -418,26 +471,28 @@ struct SettingsView: View {
                                     .foregroundStyle(TE.accent)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.caption2.weight(.bold))
                                     .foregroundStyle(TE.accent.opacity(0.5))
                             }
                         }
                     }
 
-                    TERow(showDivider: false) {
-                        Link(destination: discordInviteURL) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "bubble.left.and.bubble.right.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("JOIN DISCORD")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let discordInviteURL = IsoMeURLs.discordInvite {
+                        TERow(showDivider: false) {
+                            Link(destination: discordInviteURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("JOIN DISCORD")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }
@@ -490,38 +545,42 @@ struct SettingsView: View {
                         }
                     }
 
-                    TERow {
-                        Link(destination: URL(string: "https://isome.isolated.tech/privacy")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "hand.raised")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("PRIVACY POLICY")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let privacyPolicyURL = IsoMeURLs.privacyPolicy {
+                        TERow {
+                            Link(destination: privacyPolicyURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "hand.raised")
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("PRIVACY POLICY")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }
 
-                    TERow(showDivider: false) {
-                        Link(destination: URL(string: "https://isome.isolated.tech/terms")!) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "doc.text")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("TERMS OF SERVICE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
+                    if let termsOfServiceURL = IsoMeURLs.termsOfService {
+                        TERow(showDivider: false) {
+                            Link(destination: termsOfServiceURL) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "doc.text")
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(TE.accent)
+                                    Text("TERMS OF SERVICE")
+                                        .font(TE.mono(.caption, weight: .medium))
+                                        .tracking(1)
+                                        .foregroundStyle(TE.accent)
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(TE.accent.opacity(0.5))
+                                }
                             }
                         }
                     }
@@ -557,8 +616,9 @@ struct SettingsView: View {
         Toggle(isOn: isOn) {
             Text(label)
                 .font(TE.mono(.caption, weight: .medium))
-                .tracking(1)
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1)
                 .foregroundStyle(TE.textPrimary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         }
         .toggleStyle(TEToggleStyle())
     }
@@ -567,19 +627,74 @@ struct SettingsView: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(color)
                 Text(label)
                     .font(TE.mono(.caption, weight: .medium))
-                    .tracking(1)
+                    .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1)
                     .foregroundStyle(color)
-                Spacer()
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 12)
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.caption2.weight(.bold))
                     .foregroundStyle(color.opacity(0.5))
             }
         }
         .buttonStyle(.plain)
+    }
+
+    private func settingsValueRow(title: LocalizedStringKey, value: LocalizedStringKey, valueColor: Color) -> some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    settingsRowLabel(title)
+                    Text(value)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .tracking(0.5)
+                        .foregroundStyle(valueColor)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                HStack {
+                    settingsRowLabel(title)
+                    Spacer()
+                    Text(value)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .tracking(1)
+                        .foregroundStyle(valueColor)
+                }
+            }
+        }
+    }
+
+    private func settingsPickerRow<PickerContent: View>(
+        title: LocalizedStringKey,
+        @ViewBuilder picker: () -> PickerContent
+    ) -> some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    settingsRowLabel(title)
+                    picker()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            } else {
+                HStack {
+                    settingsRowLabel(title)
+                    Spacer()
+                    picker()
+                }
+            }
+        }
+    }
+
+    private func settingsRowLabel(_ title: LocalizedStringKey) -> some View {
+        Text(title)
+            .font(TE.mono(.caption, weight: .medium))
+            .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1)
+            .foregroundStyle(TE.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private func handleImportResult(_ result: Result<[URL], Error>) {
