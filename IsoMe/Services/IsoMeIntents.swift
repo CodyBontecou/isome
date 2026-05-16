@@ -181,6 +181,7 @@ enum IsoMeExportFormat: String, AppEnum {
     case markdown
     case geojson
     case gpx
+    case kml
     case owntracks
     case overland
 
@@ -191,6 +192,7 @@ enum IsoMeExportFormat: String, AppEnum {
         .markdown: "Markdown",
         .geojson: "GeoJSON",
         .gpx: "GPX",
+        .kml: "KML",
         .owntracks: "OwnTracks",
         .overland: "Overland",
     ]
@@ -202,6 +204,7 @@ enum IsoMeExportFormat: String, AppEnum {
         case .markdown: return .markdown
         case .geojson: return .geojson
         case .gpx: return .gpx
+        case .kml: return .kml
         case .owntracks: return .owntracks
         case .overland: return .overland
         }
@@ -216,6 +219,7 @@ enum IsoMeExportFormat: String, AppEnum {
         // file lands with the .geojson suffix when handed to other apps.
         case .geojson: return UTType(filenameExtension: "geojson") ?? .json
         case .gpx: return UTType(filenameExtension: "gpx") ?? .xml
+        case .kml: return UTType(importedAs: "com.google.earth.kml", conformingTo: .xml)
         // OwnTracks and Overland are JSON payloads — keep the .json UTType so
         // receiving apps treat them as JSON.
         case .owntracks, .overland: return .json

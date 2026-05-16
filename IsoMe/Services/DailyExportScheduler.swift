@@ -201,6 +201,7 @@ final class DailyExportScheduler: ObservableObject {
         case .owntracks: return "owntracks"
         case .overland: return "overland"
         case .gpx: return "gpx"
+        case .kml: return "kml"
         case .geojson: return "geojson"
         }
     }
@@ -212,6 +213,7 @@ final class DailyExportScheduler: ObservableObject {
         case "owntracks": return .owntracks
         case "overland": return .overland
         case "gpx": return .gpx
+        case "kml": return .kml
         case "geojson": return .geojson
         default: return .json
         }

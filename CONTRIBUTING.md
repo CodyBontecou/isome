@@ -50,13 +50,21 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 3. ⌘R to build and run.
 4. On first launch the app requests **Location (Always)** and **Motion & Fitness** permissions — both are required to exercise visit detection and auto-start.
 
-### Tests
+### Run tests
 
-Run the focused unit tests from the command line with:
+Pull requests run the shared `IsoMe` scheme's XCTest suite in GitHub Actions. To run the same gate locally against the first available iPhone simulator:
 
 ```bash
-xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+SIMULATOR_UDID=$(xcrun simctl list devices available -j | jq -r \
+  '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.isAvailable == true and (.name | startswith("iPhone")))] | .[0].udid')
+
+xcodebuild test \
+  -project IsoMe.xcodeproj \
+  -scheme IsoMe \
+  -destination "platform=iOS Simulator,id=$SIMULATOR_UDID"
 ```
+
+The current tests use isolated in-memory or system test state where possible. Tests that touch `UserDefaults` clean up their keys in `setUp`/`tearDown`, and Keychain tests write only to test-specific account names.
 
 The tracking audit tests use in-memory SwiftData containers for `Visit`, `LocationPoint`, and `Vehicle` fixtures. Bluetooth attribution is tested through stored attribution metadata and export fallback behavior, so the suite does not require a real Bluetooth route or Core Location movement.
 
@@ -87,6 +95,16 @@ Then upload the IPA to App Store Connect via Transporter.app or `xcrun altool`.
 - **No external dependencies** — the project deliberately uses only Apple frameworks. Adding a Swift Package needs a strong justification and discussion first.
 - **Privacy by default** — no analytics, no telemetry, no network calls that ship user data off-device.
 - **Match existing patterns** — read the surrounding files before adding a new model, service, or view.
+
+## Tests
+
+Run the iOS unit tests from the command line with:
+
+```bash
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+`IsoMeTests/WebhookManagerTests.swift` uses a custom `URLProtocol` fixture to mock webhook HTTP responses. Queue responses with `MockWebhookURLProtocol.enqueue(statusCode:)`, inject the matching ephemeral `URLSession` into `WebhookManager`, and keep retry tests fast by passing a `sleep` closure that records requested backoff delays instead of waiting.
 
 ## Pull request workflow
 

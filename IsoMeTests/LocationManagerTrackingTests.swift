@@ -19,6 +19,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "trackingMode")
         UserDefaults.standard.removeObject(forKey: "customVisitDetectionEnabled")
+        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         manager = LocationManager()
     }
 
@@ -30,6 +31,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "trackingMode")
         UserDefaults.standard.removeObject(forKey: "customVisitDetectionEnabled")
+        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         super.tearDown()
     }
 
@@ -187,6 +189,18 @@ final class LocationManagerTrackingTests: XCTestCase {
         manager.setStopAfterHours(2.0)
         let fresh = LocationManager()
         XCTAssertEqual(fresh.stopAfterHours, 2.0)
+    }
+
+    /// Live Activity monitor defaults to on for existing behavior.
+    func testLiveActivityEnabledDefaultsToOn() {
+        XCTAssertTrue(manager.isLiveActivityEnabled)
+    }
+
+    /// Live Activity monitor preference persists across reinstantiation.
+    func testLiveActivityEnabledIsPersisted() {
+        manager.setLiveActivityEnabled(false)
+        let fresh = LocationManager()
+        XCTAssertFalse(fresh.isLiveActivityEnabled)
     }
 
     private func makeInMemoryContext() throws -> ModelContext {

@@ -10,6 +10,11 @@ struct WebhookSettingsView: View {
     @State private var testError: String?
     @State private var isTesting = false
     @AppStorage("webhook.privacyWarningDismissed") private var privacyWarningDismissed = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var usesAccessibilityLayout: Bool {
+        dynamicTypeSize.isAccessibilitySize
+    }
 
     var body: some View {
         ZStack {
@@ -29,7 +34,7 @@ struct WebhookSettingsView: View {
                             statusSection
                             actionsSection
                         }
-                        Spacer().frame(height: 32)
+                        Spacer().frame(height: usesAccessibilityLayout ? 200 : 96)
                     }
                 }
             } else {
@@ -55,7 +60,7 @@ struct WebhookSettingsView: View {
     private var lockedState: some View {
         VStack(spacing: 18) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 32, weight: .light))
+                .font(.title.weight(.light))
                 .foregroundStyle(TE.textMuted)
             Text("WEBHOOK LOCKED")
                 .font(TE.mono(.caption, weight: .bold))
@@ -89,32 +94,39 @@ struct WebhookSettingsView: View {
     private var privacyWarning: some View {
         VStack(spacing: 0) {
             TECard {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(TE.warning)
-                    VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.callout)
+                            .foregroundStyle(TE.warning)
+                            .accessibilityHidden(true)
+
                         Text("DATA LEAVES YOUR DEVICE")
                             .font(TE.mono(.caption2, weight: .bold))
-                            .tracking(1.5)
+                            .tracking(usesAccessibilityLayout ? 0.5 : 1.5)
                             .foregroundStyle(TE.warning)
-                        Text("Enabling webhook delivery sends your location data to an external server you configure. iso.me does not have access to this server or the transmitted data.")
-                            .font(TE.mono(.caption2, weight: .regular))
-                            .foregroundStyle(TE.textMuted)
-                            .lineSpacing(2)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Spacer(minLength: 0)
+
+                        Button {
+                            privacyWarningDismissed = true
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(TE.textMuted)
+                                .frame(width: 32, height: 32)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Dismiss warning")
                     }
-                    Spacer(minLength: 0)
-                    Button {
-                        privacyWarningDismissed = true
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(TE.textMuted)
-                            .frame(width: 22, height: 22)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Dismiss warning")
+
+                    Text("Enabling webhook delivery sends your location data to an external server you configure. iso.me does not have access to this server or the transmitted data.")
+                        .font(TE.mono(.caption2, weight: .regular))
+                        .foregroundStyle(TE.textMuted)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(12)
             }
@@ -170,25 +182,15 @@ struct WebhookSettingsView: View {
                     }
                 }
 
-                TERow(showDivider: false) {
-                    HStack {
-                        Text("FORMAT")
-                            .font(TE.mono(.caption, weight: .medium))
-                            .tracking(1)
-                            .foregroundStyle(TE.textPrimary)
-                        Spacer()
-                        Picker("", selection: $webhook.format) {
-                            Text("OWNTRACKS").tag(ExportFormat.owntracks)
-                            Text("OVERLAND").tag(ExportFormat.overland)
-                            Text("JSON").tag(ExportFormat.json)
-                            Text("CSV").tag(ExportFormat.csv)
-                            Text("GPX").tag(ExportFormat.gpx)
-                            Text("GEOJSON").tag(ExportFormat.geojson)
-                            Text("MARKDOWN").tag(ExportFormat.markdown)
-                        }
-                        .labelsHidden()
-                        .tint(TE.accent)
-                    }
+                webhookPickerRow("FORMAT", selection: $webhook.format, showDivider: false) {
+                    Text("OWNTRACKS").tag(ExportFormat.owntracks)
+                    Text("OVERLAND").tag(ExportFormat.overland)
+                    Text("JSON").tag(ExportFormat.json)
+                    Text("CSV").tag(ExportFormat.csv)
+                    Text("GPX").tag(ExportFormat.gpx)
+                    Text("KML").tag(ExportFormat.kml)
+                    Text("GEOJSON").tag(ExportFormat.geojson)
+                    Text("MARKDOWN").tag(ExportFormat.markdown)
                 }
             }
             .padding(.horizontal, 16)
@@ -204,20 +206,9 @@ struct WebhookSettingsView: View {
             TESectionHeader(title: "AUTH")
 
             TECard {
-                TERow {
-                    HStack {
-                        Text("TYPE")
-                            .font(TE.mono(.caption2, weight: .semibold))
-                            .tracking(1)
-                            .foregroundStyle(TE.textMuted)
-                        Spacer()
-                        Picker("", selection: $webhook.authType) {
-                            ForEach(WebhookManager.AuthType.allCases) { type in
-                                Text(LocalizedStringKey(type.label)).tag(type)
-                            }
-                        }
-                        .labelsHidden()
-                        .tint(TE.accent)
+                webhookPickerRow("TYPE", selection: $webhook.authType, mutedTitle: true) {
+                    ForEach(WebhookManager.AuthType.allCases) { type in
+                        Text(LocalizedStringKey(type.label)).tag(type)
                     }
                 }
 
@@ -332,60 +323,31 @@ struct WebhookSettingsView: View {
             TESectionHeader(title: "SEND MODE")
 
             TECard {
-                TERow(showDivider: webhook.sendMode == .batchCount || webhook.sendMode == .batchTime) {
-                    HStack {
-                        Text("MODE")
-                            .font(TE.mono(.caption, weight: .medium))
-                            .tracking(1)
-                            .foregroundStyle(TE.textPrimary)
-                        Spacer()
-                        Picker("", selection: $webhook.sendMode) {
-                            ForEach(WebhookManager.SendMode.allCases) { mode in
-                                Text(LocalizedStringKey(mode.label)).tag(mode)
-                            }
-                        }
-                        .labelsHidden()
-                        .tint(TE.accent)
+                webhookPickerRow(
+                    "MODE",
+                    selection: $webhook.sendMode,
+                    showDivider: webhook.sendMode == .batchCount || webhook.sendMode == .batchTime
+                ) {
+                    ForEach(WebhookManager.SendMode.allCases) { mode in
+                        Text(LocalizedStringKey(mode.label)).tag(mode)
                     }
                 }
 
                 if webhook.sendMode == .batchCount {
-                    TERow(showDivider: false) {
-                        HStack {
-                            Text("COUNT")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: $webhook.batchCount) {
-                                Text("5").tag(5)
-                                Text("10").tag(10)
-                                Text("25").tag(25)
-                                Text("50").tag(50)
-                                Text("100").tag(100)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
+                    webhookPickerRow("COUNT", selection: $webhook.batchCount, showDivider: false) {
+                        Text("5").tag(5)
+                        Text("10").tag(10)
+                        Text("25").tag(25)
+                        Text("50").tag(50)
+                        Text("100").tag(100)
                     }
                 } else if webhook.sendMode == .batchTime {
-                    TERow(showDivider: false) {
-                        HStack {
-                            Text("INTERVAL")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Picker("", selection: $webhook.batchTimeMinutes) {
-                                Text("1 min").tag(1)
-                                Text("5 min").tag(5)
-                                Text("15 min").tag(15)
-                                Text("30 min").tag(30)
-                                Text("1 hour").tag(60)
-                            }
-                            .labelsHidden()
-                            .tint(TE.accent)
-                        }
+                    webhookPickerRow("INTERVAL", selection: $webhook.batchTimeMinutes, showDivider: false) {
+                        Text("1 min").tag(1)
+                        Text("5 min").tag(5)
+                        Text("15 min").tag(15)
+                        Text("30 min").tag(30)
+                        Text("1 hour").tag(60)
                     }
                 }
             }
@@ -415,64 +377,31 @@ struct WebhookSettingsView: View {
             TESectionHeader(title: "STATUS")
 
             TECard {
-                TERow(showDivider: hasQueuedPoints || webhook.lastError != nil) {
-                    HStack {
-                        Text("LAST SENT")
-                            .font(TE.mono(.caption, weight: .medium))
-                            .tracking(1)
-                            .foregroundStyle(TE.textPrimary)
-                        Spacer()
-                        Text(lastSentText)
-                            .font(TE.mono(.caption2, weight: .medium))
-                            .foregroundStyle(TE.textMuted)
-                    }
-                }
+                webhookValueRow(
+                    "LAST SENT",
+                    value: lastSentText,
+                    showDivider: hasQueuedPoints || webhook.lastError != nil
+                )
 
                 if hasQueuedPoints {
-                    TERow {
-                        HStack {
-                            Text("QUEUED")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-                            Spacer()
-                            Text("\(webhook.queuedPointCount) POINTS")
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.accent)
-                        }
-                    }
+                    webhookValueRow(
+                        "QUEUED",
+                        value: "\(webhook.queuedPointCount) POINTS",
+                        valueColor: TE.accent
+                    )
 
                     TERow(showDivider: webhook.lastError != nil) {
                         Button {
                             Task { await webhook.flushBatch() }
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "paperplane.fill")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(TE.accent)
-                                Text("FLUSH QUEUE")
-                                    .font(TE.mono(.caption, weight: .medium))
-                                    .tracking(1)
-                                    .foregroundStyle(TE.accent)
-                                Spacer()
-                            }
+                            webhookButtonLabel("FLUSH QUEUE", systemImage: "paperplane.fill", showsTrailingArrow: false)
                         }
                         .buttonStyle(.plain)
                     }
                 }
 
                 if let error = webhook.lastError {
-                    TERow(showDivider: false) {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(TE.danger)
-                            Text(error)
-                                .font(TE.mono(.caption2, weight: .regular))
-                                .foregroundStyle(TE.danger)
-                                .lineSpacing(2)
-                        }
-                    }
+                    webhookMessageRow(error, systemImage: "xmark.circle.fill", color: TE.danger, showDivider: false)
                 }
             }
             .padding(.horizontal, 16)
@@ -512,73 +441,29 @@ struct WebhookSettingsView: View {
                             isTesting = false
                         }
                     } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(TE.accent)
-                            Text(isTesting ? "TESTING…" : "TEST CONNECTION")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.accent)
-                            Spacer()
-                            if isTesting {
-                                ProgressView()
-                                    .scaleEffect(0.6)
-                                    .tint(TE.accent)
-                            } else {
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(TE.accent.opacity(0.5))
-                            }
-                        }
+                        webhookButtonLabel(
+                            isTesting ? "TESTING…" : "TEST CONNECTION",
+                            systemImage: "antenna.radiowaves.left.and.right",
+                            isLoading: isTesting
+                        )
                     }
                     .buttonStyle(.plain)
                     .disabled(isTesting)
                 }
 
                 if let result = testResult {
-                    TERow(showDivider: true) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(TE.success)
-                            Text(result)
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.success)
-                        }
-                    }
+                    webhookMessageRow(result, systemImage: "checkmark.circle.fill", color: TE.success)
                 }
 
                 if let error = testError {
-                    TERow(showDivider: true) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(TE.danger)
-                            Text(error)
-                                .font(TE.mono(.caption2, weight: .medium))
-                                .foregroundStyle(TE.danger)
-                        }
-                    }
+                    webhookMessageRow(error, systemImage: "xmark.circle.fill", color: TE.danger)
                 }
 
                 TERow(showDivider: false) {
                     Button {
                         Task { await webhook.sendNow() }
                     } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "paperplane.fill")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(TE.accent)
-                            Text("SEND NOW")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.accent)
-                            Spacer()
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(TE.accent.opacity(0.5))
-                        }
+                        webhookButtonLabel("SEND NOW", systemImage: "paperplane.fill")
                     }
                     .buttonStyle(.plain)
                 }
@@ -586,6 +471,163 @@ struct WebhookSettingsView: View {
             .padding(.horizontal, 16)
 
             TESectionFooter(text: "Use Test Connection to verify the endpoint URL and credentials without sending real data. Send Now posts all saved location data to the endpoint.")
+        }
+    }
+
+    // MARK: - Responsive Rows
+
+    private func rowTitle(_ title: String, muted: Bool = false) -> some View {
+        Text(title)
+            .font(TE.mono(muted ? .caption2 : .caption, weight: muted ? .semibold : .medium))
+            .tracking(usesAccessibilityLayout ? 0.5 : 1)
+            .foregroundStyle(muted ? TE.textMuted : TE.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func webhookPickerRow<SelectionValue: Hashable, Content: View>(
+        _ title: String,
+        selection: Binding<SelectionValue>,
+        showDivider: Bool = true,
+        mutedTitle: Bool = false,
+        @ViewBuilder options: () -> Content
+    ) -> some View {
+        TERow(showDivider: showDivider) {
+            if usesAccessibilityLayout {
+                VStack(alignment: .leading, spacing: 10) {
+                    rowTitle(title, muted: mutedTitle)
+
+                    Picker(title, selection: selection) {
+                        options()
+                    }
+                    .pickerStyle(.menu)
+                    .tint(TE.accent)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                HStack(alignment: .center, spacing: 12) {
+                    rowTitle(title, muted: mutedTitle)
+                    Spacer(minLength: 12)
+                    Picker(title, selection: selection) {
+                        options()
+                    }
+                    .labelsHidden()
+                    .tint(TE.accent)
+                }
+            }
+        }
+    }
+
+    private func webhookValueRow(
+        _ title: String,
+        value: String,
+        valueColor: Color = TE.textMuted,
+        showDivider: Bool = true
+    ) -> some View {
+        TERow(showDivider: showDivider) {
+            if usesAccessibilityLayout {
+                VStack(alignment: .leading, spacing: 8) {
+                    rowTitle(title)
+                    Text(value)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(valueColor)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    rowTitle(title)
+                    Spacer(minLength: 12)
+                    Text(value)
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(valueColor)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.trailing)
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+    }
+
+    private func webhookMessageRow(
+        _ message: String,
+        systemImage: String,
+        color: Color,
+        showDivider: Bool = true
+    ) -> some View {
+        TERow(showDivider: showDivider) {
+            HStack(alignment: .top, spacing: usesAccessibilityLayout ? 10 : 6) {
+                Image(systemName: systemImage)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(color)
+                    .accessibilityHidden(true)
+
+                Text(message)
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(color)
+                    .lineSpacing(usesAccessibilityLayout ? 4 : 2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    @ViewBuilder
+    private func webhookButtonLabel(
+        _ title: String,
+        systemImage: String,
+        showsTrailingArrow: Bool = true,
+        isLoading: Bool = false
+    ) -> some View {
+        if usesAccessibilityLayout {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Image(systemName: systemImage)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(TE.accent)
+                        .accessibilityHidden(true)
+
+                    Text(title)
+                        .font(TE.mono(.caption, weight: .medium))
+                        .tracking(0.5)
+                        .foregroundStyle(TE.accent)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if isLoading {
+                        ProgressView()
+                            .tint(TE.accent)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(TE.accent)
+                    .accessibilityHidden(true)
+
+                Text(title)
+                    .font(TE.mono(.caption, weight: .medium))
+                    .tracking(1)
+                    .foregroundStyle(TE.accent)
+
+                Spacer()
+
+                if isLoading {
+                    ProgressView()
+                        .scaleEffect(0.6)
+                        .tint(TE.accent)
+                } else if showsTrailingArrow {
+                    Image(systemName: "arrow.right")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(TE.accent.opacity(0.5))
+                        .accessibilityHidden(true)
+                }
+            }
         }
     }
 }
