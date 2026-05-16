@@ -118,6 +118,28 @@ final class Visit {
         get { TripClassification(rawValue: tripClassificationRaw) ?? .unclassified }
         set { tripClassificationRaw = newValue.rawValue }
     }
+
+    var accessibilityLabel: String {
+        if isCurrentVisit {
+            return "Current visit at \(displayName)"
+        }
+        return "Visit at \(displayName)"
+    }
+
+    var accessibilityValue: String {
+        var parts: [String] = [formattedTimeRange, formattedDuration]
+
+        if let address, !address.isEmpty, address != displayName {
+            parts.append(address)
+        }
+
+        parts.append(String(format: "Latitude %.4f, longitude %.4f", latitude, longitude))
+        return parts.joined(separator: ". ")
+    }
+
+    var accessibilityHint: String {
+        "Opens visit details."
+    }
 }
 
 extension Visit {
