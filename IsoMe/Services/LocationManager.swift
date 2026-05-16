@@ -35,6 +35,7 @@ final class LocationManager: NSObject, ObservableObject {
     // Live Activity manager
     private let liveActivityManager = LiveActivityManager.shared
     @Published var isLiveActivityEnabled: Bool = true
+    private let liveActivityEnabledKey = "isLiveActivityEnabled"
 
     // Daily distance history (recorded for stats; no longer drives auto-start)
     private let dailyDistanceTracker = DailyDistanceTracker.shared
@@ -81,6 +82,9 @@ final class LocationManager: NSObject, ObservableObject {
         }
         if UserDefaults.standard.object(forKey: "distanceFilter") != nil {
             distanceFilter = UserDefaults.standard.double(forKey: "distanceFilter")
+        }
+        if UserDefaults.standard.object(forKey: liveActivityEnabledKey) != nil {
+            isLiveActivityEnabled = UserDefaults.standard.bool(forKey: liveActivityEnabledKey)
         }
         locationManager.distanceFilter = distanceFilter
 
@@ -171,8 +175,7 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.startUpdatingLocation()
 
         if isLiveActivityEnabled {
-            let autoStopSeconds = stopAfterHours > 0 ? Int(stopAfterHours * 3600) : nil
-            liveActivityManager.startActivity(autoStopSeconds: autoStopSeconds)
+            liveActivityManager.startActivity(autoStopSeconds: liveActivityRemainingSeconds)
         }
 
         scheduleStopTrackingTimer()
@@ -192,7 +195,7 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.stopUpdatingLocation()
 
         Task {
-            await liveActivityManager.endActivity()
+            await liveActivityManager.endAllActivities()
         }
 
         syncDataToWatch()
@@ -204,12 +207,26 @@ final class LocationManager: NSObject, ObservableObject {
         scheduleStopTrackingTimer()
 
         if isTrackingEnabled, isLiveActivityEnabled {
-            let autoStopSeconds = hours > 0 ? Int(hours * 3600) : nil
             liveActivityManager.updateActivity(
                 location: nil,
                 locationName: currentLocationName,
-                remainingSeconds: autoStopSeconds
+                remainingSeconds: liveActivityRemainingSeconds
             )
+        }
+    }
+
+    func setLiveActivityEnabled(_ enabled: Bool) {
+        isLiveActivityEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: liveActivityEnabledKey)
+
+        if enabled {
+            if isTrackingEnabled {
+                liveActivityManager.startActivity(autoStopSeconds: liveActivityRemainingSeconds)
+            }
+        } else {
+            Task {
+                await liveActivityManager.endAllActivities()
+            }
         }
     }
 
@@ -247,6 +264,10 @@ final class LocationManager: NSObject, ObservableObject {
         let elapsed = Date().timeIntervalSince(start)
         let total = stopAfterHours * 3600
         return max(0, total - elapsed)
+    }
+
+    private var liveActivityRemainingSeconds: Int? {
+        remainingTime.map { Int($0) }
     }
 
     // MARK: - Data Storage
@@ -566,12 +587,13 @@ extension LocationManager: CLLocationManagerDelegate {
             // Geocode location for Live Activity (throttled to avoid too many requests)
             await geocodeForLiveActivity(location: location)
 
-            let remainingSeconds: Int? = remainingTime.map { Int($0) }
-            liveActivityManager.updateActivity(
-                location: location,
-                locationName: currentLocationName,
-                remainingSeconds: remainingSeconds
-            )
+            if isLiveActivityEnabled {
+                liveActivityManager.updateActivity(
+                    location: location,
+                    locationName: currentLocationName,
+                    remainingSeconds: liveActivityRemainingSeconds
+                )
+            }
         }
     }
 
