@@ -134,16 +134,18 @@ struct LockScreenView: View {
                 Spacer(minLength: 0)
 
                 // Stop button
-                Link(destination: URL(string: "isome://stop")!) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "stop.circle.fill")
-                        Text("Stop")
+                if let stopTrackingURL = IsoMeURLs.stopTracking {
+                    Link(destination: stopTrackingURL) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "stop.circle.fill")
+                            Text("Stop")
+                        }
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.red.opacity(0.8), in: RoundedRectangle(cornerRadius: 8))
                     }
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.red.opacity(0.8), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
 
