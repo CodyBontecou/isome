@@ -5,6 +5,7 @@ import CoreLocation
 enum TripPurpose: String, Codable, CaseIterable, Identifiable {
     case business
     case personal
+    case commuting
     case unclassified
 
     var id: String { rawValue }
@@ -13,6 +14,7 @@ enum TripPurpose: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .business: return "Business"
         case .personal: return "Personal"
+        case .commuting: return "Commuting"
         case .unclassified: return "Unclassified"
         }
     }
@@ -21,6 +23,7 @@ enum TripPurpose: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .business: return "briefcase.fill"
         case .personal: return "person.fill"
+        case .commuting: return "car.fill"
         case .unclassified: return "questionmark.circle.fill"
         }
     }
@@ -38,6 +41,7 @@ final class Visit {
     var notes: String?
     var purposeRawValue: String = TripPurpose.unclassified.rawValue
     var subPurpose: String? = nil
+    var vehicleID: UUID?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -53,6 +57,7 @@ final class Visit {
         notes: String? = nil,
         purpose: TripPurpose = .unclassified,
         subPurpose: String? = nil,
+        vehicleID: UUID? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -65,6 +70,7 @@ final class Visit {
         self.notes = notes
         self.purposeRawValue = purpose.rawValue
         self.subPurpose = subPurpose
+        self.vehicleID = vehicleID
         self.geocodingCompleted = geocodingCompleted
     }
 
