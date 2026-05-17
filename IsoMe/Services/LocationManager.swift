@@ -59,6 +59,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     // Publisher for data changes (fires when new location points are saved)
     @Published var locationPointsSavedCount: Int = 0
+    @Published var latestSavedLocationPoint: LocationPoint?
 
     // Live Activity manager
     private let liveActivityManager = LiveActivityManager.shared
@@ -445,7 +446,10 @@ final class LocationManager: NSObject, ObservableObject {
             try context.save()
             pointBeforeLast = lastSavedPoint
             lastSavedPoint = point
-            // Notify observers that new data is available
+            // Notify observers that new data is available. Keep the latest point
+            // available so view models can update incrementally instead of
+            // re-fetching every stored point on each GPS update.
+            latestSavedLocationPoint = point
             locationPointsSavedCount += 1
             // Sync to watch widget (throttled by WidgetKit)
             syncDataToWatch()

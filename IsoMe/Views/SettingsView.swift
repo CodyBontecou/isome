@@ -83,6 +83,9 @@ struct SettingsView: View {
             ) { result in
                 handleImportResult(result)
             }
+            .onAppear {
+                viewModel.loadLocationPointCount()
+            }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
             }
@@ -457,7 +460,7 @@ struct SettingsView: View {
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
-                            Text("\(viewModel.locationPoints.count)")
+                            Text("\(viewModel.locationPointCount)")
                                 .font(TE.mono(.caption2, weight: .medium))
                                 .foregroundStyle(TE.textMuted)
                         }
