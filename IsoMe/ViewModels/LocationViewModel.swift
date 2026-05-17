@@ -19,6 +19,7 @@ final class LocationViewModel {
     var mapLocationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
     var locationPointCount = 0
+    var vehicles: [Vehicle] = []
 
     private var allLocationPointsLoaded = false
     private var todayLocationPointsDay = Calendar.current.startOfDay(for: Date())
@@ -60,6 +61,7 @@ final class LocationViewModel {
         loadMapLocationPoints()
         loadTodayLocationPoints()
         loadLocationPointCount()
+        loadVehicles()
     }
 
     func loadTodayVisits() {
@@ -171,6 +173,25 @@ final class LocationViewModel {
         }
     }
 
+    func loadVehicles() {
+        var descriptor = FetchDescriptor<Vehicle>()
+        descriptor.sortBy = [
+            SortDescriptor(\.name, order: .forward)
+        ]
+
+        do {
+            vehicles = try modelContext.fetch(descriptor)
+                .sorted { lhs, rhs in
+                    if lhs.isDefault != rhs.isDefault { return lhs.isDefault && !rhs.isDefault }
+                    if lhs.isArchived != rhs.isArchived { return !lhs.isArchived && rhs.isArchived }
+                    return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+                }
+        } catch {
+            print("Failed to fetch vehicles: \(error)")
+            vehicles = []
+        }
+    }
+
     func loadTodayLocationPoints(referenceDate: Date = Date()) {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: referenceDate)
@@ -260,6 +281,28 @@ final class LocationViewModel {
 
     var currentVisit: Visit? {
         todayVisits.first { $0.isCurrentVisit }
+    }
+
+    var activeVehicles: [Vehicle] {
+        vehicles.filter { !$0.isArchived }
+    }
+
+    var defaultVehicle: Vehicle? {
+        activeVehicles.first { $0.isDefault }
+    }
+
+    var recentVehicles: [Vehicle] {
+        let ids = (allVisits.map(\.vehicleID) + locationPoints.map(\.vehicleID) + mapLocationPoints.map(\.vehicleID))
+            .compactMap { $0 }
+        var seen = Set<UUID>()
+        let orderedIDs = ids.filter { seen.insert($0).inserted }
+        let byID = Dictionary(uniqueKeysWithValues: vehicles.map { ($0.id, $0) })
+        let recent = orderedIDs.compactMap { byID[$0] }.filter { !$0.isArchived }
+        return Array((recent + activeVehicles).reduce(into: [Vehicle]()) { result, vehicle in
+            if !result.contains(where: { $0.id == vehicle.id }) {
+                result.append(vehicle)
+            }
+        }.prefix(4))
     }
 
     // Session-specific location points (only points from current tracking session)
@@ -407,6 +450,100 @@ final class LocationViewModel {
         try? modelContext.save()
     }
 
+    func assignVehicle(_ vehicleID: UUID?, to visit: Visit) {
+        visit.vehicleID = vehicleID
+        try? modelContext.save()
+        loadData()
+    }
+
+    func vehicle(for id: UUID?) -> Vehicle? {
+        guard let id else { return nil }
+        return vehicles.first { $0.id == id }
+    }
+
+    func vehicleName(for id: UUID?) -> String {
+        vehicle(for: id)?.name ?? "No Vehicle"
+    }
+
+    func addVehicle(
+        name: String,
+        make: String?,
+        model: String?,
+        year: Int?,
+        licensePlate: String?,
+        odometerStart: Int?,
+        odometerCurrent: Int?,
+        isDefault: Bool
+    ) {
+        let shouldDefault = isDefault || activeVehicles.isEmpty
+        if shouldDefault {
+            clearDefaultVehicle()
+        }
+
+        let vehicle = Vehicle(
+            name: name,
+            make: make,
+            model: model,
+            year: year,
+            licensePlate: licensePlate,
+            odometerStart: odometerStart,
+            odometerCurrent: odometerCurrent,
+            isDefault: shouldDefault
+        )
+        modelContext.insert(vehicle)
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func updateVehicle(
+        _ vehicle: Vehicle,
+        name: String,
+        make: String?,
+        model: String?,
+        year: Int?,
+        licensePlate: String?,
+        odometerStart: Int?,
+        odometerCurrent: Int?,
+        isDefault: Bool
+    ) {
+        if isDefault {
+            clearDefaultVehicle(except: vehicle.id)
+        }
+        vehicle.name = name
+        vehicle.make = make
+        vehicle.model = model
+        vehicle.year = year
+        vehicle.licensePlate = licensePlate
+        vehicle.odometerStart = odometerStart
+        vehicle.odometerCurrent = odometerCurrent
+        vehicle.isDefault = isDefault
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func setDefaultVehicle(_ vehicle: Vehicle) {
+        clearDefaultVehicle(except: vehicle.id)
+        vehicle.isDefault = true
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    func archiveVehicle(_ vehicle: Vehicle) {
+        vehicle.archivedAt = Date()
+        vehicle.isDefault = false
+        if defaultVehicle == nil, let replacement = activeVehicles.first(where: { $0.id != vehicle.id }) {
+            replacement.isDefault = true
+        }
+        try? modelContext.save()
+        loadVehicles()
+    }
+
+    private func clearDefaultVehicle(except id: UUID? = nil) {
+        for vehicle in vehicles where vehicle.id != id {
+            vehicle.isDefault = false
+        }
+    }
+
     func saveVisitChanges() {
         try? modelContext.save()
         loadData()
@@ -457,7 +594,7 @@ final class LocationViewModel {
         }
 
         do {
-            try ExportService.share(visits: visitsToExport, format: format)
+            try ExportService.share(visits: visitsToExport, vehicles: vehicles, format: format)
         } catch {
             exportError = error.localizedDescription
         }
@@ -473,7 +610,7 @@ final class LocationViewModel {
         }
 
         do {
-            try ExportService.shareLocationPoints(points: pointsToExport, format: format)
+            try ExportService.shareLocationPoints(points: pointsToExport, vehicles: vehicles, format: format)
         } catch {
             exportError = error.localizedDescription
         }
@@ -482,7 +619,7 @@ final class LocationViewModel {
     func exportAllData(format: ExportFormat) {
         loadLocationPoints()
         do {
-            try ExportService.shareCombined(visits: allVisits, points: locationPoints, format: format)
+            try ExportService.shareCombined(visits: allVisits, points: locationPoints, vehicles: vehicles, format: format)
         } catch {
             exportError = error.localizedDescription
         }
@@ -492,7 +629,7 @@ final class LocationViewModel {
     func exportWithOptions(_ options: ExportOptions) {
         loadLocationPoints()
         do {
-            try ExportService.share(visits: allVisits, points: locationPoints, options: options)
+            try ExportService.share(visits: allVisits, points: locationPoints, vehicles: vehicles, options: options)
         } catch {
             exportError = error.localizedDescription
         }
@@ -556,6 +693,7 @@ final class LocationViewModel {
         do {
             try modelContext.delete(model: Visit.self)
             try modelContext.delete(model: LocationPoint.self)
+            try modelContext.delete(model: Vehicle.self)
             try modelContext.save()
             locationPoints = []
             mapLocationPoints = []

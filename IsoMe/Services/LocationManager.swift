@@ -387,7 +387,8 @@ final class LocationManager: NSObject, ObservableObject {
                 let visit = Visit(
                     latitude: latitude,
                     longitude: longitude,
-                    arrivedAt: arrivalDate
+                    arrivedAt: arrivalDate,
+                    vehicleID: defaultVehicleID(in: context)
                 )
 
                 if clVisit.departureDate != Date.distantFuture {
@@ -416,6 +417,7 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         let point = LocationPoint(from: location)
+        point.vehicleID = defaultVehicleID(in: context)
 
         // Flag obvious teleports: implied speed from the last saved point exceeds
         // what a human moves (~40 m/s / ~90 mph). Cheap check, catches end-of-trail spikes.
@@ -456,6 +458,15 @@ final class LocationManager: NSObject, ObservableObject {
         } catch {
             lastError = "Failed to save location point: \(error.localizedDescription)"
         }
+    }
+
+    private func defaultVehicleID(in context: ModelContext) -> UUID? {
+        let predicate = #Predicate<Vehicle> { vehicle in
+            vehicle.isDefault && vehicle.archivedAt == nil
+        }
+        var descriptor = FetchDescriptor<Vehicle>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first?.id
     }
 
     // MARK: - Geocoding

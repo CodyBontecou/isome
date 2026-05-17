@@ -1,18 +1,52 @@
-You are Symphony, an autonomous coding agent working on GitHub issue CodyBontecou/isome#23: Map: show date/time when tapping a location point.
+You are Symphony, an autonomous coding agent working on GitHub issue CodyBontecou/isome#19: Multi-vehicle support.
 
-Issue URL: https://github.com/CodyBontecou/isome/issues/23
+Issue URL: https://github.com/CodyBontecou/isome/issues/19
 Issue author: CodyBontecou
 
 Issue body:
-Add a way to press/tap any point on the map to see the date and time for that specific location. This lets users quickly check the timestamp for a single point without exporting the full data.
+## Summary
 
-> Hi, found your app iso.me via a now removed reddit post. I really like it. I’ve been missing the old Google location history reports. Battery life seems minimally affected which is great. It would be good if on the map I could press in any point and see the date/time of that point. I used to use location history to narrow down times I was somewhere. I realise I can export the data but I usually just want to check one specific point (used for ensuring my manual timesheets at the end of the day are accurate). Do you think you could add that feature?
+Let users register multiple vehicles, set a default, and assign each tracked drive to a vehicle. Required for households or self-employed users who drive more than one car.
 
-Source: https://discord.com/channels/1443424100759634003/1498086805264928859/1502631664961065071
+## Motivation
 
-@codex implement this
+Mileage deductions and reimbursements are tracked **per vehicle** (the IRS Schedule C / Form 4562 line items are per-vehicle). Without a vehicle list, iso.me cannot produce a usable mileage report for anyone with more than one car.
 
-<!-- isobot:discord-thread:1502631708674097166 -->
+## Data model
+
+New `Vehicle` SwiftData model:
+
+- `id: UUID`
+- `name: String` (e.g. "Work Truck")
+- `make: String?`
+- `model: String?`
+- `year: Int?`
+- `licensePlate: String?`
+- `odometerStart: Int?` (year-start odometer for IRS reporting)
+- `odometerCurrent: Int?` (kept up to date when the user enters readings)
+- `isDefault: Bool`
+- `bluetoothPortName: String?` (filled by the BT auto-detect ticket)
+- `archivedAt: Date?` (soft-delete so historical trips keep referencing the vehicle)
+
+Extend the continuous-tracking session model with `vehicleID: UUID?`.
+
+## Proposed UX
+
+- **Settings → Vehicles** — list with add / edit / archive.
+- "Default vehicle" toggle; new untagged drives use the default.
+- Trip detail view: vehicle picker with quick-set chips for the most-recent vehicles.
+- Trip list filter by vehicle.
+- Vehicle detail screen: total miles, business/personal breakdown, mileage chart, current odometer.
+
+## Acceptance criteria
+
+- [ ] User can add, edit, and archive vehicles.
+- [ ] Drives can be assigned (or reassigned) to any non-archived vehicle.
+- [ ] A default vehicle is automatically applied to new drives unless overridden.
+- [ ] Vehicle is included in JSON/CSV/Markdown exports.
+- [ ] Archiving a vehicle hides it from new drives but preserves it on past drives.
+
+<!-- isobot:discord-thread:1501666903012413480 -->
 
 Instructions:
 

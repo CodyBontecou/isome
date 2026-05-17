@@ -17,6 +17,7 @@
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
+		C3200001212F000100000001 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3200000212F000000000001 /* Vehicle.swift */; };
 		A1000004212F000100000004 /* LocationPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004212F000000000004 /* LocationPoint.swift */; };
 		A1000005212F000100000005 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005212F000000000005 /* LocationManager.swift */; };
 		A1000006212F000100000006 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006212F000000000006 /* GeocodingService.swift */; };
@@ -28,6 +29,7 @@
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
 		A100000C212F00010000000C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000C212F00000000000C /* SettingsView.swift */; };
 		A100000D212F00010000000D /* VisitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000D212F00000000000D /* VisitDetailView.swift */; };
+		C3200003212F000100000003 /* VehiclesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3200002212F000000000002 /* VehiclesSettingsView.swift */; };
 		A1000041212F000100000041 /* MileageReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000041212F000000000041 /* MileageReport.swift */; };
 		A1000042212F000100000042 /* MileageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042212F000000000042 /* MileageReportView.swift */; };
 		A100000E212F00010000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E212F00000000000E /* Assets.xcassets */; };
@@ -167,6 +169,7 @@
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000003212F000000000003 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
+		C3200000212F000000000001 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
 		A1000004212F000000000004 /* LocationPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPoint.swift; sourceTree = "<group>"; };
 		A1000005212F000000000005 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		A1000006212F000000000006 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
@@ -178,6 +181,7 @@
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		A100000C212F00000000000C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A100000D212F00000000000D /* VisitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitDetailView.swift; sourceTree = "<group>"; };
+		C3200002212F000000000002 /* VehiclesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehiclesSettingsView.swift; sourceTree = "<group>"; };
 		A1000041212F000000000041 /* MileageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReport.swift; sourceTree = "<group>"; };
 		A1000042212F000000000042 /* MileageReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReportView.swift; sourceTree = "<group>"; };
 		A100000E212F00000000000E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -334,6 +338,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000003212F000000000003 /* Visit.swift */,
+				C3200000212F000000000001 /* Vehicle.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 				A1000030212F000000000030 /* ExportOptions.swift */,
@@ -365,6 +370,7 @@
 				A100000B212F00000000000B /* MapView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
+				C3200002212F000000000002 /* VehiclesSettingsView.swift */,
 				A1000042212F000000000042 /* MileageReportView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
@@ -665,6 +671,7 @@
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
+				C3200001212F000100000001 /* Vehicle.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
@@ -676,6 +683,7 @@
 				A100000B212F00010000000B /* MapView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
+				C3200003212F000100000003 /* VehiclesSettingsView.swift in Sources */,
 				A1000041212F000100000041 /* MileageReport.swift in Sources */,
 				A1000042212F000100000042 /* MileageReportView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
