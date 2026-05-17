@@ -177,6 +177,49 @@ final class LocationViewModelLoadTests: XCTestCase {
         XCTAssertEqual(mapView.displayPathPoints.last?.id, viewModel.mapLocationPoints.last?.id)
     }
 
+    func testAppendingPointAcrossMidnightReloadsTodayCache() throws {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let yesterdayReference = calendar.date(byAdding: .day, value: -1, to: todayStart)!.addingTimeInterval(60)
+        let todayReference = todayStart.addingTimeInterval(60)
+
+        let container = try makeContainer()
+        let context = container.mainContext
+        let yesterdayPoint = LocationPoint(
+            latitude: 37.0,
+            longitude: -122.0,
+            timestamp: yesterdayReference,
+            horizontalAccuracy: 5
+        )
+        context.insert(yesterdayPoint)
+        try context.save()
+
+        let manager = LocationManager()
+        let viewModel = LocationViewModel(
+            modelContext: context,
+            locationManager: manager
+        )
+        viewModel.loadTodayLocationPoints(referenceDate: yesterdayReference)
+        XCTAssertEqual(viewModel.todayLocationPoints.map(\.id), [yesterdayPoint.id])
+
+        let todayPoint = LocationPoint(
+            latitude: 37.1,
+            longitude: -122.1,
+            timestamp: todayReference,
+            horizontalAccuracy: 5
+        )
+        context.insert(todayPoint)
+        try context.save()
+        let pointCountBeforeAppend = viewModel.locationPointCount
+
+        manager.latestSavedLocationPoint = todayPoint
+        viewModel.appendLatestSavedLocationPoint(referenceDate: todayReference)
+
+        XCTAssertEqual(viewModel.todayLocationPoints.map(\.id), [todayPoint.id])
+        XCTAssertFalse(viewModel.todayLocationPoints.contains { $0.id == yesterdayPoint.id })
+        XCTAssertEqual(viewModel.locationPointCount, pointCountBeforeAppend + 1)
+    }
+
     func testManualMillionPointStartupDoesNotEagerlyLoadFullPointCache() throws {
         guard ProcessInfo.processInfo.environment[millionPointStressTestEnvKey] == "1" else {
             throw XCTSkip("Set \(millionPointStressTestEnvKey)=1 to run the 1,000,000-point startup stress test.")

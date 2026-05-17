@@ -21,6 +21,7 @@ final class LocationViewModel {
     var locationPointCount = 0
 
     private var allLocationPointsLoaded = false
+    private var todayLocationPointsDay = Calendar.current.startOfDay(for: Date())
 
     // UI State
     var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
@@ -141,10 +142,11 @@ final class LocationViewModel {
         }
     }
 
-    func loadTodayLocationPoints() {
+    func loadTodayLocationPoints(referenceDate: Date = Date()) {
         let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
+        let startOfDay = calendar.startOfDay(for: referenceDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        todayLocationPointsDay = startOfDay
 
         let predicate = #Predicate<LocationPoint> { point in
             point.timestamp >= startOfDay && point.timestamp < endOfDay
@@ -161,9 +163,19 @@ final class LocationViewModel {
         }
     }
 
-    private func appendLatestSavedLocationPoint() {
+    func appendLatestSavedLocationPoint(referenceDate: Date = Date()) {
+        let calendar = Calendar.current
+        let currentDay = calendar.startOfDay(for: referenceDate)
+        let didCalendarDayChange = todayLocationPointsDay != currentDay
+
+        if didCalendarDayChange {
+            loadTodayLocationPoints(referenceDate: referenceDate)
+        }
+
         guard let point = locationManager.latestSavedLocationPoint else {
-            loadTodayLocationPoints()
+            if !didCalendarDayChange {
+                loadTodayLocationPoints(referenceDate: referenceDate)
+            }
             loadMapLocationPoints()
             loadLocationPointCount()
             return
@@ -175,7 +187,7 @@ final class LocationViewModel {
             append(point, to: &locationPoints)
         }
 
-        if Calendar.current.isDate(point.timestamp, inSameDayAs: Date()) {
+        if calendar.isDate(point.timestamp, inSameDayAs: referenceDate) {
             append(point, to: &todayLocationPoints)
         }
 
