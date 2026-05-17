@@ -9,6 +9,7 @@ struct VisitDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var notesText: String = ""
     @State private var subPurposeText: String = ""
+    @State private var vehicles = MileageVehicleStore.load()
     @FocusState private var isNotesFieldFocused: Bool
     @FocusState private var isSubPurposeFieldFocused: Bool
 
@@ -213,6 +214,20 @@ struct VisitDetailView: View {
             }
             .pickerStyle(.segmented)
 
+            if !vehicles.isEmpty {
+                Picker("Vehicle", selection: Binding(
+                    get: { visit.vehicleID ?? vehicles.first?.id ?? UUID() },
+                    set: { vehicleID in
+                        visit.vehicleID = vehicleID
+                        viewModel.saveVisitChanges()
+                    }
+                )) {
+                    ForEach(vehicles) { vehicle in
+                        Text(vehicle.name).tag(vehicle.id)
+                    }
+                }
+            }
+
             if visit.purpose == .business {
                 VStack(alignment: .leading, spacing: 8) {
                     TextField("Sub-purpose, e.g. Client Visit", text: $subPurposeText)
@@ -306,6 +321,7 @@ extension TripPurpose {
         switch self {
         case .business: return TE.success
         case .personal: return TE.accent
+        case .commuting: return .orange
         case .unclassified: return TE.warning
         }
     }

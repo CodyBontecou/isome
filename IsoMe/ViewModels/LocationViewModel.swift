@@ -407,6 +407,11 @@ final class LocationViewModel {
         try? modelContext.save()
     }
 
+    func saveVisitChanges() {
+        try? modelContext.save()
+        loadData()
+    }
+
     func updateVisitClassification(_ visit: Visit, purpose: TripPurpose, subPurpose: String? = nil) {
         visit.purpose = purpose
         let cleanedSubPurpose = subPurpose?.trimmingCharacters(in: .whitespacesAndNewlines)
