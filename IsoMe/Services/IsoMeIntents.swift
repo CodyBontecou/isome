@@ -244,6 +244,7 @@ private struct ExportRunner {
 
         let visits = (try? context.fetch(visitDescriptor)) ?? []
         let points = (try? context.fetch(pointDescriptor)) ?? []
+        let vehicles = (try? context.fetch(FetchDescriptor<Vehicle>())) ?? []
 
         var options = ExportOptions()
         options.dataKind = .all
@@ -252,7 +253,7 @@ private struct ExportRunner {
         options.customStart = range.lowerBound
         options.customEnd = range.upperBound
 
-        let rendered = try ExportService.render(visits: visits, points: points, options: options)
+        let rendered = try ExportService.render(visits: visits, points: points, vehicles: vehicles, options: options)
         return IntentFile(data: rendered.data, filename: rendered.fileName, type: format.contentType)
     }
 }

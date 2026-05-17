@@ -8,7 +8,9 @@ struct VisitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
     @State private var notesText: String = ""
+    @State private var subPurposeText: String = ""
     @FocusState private var isNotesFieldFocused: Bool
+    @FocusState private var isSubPurposeFieldFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -21,6 +23,9 @@ struct VisitDetailView: View {
 
                 // Time Info
                 timeInfoSection
+
+                // Classification
+                classificationSection
 
                 // Vehicle
                 vehicleSection
@@ -37,6 +42,7 @@ struct VisitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             notesText = visit.notes ?? ""
+            subPurposeText = visit.subPurpose ?? ""
             viewModel.loadVehicles()
         }
         .alert("Delete Visit?", isPresented: $showingDeleteConfirmation) {
@@ -53,7 +59,9 @@ struct VisitDetailView: View {
                 Spacer()
                 Button("Done") {
                     isNotesFieldFocused = false
+                    isSubPurposeFieldFocused = false
                     saveNotes()
+                    saveClassification()
                 }
             }
         }
@@ -67,7 +75,7 @@ struct VisitDetailView: View {
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         ))) {
             Marker(visit.displayName, coordinate: visit.coordinate)
-                .tint(visit.isCurrentVisit ? .blue : .red)
+                .tint(visit.purpose.mapTint)
         }
         .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -166,6 +174,63 @@ struct VisitDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var classificationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Classification")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Picker("Classification", selection: Binding(
+                get: { visit.purpose },
+                set: { newPurpose in
+                    viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
+                    if newPurpose != .business {
+                        subPurposeText = ""
+                    }
+                }
+            )) {
+                ForEach(TripPurpose.allCases) { purpose in
+                    Label(purpose.label, systemImage: purpose.iconName)
+                        .tag(purpose)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            if visit.purpose == .business {
+                VStack(alignment: .leading, spacing: 8) {
+                    TextField("Sub-purpose, e.g. Client Visit", text: $subPurposeText)
+                        .textFieldStyle(.roundedBorder)
+                        .focused($isSubPurposeFieldFocused)
+                        .submitLabel(.done)
+                        .onSubmit { saveClassification() }
+                        .onChange(of: isSubPurposeFieldFocused) { _, focused in
+                            if !focused {
+                                saveClassification()
+                            }
+                        }
+
+                    if !viewModel.frequentBusinessSubPurposes.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.frequentBusinessSubPurposes, id: \.self) { subPurpose in
+                                    Button(subPurpose) {
+                                        subPurposeText = subPurpose
+                                        saveClassification()
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.small)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     private var vehicleSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -176,26 +241,23 @@ struct VisitDetailView: View {
                 Spacer()
 
                 if visit.isVehicleAutoDetected {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bluetooth")
-                        Text("Auto")
-                    }
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.blue)
+                    Label("Auto", systemImage: "bluetooth")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.blue)
                 }
             }
 
-            Picker("Vehicle", selection: Binding(
+            Picker("Vehicle", selection: Binding<UUID?>(
                 get: { visit.vehicleID },
-                set: { newValue in
-                    let vehicle = viewModel.vehicles.first { $0.id == newValue }
-                    viewModel.updateVisitVehicle(visit, vehicle: vehicle)
-                }
+                set: { viewModel.assignVehicle($0, to: visit) }
             )) {
-                Text("Unset").tag(Optional<UUID>.none)
-                ForEach(viewModel.vehicles) { vehicle in
+                Text("No Vehicle").tag(nil as UUID?)
+                ForEach(viewModel.activeVehicles) { vehicle in
                     Text(vehicle.name).tag(Optional(vehicle.id))
+                }
+                if let vehicle = viewModel.vehicle(for: visit.vehicleID), vehicle.isArchived {
+                    Text("\(vehicle.name) (Archived)").tag(Optional(vehicle.id))
                 }
             }
             .pickerStyle(.menu)
@@ -213,12 +275,31 @@ struct VisitDetailView: View {
                     }
                 }
             }
+
+            if !viewModel.recentVehicles.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.recentVehicles) { vehicle in
+                            Button {
+                                viewModel.assignVehicle(vehicle.id, to: visit)
+                            } label: {
+                                Text(vehicle.name)
+                                    .font(.caption)
+                                    .fontWeight(visit.vehicleID == vehicle.id ? .semibold : .regular)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(visit.vehicleID == vehicle.id ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemBackground), in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-
 
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -282,11 +363,26 @@ struct VisitDetailView: View {
         viewModel.updateVisitNotes(visit, notes: notesText)
     }
 
+    private func saveClassification() {
+        viewModel.updateVisitClassification(visit, purpose: visit.purpose, subPurpose: subPurposeText)
+    }
+
     private func openInMaps() {
         let placemark = MKPlacemark(coordinate: visit.coordinate)
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = visit.displayName
         mapItem.openInMaps(launchOptions: nil)
+    }
+}
+
+extension TripPurpose {
+    var mapTint: Color {
+        switch self {
+        case .business: return TE.success
+        case .personal: return TE.accent
+        case .commuting: return .orange
+        case .unclassified: return TE.warning
+        }
     }
 }
 

@@ -14,11 +14,11 @@
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
-		B1800011212F000100000011 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1800011212F000000000011 /* Vehicle.swift */; };
 		B1800012212F000100000012 /* BluetoothVehicleDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1800012212F000000000012 /* BluetoothVehicleDetector.swift */; };
 		A1000001212F000100000001 /* IsoMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001212F000000000001 /* IsoMeApp.swift */; };
 		A1000002212F000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002212F000000000002 /* ContentView.swift */; };
 		A1000003212F000100000003 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003212F000000000003 /* Visit.swift */; };
+		C3200001212F000100000001 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3200000212F000000000001 /* Vehicle.swift */; };
 		A1000004212F000100000004 /* LocationPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004212F000000000004 /* LocationPoint.swift */; };
 		A1000005212F000100000005 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005212F000000000005 /* LocationManager.swift */; };
 		A1000006212F000100000006 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006212F000000000006 /* GeocodingService.swift */; };
@@ -30,6 +30,9 @@
 		A100000B212F00010000000B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B212F00000000000B /* MapView.swift */; };
 		A100000C212F00010000000C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000C212F00000000000C /* SettingsView.swift */; };
 		A100000D212F00010000000D /* VisitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000D212F00000000000D /* VisitDetailView.swift */; };
+		C3200003212F000100000003 /* VehiclesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3200002212F000000000002 /* VehiclesSettingsView.swift */; };
+		A1000041212F000100000041 /* MileageReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000041212F000000000041 /* MileageReport.swift */; };
+		A1000042212F000100000042 /* MileageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042212F000000000042 /* MileageReportView.swift */; };
 		A100000E212F00010000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E212F00000000000E /* Assets.xcassets */; };
 		A100000F212F00010000000F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000F212F00000000000F /* Preview Assets.xcassets */; };
 		A1000019212F000100000019 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019212F000000000019 /* AppDelegate.swift */; };
@@ -57,7 +60,9 @@
 		A4000004212F000100000004 /* IsoMeWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */; };
 		CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */; };
+		CB0AF0C384FF821E6D718E7F /* MileageReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A0A8C9D0C96D0243E02090 /* MileageReportTests.swift */; };
 		D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E7A1580000000000000058 /* ExportRoundTripTests.swift */; };
+		D61000012162000100000001 /* MapSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61000002162000100000001 /* MapSmokeTests.swift */; };
 		DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */; };
 		E1000001212F000100000001 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000001212F000000000001 /* AppInfo.swift */; };
 		E1000002212F000100000002 /* LogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002212F000000000002 /* LogManager.swift */; };
@@ -150,6 +155,7 @@
 		F1000001212F000000000001 /* FilenameTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilenameTemplate.swift; sourceTree = "<group>"; };
 		5F000002212F000000000001 /* DailyExportScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExportScheduler.swift; sourceTree = "<group>"; };
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
+		76A0A8C9D0C96D0243E02090 /* MileageReportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MileageReportTests.swift; sourceTree = "<group>"; };
 		D5E7A1580000000000000058 /* ExportRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportRoundTripTests.swift; sourceTree = "<group>"; };
 		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		E1000001212F000000000001 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
@@ -164,6 +170,7 @@
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000003212F000000000003 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
+		C3200000212F000000000001 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
 		A1000004212F000000000004 /* LocationPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPoint.swift; sourceTree = "<group>"; };
 		A1000005212F000000000005 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		A1000006212F000000000006 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
@@ -175,6 +182,9 @@
 		A100000B212F00000000000B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		A100000C212F00000000000C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A100000D212F00000000000D /* VisitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitDetailView.swift; sourceTree = "<group>"; };
+		C3200002212F000000000002 /* VehiclesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehiclesSettingsView.swift; sourceTree = "<group>"; };
+		A1000041212F000000000041 /* MileageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReport.swift; sourceTree = "<group>"; };
+		A1000042212F000000000042 /* MileageReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReportView.swift; sourceTree = "<group>"; };
 		A100000E212F00000000000E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000F212F00000000000F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -203,11 +213,11 @@
 		A4000003212F000000000003 /* WatchWidgetInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchWidgetInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4000004212F000000000004 /* IsoMeWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatchWidget.entitlements; sourceTree = "<group>"; };
 		AF000001212F000000000001 /* DailyDistanceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyDistanceTracker.swift; sourceTree = "<group>"; };
-		B1800011212F000000000011 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
 		B1800012212F000000000012 /* BluetoothVehicleDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothVehicleDetector.swift; sourceTree = "<group>"; };
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportServiceRoundTripTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
+		D61000002162000100000001 /* MapSmokeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MapSmokeTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -330,8 +340,8 @@
 			isa = PBXGroup;
 			children = (
 				A1000003212F000000000003 /* Visit.swift */,
+				C3200000212F000000000001 /* Vehicle.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
-				B1800011212F000000000011 /* Vehicle.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 				A1000030212F000000000030 /* ExportOptions.swift */,
 				F1000001212F000000000001 /* FilenameTemplate.swift */,
@@ -363,6 +373,8 @@
 				A100000B212F00000000000B /* MapView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
+				C3200002212F000000000002 /* VehiclesSettingsView.swift */,
+				A1000042212F000000000042 /* MileageReportView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
 				E1000003212F000000000003 /* LogViewerView.swift */,
@@ -387,6 +399,7 @@
 				A1000007212F000000000007 /* ExportService.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
+				A1000041212F000000000041 /* MileageReport.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
 			);
 			path = Utilities;
@@ -444,9 +457,11 @@
 			children = (
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
+				76A0A8C9D0C96D0243E02090 /* MileageReportTests.swift */,
 				E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
+				D61000002162000100000001 /* MapSmokeTests.swift */,
 			);
 			name = IsoMeTests;
 			path = IsoMeTests;
@@ -659,8 +674,8 @@
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
+				C3200001212F000100000001 /* Vehicle.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
-				B1800011212F000100000011 /* Vehicle.swift in Sources */,
 				B1800012212F000100000012 /* BluetoothVehicleDetector.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
@@ -672,6 +687,9 @@
 				A100000B212F00010000000B /* MapView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
+				C3200003212F000100000003 /* VehiclesSettingsView.swift in Sources */,
+				A1000041212F000100000041 /* MileageReport.swift in Sources */,
+				A1000042212F000100000042 /* MileageReportView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
 				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,
 				A100001C212F00010000001C /* SharedLocationData.swift in Sources */,
@@ -732,9 +750,11 @@
 			files = (
 				D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */,
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
+				CB0AF0C384FF821E6D718E7F /* MileageReportTests.swift in Sources */,
 				E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
+				D61000012162000100000001 /* MapSmokeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
