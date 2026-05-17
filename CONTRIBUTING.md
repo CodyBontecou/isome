@@ -66,6 +66,8 @@ xcodebuild test \
 
 The current tests use isolated in-memory or system test state where possible. Tests that touch `UserDefaults` clean up their keys in `setUp`/`tearDown`, and Keychain tests write only to test-specific account names.
 
+`IsoMeTests/MapSmokeTests.swift` covers map timestamp markers, visit-marker accessibility contracts, and icon-only map controls without live GPS, network, or MapKit tile fixtures. The smoke fixtures use fixed `Visit`, `LocationPoint`, and `Date` data, host SwiftUI marker/control views in `UIHostingController`, and assert current public accessibility contracts such as `Visit.accessibilityLabel`, `Visit.accessibilityValue`, `LocationPoint.accessibilityValue`, and `MapDatePreset.accessibilityLabel`.
+
 ## Testing on TestFlight
 
 If you have a paid Apple Developer account and want to dogfood your fork via TestFlight:
