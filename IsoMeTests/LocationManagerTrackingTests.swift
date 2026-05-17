@@ -9,6 +9,7 @@ import SwiftData
 final class LocationManagerTrackingTests: XCTestCase {
 
     private var manager: LocationManager!
+    private var retainedContainers: [ModelContainer] = []
 
     override func setUp() {
         super.setUp()
@@ -24,6 +25,7 @@ final class LocationManagerTrackingTests: XCTestCase {
 
     override func tearDown() {
         manager = nil
+        retainedContainers = []
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
         UserDefaults.standard.removeObject(forKey: "stopAfterHours")
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
@@ -108,6 +110,55 @@ final class LocationManagerTrackingTests: XCTestCase {
         XCTAssertFalse(fresh.isVisitDetectionEnabled)
     }
 
+    func testVehicleSelectionStoresAssignedVehicleID() throws {
+        let context = try makeVehicleContext()
+        let vehicle = Vehicle(name: "Work Truck", isDefault: true)
+        let visit = Visit(latitude: 37.0, longitude: -122.0, arrivedAt: Date())
+        context.insert(vehicle)
+        context.insert(visit)
+        try context.save()
+
+        let viewModel = LocationViewModel(modelContext: context, locationManager: manager)
+        viewModel.assignVehicle(vehicle.id, to: visit)
+
+        XCTAssertEqual(visit.vehicleID, vehicle.id)
+    }
+
+    func testVisitExportIncludesResolvedVehicleName() throws {
+        let vehicleID = UUID()
+        let vehicle = Vehicle(id: vehicleID, name: "Renamed Truck")
+        let visit = Visit(
+            latitude: 37.0,
+            longitude: -122.0,
+            arrivedAt: Date(timeIntervalSince1970: 100),
+            vehicleID: vehicleID
+        )
+
+        let data = try ExportService.exportToJSON(visits: [visit], vehicles: [vehicle])
+        let exportedVisit = try firstDictionary(in: data, rootKey: "visits")
+
+        XCTAssertEqual(exportedVisit["vehicleID"] as? String, vehicleID.uuidString)
+        XCTAssertEqual(exportedVisit["vehicleName"] as? String, "Renamed Truck")
+    }
+
+    func testLocationPointExportIncludesResolvedVehicleName() throws {
+        let vehicleID = UUID()
+        let vehicle = Vehicle(id: vehicleID, name: "Family Car")
+        let point = LocationPoint(
+            latitude: 37.0,
+            longitude: -122.0,
+            timestamp: Date(timeIntervalSince1970: 100),
+            horizontalAccuracy: 5,
+            vehicleID: vehicleID
+        )
+
+        let data = try ExportService.exportLocationPointsToJSON(points: [point], vehicles: [vehicle])
+        let exportedPoint = try firstDictionary(in: data, rootKey: "points")
+
+        XCTAssertEqual(exportedPoint["vehicleID"] as? String, vehicleID.uuidString)
+        XCTAssertEqual(exportedPoint["vehicleName"] as? String, "Family Car")
+    }
+
     /// setStopAfterHours persists across reinstantiation.
     func testStopAfterHoursIsPersisted() {
         manager.setStopAfterHours(2.0)
@@ -125,6 +176,24 @@ final class LocationManagerTrackingTests: XCTestCase {
         manager.setLiveActivityEnabled(false)
         let fresh = LocationManager()
         XCTAssertFalse(fresh.isLiveActivityEnabled)
+    }
+
+    private func makeVehicleContext() throws -> ModelContext {
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(
+            for: Visit.self,
+            LocationPoint.self,
+            Vehicle.self,
+            configurations: configuration
+        )
+        retainedContainers.append(container)
+        return container.mainContext
+    }
+
+    private func firstDictionary(in data: Data, rootKey: String) throws -> [String: Any] {
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let values = try XCTUnwrap(root[rootKey] as? [[String: Any]])
+        return try XCTUnwrap(values.first)
     }
 }
 
