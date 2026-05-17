@@ -1,5 +1,6 @@
 import XCTest
 import CoreLocation
+import SwiftData
 @testable import IsoMe
 
 /// Tests that the LocationManager tracking lifecycle is correct:
@@ -88,5 +89,214 @@ final class LocationManagerTrackingTests: XCTestCase {
         manager.setLiveActivityEnabled(false)
         let fresh = LocationManager()
         XCTAssertFalse(fresh.isLiveActivityEnabled)
+    }
+}
+
+@MainActor
+final class LocationViewModelLoadTests: XCTestCase {
+    private let stressPointCount = 33_000
+    private let millionPointStressTestCount = 1_000_000
+    private let millionPointStressTestEnvKey = "ISOME_RUN_MILLION_POINT_STRESS_TEST"
+
+    override func setUp() {
+        super.setUp()
+        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
+        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
+        UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
+    }
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
+        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
+        UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
+        super.tearDown()
+    }
+
+    func testStartupWithThirtyThreeThousandHistoricalPointsDoesNotEagerlyLoadFullPointCache() throws {
+        let container = try makeContainer()
+        let tripRange = try seedLocationPoints(
+            count: stressPointCount,
+            into: container.mainContext,
+            start: Date().addingTimeInterval(-7 * 86_400)
+        )
+
+        let viewModel = LocationViewModel(
+            modelContext: container.mainContext,
+            locationManager: LocationManager()
+        )
+
+        XCTAssertEqual(viewModel.locationPointCount, stressPointCount)
+        XCTAssertTrue(viewModel.locationPoints.isEmpty, "Startup should not load every historical point into the export cache.")
+        XCTAssertTrue(viewModel.mapLocationPoints.isEmpty, "Default Today map range should not load old road-trip points.")
+        XCTAssertTrue(viewModel.todayLocationPoints.isEmpty, "Historical points should not inflate today's live stats.")
+
+        viewModel.mapDateRange = tripRange
+        viewModel.loadMapLocationPoints()
+
+        XCTAssertEqual(viewModel.mapLocationPoints.count, stressPointCount)
+        XCTAssertTrue(viewModel.locationPoints.isEmpty, "Loading a large selected map range should not populate the full export cache.")
+    }
+
+    func testOnDemandExportLoadStillFetchesThirtyThreeThousandPoints() throws {
+        let container = try makeContainer()
+        try seedLocationPoints(
+            count: stressPointCount,
+            into: container.mainContext,
+            start: Date().addingTimeInterval(-7 * 86_400)
+        )
+
+        let viewModel = LocationViewModel(
+            modelContext: container.mainContext,
+            locationManager: LocationManager()
+        )
+
+        XCTAssertTrue(viewModel.locationPoints.isEmpty)
+
+        viewModel.loadLocationPoints()
+
+        XCTAssertEqual(viewModel.locationPoints.count, stressPointCount)
+        XCTAssertEqual(viewModel.locationPointCount, stressPointCount)
+    }
+
+    func testMapViewDownsamplesThirtyThreeThousandSelectedPointsForRendering() throws {
+        let container = try makeContainer()
+        let viewModel = LocationViewModel(
+            modelContext: container.mainContext,
+            locationManager: LocationManager()
+        )
+        viewModel.mapLocationPoints = makeDetachedPoints(count: stressPointCount)
+
+        let mapView = LocationMapView(viewModel: viewModel)
+
+        XCTAssertEqual(mapView.filteredPoints.count, stressPointCount)
+        XCTAssertEqual(mapView.displayPathPoints.count, 2_500)
+        XCTAssertLessThanOrEqual(mapView.spacedPoints.count, 500)
+        XCTAssertEqual(mapView.displayPathPoints.first?.id, viewModel.mapLocationPoints.first?.id)
+        XCTAssertEqual(mapView.displayPathPoints.last?.id, viewModel.mapLocationPoints.last?.id)
+    }
+
+    func testManualMillionPointStartupDoesNotEagerlyLoadFullPointCache() throws {
+        guard ProcessInfo.processInfo.environment[millionPointStressTestEnvKey] == "1" else {
+            throw XCTSkip("Set \(millionPointStressTestEnvKey)=1 to run the 1,000,000-point startup stress test.")
+        }
+
+        let container = try makeContainer()
+        try seedLocationPoints(
+            count: millionPointStressTestCount,
+            into: container,
+            start: Date().addingTimeInterval(-30 * 86_400),
+            batchSize: 10_000
+        )
+
+        let viewModel = LocationViewModel(
+            modelContext: container.mainContext,
+            locationManager: LocationManager()
+        )
+
+        XCTAssertEqual(viewModel.locationPointCount, millionPointStressTestCount)
+        XCTAssertTrue(viewModel.locationPoints.isEmpty, "Startup should not load one million historical points into the export cache.")
+        XCTAssertTrue(viewModel.mapLocationPoints.isEmpty, "Default Today map range should not load old stress-test points.")
+        XCTAssertTrue(viewModel.todayLocationPoints.isEmpty, "Historical stress-test points should not inflate today's live stats.")
+    }
+
+    private func makeContainer() throws -> ModelContainer {
+        let schema = Schema([Visit.self, LocationPoint.self])
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        return try ModelContainer(for: schema, configurations: [configuration])
+    }
+
+    @discardableResult
+    private func seedLocationPoints(
+        count: Int,
+        into context: ModelContext,
+        start: Date
+    ) throws -> ClosedRange<Date> {
+        let interval: TimeInterval = 5
+        for index in 0..<count {
+            context.insert(makePoint(index: index, start: start, interval: interval))
+        }
+        try context.save()
+
+        let end = start.addingTimeInterval(Double(max(0, count - 1)) * interval)
+        return start...end
+    }
+
+    @discardableResult
+    private func seedLocationPoints(
+        count: Int,
+        into container: ModelContainer,
+        start: Date,
+        batchSize: Int
+    ) throws -> ClosedRange<Date> {
+        let interval: TimeInterval = 5
+
+        for batchStart in stride(from: 0, to: count, by: batchSize) {
+            let context = ModelContext(container)
+            let batchEnd = min(batchStart + batchSize, count)
+            for index in batchStart..<batchEnd {
+                context.insert(makePoint(index: index, start: start, interval: interval))
+            }
+            try context.save()
+        }
+
+        let end = start.addingTimeInterval(Double(max(0, count - 1)) * interval)
+        return start...end
+    }
+
+    private func makeDetachedPoints(count: Int) -> [LocationPoint] {
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        return (0..<count).map { makePoint(index: $0, start: start, interval: 5) }
+    }
+
+    private func makePoint(index: Int, start: Date, interval: TimeInterval) -> LocationPoint {
+        LocationPoint(
+            latitude: 37.0 + Double(index % 1_000) * 0.0001,
+            longitude: -122.0 + Double(index / 1_000) * 0.0001,
+            timestamp: start.addingTimeInterval(Double(index) * interval),
+            horizontalAccuracy: 5
+        )
+    }
+}
+
+final class LocationPointSamplerTests: XCTestCase {
+    func testDownsampleCapsPointCountAndPreservesEndpoints() {
+        let points = makePoints(count: 33_000)
+
+        let sampled = LocationPointSampler.downsample(points, maximumCount: 2_500)
+
+        XCTAssertLessThanOrEqual(sampled.count, 2_500)
+        XCTAssertEqual(sampled.first?.id, points.first?.id)
+        XCTAssertEqual(sampled.last?.id, points.last?.id)
+    }
+
+    func testSpacedCapsMarkerCountAndPreservesStart() {
+        let points = makePoints(count: 10_000, latitudeStep: 0.001)
+
+        let sampled = LocationPointSampler.spaced(
+            points,
+            minimumDistance: 50,
+            maximumCount: 500
+        )
+
+        XCTAssertLessThanOrEqual(sampled.count, 500)
+        XCTAssertEqual(sampled.first?.id, points.first?.id)
+    }
+
+    func testDownsampleWithZeroMaximumReturnsNoPoints() {
+        XCTAssertTrue(LocationPointSampler.downsample(makePoints(count: 10), maximumCount: 0).isEmpty)
+    }
+
+    private func makePoints(count: Int, latitudeStep: Double = 0.0001) -> [LocationPoint] {
+        let startDate = Date(timeIntervalSince1970: 1_700_000_000)
+        return (0..<count).map { index in
+            LocationPoint(
+                latitude: 37.0 + Double(index) * latitudeStep,
+                longitude: -122.0,
+                timestamp: startDate.addingTimeInterval(Double(index)),
+                horizontalAccuracy: 5
+            )
+        }
     }
 }

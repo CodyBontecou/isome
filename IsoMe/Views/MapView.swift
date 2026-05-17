@@ -32,13 +32,16 @@ struct LocationMapView: View {
 
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    // Keep MapKit overlays/annotations bounded for multi-day road trips.
+    private let maximumPolylinePoints = 2_500
+    private let maximumPointMarkers = 500
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
     }
 
     var filteredPoints: [LocationPoint] {
-        let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        let points = viewModel.mapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
 
@@ -48,21 +51,20 @@ struct LocationMapView: View {
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
     
+    var displayPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(filteredPoints, maximumCount: maximumPolylinePoints)
+    }
+
+    var displaySessionPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(activeSessionPoints, maximumCount: maximumPolylinePoints)
+    }
+
     var spacedPoints: [LocationPoint] {
-        guard !filteredPoints.isEmpty else { return [] }
-        
-        var result: [LocationPoint] = [filteredPoints[0]]
-        
-        for point in filteredPoints.dropFirst() {
-            if let lastPoint = result.last {
-                let distance = lastPoint.distance(to: point)
-                if distance >= minimumPointDistance {
-                    result.append(point)
-                }
-            }
-        }
-        
-        return result
+        LocationPointSampler.spaced(
+            filteredPoints,
+            minimumDistance: minimumPointDistance,
+            maximumCount: maximumPointMarkers
+        )
     }
 
     var body: some View {
@@ -73,8 +75,8 @@ struct LocationMapView: View {
                     UserAnnotation()
 
                     // Travel path from location points
-                    if showTravelPath && !filteredPoints.isEmpty {
-                        let coordinates = filteredPoints.map { $0.coordinate }
+                    if showTravelPath && !displayPathPoints.isEmpty {
+                        let coordinates = displayPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(
                                 LinearGradient(
@@ -87,8 +89,8 @@ struct LocationMapView: View {
                     }
                     
                     // Live session path (moved from Track tab)
-                    if showSessionPath && activeSessionPoints.count >= 2 {
-                        let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
+                    if showSessionPath && displaySessionPathPoints.count >= 2 {
+                        let sessionCoordinates = displaySessionPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: sessionCoordinates)
                             .stroke(.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
                     }
@@ -257,12 +259,18 @@ struct LocationMapView: View {
             }
             .onAppear {
                 viewModel.loadAllVisits()
-                viewModel.loadLocationPoints()
+                viewModel.loadMapLocationPoints()
 
                 if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
+            }
+            .onChange(of: viewModel.mapDateRange.lowerBound) { _, _ in
+                viewModel.loadMapLocationPoints()
+            }
+            .onChange(of: viewModel.mapDateRange.upperBound) { _, _ in
+                viewModel.loadMapLocationPoints()
             }
             .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
@@ -1114,6 +1122,53 @@ struct FitMenuButton: View {
         }
         .accessibilityLabel("Fit map")
         .accessibilityHint("Shows options for zooming the map to available content.")
+    }
+}
+
+// MARK: - Point Sampling
+
+enum LocationPointSampler {
+    static func downsample(_ points: [LocationPoint], maximumCount: Int) -> [LocationPoint] {
+        guard maximumCount > 0 else { return [] }
+        guard points.count > maximumCount else { return points }
+        guard maximumCount > 1 else { return [points[0]] }
+
+        let step = Double(points.count - 1) / Double(maximumCount - 1)
+        var result: [LocationPoint] = []
+        result.reserveCapacity(maximumCount)
+        var previousIndex: Int?
+
+        for sampleIndex in 0..<maximumCount {
+            let sourceIndex = min(points.count - 1, Int((Double(sampleIndex) * step).rounded()))
+            guard sourceIndex != previousIndex else { continue }
+            result.append(points[sourceIndex])
+            previousIndex = sourceIndex
+        }
+
+        if result.last?.id != points.last?.id {
+            result[result.count - 1] = points[points.count - 1]
+        }
+
+        return result
+    }
+
+    static func spaced(
+        _ points: [LocationPoint],
+        minimumDistance: Double,
+        maximumCount: Int
+    ) -> [LocationPoint] {
+        guard !points.isEmpty else { return [] }
+
+        var result: [LocationPoint] = [points[0]]
+
+        for point in points.dropFirst() {
+            guard let lastPoint = result.last else { continue }
+            if lastPoint.distance(to: point) >= minimumDistance {
+                result.append(point)
+            }
+        }
+
+        return downsample(result, maximumCount: maximumCount)
     }
 }
 
