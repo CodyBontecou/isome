@@ -565,18 +565,18 @@ struct VisitMarker: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(visit.isCurrentVisit ? .blue : .red)
+                    .fill(visit.purpose.mapTint)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
                     .accessibilityHidden(true)
 
-                Image(systemName: "mappin")
-                    .font(isSelected ? .title3 : .callout)
+                Image(systemName: visit.purpose.iconName)
+                    .font(.system(size: isSelected ? 18 : 14))
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
 
             Triangle()
-                .fill(visit.isCurrentVisit ? .blue : .red)
+                .fill(visit.purpose.mapTint)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
@@ -796,6 +796,7 @@ struct DateRangeFilterSheet: View {
 struct VisitQuickView: View {
     let visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var subPurposeText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -829,6 +830,37 @@ struct VisitQuickView: View {
                 }
 
                 Divider()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Classification")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Picker("Classification", selection: Binding(
+                        get: { visit.purpose },
+                        set: { newPurpose in
+                            viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
+                            if newPurpose != .business {
+                                subPurposeText = ""
+                            }
+                        }
+                    )) {
+                        ForEach(TripPurpose.allCases) { purpose in
+                            Label(purpose.label, systemImage: purpose.iconName)
+                                .tag(purpose)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    if visit.purpose == .business {
+                        TextField("Sub-purpose", text: $subPurposeText)
+                            .textFieldStyle(.roundedBorder)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                viewModel.updateVisitClassification(visit, purpose: .business, subPurpose: subPurposeText)
+                            }
+                    }
+                }
 
                 // Time info
                 HStack(spacing: 24) {
@@ -878,6 +910,9 @@ struct VisitQuickView: View {
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                subPurposeText = visit.subPurpose ?? ""
+            }
         }
     }
 }

@@ -30,6 +30,8 @@ struct ImportedVisit {
     let locationName: String?
     let address: String?
     let notes: String?
+    let purpose: TripPurpose
+    let subPurpose: String?
 }
 
 struct ImportedLocationPoint {
@@ -192,7 +194,9 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: dict["locationName"] as? String,
                 address: dict["address"] as? String,
-                notes: dict["notes"] as? String
+                notes: dict["notes"] as? String,
+                purpose: parsePurpose(dict["purpose"] as? String),
+                subPurpose: dict["subPurpose"] as? String
             )
         }
     }
@@ -304,6 +308,15 @@ struct ImportService {
                 return val.isEmpty ? nil : val
             }
 
+            let purpose: TripPurpose = colIndex["purpose"].map { col in
+                parsePurpose(fields[col])
+            } ?? .unclassified
+
+            let subPurpose: String? = colIndex["sub_purpose"].flatMap { col in
+                let val = fields[col]
+                return val.isEmpty ? nil : val
+            }
+
             return ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
@@ -311,7 +324,9 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: locationName,
                 address: address,
-                notes: notes
+                notes: notes,
+                purpose: purpose,
+                subPurpose: subPurpose
             )
         }
     }
@@ -414,6 +429,8 @@ struct ImportService {
         var latitude: Double?
         var longitude: Double?
         var notes: String?
+        var purpose: TripPurpose = .unclassified
+        var subPurpose: String?
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .full
@@ -432,7 +449,9 @@ struct ImportService {
                     departedAt: departedAt,
                     locationName: currentLocationName,
                     address: address,
-                    notes: notes
+                    notes: notes,
+                    purpose: purpose,
+                    subPurpose: subPurpose
                 ))
             }
             arrivedAt = nil
@@ -441,6 +460,8 @@ struct ImportService {
             latitude = nil
             longitude = nil
             notes = nil
+            purpose = .unclassified
+            subPurpose = nil
             currentLocationName = nil
         }
 
@@ -488,6 +509,12 @@ struct ImportService {
                 if !noteText.isEmpty {
                     notes = noteText
                 }
+            } else if trimmed.hasPrefix("- **Purpose:**") {
+                let purposeText = trimmed.replacingOccurrences(of: "- **Purpose:** ", with: "")
+                purpose = parsePurpose(purposeText)
+            } else if trimmed.hasPrefix("- **Sub-purpose:**") {
+                let value = trimmed.replacingOccurrences(of: "- **Sub-purpose:** ", with: "")
+                subPurpose = value.isEmpty || value == "-" ? nil : value
             }
         }
 
@@ -566,7 +593,9 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: optionalMarkdownCell(colIndex["Location"].map { cells[$0] }),
                 address: optionalMarkdownCell(colIndex["Address"].map { cells[$0] }),
-                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] })
+                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] }),
+                purpose: colIndex["Purpose"].map { parsePurpose(cells[$0]) } ?? .unclassified,
+                subPurpose: optionalMarkdownCell(colIndex["Sub-purpose"].map { cells[$0] })
             ))
         }
 
@@ -663,6 +692,12 @@ struct ImportService {
 
     private static func parseISO8601Date(_ string: String) -> Date? {
         iso8601Formatter.date(from: string) ?? iso8601FallbackFormatter.date(from: string)
+    }
+
+    private static func parsePurpose(_ value: String?) -> TripPurpose {
+        guard let value else { return .unclassified }
+        let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return TripPurpose(rawValue: normalized) ?? .unclassified
     }
 
     private static func combineDateAndTime(date: Date, time: Date) -> Date {
