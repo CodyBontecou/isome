@@ -80,6 +80,12 @@ struct VehiclesSettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
+                Label(portName, systemImage: "bluetooth")
+                    .font(.caption2)
+                    .foregroundStyle(.blue)
+            }
         }
     }
 }
@@ -134,6 +140,36 @@ private struct VehicleDetailView: View {
             Section("Activity") {
                 LabeledContent("Visits", value: "\(vehicleVisits.count)")
                 LabeledContent("GPS points", value: "\(vehiclePoints.count)")
+            }
+
+            Section("Bluetooth Auto-Detection") {
+                if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
+                    LabeledContent("Paired route", value: portName)
+                } else {
+                    Text("Pair this vehicle with a CarPlay, hands-free, or Bluetooth audio route. iOS does not allow apps to scan raw Bluetooth peers.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let message = viewModel.vehiclePairingMessage {
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button {
+                    viewModel.pairVehicleWithBluetooth(vehicle)
+                } label: {
+                    Label("Pair Bluetooth Route", systemImage: "antenna.radiowaves.left.and.right")
+                }
+
+                if vehicle.hasBluetoothPairing {
+                    Button(role: .destructive) {
+                        viewModel.clearBluetoothPairing(for: vehicle)
+                    } label: {
+                        Label("Clear Bluetooth Pairing", systemImage: "xmark.circle")
+                    }
+                }
             }
 
             if !vehicle.isArchived {

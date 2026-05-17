@@ -1,17 +1,17 @@
 {
-  "id": "I_kwDOQwWY1M8AAAABBeTj6g",
-  "identifier": "CodyBontecou/isome#19",
-  "title": "Multi-vehicle support",
-  "description": "## Summary\n\nLet users register multiple vehicles, set a default, and assign each tracked drive to a vehicle. Required for households or self-employed users who drive more than one car.\n\n## Motivation\n\nMileage deductions and reimbursements are tracked **per vehicle** (the IRS Schedule C / Form 4562 line items are per-vehicle). Without a vehicle list, iso.me cannot produce a usable mileage report for anyone with more than one car.\n\n## Data model\n\nNew `Vehicle` SwiftData model:\n\n- `id: UUID`\n- `name: String` (e.g. \"Work Truck\")\n- `make: String?`\n- `model: String?`\n- `year: Int?`\n- `licensePlate: String?`\n- `odometerStart: Int?` (year-start odometer for IRS reporting)\n- `odometerCurrent: Int?` (kept up to date when the user enters readings)\n- `isDefault: Bool`\n- `bluetoothPortName: String?` (filled by the BT auto-detect ticket)\n- `archivedAt: Date?` (soft-delete so historical trips keep referencing the vehicle)\n\nExtend the continuous-tracking session model with `vehicleID: UUID?`.\n\n## Proposed UX\n\n- **Settings → Vehicles** — list with add / edit / archive.\n- \"Default vehicle\" toggle; new untagged drives use the default.\n- Trip detail view: vehicle picker with quick-set chips for the most-recent vehicles.\n- Trip list filter by vehicle.\n- Vehicle detail screen: total miles, business/personal breakdown, mileage chart, current odometer.\n\n## Acceptance criteria\n\n- [ ] User can add, edit, and archive vehicles.\n- [ ] Drives can be assigned (or reassigned) to any non-archived vehicle.\n- [ ] A default vehicle is automatically applied to new drives unless overridden.\n- [ ] Vehicle is included in JSON/CSV/Markdown exports.\n- [ ] Archiving a vehicle hides it from new drives but preserves it on past drives.\n\n<!-- isobot:discord-thread:1501666903012413480 -->",
+  "id": "I_kwDOQwWY1M8AAAABBeTgOQ",
+  "identifier": "CodyBontecou/isome#18",
+  "title": "Auto-detect active vehicle via Bluetooth connection",
+  "description": "## Summary\n\nWhen the phone connects to a known vehicle's Bluetooth (head unit, hands-free profile, or registered BLE accessory), automatically tag the resulting drive with that vehicle. Mirrors MileIQ's \"Vehicles\" auto-pairing behavior.\n\n## Motivation\n\nRemoves the manual \"which car was I in?\" classification step for users with multiple vehicles, which is the main friction point for self-employed drivers and households with shared cars.\n\n## Approach\n\niOS does **not** expose general Bluetooth peer info to third-party apps. The realistic options:\n\n1. **CarPlay / handsfree route detection** — `AVAudioSession.routeChange` notifications include the connected device's `portType` (`.carAudio`, `.bluetoothHFP`, `.bluetoothA2DP`) and `portName` (the head unit's advertised name). On route-change to one of those ports while tracking is active, look up the matching vehicle by saved `portName` and tag the session.\n2. **External Accessory framework** — for users with a registered MFi/BLE OBD dongle, watch for the accessory's UID.\n3. **Manual fallback** — let the user tap \"use this vehicle for this trip\" if no match was found, and remember the choice.\n\n## Proposed UX\n\n- In **Settings → Vehicles**, each vehicle has a \"Pair with Bluetooth device\" button that listens for the next route-change and saves the current `portName` (e.g. \"Mazda CX-5\", \"Tesla Model 3\").\n- On the next trip that triggers that route, the session is auto-tagged with the vehicle, and the trip card shows a small Bluetooth icon to indicate auto-detection (so the user can trust/verify it).\n- If multiple vehicles share a head-unit name (rare), prompt the user once and remember the choice.\n\n## Dependencies\n\n- Requires the **multi-vehicle support** ticket to land first (need a vehicle list to pair against).\n\n## Acceptance criteria\n\n- [ ] User can pair a vehicle with a Bluetooth device by tapping a button while connected to it.\n- [ ] On subsequent connections, drives started during that route are auto-tagged with the paired vehicle.\n- [ ] Trip detail view shows the auto-detected vehicle with a clear \"auto\" indicator and lets the user override.\n- [ ] If no pairing matches, tracking still works and the trip is left vehicle-unset.\n- [ ] Documented in the README under Vehicles, including the iOS limitations (no raw BT peer scan).\n\n<!-- isobot:discord-thread:1501666862415610079 -->",
   "author": "CodyBontecou",
   "priority": null,
   "state": "open",
   "branch_name": null,
-  "url": "https://github.com/CodyBontecou/isome/issues/19",
+  "url": "https://github.com/CodyBontecou/isome/issues/18",
   "labels": [
     "enhancement"
   ],
   "blocked_by": [],
-  "created_at": "2026-05-06T19:28:07Z",
-  "updated_at": "2026-05-06T19:28:09Z"
+  "created_at": "2026-05-06T19:27:57Z",
+  "updated_at": "2026-05-06T19:28:00Z"
 }
