@@ -108,6 +108,14 @@ struct ExportView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+            .onAppear {
+                loadExportCacheIfUnlocked()
+            }
+            .onChange(of: storeManager.isPurchased) { _, isPurchased in
+                if isPurchased {
+                    loadExportCacheIfUnlocked()
+                }
+            }
         }
     }
 
@@ -971,7 +979,15 @@ struct ExportView: View {
 
     // MARK: - Actions
 
+    private func loadExportCacheIfUnlocked() {
+        guard storeManager.isPurchased else { return }
+        viewModel.loadAllVisits()
+        viewModel.loadLocationPoints()
+    }
+
     private func runExport() {
+        loadExportCacheIfUnlocked()
+
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let urls = try ExportService.saveToDefaultFolder(
@@ -1010,7 +1026,7 @@ struct ExportView: View {
 
 #Preview {
     ExportView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self).mainContext,
         locationManager: LocationManager()
     ))
 }

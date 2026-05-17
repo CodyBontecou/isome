@@ -36,10 +36,11 @@ struct SettingsView: View {
                         trackingModeSection
                         trackingSection
                         liveActivitySection
-                        vehiclesSection
                         unitsSection
                         mapDisplaySection
+                        reportsSection
                         importSection
+                        vehiclesSection
                         dataSection
                         onboardingSection
                         supportSection
@@ -83,6 +84,9 @@ struct SettingsView: View {
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)
+            }
+            .onAppear {
+                viewModel.loadLocationPointCount()
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
@@ -409,6 +413,39 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Reports Section
+
+    private var reportsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "REPORTS")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        MileageReportView(viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("MILEAGE REPORT")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Generate IRS-ready CSV or PDF mileage reports from classified trips.")
+        }
+    }
+
     // MARK: - Import Section
 
     private var importSection: some View {
@@ -492,7 +529,7 @@ struct SettingsView: View {
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
-                            Text("\(viewModel.locationPoints.count)")
+                            Text("\(viewModel.locationPointCount)")
                                 .font(TE.mono(.caption2, weight: .medium))
                                 .foregroundStyle(TE.textMuted)
                         }

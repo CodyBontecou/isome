@@ -69,7 +69,7 @@ enum ExportFormat {
 }
 
 struct ExportService {
-    private static let iso8601Formatter: ISO8601DateFormatter = {
+    static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
@@ -88,6 +88,8 @@ struct ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     struct ExportData: Codable {
@@ -99,17 +101,17 @@ struct ExportService {
         Dictionary(uniqueKeysWithValues: vehicles.map { ($0.id, $0) })
     }
 
-    private static func vehicleName(for id: UUID?, snapshotName: String? = nil, lookup: [UUID: Vehicle]) -> String? {
-        guard let id else { return snapshotName }
-        return lookup[id]?.name ?? snapshotName
+    private static func vehicleName(for id: UUID?, lookup: [UUID: Vehicle]) -> String? {
+        guard let id else { return nil }
+        return lookup[id]?.name
     }
 
-    private static func hasVehicleContext(visits: [Visit], vehicles: [Vehicle]) -> Bool {
-        !vehicles.isEmpty || visits.contains { $0.vehicleID != nil || !($0.vehicleName?.isEmpty ?? true) }
+    private static func includeVehicleColumns(for visits: [Visit], vehicles: [Vehicle]) -> Bool {
+        !vehicles.isEmpty || visits.contains { $0.vehicleID != nil }
     }
 
-    private static func hasVehicleContext(points: [LocationPoint], vehicles: [Vehicle]) -> Bool {
-        !vehicles.isEmpty || points.contains { $0.vehicleID != nil || !($0.vehicleName?.isEmpty ?? true) }
+    private static func includeVehicleColumns(for points: [LocationPoint], vehicles: [Vehicle]) -> Bool {
+        !vehicles.isEmpty || points.contains { $0.vehicleID != nil }
     }
 
     private static func exportableVisit(_ visit: Visit, options: ExportOptions, vehiclesByID: [UUID: Vehicle]) -> ExportableVisit {
@@ -120,10 +122,12 @@ struct ExportService {
             departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
             vehicleID: visit.vehicleID,
-            vehicleName: vehicleName(for: visit.vehicleID, snapshotName: visit.vehicleName, lookup: vehiclesByID),
+            vehicleName: vehicleName(for: visit.vehicleID, lookup: vehiclesByID),
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            purpose: visit.purpose.rawValue,
+            subPurpose: visit.subPurpose
         )
     }
 
@@ -148,10 +152,10 @@ struct ExportService {
 
     static func exportToCSV(visits: [Visit], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
         let vehiclesByID = vehicleLookup(vehicles)
-        let includeVehicleContext = hasVehicleContext(visits: visits, vehicles: vehicles)
+        let includeVehicleColumns = includeVehicleColumns(for: visits, vehicles: vehicles)
         var headers = ["arrived_at", "departed_at"]
         if options.includeVisitDuration { headers.append("duration_minutes") }
-        if includeVehicleContext {
+        if includeVehicleColumns {
             headers.append("vehicle_id")
             headers.append("vehicle_name")
         }
@@ -162,6 +166,8 @@ struct ExportService {
         if options.includeVisitLocationName { headers.append("location_name") }
         if options.includeVisitAddress { headers.append("address") }
         if options.includeVisitNotes { headers.append("notes") }
+        headers.append("purpose")
+        headers.append("sub_purpose")
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -172,9 +178,9 @@ struct ExportService {
             if options.includeVisitDuration {
                 fields.append(visit.durationMinutes.map { String(format: "%.1f", $0) } ?? "")
             }
-            if includeVehicleContext {
+            if includeVehicleColumns {
                 fields.append(visit.vehicleID?.uuidString ?? "")
-                fields.append(escapeCSVField(vehicleName(for: visit.vehicleID, snapshotName: visit.vehicleName, lookup: vehiclesByID) ?? ""))
+                fields.append(escapeCSVField(vehicleName(for: visit.vehicleID, lookup: vehiclesByID) ?? ""))
             }
             if options.includeVisitCoordinates {
                 fields.append(String(visit.latitude))
@@ -189,13 +195,15 @@ struct ExportService {
             if options.includeVisitNotes {
                 fields.append(escapeCSVField(visit.notes ?? ""))
             }
+            fields.append(visit.purpose.rawValue)
+            fields.append(escapeCSVField(visit.subPurpose ?? ""))
             csvString.append(fields.joined(separator: ",") + "\n")
         }
 
         return csvString.data(using: .utf8) ?? Data()
     }
 
-    private static func escapeCSVField(_ field: String) -> String {
+    static func escapeCSVField(_ field: String) -> String {
         if field.contains(",") || field.contains("\"") || field.contains("\n") {
             let escaped = field.replacingOccurrences(of: "\"", with: "\"\"")
             return "\"\(escaped)\""
@@ -207,7 +215,7 @@ struct ExportService {
 
     static func exportToMarkdown(visits: [Visit], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
         let vehiclesByID = vehicleLookup(vehicles)
-        let includeVehicleContext = hasVehicleContext(visits: visits, vehicles: vehicles)
+        let includeVehicleColumns = includeVehicleColumns(for: visits, vehicles: vehicles)
         var md = "# iso.me Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
         md += "**Total Visits:** \(visits.count)\n\n"
@@ -230,7 +238,7 @@ struct ExportService {
 
         var headerCols: [String] = ["Arrived", "Departed"]
         if options.includeVisitDuration { headerCols.append("Duration") }
-        if includeVehicleContext { headerCols.append("Vehicle") }
+        if includeVehicleColumns { headerCols.append("Vehicle") }
         if options.includeVisitCoordinates {
             headerCols.append("Lat")
             headerCols.append("Lon")
@@ -238,6 +246,8 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
+        headerCols.append("Purpose")
+        headerCols.append("Sub-purpose")
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -261,8 +271,8 @@ struct ExportService {
                         cells.append("-")
                     }
                 }
-                if includeVehicleContext {
-                    cells.append(escapeMarkdownTableCell(vehicleName(for: visit.vehicleID, snapshotName: visit.vehicleName, lookup: vehiclesByID)))
+                if includeVehicleColumns {
+                    cells.append(escapeMarkdownTableCell(vehicleName(for: visit.vehicleID, lookup: vehiclesByID)))
                 }
                 if options.includeVisitCoordinates {
                     cells.append(String(format: "%.6f", visit.latitude))
@@ -277,6 +287,8 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
+                cells.append(visit.purpose.label)
+                cells.append(escapeMarkdownTableCell(visit.subPurpose))
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -313,7 +325,7 @@ struct ExportService {
         return tempURL
     }
 
-    private static func formattedDate() -> String {
+    static func formattedDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd_HHmmss"
         return formatter.string(from: Date())
@@ -340,7 +352,7 @@ struct ExportService {
         case .gpx:
             data = exportVisitsToGPX(visits: visits, vehicles: vehicles)
         case .kml:
-            data = exportVisitsToKML(visits: visits)
+            data = exportVisitsToKML(visits: visits, vehicles: vehicles)
         case .geojson:
             data = try exportVisitsToGeoJSON(visits: visits, vehicles: vehicles)
         }
@@ -389,7 +401,7 @@ struct ExportService {
         case .gpx:
             data = exportVisitsToGPX(visits: visits, vehicles: vehicles)
         case .kml:
-            data = exportVisitsToKML(visits: visits)
+            data = exportVisitsToKML(visits: visits, vehicles: vehicles)
         case .geojson:
             data = try exportVisitsToGeoJSON(visits: visits, vehicles: vehicles)
         }
@@ -479,7 +491,7 @@ extension ExportService {
                 verticalAccuracy: nil,
                 isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil,
                 vehicleID: point.vehicleID,
-                vehicleName: vehicleName(for: point.vehicleID, snapshotName: point.vehicleName, lookup: vehiclesByID)
+                vehicleName: vehicleName(for: point.vehicleID, lookup: vehiclesByID)
             )
         }
 
@@ -508,10 +520,10 @@ extension ExportService {
     static func exportLocationPointsToCSV(points: [LocationPoint], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
         let vehiclesByID = vehicleLookup(vehicles)
-        let includeVehicleContext = hasVehicleContext(points: sortedPoints, vehicles: vehicles)
+        let includeVehicleColumns = includeVehicleColumns(for: sortedPoints, vehicles: vehicles)
 
         var headers = ["timestamp", "timestamp_unix", "latitude", "longitude"]
-        if includeVehicleContext {
+        if includeVehicleColumns {
             headers.append("vehicle_id")
             headers.append("vehicle_name")
         }
@@ -528,9 +540,9 @@ extension ExportService {
             fields.append(String(format: "%.3f", point.timestamp.timeIntervalSince1970))
             fields.append(String(point.latitude))
             fields.append(String(point.longitude))
-            if includeVehicleContext {
+            if includeVehicleColumns {
                 fields.append(point.vehicleID?.uuidString ?? "")
-                fields.append(escapeCSVField(vehicleName(for: point.vehicleID, snapshotName: point.vehicleName, lookup: vehiclesByID) ?? ""))
+                fields.append(escapeCSVField(vehicleName(for: point.vehicleID, lookup: vehiclesByID) ?? ""))
             }
             if options.includePointAltitude {
                 fields.append(point.altitude.map { String(format: "%.2f", $0) } ?? "")
@@ -553,7 +565,7 @@ extension ExportService {
     static func exportLocationPointsToMarkdown(points: [LocationPoint], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
         let vehiclesByID = vehicleLookup(vehicles)
-        let includeVehicleContext = hasVehicleContext(points: sortedPoints, vehicles: vehicles)
+        let includeVehicleColumns = includeVehicleColumns(for: sortedPoints, vehicles: vehicles)
 
         var md = "# iso.me Location Points Export\n\n"
         md += "**Export Date:** \(formattedDateReadable())\n\n"
@@ -590,7 +602,7 @@ extension ExportService {
         timeFormatter.timeStyle = .medium
 
         var headerCols: [String] = ["Time", "Lat", "Lon"]
-        if includeVehicleContext { headerCols.append("Vehicle") }
+        if includeVehicleColumns { headerCols.append("Vehicle") }
         if options.includePointSpeed { headerCols.append("Speed") }
         if options.includePointAltitude { headerCols.append("Altitude") }
         if options.includePointAccuracy { headerCols.append("Accuracy") }
@@ -609,8 +621,8 @@ extension ExportService {
                 cells.append(timeFormatter.string(from: point.timestamp))
                 cells.append(String(format: "%.6f", point.latitude))
                 cells.append(String(format: "%.6f", point.longitude))
-                if includeVehicleContext {
-                    cells.append(escapeMarkdownTableCell(vehicleName(for: point.vehicleID, snapshotName: point.vehicleName, lookup: vehiclesByID)))
+                if includeVehicleColumns {
+                    cells.append(escapeMarkdownTableCell(vehicleName(for: point.vehicleID, lookup: vehiclesByID)))
                 }
                 if options.includePointSpeed {
                     cells.append(point.speed.map { String(format: "%.1f m/s", $0) } ?? "-")
@@ -650,7 +662,7 @@ extension ExportService {
         case .gpx:
             data = exportLocationPointsToGPX(points: points, vehicles: vehicles)
         case .kml:
-            data = exportLocationPointsToKML(points: points)
+            data = exportLocationPointsToKML(points: points, vehicles: vehicles)
         case .geojson:
             data = try exportLocationPointsToGeoJSON(points: points, vehicles: vehicles)
         }
@@ -791,7 +803,7 @@ extension ExportService {
         case .gpx:
             data = exportLocationPointsToGPX(points: points, vehicles: vehicles)
         case .kml:
-            data = exportLocationPointsToKML(points: points)
+            data = exportLocationPointsToKML(points: points, vehicles: vehicles)
         case .geojson:
             data = try exportLocationPointsToGeoJSON(points: points, vehicles: vehicles)
         }
@@ -838,7 +850,7 @@ extension ExportService {
                 verticalAccuracy: nil,
                 isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil,
                 vehicleID: point.vehicleID,
-                vehicleName: vehicleName(for: point.vehicleID, snapshotName: point.vehicleName, lookup: vehiclesByID)
+                vehicleName: vehicleName(for: point.vehicleID, lookup: vehiclesByID)
             )
         }
 
@@ -948,7 +960,7 @@ extension ExportService {
         case .owntracks: return try exportLocationPointsToOwnTracks(points: points, options: options)
         case .overland: return try exportLocationPointsToOverland(points: points, options: options)
         case .gpx: return exportCombinedToGPX(visits: visits, points: points, vehicles: vehicles, options: options)
-        case .kml: return exportCombinedToKML(visits: visits, points: points, options: options)
+        case .kml: return exportCombinedToKML(visits: visits, points: points, vehicles: vehicles, options: options)
         case .geojson: return try exportCombinedToGeoJSON(visits: visits, points: points, vehicles: vehicles, options: options)
         }
     }
@@ -1034,7 +1046,7 @@ extension ExportService {
         if let vehicleID = visit.vehicleID {
             ext += "      <isome:vehicleID>\(escapeXML(vehicleID.uuidString))</isome:vehicleID>\n"
         }
-        if let vehicleName = vehicleName(for: visit.vehicleID, snapshotName: visit.vehicleName, lookup: vehiclesByID) {
+        if let vehicleName = vehicleName(for: visit.vehicleID, lookup: vehiclesByID) {
             ext += "      <isome:vehicleName>\(escapeXML(vehicleName))</isome:vehicleName>\n"
         }
         if !ext.isEmpty {
@@ -1086,7 +1098,7 @@ extension ExportService {
         if let vehicleID = p.vehicleID {
             ext += "          <isome:vehicleID>\(escapeXML(vehicleID.uuidString))</isome:vehicleID>\n"
         }
-        if let vehicleName = vehicleName(for: p.vehicleID, snapshotName: p.vehicleName, lookup: vehiclesByID) {
+        if let vehicleName = vehicleName(for: p.vehicleID, lookup: vehiclesByID) {
             ext += "          <isome:vehicleName>\(escapeXML(vehicleName))</isome:vehicleName>\n"
         }
         if !ext.isEmpty {
@@ -1129,19 +1141,20 @@ extension ExportService {
 // MARK: - KML Export (https://developers.google.com/kml/documentation/kmlreference)
 
 extension ExportService {
-    static func kmlString(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) -> String {
+    static func kmlString(visits: [Visit], points: [LocationPoint], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> String {
         var xml = kmlHeader() + "\n"
+        let vehiclesByID = vehicleLookup(vehicles)
 
         let sortedVisits = visits.sorted { $0.arrivedAt < $1.arrivedAt }
         for visit in sortedVisits {
-            if let placemark = kmlVisitPlacemark(visit, options: options) {
+            if let placemark = kmlVisitPlacemark(visit, options: options, vehiclesByID: vehiclesByID) {
                 xml += placemark
             }
         }
 
         let sessions = kmlPointSessions(points.sorted { $0.timestamp < $1.timestamp })
         for (index, session) in sessions.enumerated() {
-            xml += kmlSessionPlacemark(session, index: index + 1, options: options)
+            xml += kmlSessionPlacemark(session, index: index + 1, options: options, vehiclesByID: vehiclesByID)
         }
 
         xml += kmlFooter()
@@ -1179,7 +1192,27 @@ extension ExportService {
         return "\(gpxCoord(point.longitude)) \(gpxCoord(point.latitude)) \(gpxNumber(altitude, decimals: 2))"
     }
 
-    private static func kmlVisitPlacemark(_ visit: Visit, options: ExportOptions) -> String? {
+    private static func kmlVehicleExtendedData(vehicleIDs: [UUID?], vehiclesByID: [UUID: Vehicle]) -> String {
+        let uniqueIDs = Array(Set(vehicleIDs.compactMap { $0 })).sorted { $0.uuidString < $1.uuidString }
+        guard !uniqueIDs.isEmpty else { return "" }
+
+        if uniqueIDs.count == 1, let id = uniqueIDs.first {
+            var extended = "        <Data name=\"vehicleID\"><value>\(escapeXML(id.uuidString))</value></Data>\n"
+            if let name = vehicleName(for: id, lookup: vehiclesByID) {
+                extended += "        <Data name=\"vehicleName\"><value>\(escapeXML(name))</value></Data>\n"
+            }
+            return extended
+        }
+
+        var extended = "        <Data name=\"vehicleIDs\"><value>\(escapeXML(uniqueIDs.map { $0.uuidString }.joined(separator: ",")))</value></Data>\n"
+        let names = uniqueIDs.compactMap { vehicleName(for: $0, lookup: vehiclesByID) }
+        if !names.isEmpty {
+            extended += "        <Data name=\"vehicleNames\"><value>\(escapeXML(names.joined(separator: ", ")))</value></Data>\n"
+        }
+        return extended
+    }
+
+    private static func kmlVisitPlacemark(_ visit: Visit, options: ExportOptions, vehiclesByID: [UUID: Vehicle]) -> String? {
         guard options.includeVisitCoordinates else { return nil }
 
         let name = {
@@ -1213,6 +1246,7 @@ extension ExportService {
         if options.includeVisitDuration, let durationMinutes = visit.durationMinutes {
             extended += "        <Data name=\"durationMinutes\"><value>\(gpxNumber(durationMinutes, decimals: 2))</value></Data>\n"
         }
+        extended += kmlVehicleExtendedData(vehicleIDs: [visit.vehicleID], vehiclesByID: vehiclesByID)
         if options.includeVisitAddress, let address = visit.address, !address.isEmpty {
             extended += "        <Data name=\"address\"><value>\(escapeXML(address))</value></Data>\n"
         }
@@ -1248,7 +1282,7 @@ extension ExportService {
         return sessions
     }
 
-    private static func kmlSessionPlacemark(_ points: [LocationPoint], index: Int, options: ExportOptions) -> String {
+    private static func kmlSessionPlacemark(_ points: [LocationPoint], index: Int, options: ExportOptions, vehiclesByID: [UUID: Vehicle]) -> String {
         guard let first = points.first else { return "" }
         let last = points.last ?? first
 
@@ -1258,6 +1292,7 @@ extension ExportService {
         xml += "      <ExtendedData>\n"
         xml += "        <Data name=\"kind\"><value>trackingSession</value></Data>\n"
         xml += "        <Data name=\"pointCount\"><value>\(points.count)</value></Data>\n"
+        xml += kmlVehicleExtendedData(vehicleIDs: points.map { $0.vehicleID }, vehiclesByID: vehiclesByID)
         xml += "      </ExtendedData>\n"
         xml += "      <MultiGeometry>\n"
         if points.count > 1 {
@@ -1289,16 +1324,16 @@ extension ExportService {
         return xml
     }
 
-    static func exportVisitsToKML(visits: [Visit], options: ExportOptions = ExportOptions()) -> Data {
-        kmlString(visits: visits, points: [], options: options).data(using: .utf8) ?? Data()
+    static func exportVisitsToKML(visits: [Visit], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
+        kmlString(visits: visits, points: [], vehicles: vehicles, options: options).data(using: .utf8) ?? Data()
     }
 
-    static func exportLocationPointsToKML(points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
-        kmlString(visits: [], points: points, options: options).data(using: .utf8) ?? Data()
+    static func exportLocationPointsToKML(points: [LocationPoint], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
+        kmlString(visits: [], points: points, vehicles: vehicles, options: options).data(using: .utf8) ?? Data()
     }
 
-    static func exportCombinedToKML(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) -> Data {
-        kmlString(visits: visits, points: points, options: options).data(using: .utf8) ?? Data()
+    static func exportCombinedToKML(visits: [Visit], points: [LocationPoint], vehicles: [Vehicle] = [], options: ExportOptions = ExportOptions()) -> Data {
+        kmlString(visits: visits, points: points, vehicles: vehicles, options: options).data(using: .utf8) ?? Data()
     }
 }
 
@@ -1350,6 +1385,8 @@ extension ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     private struct PointProperties: Encodable {
@@ -1373,10 +1410,12 @@ extension ExportService {
             departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
             vehicleID: visit.vehicleID,
-            vehicleName: vehicleName(for: visit.vehicleID, snapshotName: visit.vehicleName, lookup: vehiclesByID),
+            vehicleName: vehicleName(for: visit.vehicleID, lookup: vehiclesByID),
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            purpose: visit.purpose.rawValue,
+            subPurpose: visit.subPurpose
         )
 
         return GeoJSONFeature(
@@ -1399,7 +1438,7 @@ extension ExportService {
             horizontalAccuracy: options.includePointAccuracy ? point.horizontalAccuracy : nil,
             isOutlier: options.includePointOutlierFlag ? point.isOutlier : nil,
             vehicleID: point.vehicleID,
-            vehicleName: vehicleName(for: point.vehicleID, snapshotName: point.vehicleName, lookup: vehiclesByID)
+            vehicleName: vehicleName(for: point.vehicleID, lookup: vehiclesByID)
         )
 
         return GeoJSONFeature(
@@ -1468,7 +1507,7 @@ extension ExportService {
             case .markdown: data = exportToMarkdown(visits: filteredVisits, vehicles: vehicles, options: options)
             case .owntracks, .overland: data = try exportToJSON(visits: filteredVisits, vehicles: vehicles, options: options)
             case .gpx: data = exportVisitsToGPX(visits: filteredVisits, vehicles: vehicles, options: options)
-            case .kml: data = exportVisitsToKML(visits: filteredVisits, options: options)
+            case .kml: data = exportVisitsToKML(visits: filteredVisits, vehicles: vehicles, options: options)
             case .geojson: data = try exportVisitsToGeoJSON(visits: filteredVisits, vehicles: vehicles, options: options)
             }
         case .points:
@@ -1479,7 +1518,7 @@ extension ExportService {
             case .owntracks: data = try exportLocationPointsToOwnTracks(points: filteredPoints, options: options)
             case .overland: data = try exportLocationPointsToOverland(points: filteredPoints, options: options)
             case .gpx: data = exportLocationPointsToGPX(points: filteredPoints, vehicles: vehicles, options: options)
-            case .kml: data = exportLocationPointsToKML(points: filteredPoints, options: options)
+            case .kml: data = exportLocationPointsToKML(points: filteredPoints, vehicles: vehicles, options: options)
             case .geojson: data = try exportLocationPointsToGeoJSON(points: filteredPoints, vehicles: vehicles, options: options)
             }
         case .all:
@@ -1542,7 +1581,7 @@ extension ExportService {
                 case .markdown: data = exportToMarkdown(visits: group.visits, vehicles: vehicles, options: dayOptions)
                 case .owntracks, .overland: data = try exportToJSON(visits: group.visits, vehicles: vehicles, options: dayOptions)
                 case .gpx: data = exportVisitsToGPX(visits: group.visits, vehicles: vehicles, options: dayOptions)
-                case .kml: data = exportVisitsToKML(visits: group.visits, options: dayOptions)
+                case .kml: data = exportVisitsToKML(visits: group.visits, vehicles: vehicles, options: dayOptions)
                 case .geojson: data = try exportVisitsToGeoJSON(visits: group.visits, vehicles: vehicles, options: dayOptions)
                 }
             case .points:
@@ -1553,7 +1592,7 @@ extension ExportService {
                 case .owntracks: data = try exportLocationPointsToOwnTracks(points: group.points, options: dayOptions)
                 case .overland: data = try exportLocationPointsToOverland(points: group.points, options: dayOptions)
                 case .gpx: data = exportLocationPointsToGPX(points: group.points, vehicles: vehicles, options: dayOptions)
-                case .kml: data = exportLocationPointsToKML(points: group.points, options: dayOptions)
+                case .kml: data = exportLocationPointsToKML(points: group.points, vehicles: vehicles, options: dayOptions)
                 case .geojson: data = try exportLocationPointsToGeoJSON(points: group.points, vehicles: vehicles, options: dayOptions)
                 }
             case .all:

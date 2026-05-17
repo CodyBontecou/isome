@@ -2,6 +2,33 @@ import Foundation
 import SwiftData
 import CoreLocation
 
+enum TripPurpose: String, Codable, CaseIterable, Identifiable {
+    case business
+    case personal
+    case commuting
+    case unclassified
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .business: return "Business"
+        case .personal: return "Personal"
+        case .commuting: return "Commuting"
+        case .unclassified: return "Unclassified"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .business: return "briefcase.fill"
+        case .personal: return "person.fill"
+        case .commuting: return "car.fill"
+        case .unclassified: return "questionmark.circle.fill"
+        }
+    }
+}
+
 @Model
 final class Visit {
     var id: UUID
@@ -12,10 +39,9 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
+    var purposeRawValue: String = TripPurpose.unclassified.rawValue
+    var subPurpose: String? = nil
     var vehicleID: UUID?
-    var vehicleName: String?
-    var vehicleDetectionSource: String?
-    var vehicleBluetoothPortName: String?
 
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
@@ -29,10 +55,9 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
+        purpose: TripPurpose = .unclassified,
+        subPurpose: String? = nil,
         vehicleID: UUID? = nil,
-        vehicleName: String? = nil,
-        vehicleDetectionSource: String? = nil,
-        vehicleBluetoothPortName: String? = nil,
         geocodingCompleted: Bool = false
     ) {
         self.id = id
@@ -43,10 +68,9 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
+        self.purposeRawValue = purpose.rawValue
+        self.subPurpose = subPurpose
         self.vehicleID = vehicleID
-        self.vehicleName = vehicleName
-        self.vehicleDetectionSource = vehicleDetectionSource
-        self.vehicleBluetoothPortName = vehicleBluetoothPortName
         self.geocodingCompleted = geocodingCompleted
     }
 
@@ -96,8 +120,14 @@ final class Visit {
         departedAt == nil
     }
 
-    var isVehicleAutoDetected: Bool {
-        vehicleDetectionSource == "bluetooth"
+    var purpose: TripPurpose {
+        get { TripPurpose(rawValue: purposeRawValue) ?? .unclassified }
+        set {
+            purposeRawValue = newValue.rawValue
+            if newValue != .business {
+                subPurpose = nil
+            }
+        }
     }
 
     var accessibilityLabel: String {

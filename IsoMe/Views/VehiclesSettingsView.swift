@@ -137,25 +137,6 @@ private struct VehicleDetailView: View {
             }
 
             if !vehicle.isArchived {
-                Section("Bluetooth") {
-                    if let portName = vehicle.bluetoothPortName, !portName.isEmpty {
-                        LabeledContent("Paired route", value: portName)
-                        Button("Clear Bluetooth Pairing") {
-                            viewModel.clearBluetoothPairing(for: vehicle)
-                        }
-                    } else {
-                        Button("Pair Current Bluetooth Route") {
-                            viewModel.pairVehicleWithBluetooth(vehicle)
-                        }
-                    }
-
-                    if let message = viewModel.vehiclePairingMessage {
-                        Text(message)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
                 Section {
                     if !vehicle.isDefault {
                         Button("Make Default") {
