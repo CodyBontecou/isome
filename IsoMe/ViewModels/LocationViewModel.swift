@@ -12,16 +12,26 @@ final class LocationViewModel {
     // Cached data
     var todayVisits: [Visit] = []
     var allVisits: [Visit] = []
+    /// Full point cache used by export flows. It is intentionally loaded on demand
+    /// because long trips can contain tens of thousands of points.
     var locationPoints: [LocationPoint] = []
+    /// Point cache for the currently selected map range.
+    var mapLocationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
+    var locationPointCount = 0
+
+    private var allLocationPointsLoaded = false
+    private var todayLocationPointsDay = Calendar.current.startOfDay(for: Date())
 
     // UI State
-    var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
+    var activeMapPreset: MapDatePreset? = .today
+    var mapDateRange: ClosedRange<Date> = MapDatePreset.today.range()
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?
 
     private var cancellables = Set<AnyCancellable>()
+    private let frequentSubPurposesKey = "frequentBusinessSubPurposes"
 
     init(modelContext: ModelContext, locationManager: LocationManager) {
         self.modelContext = modelContext
@@ -30,12 +40,14 @@ final class LocationViewModel {
 
         loadData()
         
-        // Observe location manager for new data points and reload when they're saved
+        // Observe location manager for new data points and append incrementally.
+        // Re-fetching every stored point after each GPS update becomes expensive
+        // once a user has a road trip worth of fixes saved locally.
         locationManager.$locationPointsSavedCount
             .dropFirst() // Skip initial value
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.loadTodayLocationPoints()
+                self?.appendLatestSavedLocationPoint()
             }
             .store(in: &cancellables)
     }
@@ -45,8 +57,9 @@ final class LocationViewModel {
     func loadData() {
         loadTodayVisits()
         loadAllVisits()
-        loadLocationPoints()
+        loadMapLocationPoints()
         loadTodayLocationPoints()
+        loadLocationPointCount()
     }
 
     func loadTodayVisits() {
@@ -81,22 +94,88 @@ final class LocationViewModel {
         }
     }
 
-    func loadLocationPoints() {
-        var descriptor = FetchDescriptor<LocationPoint>()
-        descriptor.sortBy = [SortDescriptor(\.timestamp, order: .forward)]
+    private func fetchLocationPoints(in range: ClosedRange<Date>? = nil) throws -> [LocationPoint] {
+        var descriptor: FetchDescriptor<LocationPoint>
 
+        if let range {
+            let start = range.lowerBound
+            let end = range.upperBound
+            let predicate = #Predicate<LocationPoint> { point in
+                point.timestamp >= start && point.timestamp <= end
+            }
+            descriptor = FetchDescriptor<LocationPoint>(predicate: predicate)
+        } else {
+            descriptor = FetchDescriptor<LocationPoint>()
+        }
+
+        descriptor.sortBy = [SortDescriptor(\.timestamp, order: .forward)]
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// Loads all stored points for export-related screens only.
+    func loadLocationPoints() {
         do {
-            locationPoints = try modelContext.fetch(descriptor)
+            locationPoints = try fetchLocationPoints()
+            locationPointCount = locationPoints.count
+            allLocationPointsLoaded = true
         } catch {
             print("Failed to fetch location points: \(error)")
             locationPoints = []
+            allLocationPointsLoaded = false
         }
     }
 
-    func loadTodayLocationPoints() {
+    func selectMapPreset(_ preset: MapDatePreset, referenceDate: Date = Date()) {
+        activeMapPreset = preset
+        mapDateRange = preset.range(referenceDate: referenceDate)
+        loadMapLocationPoints(referenceDate: referenceDate)
+    }
+
+    func setCustomMapDateRange(_ range: ClosedRange<Date>) {
+        activeMapPreset = nil
+        mapDateRange = range
+        loadMapLocationPoints()
+    }
+
+    @discardableResult
+    func refreshMapDateRangeIfUsingPreset(referenceDate: Date = Date()) -> Bool {
+        guard let preset = activeMapPreset else { return false }
+
+        let refreshedRange = preset.range(referenceDate: referenceDate)
+        let didChange = mapDateRange.lowerBound != refreshedRange.lowerBound ||
+            mapDateRange.upperBound != refreshedRange.upperBound
+        guard didChange else { return false }
+
+        mapDateRange = refreshedRange
+        return true
+    }
+
+    func loadMapLocationPoints(referenceDate: Date = Date()) {
+        refreshMapDateRangeIfUsingPreset(referenceDate: referenceDate)
+
+        do {
+            mapLocationPoints = try fetchLocationPoints(in: mapDateRange)
+        } catch {
+            print("Failed to fetch map location points: \(error)")
+            mapLocationPoints = []
+        }
+    }
+
+    func loadLocationPointCount() {
+        do {
+            let descriptor = FetchDescriptor<LocationPoint>()
+            locationPointCount = try modelContext.fetchCount(descriptor)
+        } catch {
+            print("Failed to count location points: \(error)")
+            locationPointCount = locationPoints.count
+        }
+    }
+
+    func loadTodayLocationPoints(referenceDate: Date = Date()) {
         let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
+        let startOfDay = calendar.startOfDay(for: referenceDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        todayLocationPointsDay = startOfDay
 
         let predicate = #Predicate<LocationPoint> { point in
             point.timestamp >= startOfDay && point.timestamp < endOfDay
@@ -110,6 +189,70 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch today's location points: \(error)")
             todayLocationPoints = []
+        }
+    }
+
+    func appendLatestSavedLocationPoint(referenceDate: Date = Date()) {
+        let calendar = Calendar.current
+        let currentDay = calendar.startOfDay(for: referenceDate)
+        let didCalendarDayChange = todayLocationPointsDay != currentDay
+
+        if didCalendarDayChange {
+            loadTodayLocationPoints(referenceDate: referenceDate)
+        }
+
+        guard let point = locationManager.latestSavedLocationPoint else {
+            if !didCalendarDayChange {
+                loadTodayLocationPoints(referenceDate: referenceDate)
+            }
+            loadMapLocationPoints(referenceDate: referenceDate)
+            loadLocationPointCount()
+            return
+        }
+
+        let mapReferenceDate = max(referenceDate, point.timestamp)
+        let previousMapRange = mapDateRange
+        let didRefreshMapRange = refreshMapDateRangeIfUsingPreset(referenceDate: mapReferenceDate)
+        let shouldReloadMapCache = shouldReloadMapCacheAfterPresetRefresh(
+            from: previousMapRange,
+            didRefresh: didRefreshMapRange
+        )
+
+        locationPointCount += 1
+
+        if allLocationPointsLoaded {
+            append(point, to: &locationPoints)
+        }
+
+        if calendar.isDate(point.timestamp, inSameDayAs: referenceDate) {
+            append(point, to: &todayLocationPoints)
+        }
+
+        if shouldReloadMapCache {
+            loadMapLocationPoints(referenceDate: mapReferenceDate)
+        } else if mapDateRange.contains(point.timestamp) {
+            append(point, to: &mapLocationPoints)
+        }
+    }
+
+    private func shouldReloadMapCacheAfterPresetRefresh(
+        from previousRange: ClosedRange<Date>,
+        didRefresh: Bool
+    ) -> Bool {
+        guard didRefresh, activeMapPreset != nil else { return false }
+        return !Calendar.current.isDate(previousRange.lowerBound, inSameDayAs: mapDateRange.lowerBound)
+    }
+
+    private func append(_ point: LocationPoint, to points: inout [LocationPoint]) {
+        if points.contains(where: { $0.id == point.id }) {
+            return
+        }
+
+        if let last = points.last, last.timestamp > point.timestamp {
+            points.append(point)
+            points.sort { $0.timestamp < $1.timestamp }
+        } else {
+            points.append(point)
         }
     }
 
@@ -239,7 +382,16 @@ final class LocationViewModel {
     }
 
     func locationPointsInDateRange(_ range: ClosedRange<Date>) -> [LocationPoint] {
-        locationPoints.filter { range.contains($0.timestamp) }
+        if allLocationPointsLoaded {
+            return locationPoints.filter { range.contains($0.timestamp) }
+        }
+
+        do {
+            return try fetchLocationPoints(in: range)
+        } catch {
+            print("Failed to fetch location points in range: \(error)")
+            return []
+        }
     }
 
     // MARK: - Visit Management
@@ -253,6 +405,40 @@ final class LocationViewModel {
     func updateVisitNotes(_ visit: Visit, notes: String) {
         visit.notes = notes.isEmpty ? nil : notes
         try? modelContext.save()
+    }
+
+    func updateVisitClassification(_ visit: Visit, purpose: TripPurpose, subPurpose: String? = nil) {
+        visit.purpose = purpose
+        let cleanedSubPurpose = subPurpose?.trimmingCharacters(in: .whitespacesAndNewlines)
+        visit.subPurpose = purpose == .business && !(cleanedSubPurpose?.isEmpty ?? true) ? cleanedSubPurpose : nil
+        rememberSubPurpose(visit.subPurpose)
+        try? modelContext.save()
+        loadData()
+    }
+
+    func bulkUpdateClassification(_ visits: [Visit], purpose: TripPurpose, subPurpose: String? = nil) {
+        let cleanedSubPurpose = subPurpose?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let storedSubPurpose = purpose == .business && !(cleanedSubPurpose?.isEmpty ?? true) ? cleanedSubPurpose : nil
+
+        for visit in visits {
+            visit.purpose = purpose
+            visit.subPurpose = storedSubPurpose
+        }
+
+        rememberSubPurpose(storedSubPurpose)
+        try? modelContext.save()
+        loadData()
+    }
+
+    var frequentBusinessSubPurposes: [String] {
+        UserDefaults.standard.stringArray(forKey: frequentSubPurposesKey) ?? []
+    }
+
+    private func rememberSubPurpose(_ subPurpose: String?) {
+        guard let subPurpose, !subPurpose.isEmpty else { return }
+        var values = frequentBusinessSubPurposes.filter { $0.caseInsensitiveCompare(subPurpose) != .orderedSame }
+        values.insert(subPurpose, at: 0)
+        UserDefaults.standard.set(Array(values.prefix(12)), forKey: frequentSubPurposesKey)
     }
 
     // MARK: - Export
@@ -277,6 +463,7 @@ final class LocationViewModel {
         if let range = dateRange {
             pointsToExport = locationPointsInDateRange(range)
         } else {
+            loadLocationPoints()
             pointsToExport = locationPoints
         }
 
@@ -288,6 +475,7 @@ final class LocationViewModel {
     }
 
     func exportAllData(format: ExportFormat) {
+        loadLocationPoints()
         do {
             try ExportService.shareCombined(visits: allVisits, points: locationPoints, format: format)
         } catch {
@@ -297,6 +485,7 @@ final class LocationViewModel {
 
     @MainActor
     func exportWithOptions(_ options: ExportOptions) {
+        loadLocationPoints()
         do {
             try ExportService.share(visits: allVisits, points: locationPoints, options: options)
         } catch {
@@ -328,6 +517,8 @@ final class LocationViewModel {
                 locationName: imported.locationName,
                 address: imported.address,
                 notes: imported.notes,
+                purpose: imported.purpose,
+                subPurpose: imported.subPurpose,
                 geocodingCompleted: imported.locationName != nil || imported.address != nil
             )
             modelContext.insert(visit)
@@ -347,6 +538,8 @@ final class LocationViewModel {
         }
 
         try modelContext.save()
+        locationPoints = []
+        allLocationPointsLoaded = false
         loadData()
 
         return ImportResult(visitCount: result.visits.count, pointCount: result.points.count)
@@ -359,6 +552,11 @@ final class LocationViewModel {
             try modelContext.delete(model: Visit.self)
             try modelContext.delete(model: LocationPoint.self)
             try modelContext.save()
+            locationPoints = []
+            mapLocationPoints = []
+            todayLocationPoints = []
+            locationPointCount = 0
+            allLocationPointsLoaded = true
             loadData()
         } catch {
             print("Failed to clear data: \(error)")
