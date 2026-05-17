@@ -72,6 +72,21 @@ final class MapSmokeTests: XCTestCase {
         XCTAssertTrue(point.accessibilityValue.contains("Marked as an outlier"))
     }
 
+    func testLocationPointTimestampCalloutSmokeRendersFixedFixture() {
+        let point = LocationPoint(
+            latitude: 37.7750,
+            longitude: -122.4195,
+            timestamp: fixtureTimestamp,
+            horizontalAccuracy: 8
+        )
+
+        assertSmokeRenders(
+            LocationPointTimestampCallout(point: point, onDismiss: {}),
+            named: "Location point timestamp callout"
+        )
+        XCTAssertTrue(point.accessibilityValue.contains(fixtureTimestamp.formatted(date: .abbreviated, time: .shortened)))
+    }
+
     func testMapDatePresetAccessibilityLabelsMatchVisiblePresets() {
         XCTAssertEqual(MapDatePreset.today.accessibilityLabel, "Today")
         XCTAssertEqual(MapDatePreset.sevenDays.accessibilityLabel, "Last 7 days")

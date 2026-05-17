@@ -1,17 +1,17 @@
 {
-  "id": "I_kwDOQwWY1M8AAAABBeTr9w",
-  "identifier": "CodyBontecou/isome#20",
-  "title": "IRS-compliant mileage reporting",
-  "description": "## Summary\n\nGenerate a mileage report that satisfies the IRS recordkeeping requirements for business-vehicle deductions (Pub. 463, §274(d)), so users can use iso.me logs to back a Schedule C, Form 2106, or Form 4562 deduction.\n\n## What the IRS actually requires\n\nPer [Pub. 463](https://www.irs.gov/publications/p463), a contemporaneous mileage log must contain, for each business trip:\n\n1. **Date** of the trip.\n2. **Business destination** (where you went).\n3. **Business purpose** (why).\n4. **Miles driven** (or the odometer start/end).\n\nPlus, per vehicle, per year:\n\n5. **Total miles driven** (business + personal + commuting).\n6. **Total business miles**.\n7. **Date the vehicle was placed in service**.\n8. **Year-start and year-end odometer readings** (best practice; not strictly required if you can derive total miles).\n\n## Deliverable\n\nA \"Mileage Report\" export type that produces:\n\n- **Per-trip rows**: date, start/end address, purpose, sub-purpose, vehicle, miles, optional notes.\n- **Per-vehicle annual summary**: total miles, business miles, personal miles, commuting miles, business-use percentage, year-start/end odometer.\n- **Standard mileage deduction calculation**: business miles × current-year IRS standard mileage rate (configurable; ship with current rate plus past 5 years of historical rates baked in).\n- **Output formats**: CSV (for accountants / TurboTax import) and PDF (printable, signed-style report).\n- **Date range picker** — must support \"Tax Year 2025\" and \"Q1/Q2/Q3/Q4\" presets.\n\n## Proposed UX\n\n- **Settings → Reports → Mileage Report**.\n- Pick year/quarter, vehicles to include, and trip purposes to include (default: Business only).\n- Preview screen with totals and a sample of trip rows.\n- Export → CSV / PDF, route through the existing `ExportService` so it picks up the default export folder and daily-export plumbing.\n\n## Dependencies\n\n- **Trip classification** (Business/Personal) — required.\n- **Multi-vehicle support** — required.\n\n## Compliance notes (for the report itself)\n\n- Round miles to one decimal place.\n- Include a footer noting the report was generated from contemporaneous GPS logs with timestamps.\n- Don't fabricate purpose if the trip is `.unclassified` — exclude it and surface a \"N unclassified trips not included\" warning so the user can go classify them first.\n- The standard mileage rate should be user-overridable per year (rates update mid-year sometimes — e.g. 2022 had two rates).\n\n## Acceptance criteria\n\n- [ ] Mileage report includes all eight IRS-required fields above.\n- [ ] CSV and PDF outputs validated against a real Schedule C / Form 2106 line-item layout.\n- [ ] Per-vehicle annual summary correctly partitions business vs. personal vs. unclassified.\n- [ ] Standard mileage deduction calculation matches the configured rate.\n- [ ] Unclassified trips are flagged, not silently included.\n- [ ] Report can be regenerated for any past year without data loss.\n\n<!-- isobot:discord-thread:1501666983119421490 -->",
+  "id": "I_kwDOQwWY1M8AAAABBv7uXg",
+  "identifier": "CodyBontecou/isome#23",
+  "title": "Map: show date/time when tapping a location point",
+  "description": "Add a way to press/tap any point on the map to see the date and time for that specific location. This lets users quickly check the timestamp for a single point without exporting the full data.\n\n> Hi, found your app iso.me via a now removed reddit post. I really like it. I’ve been missing the old Google location history reports. Battery life seems minimally affected which is great. It would be good if on the map I could press in any point and see the date/time of that point. I used to use location history to narrow down times I was somewhere. I realise I can export the data but I usually just want to check one specific point (used for ensuring my manual timesheets at the end of the day are accurate). Do you think you could add that feature?\n\nSource: https://discord.com/channels/1443424100759634003/1498086805264928859/1502631664961065071\n\n@codex implement this\n\n<!-- isobot:discord-thread:1502631708674097166 -->",
   "author": "CodyBontecou",
   "priority": null,
   "state": "open",
   "branch_name": null,
-  "url": "https://github.com/CodyBontecou/isome/issues/20",
+  "url": "https://github.com/CodyBontecou/isome/issues/23",
   "labels": [
     "enhancement"
   ],
   "blocked_by": [],
-  "created_at": "2026-05-06T19:28:24Z",
-  "updated_at": "2026-05-06T19:28:28Z"
+  "created_at": "2026-05-09T11:21:54Z",
+  "updated_at": "2026-05-09T12:31:30Z"
 }

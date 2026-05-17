@@ -7,6 +7,7 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
+    @State private var selectedPoint: LocationPoint?
     @State private var showingFilters = false
     @State private var showFilterBar = false
     @State private var trackingPillExpanded = false
@@ -35,6 +36,7 @@ struct LocationMapView: View {
 
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    private let maximumPointSelectionDistance: Double = 120
     // Keep MapKit overlays/annotations bounded for multi-day road trips.
     private let maximumPolylinePoints = 2_500
     private let maximumPointMarkers = 500
@@ -74,9 +76,10 @@ struct LocationMapView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Map(position: $cameraPosition, selection: $selectedVisit) {
-                    // Current user location
-                    UserAnnotation()
+                MapReader { mapProxy in
+                    Map(position: $cameraPosition, selection: $selectedVisit) {
+                        // Current user location
+                        UserAnnotation()
 
                     // Travel path from location points
                     if showTravelPath && !displayPathPoints.isEmpty {
@@ -140,13 +143,30 @@ struct LocationMapView: View {
                         ForEach(spacedPoints) { point in
                             Annotation("", coordinate: point.coordinate) {
                                 Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
+                                    .fill(selectedPoint?.id == point.id ? TE.accent : .blue)
+                                    .frame(
+                                        width: selectedPoint?.id == point.id ? 12 : 8,
+                                        height: selectedPoint?.id == point.id ? 12 : 8
+                                    )
                                     .overlay {
                                         Circle()
                                             .stroke(.white, lineWidth: 1.5)
                                     }
+                                    .contentShape(Circle())
+                                    .onTapGesture {
+                                        select(point)
+                                    }
                                     .accessibilityHidden(true)
+                            }
+                        }
+                    }
+
+                    if let selectedPoint {
+                        Annotation("", coordinate: selectedPoint.coordinate, anchor: .bottom) {
+                            LocationPointTimestampCallout(point: selectedPoint) {
+                                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                                    self.selectedPoint = nil
+                                }
                             }
                         }
                     }
@@ -165,10 +185,17 @@ struct LocationMapView: View {
                         }
                     }
                 }
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                    MapScaleView()
+                    .mapControls {
+                        MapUserLocationButton()
+                        MapCompass()
+                        MapScaleView()
+                    }
+                    .simultaneousGesture(
+                        SpatialTapGesture()
+                            .onEnded { value in
+                                selectNearestPoint(to: value.location, using: mapProxy)
+                            }
+                    )
                 }
                 .accessibilityLabel("Location map")
                 .accessibilityValue(mapAccessibilitySummary)
@@ -263,6 +290,11 @@ struct LocationMapView: View {
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
             }
+            .onChange(of: selectedVisit?.id) { _, newValue in
+                if newValue != nil {
+                    selectedPoint = nil
+                }
+            }
             .onAppear {
                 viewModel.loadAllVisits()
                 viewModel.loadMapLocationPoints()
@@ -289,6 +321,57 @@ struct LocationMapView: View {
             .onChange(of: activeSessionPoints.count) { _, _ in
                 if pendingSessionAutoFocus {
                     attemptAutoFocusSession()
+                }
+            }
+            .onChange(of: viewModel.mapDateRange) { _, _ in
+                selectedPoint = nil
+            }
+        }
+    }
+
+    var selectablePoints: [LocationPoint] {
+        var seenIDs = Set<UUID>()
+        return (filteredPoints + activeSessionPoints).filter { point in
+            seenIDs.insert(point.id).inserted
+        }
+    }
+
+    private func select(_ point: LocationPoint) {
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+            selectedVisit = nil
+            selectedPoint = point
+        }
+    }
+
+    private func selectNearestPoint(to tapLocation: CGPoint, using mapProxy: MapProxy) {
+        guard let coordinate = mapProxy.convert(tapLocation, from: .local) else { return }
+
+        DispatchQueue.main.async {
+            guard selectedVisit == nil else { return }
+
+            let tappedLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let nearestPoint = selectablePoints.min { lhs, rhs in
+                let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
+                let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
+                return lhsLocation.distance(from: tappedLocation) < rhsLocation.distance(from: tappedLocation)
+            }
+
+            guard let nearestPoint else {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                    selectedPoint = nil
+                }
+                return
+            }
+
+            let nearestLocation = CLLocation(latitude: nearestPoint.latitude, longitude: nearestPoint.longitude)
+            let selectionDistance = nearestLocation.distance(from: tappedLocation)
+            let tolerance = max(maximumPointSelectionDistance, nearestPoint.horizontalAccuracy * 2)
+
+            if selectionDistance <= tolerance {
+                select(nearestPoint)
+            } else {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                    selectedPoint = nil
                 }
             }
         }
@@ -600,6 +683,70 @@ struct Triangle: Shape {
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.closeSubpath()
         return path
+    }
+}
+
+struct LocationPointTimestampCallout: View {
+    let point: LocationPoint
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(point.timestamp.formatted(date: .abbreviated, time: .omitted))
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.1)
+                        .foregroundStyle(TE.textMuted)
+
+                    Text(point.timestamp.formatted(date: .omitted, time: .shortened))
+                        .font(TE.mono(.title3, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                }
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.textMuted)
+                        .frame(width: 24, height: 24)
+                        .background(Color.primary.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss selected point")
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Color.white.opacity(0.45), lineWidth: 0.8)
+                    }
+                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
+            }
+
+            Triangle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 14, height: 9)
+                .rotationEffect(.degrees(180))
+                .accessibilityHidden(true)
+
+            Circle()
+                .fill(TE.accent)
+                .frame(width: 10, height: 10)
+                .overlay {
+                    Circle()
+                        .stroke(.white, lineWidth: 1.5)
+                }
+                .shadow(color: TE.accent.opacity(0.35), radius: 5, y: 2)
+                .accessibilityHidden(true)
+        }
+        .transition(.scale(scale: 0.92, anchor: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Selected location point")
+        .accessibilityValue(point.accessibilityValue)
     }
 }
 
