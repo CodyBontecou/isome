@@ -15,6 +15,8 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
         UserDefaults.standard.removeObject(forKey: "stopAfterHours")
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: "trackingMode")
+        UserDefaults.standard.removeObject(forKey: "customVisitDetectionEnabled")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         manager = LocationManager()
     }
@@ -24,6 +26,8 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
         UserDefaults.standard.removeObject(forKey: "stopAfterHours")
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: "trackingMode")
+        UserDefaults.standard.removeObject(forKey: "customVisitDetectionEnabled")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         super.tearDown()
     }
@@ -69,6 +73,38 @@ final class LocationManagerTrackingTests: XCTestCase {
     /// to maximize captured points by default.
     func testDistanceFilterDefaultsToFiveMeters() {
         XCTAssertEqual(manager.distanceFilter, 5.0)
+    }
+
+    func testTrackingModeDefaultsToFullHistory() {
+        XCTAssertEqual(manager.trackingMode, .fullHistory)
+        XCTAssertTrue(manager.isVisitDetectionEnabled)
+        XCTAssertFalse(manager.isDrivesOnlyMode)
+    }
+
+    func testDrivesOnlyDisablesVisitDetectionAndPersists() {
+        manager.setTrackingMode(.drivesOnly)
+
+        XCTAssertEqual(manager.trackingMode, .drivesOnly)
+        XCTAssertTrue(manager.isDrivesOnlyMode)
+        XCTAssertFalse(manager.isVisitDetectionEnabled)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "trackingMode"), TrackingMode.drivesOnly.rawValue)
+    }
+
+    func testFullHistoryRestoresVisitDetection() {
+        manager.setTrackingMode(.drivesOnly)
+        manager.setTrackingMode(.fullHistory)
+
+        XCTAssertEqual(manager.trackingMode, .fullHistory)
+        XCTAssertTrue(manager.isVisitDetectionEnabled)
+    }
+
+    func testCustomVisitDetectionPersists() {
+        manager.setTrackingMode(.custom)
+        manager.setCustomVisitDetectionEnabled(false)
+
+        let fresh = LocationManager()
+        XCTAssertEqual(fresh.trackingMode, .custom)
+        XCTAssertFalse(fresh.isVisitDetectionEnabled)
     }
 
     /// setStopAfterHours persists across reinstantiation.

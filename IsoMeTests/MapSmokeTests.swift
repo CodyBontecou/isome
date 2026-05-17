@@ -158,6 +158,7 @@ private struct QuickFilterBarSmokeFixture: View {
             showStartEndMarkers: $showStartEndMarkers,
             showSessionPath: $showSessionPath,
             showVisitMarkers: $showVisitMarkers,
+            showsVisitLayer: true,
             hasSessionPoints: true,
             onSelectPreset: { _ in },
             onSelectCustom: {},

@@ -30,11 +30,16 @@ struct LocationMapView: View {
         locationManager.isTrackingEnabled
     }
 
+    private var showsVisitSurfaces: Bool {
+        !locationManager.isDrivesOnlyMode
+    }
+
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
 
     var filteredVisits: [Visit] {
-        viewModel.visitsInDateRange(viewModel.mapDateRange)
+        guard showsVisitSurfaces else { return [] }
+        return viewModel.visitsInDateRange(viewModel.mapDateRange)
     }
 
     var filteredPoints: [LocationPoint] {
@@ -206,6 +211,7 @@ struct LocationMapView: View {
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                showsVisitLayer: showsVisitSurfaces,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
                                     activePreset = preset
@@ -268,6 +274,14 @@ struct LocationMapView: View {
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
                     attemptAutoFocusSession()
+                }
+            }
+            .onChange(of: locationManager.trackingMode) { _, _ in
+                selectedVisit = nil
+                if locationManager.isDrivesOnlyMode {
+                    showVisitMarkers = false
+                } else {
+                    showVisitMarkers = true
                 }
             }
             .onChange(of: activeSessionPoints.count) { _, _ in
@@ -984,6 +998,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    let showsVisitLayer: Bool
     let hasSessionPoints: Bool
     let onSelectPreset: (MapDatePreset) -> Void
     let onSelectCustom: () -> Void
@@ -1014,7 +1029,9 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                if showsVisitLayer {
+                    LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                }
                 LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
                 LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
                 LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)

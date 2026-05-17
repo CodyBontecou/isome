@@ -1,48 +1,44 @@
-You are Symphony, an autonomous coding agent working on GitHub issue CodyBontecou/isome#17: Classify trips as Business or Personal.
+You are Symphony, an autonomous coding agent working on GitHub issue CodyBontecou/isome#21: Drives-only mode (disable visit detection, track only vehicle trips).
 
-Issue URL: https://github.com/CodyBontecou/isome/issues/17
+Issue URL: https://github.com/CodyBontecou/isome/issues/21
 Issue author: CodyBontecou
 
 Issue body:
 ## Summary
 
-Allow users to mark each tracked drive (and visit, where relevant) as **Business** or **Personal**, so the app can drive mileage reporting and reimbursement workflows the same way MileIQ does.
+Add a top-level **Drives Only** mode that suppresses visit detection and walking/cycling auto-start, so the app behaves purely as a mileage tracker (like MileIQ) for users who don't want a full place-history log.
 
 ## Motivation
 
-This is the foundational feature for using iso.me as a MileIQ replacement. Without trip classification, none of the downstream business-mileage features (IRS reports, deduction totals, per-purpose summaries) are useful.
+Several users — especially business drivers evaluating iso.me as a MileIQ replacement — don't want the app recording every coffee shop and grocery stop. They want drives, period. Today the only knobs are auto-start activity types and visit detection, and there's no single setting that turns iso.me into a focused mileage app.
 
 ## Proposed UX
 
-- After a continuous-tracking session ends, surface a lightweight classifier card on the session detail view: **Business** / **Personal** / **Unclassified**.
-- Optional sub-purpose tag for Business (e.g. *Client Visit*, *Errand*, *Meeting*, *Between Offices*) — free-text or chips, MileIQ-style.
-- Quick-classify swipe gestures on the trip list (left = Personal, right = Business), like MileIQ's swipe deck.
-- Bulk classify from the trip list (multi-select → set purpose).
-- Per-classification color/icon on the map and list views.
+- **Settings → Tracking Mode** (new section) with three presets:
+  - **Full History** (current default) — visits + all auto-start activities.
+  - **Drives Only** — visits disabled, auto-start limited to driving.
+  - **Custom** — exposes the existing granular toggles.
+- Selecting a preset flips all the underlying knobs at once.
+- A short explainer under each preset describing what's recorded and what isn't.
+- Onboarding: add a "Why are you using iso.me?" step with **Mileage tracking** as one of the options that pre-selects Drives Only.
 
-## Data model
+## Implementation notes
 
-- Extend the continuous-tracking session model with:
-  - `purpose: TripPurpose` (`.business`, `.personal`, `.unclassified`)
-  - `subPurpose: String?` (optional free-form tag)
-  - `notes: String?`
-- Store the user's frequent sub-purposes for autocomplete.
-- Migration: existing sessions default to `.unclassified`.
-
-## Out of scope
-
-- Auto-classification rules (e.g. "weekdays 9–5 = business") — track separately if requested.
-- IRS report generation — covered by a separate ticket.
+- No new tracking infrastructure required — this is a settings preset that drives existing flags:
+  - Visit detection on/off (`CLLocationManager.startMonitoringVisits`).
+  - `ActivityDetectionManager` allowed activities → `[.automotive]` only.
+  - Hide the "Visits" tab/section when in Drives Only mode (or replace it with a "Drives" tab).
+- Persist as a single `trackingMode` enum in user defaults; derive the existing toggles from it when not Custom.
 
 ## Acceptance criteria
 
-- [ ] User can tag any past drive as Business or Personal from the trip detail view.
-- [ ] User can swipe-classify from the trip list.
-- [ ] Bulk classify works from a multi-select on the trip list.
-- [ ] Trip purpose persists across app restarts and is included in JSON/CSV/Markdown exports.
-- [ ] Existing data migrates safely to `.unclassified`.
+- [ ] User can switch to Drives Only from settings and the app stops recording visits within one tracking cycle.
+- [ ] Auto-start triggers only on driving, not walking/cycling/running.
+- [ ] Onboarding offers the mode as an option.
+- [ ] Switching back to Full History restores prior behavior without data loss.
+- [ ] UI hides visit-only sections (Visits map pins, visit list) while in Drives Only.
 
-<!-- isobot:discord-thread:1501666799907897354 -->
+<!-- isobot:discord-thread:1501667030032711730 -->
 
 Instructions:
 
