@@ -26,9 +26,8 @@ final class MileageReportTests: XCTestCase {
             arrivedAt: calendar.date(from: DateComponents(year: 2025, month: 1, day: 3, hour: 10))!,
             departedAt: calendar.date(from: DateComponents(year: 2025, month: 1, day: 3, hour: 11))!,
             address: "Client Site",
-            tripClassificationRaw: TripClassification.business.rawValue,
-            businessPurpose: "Client meeting",
-            businessSubPurpose: "Schedule C",
+            purpose: .business,
+            subPurpose: "Client meeting",
             vehicleID: vehicle.id
         )
         let personalDestination = Visit(
@@ -36,7 +35,7 @@ final class MileageReportTests: XCTestCase {
             longitude: -122.2730,
             arrivedAt: calendar.date(from: DateComponents(year: 2025, month: 1, day: 3, hour: 12))!,
             address: "Personal Stop",
-            tripClassificationRaw: TripClassification.personal.rawValue,
+            purpose: .personal,
             vehicleID: vehicle.id
         )
 
@@ -64,6 +63,42 @@ final class MileageReportTests: XCTestCase {
         XCTAssertEqual(report.summaries.first?.totalMiles, 2_000)
         XCTAssertEqual(report.standardMileageRateCents, 70.0)
         XCTAssertEqual(report.deductionAmount, report.totalBusinessMiles * 0.70, accuracy: 0.001)
+    }
+
+    func testBuilderHandlesEmptyAndSingleVisitReports() {
+        let calendar = Calendar(identifier: .gregorian)
+        let vehicle = MileageVehicle(name: "Work Van", placedInService: Date())
+        var options = MileageReportOptions(year: 2025)
+        options.includedVehicleIDs = [vehicle.id]
+
+        let emptyReport = MileageReportBuilder.build(
+            visits: [],
+            points: [],
+            vehicles: [vehicle],
+            options: options
+        )
+        XCTAssertTrue(emptyReport.trips.isEmpty)
+        XCTAssertEqual(emptyReport.totalBusinessMiles, 0)
+        XCTAssertEqual(emptyReport.summaries.first?.totalMiles, 0)
+
+        let onlyVisit = Visit(
+            latitude: 37.7749,
+            longitude: -122.4194,
+            arrivedAt: calendar.date(from: DateComponents(year: 2025, month: 1, day: 3, hour: 8))!,
+            address: "Start Office",
+            purpose: .business,
+            subPurpose: "Client meeting",
+            vehicleID: vehicle.id
+        )
+        let singleVisitReport = MileageReportBuilder.build(
+            visits: [onlyVisit],
+            points: [],
+            vehicles: [vehicle],
+            options: options
+        )
+        XCTAssertTrue(singleVisitReport.trips.isEmpty)
+        XCTAssertEqual(singleVisitReport.totalBusinessMiles, 0)
+        XCTAssertEqual(singleVisitReport.unclassifiedTripCount, 0)
     }
 
     func testBakedInRatesIncludeMidYear2022AndCurrent2026() {

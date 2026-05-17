@@ -114,7 +114,7 @@ struct MileageReportOptions {
     var year: Int = Calendar.current.component(.year, from: Date()) - 1
     var preset: MileageReportPreset = .taxYear
     var includedVehicleIDs: Set<UUID> = []
-    var includedClassifications: Set<TripClassification> = [.business]
+    var includedClassifications: Set<TripPurpose> = [.business]
     var overrideCentsPerMile: Double?
 
     var dateRange: ClosedRange<Date> { preset.dateRange(year: year) }
@@ -129,7 +129,7 @@ struct MileageTripRow: Identifiable {
     let subPurpose: String
     let vehicleID: UUID
     let vehicleName: String
-    let classification: TripClassification
+    let classification: TripPurpose
     let miles: Double
     let standardMileageRateCents: Double
     let notes: String
@@ -180,41 +180,43 @@ enum MileageReportBuilder {
         var allRows: [MileageTripRow] = []
         var unclassifiedCount = 0
 
-        for index in 1..<sortedVisits.count {
-            let origin = sortedVisits[index - 1]
-            let destination = sortedVisits[index]
-            guard let startedAt = origin.departedAt else { continue }
-            let endedAt = destination.arrivedAt
-            guard options.dateRange.overlaps(startedAt...endedAt) else { continue }
+        if sortedVisits.count >= 2 {
+            for index in 1..<sortedVisits.count {
+                let origin = sortedVisits[index - 1]
+                let destination = sortedVisits[index]
+                guard let startedAt = origin.departedAt else { continue }
+                let endedAt = destination.arrivedAt
+                guard options.dateRange.overlaps(startedAt...endedAt) else { continue }
 
-            let vehicleID = destination.vehicleID ?? vehicles.first?.id ?? MileageVehicle.defaultVehicle.id
-            guard vehicleIDs.contains(vehicleID) else { continue }
+                let vehicleID = destination.vehicleID ?? vehicles.first?.id ?? MileageVehicle.defaultVehicle.id
+                guard vehicleIDs.contains(vehicleID) else { continue }
 
-            let classification = destination.tripClassification
-            if classification == .unclassified { unclassifiedCount += 1 }
-            let rateCents = options.overrideCentsPerMile ?? standardRateCents(for: options.year, on: startedAt)
+                let classification = destination.purpose
+                if classification == .unclassified { unclassifiedCount += 1 }
+                let rateCents = options.overrideCentsPerMile ?? standardRateCents(for: options.year, on: startedAt)
 
-            let tripPoints = points
-                .filter { $0.timestamp >= startedAt && $0.timestamp <= endedAt && !$0.isOutlier }
-                .sorted { $0.timestamp < $1.timestamp }
-            let miles = milesDriven(from: origin, to: destination, points: tripPoints)
+                let tripPoints = points
+                    .filter { $0.timestamp >= startedAt && $0.timestamp <= endedAt && !$0.isOutlier }
+                    .sorted { $0.timestamp < $1.timestamp }
+                let miles = milesDriven(from: origin, to: destination, points: tripPoints)
 
-            allRows.append(MileageTripRow(
-                id: destination.id,
-                date: startedAt,
-                startAddress: origin.address ?? origin.locationName ?? origin.displayName,
-                endAddress: destination.address ?? destination.locationName ?? destination.displayName,
-                purpose: destination.businessPurpose ?? "",
-                subPurpose: destination.businessSubPurpose ?? "",
-                vehicleID: vehicleID,
-                vehicleName: MileageVehicleStore.vehicleName(for: vehicleID, in: vehicles),
-                classification: classification,
-                miles: roundedMiles(miles),
-                standardMileageRateCents: rateCents,
-                notes: destination.notes ?? "",
-                startedAt: startedAt,
-                endedAt: endedAt
-            ))
+                allRows.append(MileageTripRow(
+                    id: destination.id,
+                    date: startedAt,
+                    startAddress: origin.address ?? origin.locationName ?? origin.displayName,
+                    endAddress: destination.address ?? destination.locationName ?? destination.displayName,
+                    purpose: destination.subPurpose ?? "",
+                    subPurpose: "",
+                    vehicleID: vehicleID,
+                    vehicleName: MileageVehicleStore.vehicleName(for: vehicleID, in: vehicles),
+                    classification: classification,
+                    miles: roundedMiles(miles),
+                    standardMileageRateCents: rateCents,
+                    notes: destination.notes ?? "",
+                    startedAt: startedAt,
+                    endedAt: endedAt
+                ))
+            }
         }
 
         let includedRows = allRows.filter { options.includedClassifications.contains($0.classification) }

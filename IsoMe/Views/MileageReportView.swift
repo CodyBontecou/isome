@@ -140,7 +140,7 @@ struct MileageReportView: View {
             TESectionHeader(title: "PURPOSES")
             TECard {
                 VStack(spacing: 0) {
-                    ForEach(TripClassification.allCases.filter { $0 != .unclassified }) { classification in
+                    ForEach(TripPurpose.allCases.filter { $0 != .unclassified }) { classification in
                         TERow(showDivider: classification != .commuting) {
                             Toggle(isOn: classificationBinding(classification)) {
                                 Text(classification.label.uppercased())
@@ -317,7 +317,7 @@ struct MileageReportView: View {
         )
     }
 
-    private func classificationBinding(_ classification: TripClassification) -> Binding<Bool> {
+    private func classificationBinding(_ classification: TripPurpose) -> Binding<Bool> {
         Binding(
             get: { options.includedClassifications.contains(classification) },
             set: { isOn in

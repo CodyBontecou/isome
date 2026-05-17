@@ -6,6 +6,33 @@ import ActivityKit
 import WidgetKit
 import UserNotifications
 
+enum TrackingMode: String, CaseIterable, Identifiable {
+    case fullHistory
+    case drivesOnly
+    case custom
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .fullHistory: return "Full History"
+        case .drivesOnly: return "Drives Only"
+        case .custom: return "Custom"
+        }
+    }
+
+    var settingsDescription: String {
+        switch self {
+        case .fullHistory:
+            return "Records visits plus high-accuracy movement paths."
+        case .drivesOnly:
+            return "Skips visit logging and optimizes tracking for vehicle mileage."
+        case .custom:
+            return "Use granular controls for visits and tracking behavior."
+        }
+    }
+}
+
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
     /// Latest live instance, used by App Intents so Siri/Shortcuts can drive tracking.
@@ -22,6 +49,7 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var distanceFilter: Double = 5.0
     @Published var currentLocation: CLLocation?
     @Published var lastError: String?
+    @Published private(set) var trackingMode: TrackingMode = .fullHistory
 
     // Safety-net auto-stop timer (only runs when stopAfterHours > 0)
     private var stopTrackingTimer: Timer?
@@ -31,6 +59,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     // Publisher for data changes (fires when new location points are saved)
     @Published var locationPointsSavedCount: Int = 0
+    @Published var latestSavedLocationPoint: LocationPoint?
 
     // Live Activity manager
     private let liveActivityManager = LiveActivityManager.shared
@@ -85,6 +114,8 @@ final class LocationManager: NSObject, ObservableObject {
             isLiveActivityEnabled = UserDefaults.standard.bool(forKey: liveActivityEnabledKey)
         }
         locationManager.distanceFilter = distanceFilter
+        trackingMode = Self.loadTrackingMode()
+        applyActivityType()
 
         authorizationStatus = locationManager.authorizationStatus
 
@@ -158,7 +189,8 @@ final class LocationManager: NSObject, ObservableObject {
 
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = distanceFilter
-        locationManager.startMonitoringVisits()
+        applyActivityType()
+        configureVisitMonitoring()
         locationManager.startMonitoringSignificantLocationChanges()
         locationManager.startUpdatingLocation()
 
@@ -168,6 +200,42 @@ final class LocationManager: NSObject, ObservableObject {
 
         scheduleStopTrackingTimer()
         syncDataToWatch()
+    }
+
+    func setTrackingMode(_ mode: TrackingMode) {
+        trackingMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: "trackingMode")
+        applyActivityType()
+
+        if isTrackingEnabled {
+            configureVisitMonitoring()
+        }
+
+        syncDataToWatch()
+    }
+
+    var isDrivesOnlyMode: Bool {
+        trackingMode == .drivesOnly
+    }
+
+    var isVisitDetectionEnabled: Bool {
+        switch trackingMode {
+        case .fullHistory:
+            return true
+        case .drivesOnly:
+            return false
+        case .custom:
+            return Self.loadCustomVisitDetectionEnabled()
+        }
+    }
+
+    func setCustomVisitDetectionEnabled(_ isEnabled: Bool) {
+        UserDefaults.standard.set(isEnabled, forKey: "customVisitDetectionEnabled")
+        if trackingMode != .custom {
+            setTrackingMode(.custom)
+        } else if isTrackingEnabled {
+            configureVisitMonitoring()
+        }
     }
 
     func stopTracking() {
@@ -187,6 +255,36 @@ final class LocationManager: NSObject, ObservableObject {
         }
 
         syncDataToWatch()
+    }
+
+    private static func loadTrackingMode() -> TrackingMode {
+        guard let rawValue = UserDefaults.standard.string(forKey: "trackingMode"),
+              let mode = TrackingMode(rawValue: rawValue) else {
+            return .fullHistory
+        }
+
+        return mode
+    }
+
+    private static func loadCustomVisitDetectionEnabled() -> Bool {
+        let key = "customVisitDetectionEnabled"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
+        }
+
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
+    private func configureVisitMonitoring() {
+        if isVisitDetectionEnabled {
+            locationManager.startMonitoringVisits()
+        } else {
+            locationManager.stopMonitoringVisits()
+        }
+    }
+
+    private func applyActivityType() {
+        locationManager.activityType = trackingMode == .drivesOnly ? .automotiveNavigation : .other
     }
 
     func setStopAfterHours(_ hours: Double) {
@@ -261,6 +359,7 @@ final class LocationManager: NSObject, ObservableObject {
     // MARK: - Data Storage
 
     private func saveVisit(_ clVisit: CLVisit) {
+        guard isVisitDetectionEnabled else { return }
         guard let context = modelContext else { return }
 
         // Check if this is a departure update for an existing visit
@@ -347,7 +446,10 @@ final class LocationManager: NSObject, ObservableObject {
             try context.save()
             pointBeforeLast = lastSavedPoint
             lastSavedPoint = point
-            // Notify observers that new data is available
+            // Notify observers that new data is available. Keep the latest point
+            // available so view models can update incrementally instead of
+            // re-fetching every stored point on each GPS update.
+            latestSavedLocationPoint = point
             locationPointsSavedCount += 1
             // Sync to watch widget (throttled by WidgetKit)
             syncDataToWatch()

@@ -17,7 +17,6 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
-    @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -30,15 +29,23 @@ struct LocationMapView: View {
         locationManager.isTrackingEnabled
     }
 
+    private var showsVisitSurfaces: Bool {
+        !locationManager.isDrivesOnlyMode
+    }
+
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    // Keep MapKit overlays/annotations bounded for multi-day road trips.
+    private let maximumPolylinePoints = 2_500
+    private let maximumPointMarkers = 500
 
     var filteredVisits: [Visit] {
-        viewModel.visitsInDateRange(viewModel.mapDateRange)
+        guard showsVisitSurfaces else { return [] }
+        return viewModel.visitsInDateRange(viewModel.mapDateRange)
     }
 
     var filteredPoints: [LocationPoint] {
-        let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        let points = viewModel.mapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
 
@@ -48,21 +55,20 @@ struct LocationMapView: View {
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
     
+    var displayPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(filteredPoints, maximumCount: maximumPolylinePoints)
+    }
+
+    var displaySessionPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(activeSessionPoints, maximumCount: maximumPolylinePoints)
+    }
+
     var spacedPoints: [LocationPoint] {
-        guard !filteredPoints.isEmpty else { return [] }
-        
-        var result: [LocationPoint] = [filteredPoints[0]]
-        
-        for point in filteredPoints.dropFirst() {
-            if let lastPoint = result.last {
-                let distance = lastPoint.distance(to: point)
-                if distance >= minimumPointDistance {
-                    result.append(point)
-                }
-            }
-        }
-        
-        return result
+        LocationPointSampler.spaced(
+            filteredPoints,
+            minimumDistance: minimumPointDistance,
+            maximumCount: maximumPointMarkers
+        )
     }
 
     var body: some View {
@@ -73,8 +79,8 @@ struct LocationMapView: View {
                     UserAnnotation()
 
                     // Travel path from location points
-                    if showTravelPath && !filteredPoints.isEmpty {
-                        let coordinates = filteredPoints.map { $0.coordinate }
+                    if showTravelPath && !displayPathPoints.isEmpty {
+                        let coordinates = displayPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(
                                 LinearGradient(
@@ -87,8 +93,8 @@ struct LocationMapView: View {
                     }
                     
                     // Live session path (moved from Track tab)
-                    if showSessionPath && activeSessionPoints.count >= 2 {
-                        let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
+                    if showSessionPath && displaySessionPathPoints.count >= 2 {
+                        let sessionCoordinates = displaySessionPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: sessionCoordinates)
                             .stroke(.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
                     }
@@ -200,16 +206,16 @@ struct LocationMapView: View {
                     HStack(spacing: 8) {
                         if showFilterBar {
                             QuickFilterBar(
-                                activePreset: activePreset,
+                                activePreset: viewModel.activeMapPreset,
                                 showTravelPath: $showTravelPath,
                                 showPointMarkers: $showPointMarkers,
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                showsVisitLayer: showsVisitSurfaces,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
-                                    activePreset = preset
-                                    viewModel.mapDateRange = preset.range()
+                                    viewModel.selectMapPreset(preset)
                                 },
                                 onSelectCustom: {
                                     showingFilters = true
@@ -246,9 +252,11 @@ struct LocationMapView: View {
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
-                    dateRange: $viewModel.mapDateRange,
-                    isPresented: $showingFilters,
-                    onApply: { activePreset = nil }
+                    dateRange: Binding(
+                        get: { viewModel.mapDateRange },
+                        set: { viewModel.setCustomMapDateRange($0) }
+                    ),
+                    isPresented: $showingFilters
                 )
             }
             .sheet(item: $selectedVisit) { visit in
@@ -257,7 +265,7 @@ struct LocationMapView: View {
             }
             .onAppear {
                 viewModel.loadAllVisits()
-                viewModel.loadLocationPoints()
+                viewModel.loadMapLocationPoints()
 
                 if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
@@ -268,6 +276,14 @@ struct LocationMapView: View {
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
                     attemptAutoFocusSession()
+                }
+            }
+            .onChange(of: locationManager.trackingMode) { _, _ in
+                selectedVisit = nil
+                if locationManager.isDrivesOnlyMode {
+                    showVisitMarkers = false
+                } else {
+                    showVisitMarkers = true
                 }
             }
             .onChange(of: activeSessionPoints.count) { _, _ in
@@ -551,18 +567,18 @@ struct VisitMarker: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(visit.isCurrentVisit ? .blue : .red)
+                    .fill(visit.purpose.mapTint)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
                     .accessibilityHidden(true)
 
-                Image(systemName: "mappin")
-                    .font(isSelected ? .title3 : .callout)
+                Image(systemName: visit.purpose.iconName)
+                    .font(.system(size: isSelected ? 18 : 14))
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
 
             Triangle()
-                .fill(visit.isCurrentVisit ? .blue : .red)
+                .fill(visit.purpose.mapTint)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
@@ -782,6 +798,7 @@ struct DateRangeFilterSheet: View {
 struct VisitQuickView: View {
     let visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var subPurposeText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -815,6 +832,37 @@ struct VisitQuickView: View {
                 }
 
                 Divider()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Classification")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Picker("Classification", selection: Binding(
+                        get: { visit.purpose },
+                        set: { newPurpose in
+                            viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
+                            if newPurpose != .business {
+                                subPurposeText = ""
+                            }
+                        }
+                    )) {
+                        ForEach(TripPurpose.allCases) { purpose in
+                            Label(purpose.label, systemImage: purpose.iconName)
+                                .tag(purpose)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    if visit.purpose == .business {
+                        TextField("Sub-purpose", text: $subPurposeText)
+                            .textFieldStyle(.roundedBorder)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                viewModel.updateVisitClassification(visit, purpose: .business, subPurpose: subPurposeText)
+                            }
+                    }
+                }
 
                 // Time info
                 HStack(spacing: 24) {
@@ -864,6 +912,9 @@ struct VisitQuickView: View {
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                subPurposeText = visit.subPurpose ?? ""
+            }
         }
     }
 }
@@ -897,9 +948,11 @@ enum MapDatePreset: CaseIterable, Hashable {
         case .today:
             return calendar.startOfDay(for: referenceDate)...referenceDate
         case .sevenDays:
-            return calendar.date(byAdding: .day, value: -7, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .thirtyDays:
-            return calendar.date(byAdding: .day, value: -30, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -30, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .all:
             return Date.distantPast...referenceDate
         }
@@ -949,6 +1002,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    let showsVisitLayer: Bool
     let hasSessionPoints: Bool
     let onSelectPreset: (MapDatePreset) -> Void
     let onSelectCustom: () -> Void
@@ -979,7 +1033,9 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                if showsVisitLayer {
+                    LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                }
                 LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
                 LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
                 LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
@@ -1114,6 +1170,53 @@ struct FitMenuButton: View {
         }
         .accessibilityLabel("Fit map")
         .accessibilityHint("Shows options for zooming the map to available content.")
+    }
+}
+
+// MARK: - Point Sampling
+
+enum LocationPointSampler {
+    static func downsample(_ points: [LocationPoint], maximumCount: Int) -> [LocationPoint] {
+        guard maximumCount > 0 else { return [] }
+        guard points.count > maximumCount else { return points }
+        guard maximumCount > 1 else { return [points[0]] }
+
+        let step = Double(points.count - 1) / Double(maximumCount - 1)
+        var result: [LocationPoint] = []
+        result.reserveCapacity(maximumCount)
+        var previousIndex: Int?
+
+        for sampleIndex in 0..<maximumCount {
+            let sourceIndex = min(points.count - 1, Int((Double(sampleIndex) * step).rounded()))
+            guard sourceIndex != previousIndex else { continue }
+            result.append(points[sourceIndex])
+            previousIndex = sourceIndex
+        }
+
+        if result.last?.id != points.last?.id {
+            result[result.count - 1] = points[points.count - 1]
+        }
+
+        return result
+    }
+
+    static func spaced(
+        _ points: [LocationPoint],
+        minimumDistance: Double,
+        maximumCount: Int
+    ) -> [LocationPoint] {
+        guard !points.isEmpty else { return [] }
+
+        var result: [LocationPoint] = [points[0]]
+
+        for point in points.dropFirst() {
+            guard let lastPoint = result.last else { continue }
+            if lastPoint.distance(to: point) >= minimumDistance {
+                result.append(point)
+            }
+        }
+
+        return downsample(result, maximumCount: maximumCount)
     }
 }
 

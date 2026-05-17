@@ -8,10 +8,10 @@ struct VisitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
     @State private var notesText: String = ""
-    @State private var purposeText: String = ""
     @State private var subPurposeText: String = ""
     @State private var vehicles = MileageVehicleStore.load()
     @FocusState private var isNotesFieldFocused: Bool
+    @FocusState private var isSubPurposeFieldFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -25,8 +25,8 @@ struct VisitDetailView: View {
                 // Time Info
                 timeInfoSection
 
-                // Mileage classification
-                mileageSection
+                // Classification
+                classificationSection
 
                 // Notes
                 notesSection
@@ -40,11 +40,7 @@ struct VisitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             notesText = visit.notes ?? ""
-            purposeText = visit.businessPurpose ?? ""
-            subPurposeText = visit.businessSubPurpose ?? ""
-            if visit.vehicleID == nil {
-                visit.vehicleID = vehicles.first?.id
-            }
+            subPurposeText = visit.subPurpose ?? ""
         }
         .alert("Delete Visit?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -60,7 +56,9 @@ struct VisitDetailView: View {
                 Spacer()
                 Button("Done") {
                     isNotesFieldFocused = false
+                    isSubPurposeFieldFocused = false
                     saveNotes()
+                    saveClassification()
                 }
             }
         }
@@ -74,7 +72,7 @@ struct VisitDetailView: View {
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         ))) {
             Marker(visit.displayName, coordinate: visit.coordinate)
-                .tint(visit.isCurrentVisit ? .blue : .red)
+                .tint(visit.purpose.mapTint)
         }
         .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -194,46 +192,71 @@ struct VisitDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private var mileageSection: some View {
+    private var classificationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Mileage")
+            Text("Classification")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             Picker("Classification", selection: Binding(
-                get: { visit.tripClassification },
-                set: {
-                    visit.tripClassification = $0
-                    viewModel.saveVisitChanges()
+                get: { visit.purpose },
+                set: { newPurpose in
+                    viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
+                    if newPurpose != .business {
+                        subPurposeText = ""
+                    }
                 }
             )) {
-                ForEach(TripClassification.allCases) { classification in
-                    Text(classification.label).tag(classification)
+                ForEach(TripPurpose.allCases) { purpose in
+                    Label(purpose.label, systemImage: purpose.iconName)
+                        .tag(purpose)
                 }
             }
             .pickerStyle(.segmented)
 
-            Picker("Vehicle", selection: Binding(
-                get: { visit.vehicleID ?? vehicles.first?.id ?? UUID() },
-                set: {
-                    visit.vehicleID = $0
-                    viewModel.saveVisitChanges()
-                }
-            )) {
-                ForEach(vehicles) { vehicle in
-                    Text(vehicle.name).tag(vehicle.id)
+            if !vehicles.isEmpty {
+                Picker("Vehicle", selection: Binding(
+                    get: { visit.vehicleID ?? vehicles.first?.id ?? UUID() },
+                    set: { vehicleID in
+                        visit.vehicleID = vehicleID
+                        viewModel.saveVisitChanges()
+                    }
+                )) {
+                    ForEach(vehicles) { vehicle in
+                        Text(vehicle.name).tag(vehicle.id)
+                    }
                 }
             }
 
-            TextField("Business purpose", text: $purposeText)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit { saveMileageFields() }
-                .onChange(of: purposeText) { _, _ in saveMileageFields() }
+            if visit.purpose == .business {
+                VStack(alignment: .leading, spacing: 8) {
+                    TextField("Sub-purpose, e.g. Client Visit", text: $subPurposeText)
+                        .textFieldStyle(.roundedBorder)
+                        .focused($isSubPurposeFieldFocused)
+                        .submitLabel(.done)
+                        .onSubmit { saveClassification() }
+                        .onChange(of: isSubPurposeFieldFocused) { _, focused in
+                            if !focused {
+                                saveClassification()
+                            }
+                        }
 
-            TextField("Sub-purpose (optional)", text: $subPurposeText)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit { saveMileageFields() }
-                .onChange(of: subPurposeText) { _, _ in saveMileageFields() }
+                    if !viewModel.frequentBusinessSubPurposes.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.frequentBusinessSubPurposes, id: \.self) { subPurpose in
+                                    Button(subPurpose) {
+                                        subPurposeText = subPurpose
+                                        saveClassification()
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.small)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
@@ -281,10 +304,8 @@ struct VisitDetailView: View {
         viewModel.updateVisitNotes(visit, notes: notesText)
     }
 
-    private func saveMileageFields() {
-        visit.businessPurpose = purposeText.isEmpty ? nil : purposeText
-        visit.businessSubPurpose = subPurposeText.isEmpty ? nil : subPurposeText
-        viewModel.saveVisitChanges()
+    private func saveClassification() {
+        viewModel.updateVisitClassification(visit, purpose: visit.purpose, subPurpose: subPurposeText)
     }
 
     private func openInMaps() {
@@ -292,6 +313,17 @@ struct VisitDetailView: View {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = visit.displayName
         mapItem.openInMaps(launchOptions: nil)
+    }
+}
+
+extension TripPurpose {
+    var mapTint: Color {
+        switch self {
+        case .business: return TE.success
+        case .personal: return TE.accent
+        case .commuting: return .orange
+        case .unclassified: return TE.warning
+        }
     }
 }
 

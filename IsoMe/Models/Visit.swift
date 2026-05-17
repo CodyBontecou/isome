@@ -2,20 +2,29 @@ import Foundation
 import SwiftData
 import CoreLocation
 
-enum TripClassification: String, CaseIterable, Identifiable, Codable {
-    case unclassified
+enum TripPurpose: String, Codable, CaseIterable, Identifiable {
     case business
     case personal
     case commuting
+    case unclassified
 
     var id: String { rawValue }
 
     var label: String {
         switch self {
-        case .unclassified: return "Unclassified"
         case .business: return "Business"
         case .personal: return "Personal"
         case .commuting: return "Commuting"
+        case .unclassified: return "Unclassified"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .business: return "briefcase.fill"
+        case .personal: return "person.fill"
+        case .commuting: return "car.fill"
+        case .unclassified: return "questionmark.circle.fill"
         }
     }
 }
@@ -30,9 +39,8 @@ final class Visit {
     var locationName: String?
     var address: String?
     var notes: String?
-    var tripClassificationRaw: String
-    var businessPurpose: String?
-    var businessSubPurpose: String?
+    var purposeRawValue: String = TripPurpose.unclassified.rawValue
+    var subPurpose: String? = nil
     var vehicleID: UUID?
 
     // Tracking if geocoding has been attempted
@@ -47,9 +55,8 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
-        tripClassificationRaw: String = TripClassification.unclassified.rawValue,
-        businessPurpose: String? = nil,
-        businessSubPurpose: String? = nil,
+        purpose: TripPurpose = .unclassified,
+        subPurpose: String? = nil,
         vehicleID: UUID? = nil,
         geocodingCompleted: Bool = false
     ) {
@@ -61,9 +68,8 @@ final class Visit {
         self.locationName = locationName
         self.address = address
         self.notes = notes
-        self.tripClassificationRaw = tripClassificationRaw
-        self.businessPurpose = businessPurpose
-        self.businessSubPurpose = businessSubPurpose
+        self.purposeRawValue = purpose.rawValue
+        self.subPurpose = subPurpose
         self.vehicleID = vehicleID
         self.geocodingCompleted = geocodingCompleted
     }
@@ -114,9 +120,14 @@ final class Visit {
         departedAt == nil
     }
 
-    var tripClassification: TripClassification {
-        get { TripClassification(rawValue: tripClassificationRaw) ?? .unclassified }
-        set { tripClassificationRaw = newValue.rawValue }
+    var purpose: TripPurpose {
+        get { TripPurpose(rawValue: purposeRawValue) ?? .unclassified }
+        set {
+            purposeRawValue = newValue.rawValue
+            if newValue != .business {
+                subPurpose = nil
+            }
+        }
     }
 
     var accessibilityLabel: String {
