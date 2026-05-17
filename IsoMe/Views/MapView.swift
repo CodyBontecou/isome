@@ -17,7 +17,6 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
-    @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -202,7 +201,7 @@ struct LocationMapView: View {
                     HStack(spacing: 8) {
                         if showFilterBar {
                             QuickFilterBar(
-                                activePreset: activePreset,
+                                activePreset: viewModel.activeMapPreset,
                                 showTravelPath: $showTravelPath,
                                 showPointMarkers: $showPointMarkers,
                                 showStartEndMarkers: $showStartEndMarkers,
@@ -210,8 +209,7 @@ struct LocationMapView: View {
                                 showVisitMarkers: $showVisitMarkers,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
-                                    activePreset = preset
-                                    viewModel.mapDateRange = preset.range()
+                                    viewModel.selectMapPreset(preset)
                                 },
                                 onSelectCustom: {
                                     showingFilters = true
@@ -248,9 +246,11 @@ struct LocationMapView: View {
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
-                    dateRange: $viewModel.mapDateRange,
-                    isPresented: $showingFilters,
-                    onApply: { activePreset = nil }
+                    dateRange: Binding(
+                        get: { viewModel.mapDateRange },
+                        set: { viewModel.setCustomMapDateRange($0) }
+                    ),
+                    isPresented: $showingFilters
                 )
             }
             .sheet(item: $selectedVisit) { visit in
@@ -265,12 +265,6 @@ struct LocationMapView: View {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
-            }
-            .onChange(of: viewModel.mapDateRange.lowerBound) { _, _ in
-                viewModel.loadMapLocationPoints()
-            }
-            .onChange(of: viewModel.mapDateRange.upperBound) { _, _ in
-                viewModel.loadMapLocationPoints()
             }
             .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
@@ -905,9 +899,11 @@ enum MapDatePreset: CaseIterable, Hashable {
         case .today:
             return calendar.startOfDay(for: referenceDate)...referenceDate
         case .sevenDays:
-            return calendar.date(byAdding: .day, value: -7, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .thirtyDays:
-            return calendar.date(byAdding: .day, value: -30, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -30, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .all:
             return Date.distantPast...referenceDate
         }

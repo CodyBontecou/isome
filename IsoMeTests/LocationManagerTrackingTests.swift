@@ -132,8 +132,7 @@ final class LocationViewModelLoadTests: XCTestCase {
         XCTAssertTrue(viewModel.mapLocationPoints.isEmpty, "Default Today map range should not load old road-trip points.")
         XCTAssertTrue(viewModel.todayLocationPoints.isEmpty, "Historical points should not inflate today's live stats.")
 
-        viewModel.mapDateRange = tripRange
-        viewModel.loadMapLocationPoints()
+        viewModel.setCustomMapDateRange(tripRange)
 
         XCTAssertEqual(viewModel.mapLocationPoints.count, stressPointCount)
         XCTAssertTrue(viewModel.locationPoints.isEmpty, "Loading a large selected map range should not populate the full export cache.")
@@ -200,7 +199,9 @@ final class LocationViewModelLoadTests: XCTestCase {
             locationManager: manager
         )
         viewModel.loadTodayLocationPoints(referenceDate: yesterdayReference)
+        viewModel.selectMapPreset(.today, referenceDate: yesterdayReference)
         XCTAssertEqual(viewModel.todayLocationPoints.map(\.id), [yesterdayPoint.id])
+        XCTAssertEqual(viewModel.mapLocationPoints.map(\.id), [yesterdayPoint.id])
 
         let todayPoint = LocationPoint(
             latitude: 37.1,
@@ -217,7 +218,73 @@ final class LocationViewModelLoadTests: XCTestCase {
 
         XCTAssertEqual(viewModel.todayLocationPoints.map(\.id), [todayPoint.id])
         XCTAssertFalse(viewModel.todayLocationPoints.contains { $0.id == yesterdayPoint.id })
+        XCTAssertEqual(viewModel.mapLocationPoints.map(\.id), [todayPoint.id])
+        XCTAssertFalse(viewModel.mapLocationPoints.contains { $0.id == yesterdayPoint.id })
         XCTAssertEqual(viewModel.locationPointCount, pointCountBeforeAppend + 1)
+    }
+
+    func testAppendingPointRefreshesActiveMapPresetRangeBeforeUpdatingMapCache() throws {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let initialReference = todayStart.addingTimeInterval(60)
+        let laterReference = todayStart.addingTimeInterval(600)
+
+        let container = try makeContainer()
+        let context = container.mainContext
+        let manager = LocationManager()
+        let viewModel = LocationViewModel(
+            modelContext: context,
+            locationManager: manager
+        )
+        viewModel.selectMapPreset(.today, referenceDate: initialReference)
+        XCTAssertFalse(viewModel.mapDateRange.contains(laterReference))
+
+        let laterPoint = LocationPoint(
+            latitude: 37.2,
+            longitude: -122.2,
+            timestamp: laterReference,
+            horizontalAccuracy: 5
+        )
+        context.insert(laterPoint)
+        try context.save()
+
+        manager.latestSavedLocationPoint = laterPoint
+        viewModel.appendLatestSavedLocationPoint(referenceDate: laterReference)
+
+        XCTAssertTrue(viewModel.mapDateRange.contains(laterPoint.timestamp))
+        XCTAssertEqual(viewModel.mapLocationPoints.map(\.id), [laterPoint.id])
+    }
+
+    func testAppendingPointDoesNotExpandCustomMapDateRange() throws {
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let rangeEnd = todayStart.addingTimeInterval(60)
+        let laterReference = todayStart.addingTimeInterval(600)
+
+        let container = try makeContainer()
+        let context = container.mainContext
+        let manager = LocationManager()
+        let viewModel = LocationViewModel(
+            modelContext: context,
+            locationManager: manager
+        )
+        viewModel.setCustomMapDateRange(todayStart...rangeEnd)
+
+        let laterPoint = LocationPoint(
+            latitude: 37.3,
+            longitude: -122.3,
+            timestamp: laterReference,
+            horizontalAccuracy: 5
+        )
+        context.insert(laterPoint)
+        try context.save()
+
+        manager.latestSavedLocationPoint = laterPoint
+        viewModel.appendLatestSavedLocationPoint(referenceDate: laterReference)
+
+        XCTAssertNil(viewModel.activeMapPreset)
+        XCTAssertFalse(viewModel.mapDateRange.contains(laterPoint.timestamp))
+        XCTAssertTrue(viewModel.mapLocationPoints.isEmpty)
     }
 
     func testManualMillionPointStartupDoesNotEagerlyLoadFullPointCache() throws {

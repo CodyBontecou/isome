@@ -24,7 +24,8 @@ final class LocationViewModel {
     private var todayLocationPointsDay = Calendar.current.startOfDay(for: Date())
 
     // UI State
-    var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
+    var activeMapPreset: MapDatePreset? = .today
+    var mapDateRange: ClosedRange<Date> = MapDatePreset.today.range()
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?
@@ -123,7 +124,34 @@ final class LocationViewModel {
         }
     }
 
-    func loadMapLocationPoints() {
+    func selectMapPreset(_ preset: MapDatePreset, referenceDate: Date = Date()) {
+        activeMapPreset = preset
+        mapDateRange = preset.range(referenceDate: referenceDate)
+        loadMapLocationPoints(referenceDate: referenceDate)
+    }
+
+    func setCustomMapDateRange(_ range: ClosedRange<Date>) {
+        activeMapPreset = nil
+        mapDateRange = range
+        loadMapLocationPoints()
+    }
+
+    @discardableResult
+    func refreshMapDateRangeIfUsingPreset(referenceDate: Date = Date()) -> Bool {
+        guard let preset = activeMapPreset else { return false }
+
+        let refreshedRange = preset.range(referenceDate: referenceDate)
+        let didChange = mapDateRange.lowerBound != refreshedRange.lowerBound ||
+            mapDateRange.upperBound != refreshedRange.upperBound
+        guard didChange else { return false }
+
+        mapDateRange = refreshedRange
+        return true
+    }
+
+    func loadMapLocationPoints(referenceDate: Date = Date()) {
+        refreshMapDateRangeIfUsingPreset(referenceDate: referenceDate)
+
         do {
             mapLocationPoints = try fetchLocationPoints(in: mapDateRange)
         } catch {
@@ -176,10 +204,18 @@ final class LocationViewModel {
             if !didCalendarDayChange {
                 loadTodayLocationPoints(referenceDate: referenceDate)
             }
-            loadMapLocationPoints()
+            loadMapLocationPoints(referenceDate: referenceDate)
             loadLocationPointCount()
             return
         }
+
+        let mapReferenceDate = max(referenceDate, point.timestamp)
+        let previousMapRange = mapDateRange
+        let didRefreshMapRange = refreshMapDateRangeIfUsingPreset(referenceDate: mapReferenceDate)
+        let shouldReloadMapCache = shouldReloadMapCacheAfterPresetRefresh(
+            from: previousMapRange,
+            didRefresh: didRefreshMapRange
+        )
 
         locationPointCount += 1
 
@@ -191,9 +227,19 @@ final class LocationViewModel {
             append(point, to: &todayLocationPoints)
         }
 
-        if mapDateRange.contains(point.timestamp) {
+        if shouldReloadMapCache {
+            loadMapLocationPoints(referenceDate: mapReferenceDate)
+        } else if mapDateRange.contains(point.timestamp) {
             append(point, to: &mapLocationPoints)
         }
+    }
+
+    private func shouldReloadMapCacheAfterPresetRefresh(
+        from previousRange: ClosedRange<Date>,
+        didRefresh: Bool
+    ) -> Bool {
+        guard didRefresh, activeMapPreset != nil else { return false }
+        return !Calendar.current.isDate(previousRange.lowerBound, inSameDayAs: mapDateRange.lowerBound)
     }
 
     private func append(_ point: LocationPoint, to points: inout [LocationPoint]) {
