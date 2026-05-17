@@ -22,6 +22,7 @@ final class LocationViewModel {
     var exportError: String?
 
     private var cancellables = Set<AnyCancellable>()
+    private let frequentSubPurposesKey = "frequentBusinessSubPurposes"
 
     init(modelContext: ModelContext, locationManager: LocationManager) {
         self.modelContext = modelContext
@@ -255,6 +256,40 @@ final class LocationViewModel {
         try? modelContext.save()
     }
 
+    func updateVisitClassification(_ visit: Visit, purpose: TripPurpose, subPurpose: String? = nil) {
+        visit.purpose = purpose
+        let cleanedSubPurpose = subPurpose?.trimmingCharacters(in: .whitespacesAndNewlines)
+        visit.subPurpose = purpose == .business && !(cleanedSubPurpose?.isEmpty ?? true) ? cleanedSubPurpose : nil
+        rememberSubPurpose(visit.subPurpose)
+        try? modelContext.save()
+        loadData()
+    }
+
+    func bulkUpdateClassification(_ visits: [Visit], purpose: TripPurpose, subPurpose: String? = nil) {
+        let cleanedSubPurpose = subPurpose?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let storedSubPurpose = purpose == .business && !(cleanedSubPurpose?.isEmpty ?? true) ? cleanedSubPurpose : nil
+
+        for visit in visits {
+            visit.purpose = purpose
+            visit.subPurpose = storedSubPurpose
+        }
+
+        rememberSubPurpose(storedSubPurpose)
+        try? modelContext.save()
+        loadData()
+    }
+
+    var frequentBusinessSubPurposes: [String] {
+        UserDefaults.standard.stringArray(forKey: frequentSubPurposesKey) ?? []
+    }
+
+    private func rememberSubPurpose(_ subPurpose: String?) {
+        guard let subPurpose, !subPurpose.isEmpty else { return }
+        var values = frequentBusinessSubPurposes.filter { $0.caseInsensitiveCompare(subPurpose) != .orderedSame }
+        values.insert(subPurpose, at: 0)
+        UserDefaults.standard.set(Array(values.prefix(12)), forKey: frequentSubPurposesKey)
+    }
+
     // MARK: - Export
 
     func exportVisits(format: ExportFormat, dateRange: ClosedRange<Date>? = nil) {
@@ -328,6 +363,8 @@ final class LocationViewModel {
                 locationName: imported.locationName,
                 address: imported.address,
                 notes: imported.notes,
+                purpose: imported.purpose,
+                subPurpose: imported.subPurpose,
                 geocodingCompleted: imported.locationName != nil || imported.address != nil
             )
             modelContext.insert(visit)

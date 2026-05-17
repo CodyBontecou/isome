@@ -95,17 +95,23 @@ private struct MainTabView: View {
                 }
                 .tag(0)
 
+            TripListView(viewModel: viewModel)
+                .tabItem {
+                    Label("Trips", systemImage: "list.bullet")
+                }
+                .tag(1)
+
             ExportView(viewModel: viewModel)
                 .tabItem {
                     Label("Export", systemImage: "square.and.arrow.up")
                 }
-                .tag(1)
+                .tag(2)
 
             SettingsView(viewModel: viewModel)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(2)
+                .tag(3)
         }
     }
 
@@ -114,11 +120,204 @@ private struct MainTabView: View {
         let prefix = "--default-tab="
         if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
            let index = Int(arg.dropFirst(prefix.count)),
-           (0...2).contains(index) {
+           (0...3).contains(index) {
             return index
         }
         #endif
         return 0
+    }
+}
+
+private struct TripListView: View {
+    @Bindable var viewModel: LocationViewModel
+    @State private var editMode: EditMode = .inactive
+    @State private var selection = Set<UUID>()
+    @State private var bulkSubPurpose = ""
+
+    private var selectedVisits: [Visit] {
+        viewModel.allVisits.filter { selection.contains($0.id) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                TE.surface.ignoresSafeArea()
+
+                if viewModel.allVisits.isEmpty {
+                    ContentUnavailableView(
+                        "No Trips",
+                        systemImage: "point.topleft.down.to.point.bottomright.curvepath",
+                        description: Text("Tracked visits will appear here.")
+                    )
+                } else {
+                    List(selection: $selection) {
+                        ForEach(groupedVisits, id: \.day) { group in
+                            Section(group.title) {
+                                ForEach(group.visits) { visit in
+                                    NavigationLink {
+                                        VisitDetailView(visit: visit, viewModel: viewModel)
+                                    } label: {
+                                        TripListRow(visit: visit)
+                                    }
+                                    .tag(visit.id)
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        Button {
+                                            classify(visit, as: .business)
+                                        } label: {
+                                            Label("Business", systemImage: TripPurpose.business.iconName)
+                                        }
+                                        .tint(TripPurpose.business.mapTint)
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button {
+                                            classify(visit, as: .personal)
+                                        } label: {
+                                            Label("Personal", systemImage: TripPurpose.personal.iconName)
+                                        }
+                                        .tint(TripPurpose.personal.mapTint)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
+                    .environment(\.editMode, $editMode)
+                    .safeAreaInset(edge: .bottom) {
+                        if editMode.isEditing && !selection.isEmpty {
+                            bulkClassifyBar
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("TRIPS")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(3)
+                        .foregroundStyle(TE.textMuted)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(editMode.isEditing ? "Done" : "Select") {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                            if editMode.isEditing {
+                                editMode = .inactive
+                                selection.removeAll()
+                            } else {
+                                editMode = .active
+                            }
+                        }
+                    }
+                }
+            }
+            .onAppear { viewModel.loadAllVisits() }
+        }
+    }
+
+    private var groupedVisits: [(day: Date, title: String, visits: [Visit])] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: viewModel.allVisits) { visit in
+            calendar.startOfDay(for: visit.arrivedAt)
+        }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+
+        return grouped.keys.sorted(by: >).map { day in
+            (
+                day: day,
+                title: formatter.string(from: day).uppercased(),
+                visits: (grouped[day] ?? []).sorted { $0.arrivedAt > $1.arrivedAt }
+            )
+        }
+    }
+
+    private var bulkClassifyBar: some View {
+        VStack(spacing: 10) {
+            TextField("Business sub-purpose", text: $bulkSubPurpose)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, 12)
+
+            HStack(spacing: 10) {
+                bulkButton("Business", icon: TripPurpose.business.iconName, purpose: .business)
+                bulkButton("Personal", icon: TripPurpose.personal.iconName, purpose: .personal)
+                bulkButton("Clear", icon: TripPurpose.unclassified.iconName, purpose: .unclassified)
+            }
+            .padding(.horizontal, 12)
+        }
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
+    }
+
+    private func bulkButton(_ title: String, icon: String, purpose: TripPurpose) -> some View {
+        Button {
+            viewModel.bulkUpdateClassification(selectedVisits, purpose: purpose, subPurpose: bulkSubPurpose)
+            selection.removeAll()
+            bulkSubPurpose = ""
+            editMode = .inactive
+        } label: {
+            Label(title, systemImage: icon)
+                .font(TE.mono(.caption, weight: .semibold))
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(purpose.mapTint)
+        .controlSize(.small)
+    }
+
+    private func classify(_ visit: Visit, as purpose: TripPurpose) {
+        viewModel.updateVisitClassification(visit, purpose: purpose, subPurpose: visit.subPurpose)
+    }
+}
+
+private struct TripListRow: View {
+    let visit: Visit
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(visit.purpose.mapTint)
+                    .frame(width: 34, height: 34)
+                Image(systemName: visit.purpose.iconName)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(visit.displayName)
+                    .font(.body.weight(.medium))
+                    .lineLimit(1)
+
+                HStack(spacing: 6) {
+                    Text(visit.formattedTimeRange)
+                    Text("•")
+                    Text(visit.formattedDuration)
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(visit.purpose.label.uppercased())
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .tracking(1)
+                    .foregroundStyle(visit.purpose.mapTint)
+
+                if let subPurpose = visit.subPurpose, !subPurpose.isEmpty {
+                    Text(subPurpose)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 
