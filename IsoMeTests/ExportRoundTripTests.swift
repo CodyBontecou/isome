@@ -16,6 +16,30 @@ final class ExportRoundTripTests: XCTestCase {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: TripPurpose?
+        let subPurpose: String?
+
+        init(
+            latitude: Double,
+            longitude: Double,
+            arrivedAt: Date?,
+            departedAt: Date?,
+            locationName: String?,
+            address: String?,
+            notes: String?,
+            purpose: TripPurpose? = nil,
+            subPurpose: String? = nil
+        ) {
+            self.latitude = latitude
+            self.longitude = longitude
+            self.arrivedAt = arrivedAt
+            self.departedAt = departedAt
+            self.locationName = locationName
+            self.address = address
+            self.notes = notes
+            self.purpose = purpose
+            self.subPurpose = subPurpose
+        }
     }
 
     fileprivate struct NormalizedPoint: Equatable {
@@ -91,7 +115,9 @@ final class ExportRoundTripTests: XCTestCase {
                 departedAt: baseDate.addingTimeInterval(45 * 60),
                 locationName: "Civic Cafe",
                 address: "1 Market St, San Francisco, CA",
-                notes: "Coffee, sync, receipts"
+                notes: "Coffee, sync, receipts",
+                purpose: .business,
+                subPurpose: "Client Visit"
             ),
             Visit(
                 latitude: 37.786901,
@@ -100,7 +126,8 @@ final class ExportRoundTripTests: XCTestCase {
                 departedAt: baseDate.addingTimeInterval(3 * 60 * 60 + 15 * 60),
                 locationName: "Pier Office",
                 address: "Pier 3, San Francisco, CA",
-                notes: "Quarterly planning"
+                notes: "Quarterly planning",
+                purpose: .personal
             )
         ]
     }
@@ -247,7 +274,11 @@ final class ExportRoundTripTests: XCTestCase {
 
             switch try XCTUnwrap(properties["kind"] as? String) {
             case "visit":
-                XCTAssertEqual(Set(properties.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "kind", "locationName", "notes"])
+                var expectedKeys: Set<String> = ["address", "arrivedAt", "departedAt", "durationMinutes", "kind", "locationName", "notes", "purpose"]
+                if properties["subPurpose"] != nil {
+                    expectedKeys.insert("subPurpose")
+                }
+                XCTAssertEqual(Set(properties.keys), expectedKeys)
                 visits.append(NormalizedVisit(
                     latitude: coordinates[1],
                     longitude: coordinates[0],
@@ -255,7 +286,9 @@ final class ExportRoundTripTests: XCTestCase {
                     departedAt: Self.iso8601.date(from: try XCTUnwrap(properties["departedAt"] as? String)),
                     locationName: properties["locationName"] as? String,
                     address: properties["address"] as? String,
-                    notes: properties["notes"] as? String
+                    notes: properties["notes"] as? String,
+                    purpose: TripPurpose(rawValue: try XCTUnwrap(properties["purpose"] as? String)),
+                    subPurpose: properties["subPurpose"] as? String
                 ))
             case "point":
                 XCTAssertEqual(Set(properties.keys), ["altitude", "horizontalAccuracy", "isOutlier", "kind", "speed", "timestamp", "timestampUnix"])
@@ -288,7 +321,7 @@ final class ExportRoundTripTests: XCTestCase {
 
         let visitHeaders = rows[visitHeaderIndex]
         let pointHeaders = rows[pointsHeaderIndex]
-        XCTAssertEqual(visitHeaders, ["arrived_at", "departed_at", "duration_minutes", "latitude", "longitude", "location_name", "address", "notes"])
+        XCTAssertEqual(visitHeaders, ["arrived_at", "departed_at", "duration_minutes", "latitude", "longitude", "location_name", "address", "notes", "purpose", "sub_purpose"])
         XCTAssertEqual(pointHeaders, ["timestamp", "timestamp_unix", "latitude", "longitude", "altitude", "speed", "horizontal_accuracy", "is_outlier"])
 
         let visitRows = rows[(visitHeaderIndex + 1)..<pointsHeaderIndex]
@@ -305,7 +338,9 @@ final class ExportRoundTripTests: XCTestCase {
                     departedAt: Self.iso8601.date(from: row[1]),
                     locationName: row[5],
                     address: row[6],
-                    notes: row[7]
+                    notes: row[7],
+                    purpose: TripPurpose(rawValue: row[8]),
+                    subPurpose: row[9].isEmpty ? nil : row[9]
                 )
             },
             points: pointRows.map { row in
@@ -333,7 +368,7 @@ final class ExportRoundTripTests: XCTestCase {
         let visitRows = markdownTableRows(in: visitSection)
         let pointRows = markdownTableRows(in: pointSection)
 
-        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes |")
+        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes | Purpose | Sub-purpose |")
         XCTAssertEqual(pointRows.first, "| Time | Lat | Lon | Speed | Altitude | Accuracy | Outlier |")
 
         return (
@@ -346,7 +381,9 @@ final class ExportRoundTripTests: XCTestCase {
                     departedAt: nil,
                     locationName: cells[5],
                     address: cells[6],
-                    notes: cells[7]
+                    notes: cells[7],
+                    purpose: TripPurpose(rawValue: cells[8].lowercased()),
+                    subPurpose: cells[9] == "-" ? nil : cells[9]
                 )
             },
             points: pointRows.dropFirst().map { row in
@@ -392,7 +429,11 @@ final class ExportRoundTripTests: XCTestCase {
     }
 
     private func parseJSONVisit(_ dict: [String: Any]) -> NormalizedVisit {
-        XCTAssertEqual(Set(dict.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "latitude", "locationName", "longitude", "notes"])
+        var expectedKeys: Set<String> = ["address", "arrivedAt", "departedAt", "durationMinutes", "latitude", "locationName", "longitude", "notes", "purpose"]
+        if dict["subPurpose"] != nil {
+            expectedKeys.insert("subPurpose")
+        }
+        XCTAssertEqual(Set(dict.keys), expectedKeys)
         return NormalizedVisit(
             latitude: dict["latitude"] as! Double,
             longitude: dict["longitude"] as! Double,
@@ -400,7 +441,9 @@ final class ExportRoundTripTests: XCTestCase {
             departedAt: Self.iso8601.date(from: dict["departedAt"] as! String),
             locationName: dict["locationName"] as? String,
             address: dict["address"] as? String,
-            notes: dict["notes"] as? String
+            notes: dict["notes"] as? String,
+            purpose: TripPurpose(rawValue: dict["purpose"] as! String),
+            subPurpose: dict["subPurpose"] as? String
         )
     }
 
@@ -431,6 +474,10 @@ final class ExportRoundTripTests: XCTestCase {
             XCTAssertEqual(pair.0.locationName, pair.1.locationName, "\(formatName) visit \(index) location")
             XCTAssertEqual(pair.0.address, pair.1.address, "\(formatName) visit \(index) address")
             XCTAssertEqual(pair.0.notes, pair.1.notes, "\(formatName) visit \(index) notes")
+            if let purpose = pair.0.purpose {
+                XCTAssertEqual(purpose, pair.1.purpose, "\(formatName) visit \(index) purpose")
+                XCTAssertEqual(pair.0.subPurpose, pair.1.subPurpose, "\(formatName) visit \(index) sub-purpose")
+            }
         }
     }
 

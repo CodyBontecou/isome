@@ -69,7 +69,7 @@ enum ExportFormat {
 }
 
 struct ExportService {
-    private static let iso8601Formatter: ISO8601DateFormatter = {
+    static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
@@ -88,6 +88,8 @@ struct ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     struct ExportData: Codable {
@@ -123,7 +125,9 @@ struct ExportService {
             vehicleName: vehicleName(for: visit.vehicleID, lookup: vehiclesByID),
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            purpose: visit.purpose.rawValue,
+            subPurpose: visit.subPurpose
         )
     }
 
@@ -162,6 +166,8 @@ struct ExportService {
         if options.includeVisitLocationName { headers.append("location_name") }
         if options.includeVisitAddress { headers.append("address") }
         if options.includeVisitNotes { headers.append("notes") }
+        headers.append("purpose")
+        headers.append("sub_purpose")
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -189,13 +195,15 @@ struct ExportService {
             if options.includeVisitNotes {
                 fields.append(escapeCSVField(visit.notes ?? ""))
             }
+            fields.append(visit.purpose.rawValue)
+            fields.append(escapeCSVField(visit.subPurpose ?? ""))
             csvString.append(fields.joined(separator: ",") + "\n")
         }
 
         return csvString.data(using: .utf8) ?? Data()
     }
 
-    private static func escapeCSVField(_ field: String) -> String {
+    static func escapeCSVField(_ field: String) -> String {
         if field.contains(",") || field.contains("\"") || field.contains("\n") {
             let escaped = field.replacingOccurrences(of: "\"", with: "\"\"")
             return "\"\(escaped)\""
@@ -238,6 +246,8 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
+        headerCols.append("Purpose")
+        headerCols.append("Sub-purpose")
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -277,6 +287,8 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
+                cells.append(visit.purpose.label)
+                cells.append(escapeMarkdownTableCell(visit.subPurpose))
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -313,7 +325,7 @@ struct ExportService {
         return tempURL
     }
 
-    private static func formattedDate() -> String {
+    static func formattedDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd_HHmmss"
         return formatter.string(from: Date())
@@ -1373,6 +1385,8 @@ extension ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let purpose: String
+        let subPurpose: String?
     }
 
     private struct PointProperties: Encodable {
@@ -1399,7 +1413,9 @@ extension ExportService {
             vehicleName: vehicleName(for: visit.vehicleID, lookup: vehiclesByID),
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            purpose: visit.purpose.rawValue,
+            subPurpose: visit.subPurpose
         )
 
         return GeoJSONFeature(

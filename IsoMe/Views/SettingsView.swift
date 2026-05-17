@@ -33,10 +33,12 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         purchaseSection
+                        trackingModeSection
                         trackingSection
                         liveActivitySection
                         unitsSection
                         mapDisplaySection
+                        reportsSection
                         importSection
                         vehiclesSection
                         dataSection
@@ -82,6 +84,9 @@ struct SettingsView: View {
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)
+            }
+            .onAppear {
+                viewModel.loadLocationPointCount()
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
@@ -163,6 +168,47 @@ struct SettingsView: View {
     }
 
     // MARK: - Tracking Section
+
+    private var trackingModeSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "TRACKING MODE")
+
+            TECard {
+                VStack(spacing: 0) {
+                    ForEach(Array(TrackingMode.allCases.enumerated()), id: \.element) { index, mode in
+                        TrackingModeRow(
+                            mode: mode,
+                            isSelected: viewModel.locationManager.trackingMode == mode
+                        ) {
+                            viewModel.locationManager.setTrackingMode(mode)
+                        }
+
+                        if index < TrackingMode.allCases.count - 1 ||
+                            viewModel.locationManager.trackingMode == .custom {
+                            Divider()
+                                .background(TE.border)
+                                .padding(.leading, 16)
+                        }
+                    }
+
+                    if viewModel.locationManager.trackingMode == .custom {
+                        TERow(showDivider: false) {
+                            settingsToggle(
+                                "VISIT DETECTION",
+                                isOn: Binding(
+                                    get: { viewModel.locationManager.isVisitDetectionEnabled },
+                                    set: { viewModel.locationManager.setCustomVisitDetectionEnabled($0) }
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Presets update the underlying tracking behavior immediately. Drives Only stops visit detection and tunes Core Location for automotive navigation.")
+        }
+    }
 
     private var trackingSection: some View {
         VStack(spacing: 0) {
@@ -247,7 +293,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
+            TESectionFooter(text: viewModel.locationManager.isDrivesOnlyMode ? "Tracking records high-accuracy movement paths for mileage. Visit detection stays off in Drives Only mode." : "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
         }
     }
 
@@ -367,6 +413,39 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Reports Section
+
+    private var reportsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "REPORTS")
+
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        MileageReportView(viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TE.accent)
+                            Text("MILEAGE REPORT")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.accent)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(TE.accent.opacity(0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Generate IRS-ready CSV or PDF mileage reports from classified trips.")
+        }
+    }
+
     // MARK: - Import Section
 
     private var importSection: some View {
@@ -450,7 +529,7 @@ struct SettingsView: View {
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
-                            Text("\(viewModel.locationPoints.count)")
+                            Text("\(viewModel.locationPointCount)")
                                 .font(TE.mono(.caption2, weight: .medium))
                                 .foregroundStyle(TE.textMuted)
                         }
@@ -752,9 +831,44 @@ struct SettingsView: View {
 
 }
 
+private struct TrackingModeRow: View {
+    let mode: TrackingMode
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
+                    .frame(width: 22, height: 22)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(mode.title.uppercased())
+                        .font(TE.mono(.caption, weight: .semibold))
+                        .tracking(1.1)
+                        .foregroundStyle(TE.textPrimary)
+
+                    Text(mode.settingsDescription)
+                        .font(TE.mono(.caption2, weight: .regular))
+                        .foregroundStyle(TE.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 13)
+            .background(isSelected ? TE.accent.opacity(0.07) : Color.clear)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 #Preview {
     SettingsView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, Vehicle.self).mainContext,
         locationManager: LocationManager()
     ))
 }

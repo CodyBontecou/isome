@@ -7,6 +7,7 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
+    @State private var selectedPoint: LocationPoint?
     @State private var showingFilters = false
     @State private var showFilterBar = false
     @State private var trackingPillExpanded = false
@@ -17,7 +18,6 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
-    @State private var activePreset: MapDatePreset? = .today
     @State private var selectedVehicleID: UUID?
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
@@ -31,16 +31,25 @@ struct LocationMapView: View {
         locationManager.isTrackingEnabled
     }
 
+    private var showsVisitSurfaces: Bool {
+        !locationManager.isDrivesOnlyMode
+    }
+
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    private let maximumPointSelectionDistance: Double = 120
+    // Keep MapKit overlays/annotations bounded for multi-day road trips.
+    private let maximumPolylinePoints = 2_500
+    private let maximumPointMarkers = 500
 
     var filteredVisits: [Visit] {
-        viewModel.visitsInDateRange(viewModel.mapDateRange)
+        guard showsVisitSurfaces else { return [] }
+        return viewModel.visitsInDateRange(viewModel.mapDateRange)
             .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
     }
 
     var filteredPoints: [LocationPoint] {
-        let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        let points = viewModel.mapLocationPoints
             .filter { selectedVehicleID == nil || $0.vehicleID == selectedVehicleID }
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
@@ -51,33 +60,33 @@ struct LocationMapView: View {
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
     
+    var displayPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(filteredPoints, maximumCount: maximumPolylinePoints)
+    }
+
+    var displaySessionPathPoints: [LocationPoint] {
+        LocationPointSampler.downsample(activeSessionPoints, maximumCount: maximumPolylinePoints)
+    }
+
     var spacedPoints: [LocationPoint] {
-        guard !filteredPoints.isEmpty else { return [] }
-        
-        var result: [LocationPoint] = [filteredPoints[0]]
-        
-        for point in filteredPoints.dropFirst() {
-            if let lastPoint = result.last {
-                let distance = lastPoint.distance(to: point)
-                if distance >= minimumPointDistance {
-                    result.append(point)
-                }
-            }
-        }
-        
-        return result
+        LocationPointSampler.spaced(
+            filteredPoints,
+            minimumDistance: minimumPointDistance,
+            maximumCount: maximumPointMarkers
+        )
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Map(position: $cameraPosition, selection: $selectedVisit) {
-                    // Current user location
-                    UserAnnotation()
+                MapReader { mapProxy in
+                    Map(position: $cameraPosition, selection: $selectedVisit) {
+                        // Current user location
+                        UserAnnotation()
 
                     // Travel path from location points
-                    if showTravelPath && !filteredPoints.isEmpty {
-                        let coordinates = filteredPoints.map { $0.coordinate }
+                    if showTravelPath && !displayPathPoints.isEmpty {
+                        let coordinates = displayPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(
                                 LinearGradient(
@@ -90,8 +99,8 @@ struct LocationMapView: View {
                     }
                     
                     // Live session path (moved from Track tab)
-                    if showSessionPath && activeSessionPoints.count >= 2 {
-                        let sessionCoordinates = activeSessionPoints.map { $0.coordinate }
+                    if showSessionPath && displaySessionPathPoints.count >= 2 {
+                        let sessionCoordinates = displaySessionPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: sessionCoordinates)
                             .stroke(.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
                     }
@@ -137,13 +146,30 @@ struct LocationMapView: View {
                         ForEach(spacedPoints) { point in
                             Annotation("", coordinate: point.coordinate) {
                                 Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
+                                    .fill(selectedPoint?.id == point.id ? TE.accent : .blue)
+                                    .frame(
+                                        width: selectedPoint?.id == point.id ? 12 : 8,
+                                        height: selectedPoint?.id == point.id ? 12 : 8
+                                    )
                                     .overlay {
                                         Circle()
                                             .stroke(.white, lineWidth: 1.5)
                                     }
+                                    .contentShape(Circle())
+                                    .onTapGesture {
+                                        select(point)
+                                    }
                                     .accessibilityHidden(true)
+                            }
+                        }
+                    }
+
+                    if let selectedPoint {
+                        Annotation("", coordinate: selectedPoint.coordinate, anchor: .bottom) {
+                            LocationPointTimestampCallout(point: selectedPoint) {
+                                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                                    self.selectedPoint = nil
+                                }
                             }
                         }
                     }
@@ -162,10 +188,17 @@ struct LocationMapView: View {
                         }
                     }
                 }
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                    MapScaleView()
+                    .mapControls {
+                        MapUserLocationButton()
+                        MapCompass()
+                        MapScaleView()
+                    }
+                    .simultaneousGesture(
+                        SpatialTapGesture()
+                            .onEnded { value in
+                                selectNearestPoint(to: value.location, using: mapProxy)
+                            }
+                    )
                 }
                 .accessibilityLabel("Location map")
                 .accessibilityValue(mapAccessibilitySummary)
@@ -203,16 +236,16 @@ struct LocationMapView: View {
                     HStack(spacing: 8) {
                         if showFilterBar {
                             QuickFilterBar(
-                                activePreset: activePreset,
+                                activePreset: viewModel.activeMapPreset,
                                 showTravelPath: $showTravelPath,
                                 showPointMarkers: $showPointMarkers,
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                showsVisitLayer: showsVisitSurfaces,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
-                                    activePreset = preset
-                                    viewModel.mapDateRange = preset.range()
+                                    viewModel.selectMapPreset(preset)
                                 },
                                 onSelectCustom: {
                                     showingFilters = true
@@ -249,20 +282,28 @@ struct LocationMapView: View {
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
-                    dateRange: $viewModel.mapDateRange,
+                    dateRange: Binding(
+                        get: { viewModel.mapDateRange },
+                        set: { viewModel.setCustomMapDateRange($0) }
+                    ),
                     selectedVehicleID: $selectedVehicleID,
                     isPresented: $showingFilters,
-                    vehicles: viewModel.vehicles,
-                    onApply: { activePreset = nil }
+                    vehicles: viewModel.vehicles
                 )
             }
             .sheet(item: $selectedVisit) { visit in
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
             }
+            .onChange(of: selectedVisit?.id) { _, newValue in
+                if newValue != nil {
+                    selectedPoint = nil
+                }
+            }
             .onAppear {
                 viewModel.loadAllVisits()
-                viewModel.loadLocationPoints()
+                viewModel.loadMapLocationPoints()
+                viewModel.loadVehicles()
 
                 if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
@@ -275,9 +316,68 @@ struct LocationMapView: View {
                     attemptAutoFocusSession()
                 }
             }
+            .onChange(of: locationManager.trackingMode) { _, _ in
+                selectedVisit = nil
+                if locationManager.isDrivesOnlyMode {
+                    showVisitMarkers = false
+                } else {
+                    showVisitMarkers = true
+                }
+            }
             .onChange(of: activeSessionPoints.count) { _, _ in
                 if pendingSessionAutoFocus {
                     attemptAutoFocusSession()
+                }
+            }
+            .onChange(of: viewModel.mapDateRange) { _, _ in
+                selectedPoint = nil
+            }
+        }
+    }
+
+    var selectablePoints: [LocationPoint] {
+        var seenIDs = Set<UUID>()
+        return (filteredPoints + activeSessionPoints).filter { point in
+            seenIDs.insert(point.id).inserted
+        }
+    }
+
+    private func select(_ point: LocationPoint) {
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+            selectedVisit = nil
+            selectedPoint = point
+        }
+    }
+
+    private func selectNearestPoint(to tapLocation: CGPoint, using mapProxy: MapProxy) {
+        guard let coordinate = mapProxy.convert(tapLocation, from: .local) else { return }
+
+        DispatchQueue.main.async {
+            guard selectedVisit == nil else { return }
+
+            let tappedLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let nearestPoint = selectablePoints.min { lhs, rhs in
+                let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
+                let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
+                return lhsLocation.distance(from: tappedLocation) < rhsLocation.distance(from: tappedLocation)
+            }
+
+            guard let nearestPoint else {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                    selectedPoint = nil
+                }
+                return
+            }
+
+            let nearestLocation = CLLocation(latitude: nearestPoint.latitude, longitude: nearestPoint.longitude)
+            let selectionDistance = nearestLocation.distance(from: tappedLocation)
+            let tolerance = max(maximumPointSelectionDistance, nearestPoint.horizontalAccuracy * 2)
+
+            if selectionDistance <= tolerance {
+                select(nearestPoint)
+            } else {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                    selectedPoint = nil
                 }
             }
         }
@@ -556,18 +656,18 @@ struct VisitMarker: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(visit.isCurrentVisit ? .blue : .red)
+                    .fill(visit.purpose.mapTint)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
                     .accessibilityHidden(true)
 
-                Image(systemName: "mappin")
-                    .font(isSelected ? .title3 : .callout)
+                Image(systemName: visit.purpose.iconName)
+                    .font(.system(size: isSelected ? 18 : 14))
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
 
             Triangle()
-                .fill(visit.isCurrentVisit ? .blue : .red)
+                .fill(visit.purpose.mapTint)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
@@ -589,6 +689,70 @@ struct Triangle: Shape {
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.closeSubpath()
         return path
+    }
+}
+
+struct LocationPointTimestampCallout: View {
+    let point: LocationPoint
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(point.timestamp.formatted(date: .abbreviated, time: .omitted))
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.1)
+                        .foregroundStyle(TE.textMuted)
+
+                    Text(point.timestamp.formatted(date: .omitted, time: .shortened))
+                        .font(TE.mono(.title3, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                }
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(TE.textMuted)
+                        .frame(width: 24, height: 24)
+                        .background(Color.primary.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss selected point")
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Color.white.opacity(0.45), lineWidth: 0.8)
+                    }
+                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
+            }
+
+            Triangle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 14, height: 9)
+                .rotationEffect(.degrees(180))
+                .accessibilityHidden(true)
+
+            Circle()
+                .fill(TE.accent)
+                .frame(width: 10, height: 10)
+                .overlay {
+                    Circle()
+                        .stroke(.white, lineWidth: 1.5)
+                }
+                .shadow(color: TE.accent.opacity(0.35), radius: 5, y: 2)
+                .accessibilityHidden(true)
+        }
+        .transition(.scale(scale: 0.92, anchor: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Selected location point")
+        .accessibilityValue(point.accessibilityValue)
     }
 }
 
@@ -802,6 +966,7 @@ struct DateRangeFilterSheet: View {
 struct VisitQuickView: View {
     let visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var subPurposeText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -836,6 +1001,37 @@ struct VisitQuickView: View {
 
                 Divider()
 
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Classification")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Picker("Classification", selection: Binding(
+                        get: { visit.purpose },
+                        set: { newPurpose in
+                            viewModel.updateVisitClassification(visit, purpose: newPurpose, subPurpose: subPurposeText)
+                            if newPurpose != .business {
+                                subPurposeText = ""
+                            }
+                        }
+                    )) {
+                        ForEach(TripPurpose.allCases) { purpose in
+                            Label(purpose.label, systemImage: purpose.iconName)
+                                .tag(purpose)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    if visit.purpose == .business {
+                        TextField("Sub-purpose", text: $subPurposeText)
+                            .textFieldStyle(.roundedBorder)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                viewModel.updateVisitClassification(visit, purpose: .business, subPurpose: subPurposeText)
+                            }
+                    }
+                }
+
                 // Time info
                 HStack(spacing: 24) {
                     VStack(alignment: .leading) {
@@ -868,10 +1064,6 @@ struct VisitQuickView: View {
                     }
                 }
 
-                Divider()
-
-                LabeledContent("Vehicle", value: viewModel.vehicleName(for: visit.vehicleID))
-
                 if let notes = visit.notes, !notes.isEmpty {
                     Divider()
 
@@ -888,6 +1080,9 @@ struct VisitQuickView: View {
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                subPurposeText = visit.subPurpose ?? ""
+            }
         }
     }
 }
@@ -921,9 +1116,11 @@ enum MapDatePreset: CaseIterable, Hashable {
         case .today:
             return calendar.startOfDay(for: referenceDate)...referenceDate
         case .sevenDays:
-            return calendar.date(byAdding: .day, value: -7, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .thirtyDays:
-            return calendar.date(byAdding: .day, value: -30, to: referenceDate)!...referenceDate
+            let start = calendar.date(byAdding: .day, value: -30, to: calendar.startOfDay(for: referenceDate))!
+            return start...referenceDate
         case .all:
             return Date.distantPast...referenceDate
         }
@@ -973,6 +1170,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    let showsVisitLayer: Bool
     let hasSessionPoints: Bool
     let onSelectPreset: (MapDatePreset) -> Void
     let onSelectCustom: () -> Void
@@ -1003,7 +1201,9 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                if showsVisitLayer {
+                    LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
+                }
                 LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
                 LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
                 LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
@@ -1138,6 +1338,53 @@ struct FitMenuButton: View {
         }
         .accessibilityLabel("Fit map")
         .accessibilityHint("Shows options for zooming the map to available content.")
+    }
+}
+
+// MARK: - Point Sampling
+
+enum LocationPointSampler {
+    static func downsample(_ points: [LocationPoint], maximumCount: Int) -> [LocationPoint] {
+        guard maximumCount > 0 else { return [] }
+        guard points.count > maximumCount else { return points }
+        guard maximumCount > 1 else { return [points[0]] }
+
+        let step = Double(points.count - 1) / Double(maximumCount - 1)
+        var result: [LocationPoint] = []
+        result.reserveCapacity(maximumCount)
+        var previousIndex: Int?
+
+        for sampleIndex in 0..<maximumCount {
+            let sourceIndex = min(points.count - 1, Int((Double(sampleIndex) * step).rounded()))
+            guard sourceIndex != previousIndex else { continue }
+            result.append(points[sourceIndex])
+            previousIndex = sourceIndex
+        }
+
+        if result.last?.id != points.last?.id {
+            result[result.count - 1] = points[points.count - 1]
+        }
+
+        return result
+    }
+
+    static func spaced(
+        _ points: [LocationPoint],
+        minimumDistance: Double,
+        maximumCount: Int
+    ) -> [LocationPoint] {
+        guard !points.isEmpty else { return [] }
+
+        var result: [LocationPoint] = [points[0]]
+
+        for point in points.dropFirst() {
+            guard let lastPoint = result.last else { continue }
+            if lastPoint.distance(to: point) >= minimumDistance {
+                result.append(point)
+            }
+        }
+
+        return downsample(result, maximumCount: maximumCount)
     }
 }
 
