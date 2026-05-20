@@ -19,15 +19,21 @@ Latest 6.9-inch App Store screenshots (`1290×2796`):
     <td align="center"><img src="screenshots/final/01_quiet_map_of_your_days.png" alt="Quiet map of your days" width="160"></td>
     <td align="center"><img src="screenshots/final/02_one_panel_total_control.png" alt="One panel, total control" width="160"></td>
     <td align="center"><img src="screenshots/final/03_export_in_open_formats.png" alt="Export in open formats" width="160"></td>
-    <td align="center"><img src="screenshots/final/04_choose_exactly_what_to_export.png" alt="Choose exactly what to export" width="160"></td>
-    <td align="center"><img src="screenshots/final/05_your_data_your_endpoint.png" alt="Your data, your endpoint" width="160"></td>
   </tr>
   <tr>
     <td align="center"><strong>Quiet map of your days</strong></td>
     <td align="center"><strong>One panel, total control</strong></td>
     <td align="center"><strong>Export in open formats</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/final/04_choose_exactly_what_to_export.png" alt="Choose exactly what to export" width="160"></td>
+    <td align="center"><img src="screenshots/final/05_your_data_your_endpoint.png" alt="Your data, your endpoint" width="160"></td>
+    <td></td>
+  </tr>
+  <tr>
     <td align="center"><strong>Choose exactly what to export</strong></td>
     <td align="center"><strong>Your data, your endpoint</strong></td>
+    <td></td>
   </tr>
 </table>
 
