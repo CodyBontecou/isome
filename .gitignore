@@ -27,7 +27,17 @@ screenshots/03-record-routes/
 screenshots/04-export-history/
 
 # Generated App Store screenshot bundles. Re-render before each submission.
-screenshots/final/
+screenshots/final/*
+!screenshots/final/
+!screenshots/final/01-keep-on-device.jpg
+!screenshots/final/02-capture-visits.jpg
+!screenshots/final/03-record-routes.jpg
+!screenshots/final/04-export-history.jpg
+!screenshots/final/01_quiet_map_of_your_days.png
+!screenshots/final/02_one_panel_total_control.png
+!screenshots/final/03_export_in_open_formats.png
+!screenshots/final/04_choose_exactly_what_to_export.png
+!screenshots/final/05_your_data_your_endpoint.png
 screenshots/iphone67/
 screenshots/ipad13/
 screenshots/watch/
