@@ -10,6 +10,8 @@
 	<string>automatic</string>
 	<key>teamID</key>
 	<string>67KC823C9A</string>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
 	<key>uploadSymbols</key>
 	<true/>
 </dict>

@@ -1,0 +1,207 @@
+name: Deploy GitHub release to App Store Connect
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Git tag to deploy, for example v1.4.4. Defaults to the current ref.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-asc-${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  APP_ID: '6761960794'
+  TEAM_ID: 67KC823C9A
+  PROJECT: IsoMe.xcodeproj
+  SCHEME: IsoMe
+  EXPORT_OPTIONS: .asc/ExportOptions.plist
+
+jobs:
+  deploy:
+    name: Archive and upload to App Store Connect
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install asc CLI
+        run: |
+          set -euo pipefail
+          if ! command -v asc >/dev/null 2>&1; then
+            brew install asc
+          fi
+          asc version
+
+      - name: Configure App Store Connect API key
+        env:
+          ASC_KEY_ID_SECRET: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID_SECRET: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${ASC_KEY_ID_SECRET}" || -z "${ASC_ISSUER_ID_SECRET}" || -z "${ASC_API_KEY_P8}" ]]; then
+            echo "::error::Missing one of ASC_KEY_ID, ASC_ISSUER_ID, or ASC_API_KEY_P8 repository secrets."
+            exit 1
+          fi
+
+          ASC_KEY_DIR="$RUNNER_TEMP/.asc-keys"
+          mkdir -p "$ASC_KEY_DIR"
+          chmod 700 "$ASC_KEY_DIR"
+
+          ASC_KEY_PATH="$ASC_KEY_DIR/AuthKey_${ASC_KEY_ID_SECRET}.p8"
+          printf '%s' "$ASC_API_KEY_P8" | base64 --decode > "$ASC_KEY_PATH"
+          chmod 600 "$ASC_KEY_PATH"
+
+          {
+            echo "ASC_KEY_ID=$ASC_KEY_ID_SECRET"
+            echo "ASC_ISSUER_ID=$ASC_ISSUER_ID_SECRET"
+            echo "ASC_PRIVATE_KEY_PATH=$ASC_KEY_PATH"
+            echo "ASC_BYPASS_KEYCHAIN=1"
+            echo "ASC_APP_ID=$APP_ID"
+          } >> "$GITHUB_ENV"
+
+      - name: Resolve release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          TAG="${RELEASE_TAG#refs/tags/}"
+          VERSION="${TAG#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
+            echo "::error::Release tag '$TAG' must look like v1.4.4 or 1.4.4 so it can be used as CFBundleShortVersionString."
+            exit 1
+          fi
+
+          {
+            echo "tag=$TAG"
+            echo "version=$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Deploying tag $TAG as App Store version $VERSION"
+
+      - name: Resolve safe App Store build number
+        id: build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          # Keep CFBundleVersion monotonic across App Store uploads instead of
+          # resetting to 1 for each marketing version.
+          BUILD_JSON=$(asc builds next-build-number \
+            --app "$APP_ID" \
+            --platform IOS \
+            --output json)
+
+          BUILD_NUMBER=$(printf '%s' "$BUILD_JSON" | jq -r '.nextBuildNumber // empty')
+          if [[ -z "$BUILD_NUMBER" || "$BUILD_NUMBER" == "null" ]]; then
+            echo "::error::Could not resolve next build number from asc output:"
+            printf '%s\n' "$BUILD_JSON"
+            exit 1
+          fi
+
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Using build number $BUILD_NUMBER for version $VERSION"
+
+      - name: Archive release build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.build.outputs.build_number }}
+        run: |
+          set -euo pipefail
+
+          rm -rf .asc/artifacts
+          mkdir -p .asc/artifacts
+
+          ARCHIVE_PATH=".asc/artifacts/IsoMe-${VERSION}-${BUILD_NUMBER}.xcarchive"
+          echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_ENV"
+
+          asc xcode archive \
+            --project "$PROJECT" \
+            --scheme "$SCHEME" \
+            --configuration Release \
+            --clean \
+            --overwrite \
+            --archive-path "$ARCHIVE_PATH" \
+            --xcodebuild-flag=-destination \
+            --xcodebuild-flag=generic/platform=iOS \
+            --xcodebuild-flag=-allowProvisioningUpdates \
+            --xcodebuild-flag=-authenticationKeyPath \
+            --xcodebuild-flag="$ASC_PRIVATE_KEY_PATH" \
+            --xcodebuild-flag=-authenticationKeyID \
+            --xcodebuild-flag="$ASC_KEY_ID" \
+            --xcodebuild-flag=-authenticationKeyIssuerID \
+            --xcodebuild-flag="$ASC_ISSUER_ID" \
+            --xcodebuild-flag="DEVELOPMENT_TEAM=$TEAM_ID" \
+            --xcodebuild-flag="MARKETING_VERSION=$VERSION" \
+            --xcodebuild-flag="CURRENT_PROJECT_VERSION=$BUILD_NUMBER" \
+            --xcodebuild-flag=-derivedDataPath \
+            --xcodebuild-flag=.asc/artifacts/DerivedData \
+            --output json \
+            --pretty | tee .asc/artifacts/archive-result.json
+
+      - name: Upload archive to App Store Connect
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.build.outputs.build_number }}
+        run: |
+          set -euo pipefail
+
+          IPA_PATH=".asc/artifacts/IsoMe-${VERSION}-${BUILD_NUMBER}.ipa"
+
+          asc xcode export \
+            --archive-path "$archive_path" \
+            --export-options "$EXPORT_OPTIONS" \
+            --ipa-path "$IPA_PATH" \
+            --overwrite \
+            --wait \
+            --xcodebuild-flag=-allowProvisioningUpdates \
+            --xcodebuild-flag=-authenticationKeyPath \
+            --xcodebuild-flag="$ASC_PRIVATE_KEY_PATH" \
+            --xcodebuild-flag=-authenticationKeyID \
+            --xcodebuild-flag="$ASC_KEY_ID" \
+            --xcodebuild-flag=-authenticationKeyIssuerID \
+            --xcodebuild-flag="$ASC_ISSUER_ID" \
+            --output json \
+            --pretty | tee .asc/artifacts/export-result.json
+
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asc-deploy-${{ steps.version.outputs.version || github.ref_name }}-${{ steps.build.outputs.build_number || 'unknown' }}
+          path: |
+            .asc/artifacts/archive-result.json
+            .asc/artifacts/export-result.json
+          if-no-files-found: ignore
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## App Store Connect deploy"
+            echo ""
+            echo "- Tag: ${{ steps.version.outputs.tag || github.ref_name }}"
+            echo "- Version: ${{ steps.version.outputs.version || 'unknown' }}"
+            echo "- Build: ${{ steps.build.outputs.build_number || 'unknown' }}"
+            echo "- App Store Connect app: $APP_ID"
+          } >> "$GITHUB_STEP_SUMMARY"

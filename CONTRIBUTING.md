@@ -87,6 +87,18 @@ xcodebuild -exportArchive \
 
 Then upload the IPA to App Store Connect via Transporter.app or `xcrun altool`.
 
+## Maintainer App Store Connect release automation
+
+Publishing a GitHub Release now runs `.github/workflows/deploy-asc.yml`, which archives the tagged commit and uploads the build to App Store Connect with `asc`.
+
+Required repository secrets:
+
+- `ASC_KEY_ID`
+- `ASC_ISSUER_ID`
+- `ASC_API_KEY_P8` — base64-encoded App Store Connect `.p8` key
+
+Use a release tag like `v1.4.4`. The workflow strips the leading `v`, sets `MARKETING_VERSION` from the tag, asks ASC for the next safe iOS build number, archives `IsoMe`, and uploads the archive with `.asc/ExportOptions.plist`.
+
 ## Code style
 
 - **SwiftUI-first** — prefer SwiftUI over UIKit unless a feature genuinely requires it.
