@@ -108,6 +108,10 @@ struct ExportView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager)
             }
+            .onAppear { ensurePointDataIfNeeded() }
+            .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: options.dataKind.rawValue) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: options.format.token) { _, _ in ensurePointDataIfNeeded() }
         }
     }
 
@@ -972,6 +976,8 @@ struct ExportView: View {
     // MARK: - Actions
 
     private func runExport() {
+        ensurePointDataIfNeeded()
+
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             do {
                 let urls = try ExportService.saveToDefaultFolder(
@@ -1004,11 +1010,18 @@ struct ExportView: View {
             }
         }
     }
+
+    private func ensurePointDataIfNeeded() {
+        guard storeManager.isPurchased else { return }
+        if options.dataKind != .visits || options.format.isPointsOnly {
+            viewModel.ensureAllLocationPointsLoaded()
+        }
+    }
 }
 
 #Preview {
     ExportView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
         locationManager: LocationManager()
     ))
 }

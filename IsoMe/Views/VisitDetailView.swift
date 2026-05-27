@@ -237,7 +237,7 @@ struct VisitDetailView: View {
         VisitDetailView(
             visit: Visit.preview,
             viewModel: LocationViewModel(
-                modelContext: try! ModelContainer(for: Visit.self).mainContext,
+                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
                 locationManager: LocationManager()
             )
         )

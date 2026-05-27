@@ -415,7 +415,7 @@ struct SettingsView: View {
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
                             Spacer()
-                            Text("\(viewModel.locationPoints.count)")
+                            Text("\(viewModel.totalLocationPointCount)")
                                 .font(TE.mono(.caption2, weight: .medium))
                                 .foregroundStyle(TE.textMuted)
                         }
@@ -719,7 +719,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
         locationManager: LocationManager()
     ))
 }

@@ -40,6 +40,12 @@ final class DailyDistanceTracker {
         }
     }
 
+    /// Returns the tracked distance for a date, using the same checkpointed
+    /// distance that powers widgets and daily summaries.
+    func distance(for date: Date = Date()) -> Double {
+        loadHistory()[dateKey(for: date), default: 0]
+    }
+
     /// Returns true when today's cumulative distance exceeds the rolling
     /// average of the past days by the trigger multiplier (1.5x).
     func isAboveAverage() -> Bool {

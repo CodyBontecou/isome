@@ -66,6 +66,7 @@
 		F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */; };
 		E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */; };
 		A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */; };
+		6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */; };
 		B2000005212F000100000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000001212F000000000001 /* Localizable.xcstrings */; };
 		B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000002212F000000000002 /* InfoPlist.xcstrings */; };
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
@@ -204,6 +205,7 @@
 		F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedLocationDataTests.swift; sourceTree = "<group>"; };
 		E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportServiceRoundTripTests.swift; sourceTree = "<group>"; };
 		8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebhookManagerTests.swift; sourceTree = "<group>"; };
+		6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationViewModelPointScalingTests.swift; sourceTree = "<group>"; };
 		B1000001212F000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000002212F000000000002 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -441,6 +443,7 @@
 				E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
+				6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */,
 			);
 			name = IsoMeTests;
 			path = IsoMeTests;
@@ -727,6 +730,7 @@
 				E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
+				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -31,6 +31,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     // Publisher for data changes (fires when new location points are saved)
     @Published var locationPointsSavedCount: Int = 0
+    @Published var lastSavedLocationPoint: LocationPoint?
 
     // Live Activity manager
     private let liveActivityManager = LiveActivityManager.shared
@@ -347,7 +348,8 @@ final class LocationManager: NSObject, ObservableObject {
             try context.save()
             pointBeforeLast = lastSavedPoint
             lastSavedPoint = point
-            // Notify observers that new data is available
+            // Notify observers that new data is available without requiring a refetch of all points.
+            lastSavedLocationPoint = point
             locationPointsSavedCount += 1
             // Sync to watch widget (throttled by WidgetKit)
             syncDataToWatch()
@@ -416,30 +418,19 @@ final class LocationManager: NSObject, ObservableObject {
         let startOfToday = calendar.startOfDay(for: Date())
         let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
 
-        // Fetch today's visits
+        // Count today's records without loading every point into memory on each GPS update.
         let visitsPredicate = #Predicate<Visit> { visit in
             visit.arrivedAt >= startOfToday && visit.arrivedAt < endOfToday
         }
         let visitsDescriptor = FetchDescriptor<Visit>(predicate: visitsPredicate)
-        let todayVisits = (try? context.fetch(visitsDescriptor)) ?? []
+        let todayVisitsCount = (try? context.fetchCount(visitsDescriptor)) ?? 0
 
-        // Fetch today's location points
         let pointsPredicate = #Predicate<LocationPoint> { point in
             point.timestamp >= startOfToday && point.timestamp < endOfToday
         }
-        let pointsDescriptor = FetchDescriptor<LocationPoint>(
-            predicate: pointsPredicate,
-            sortBy: [SortDescriptor(\.timestamp)]
-        )
-        let todayPoints = (try? context.fetch(pointsDescriptor)) ?? []
-
-        // Calculate total distance from today's points
-        var totalDistance: Double = 0
-        if todayPoints.count > 1 {
-            for i in 1..<todayPoints.count {
-                totalDistance += todayPoints[i].distance(to: todayPoints[i-1])
-            }
-        }
+        let pointsDescriptor = FetchDescriptor<LocationPoint>(predicate: pointsPredicate)
+        let todayPointsCount = (try? context.fetchCount(pointsDescriptor)) ?? 0
+        let totalDistance = dailyDistanceTracker.distance(for: Date())
 
         let sharedData = SharedLocationData(
             isTrackingEnabled: isTrackingEnabled,
@@ -448,9 +439,9 @@ final class LocationManager: NSObject, ObservableObject {
             lastLatitude: currentLocation?.coordinate.latitude,
             lastLongitude: currentLocation?.coordinate.longitude,
             lastUpdateTime: Date(),
-            todayVisitsCount: todayVisits.count,
+            todayVisitsCount: todayVisitsCount,
             todayDistanceMeters: totalDistance,
-            todayPointsCount: todayPoints.count,
+            todayPointsCount: todayPointsCount,
             trackingStartTime: trackingStartTime,
             stopAfterHours: stopAfterHours > 0 ? stopAfterHours : nil,
             usesMetricDistanceUnits: usesMetricDistanceUnits

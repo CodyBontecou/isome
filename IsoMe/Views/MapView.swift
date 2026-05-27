@@ -38,13 +38,13 @@ struct LocationMapView: View {
     }
 
     var filteredPoints: [LocationPoint] {
-        let points = viewModel.locationPointsInDateRange(viewModel.mapDateRange)
+        let points = viewModel.mapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
 
     var activeSessionPoints: [LocationPoint] {
         guard locationManager.isTrackingEnabled else { return [] }
-        let points = viewModel.sessionLocationPoints
+        let points = viewModel.sessionMapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
     
@@ -209,7 +209,9 @@ struct LocationMapView: View {
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
                                     activePreset = preset
-                                    viewModel.mapDateRange = preset.range()
+                                    let range = preset.range()
+                                    viewModel.mapDateRange = range
+                                    viewModel.loadMapLocationPoints(in: range)
                                 },
                                 onSelectCustom: {
                                     showingFilters = true
@@ -248,7 +250,10 @@ struct LocationMapView: View {
                 DateRangeFilterSheet(
                     dateRange: $viewModel.mapDateRange,
                     isPresented: $showingFilters,
-                    onApply: { activePreset = nil }
+                    onApply: {
+                        activePreset = nil
+                        viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                    }
                 )
             }
             .sheet(item: $selectedVisit) { visit in
@@ -257,7 +262,13 @@ struct LocationMapView: View {
             }
             .onAppear {
                 viewModel.loadAllVisits()
-                viewModel.loadLocationPoints()
+                if let activePreset {
+                    let range = activePreset.range()
+                    viewModel.mapDateRange = range
+                    viewModel.loadMapLocationPoints(in: range)
+                } else {
+                    viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                }
 
                 if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
@@ -318,7 +329,11 @@ struct LocationMapView: View {
     private var mapAccessibilitySummary: String {
         var parts: [String] = []
         parts.append("\(filteredVisits.count) \(filteredVisits.count == 1 ? "visit" : "visits")")
-        parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+        if viewModel.mapLocationPointCount > filteredPoints.count {
+            parts.append("Showing \(filteredPoints.count) of \(viewModel.mapLocationPointCount) path points")
+        } else {
+            parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+        }
 
         if !activeSessionPoints.isEmpty {
             parts.append("Active session: \(viewModel.sessionAccessibilitySummary)")
@@ -1154,7 +1169,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
         locationManager: LocationManager()
     ))
 }
