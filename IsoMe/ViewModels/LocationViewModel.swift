@@ -558,7 +558,7 @@ final class LocationViewModel {
         }
 
         try modelContext.save()
-        if result.pointCount > 0 {
+        if !result.points.isEmpty {
             locationPoints = []
             hasLoadedAllLocationPoints = false
         }
