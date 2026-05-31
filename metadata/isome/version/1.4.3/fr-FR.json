@@ -1,6 +1,6 @@
 {
   "description": "iso.me utilise le GPS pour enregistrer vos visites de lieux et vos trajets — tout est stocké en privé sur votre appareil.\n\nFonctionnalités :\n• Détection automatique des visites avec noms de lieux et adresses\n• Suivi GPS continu haute précision avec enregistrement des trajets\n• Live Activity affichant le suivi en temps réel sur votre écran verrouillé\n• Carte interactive avec marqueurs de visites, trajets et filtres par date\n• Exportez vos données au format JSON, CSV ou Markdown\n• Importez des données précédemment exportées\n• App compagnon pour Apple Watch\n• Gratuit à utiliser ; débloquez l'export de données avec un achat unique\n\nIdéal comme traqueur de localisation pour visites, carte, voyage et mouvement : gardez un itinéraire local, un historique et un journal en toute vie privée.\n\nVos données ne quittent jamais votre appareil. Aucun compte, aucun serveur, aucun pistage.",
-  "keywords": "localisation,traqueur,visites,carte,voyage,vie privée,local,mouvement,itinéraire,historique,journal",
+  "keywords": "localisation,traqueur,visites,voyage,vie privée,local,mouvement,itinéraire,historique,journal,export",
   "marketingUrl": "https://isome.isolated.tech",
   "supportUrl": "https://isome.isolated.tech",
   "whatsNew": "Cette mise à jour améliore la fiabilité de l’importation des fichiers contenant des points de localisation, afin que votre historique complet reste synchronisé après l’importation.",
