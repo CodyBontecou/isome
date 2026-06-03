@@ -65,11 +65,17 @@ private enum IntentSupport {
 
 enum IsoMeIntentError: Swift.Error, CustomLocalizedStringResourceConvertible {
     case noLocationPermission
+    case noCurrentLocation
+    case noOpenManualVisit
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .noLocationPermission:
             return "IsoMe needs location permission. Open the app to enable it."
+        case .noCurrentLocation:
+            return "IsoMe could not get the current location."
+        case .noOpenManualVisit:
+            return "There is no open manual check-in."
         }
     }
 }
@@ -107,6 +113,59 @@ struct StopTrackingIntent: AppIntent {
             UserDefaults.standard.set(false, forKey: "isTrackingEnabled")
         }
         return .result(dialog: "Tracking stopped.")
+    }
+}
+
+struct CheckInIntent: AppIntent {
+    static var title: LocalizedStringResource = "Check In"
+    static var description = IntentDescription("Create a manual IsoMe visit at your current location.")
+    static var openAppWhenRun: Bool = false
+
+    @Parameter(title: "Place Name")
+    var placeName: String?
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let manager = IntentSupport.ensureLocationManager()
+        guard manager.hasLocationPermission else {
+            throw IsoMeIntentError.noLocationPermission
+        }
+
+        let viewModel = LocationViewModel(
+            modelContext: IntentSupport.makeContext(),
+            locationManager: manager
+        )
+
+        do {
+            _ = try await viewModel.createManualVisitAtCurrentLocation(locationName: placeName)
+            if let placeName, !placeName.isEmpty {
+                return .result(dialog: "Checked in at \(placeName).")
+            }
+            return .result(dialog: "Checked in.")
+        } catch VisitMutationError.noCurrentLocation {
+            throw IsoMeIntentError.noCurrentLocation
+        }
+    }
+}
+
+struct CheckOutIntent: AppIntent {
+    static var title: LocalizedStringResource = "Check Out"
+    static var description = IntentDescription("Close the current manual IsoMe check-in.")
+    static var openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let context = IntentSupport.makeContext()
+        let visits = try context.fetch(FetchDescriptor<Visit>())
+        guard let visit = visits.first(where: { $0.source == .manual && $0.departedAt == nil }) else {
+            throw IsoMeIntentError.noOpenManualVisit
+        }
+
+        let now = Date()
+        visit.departedAt = now
+        visit.updatedAt = now
+        try context.save()
+        return .result(dialog: "Checked out.")
     }
 }
 

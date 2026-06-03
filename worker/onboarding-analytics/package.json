@@ -1,0 +1,23 @@
+{
+  "name": "iso-me-onboarding-analytics-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "dry-run": "wrangler deploy --dry-run --outdir ../../build/onboarding-analytics-worker",
+    "db:create": "wrangler d1 create iso-me-onboarding-analytics",
+    "db:migrate:local": "wrangler d1 migrations apply iso-me-onboarding-analytics --local",
+    "db:migrate:remote": "wrangler d1 migrations apply iso-me-onboarding-analytics --remote",
+    "query:recent": "wrangler d1 execute iso-me-onboarding-analytics --remote --command \"SELECT received_at,event_name,onboarding_step,authorization_status,tracking_intent,paywall_context,purchase_outcome FROM onboarding_events ORDER BY received_at DESC LIMIT 20;\"",
+    "query:funnel": "wrangler d1 execute iso-me-onboarding-analytics --remote --command \"SELECT onboarding_step, COUNT(DISTINCT install_id) AS users, COUNT(*) AS events FROM onboarding_events WHERE event_name='onboarding_step_viewed' GROUP BY onboarding_step ORDER BY CASE onboarding_step WHEN 'welcome' THEN 1 WHEN 'features' THEN 2 WHEN 'permissions' THEN 3 WHEN 'ready' THEN 4 ELSE 9 END;\""
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260516.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.60.0"
+  }
+}

@@ -91,7 +91,24 @@ final class ExportRoundTripTests: XCTestCase {
                 departedAt: baseDate.addingTimeInterval(45 * 60),
                 locationName: "Civic Cafe",
                 address: "1 Market St, San Francisco, CA",
-                notes: "Coffee, sync, receipts"
+                notes: "Coffee, sync, receipts",
+                geocodingCompleted: true,
+                source: .automatic,
+                confirmationStatus: .corrected,
+                confirmedAt: baseDate.addingTimeInterval(60),
+                updatedAt: baseDate.addingTimeInterval(90),
+                originalLatitude: 37.776000,
+                originalLongitude: -122.424000,
+                originalLocationName: "Civic Books",
+                originalAddress: "1 Market St",
+                detectedLatitude: 37.776000,
+                detectedLongitude: -122.424000,
+                detectedLocationName: "Civic Books",
+                detectedAddress: "1 Market St",
+                placeSource: .appleMaps,
+                placeCategoryRaw: "restaurant",
+                placeDistanceMeters: 52.4,
+                placeConfidence: 0.91
             ),
             Visit(
                 latitude: 37.786901,
@@ -100,7 +117,24 @@ final class ExportRoundTripTests: XCTestCase {
                 departedAt: baseDate.addingTimeInterval(3 * 60 * 60 + 15 * 60),
                 locationName: "Pier Office",
                 address: "Pier 3, San Francisco, CA",
-                notes: "Quarterly planning"
+                notes: "Quarterly planning",
+                geocodingCompleted: true,
+                source: .manual,
+                confirmationStatus: .confirmed,
+                confirmedAt: baseDate.addingTimeInterval(2 * 60 * 60),
+                updatedAt: baseDate.addingTimeInterval(2 * 60 * 60 + 30),
+                originalLatitude: 37.786800,
+                originalLongitude: -122.399000,
+                originalLocationName: "Pier",
+                originalAddress: "Pier 3",
+                detectedLatitude: 37.786800,
+                detectedLongitude: -122.399000,
+                detectedLocationName: "Pier",
+                detectedAddress: "Pier 3",
+                placeSource: .userEntered,
+                placeCategoryRaw: "office",
+                placeDistanceMeters: 0,
+                placeConfidence: 1
             )
         ]
     }
@@ -247,7 +281,13 @@ final class ExportRoundTripTests: XCTestCase {
 
             switch try XCTUnwrap(properties["kind"] as? String) {
             case "visit":
-                XCTAssertEqual(Set(properties.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "kind", "locationName", "notes"])
+                XCTAssertEqual(Set(properties.keys), [
+                    "address", "arrivedAt", "confirmationStatus", "confirmedAt", "departedAt",
+                    "detectedAddress", "detectedLatitude", "detectedLocationName", "detectedLongitude",
+                    "durationMinutes", "kind", "locationName", "notes", "originalAddress",
+                    "originalLatitude", "originalLocationName", "originalLongitude", "placeCategory",
+                    "placeConfidence", "placeDistanceMeters", "placeSource", "source", "updatedAt"
+                ])
                 visits.append(NormalizedVisit(
                     latitude: coordinates[1],
                     longitude: coordinates[0],
@@ -288,7 +328,14 @@ final class ExportRoundTripTests: XCTestCase {
 
         let visitHeaders = rows[visitHeaderIndex]
         let pointHeaders = rows[pointsHeaderIndex]
-        XCTAssertEqual(visitHeaders, ["arrived_at", "departed_at", "duration_minutes", "latitude", "longitude", "location_name", "address", "notes"])
+        XCTAssertEqual(visitHeaders, [
+            "arrived_at", "departed_at", "duration_minutes", "latitude", "longitude",
+            "location_name", "address", "notes", "source", "confirmation_status",
+            "confirmed_at", "updated_at", "original_latitude", "original_longitude",
+            "detected_latitude", "detected_longitude", "original_location_name",
+            "detected_location_name", "original_address", "detected_address",
+            "place_source", "place_category", "place_distance_meters", "place_confidence"
+        ])
         XCTAssertEqual(pointHeaders, ["timestamp", "timestamp_unix", "latitude", "longitude", "altitude", "speed", "horizontal_accuracy", "is_outlier"])
 
         let visitRows = rows[(visitHeaderIndex + 1)..<pointsHeaderIndex]
@@ -333,7 +380,7 @@ final class ExportRoundTripTests: XCTestCase {
         let visitRows = markdownTableRows(in: visitSection)
         let pointRows = markdownTableRows(in: pointSection)
 
-        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes |")
+        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes | Source | Status | Confirmed | Updated | Original Lat | Original Lon | Detected Lat | Detected Lon | Original Location | Detected Location | Original Address | Detected Address | Place Source | Place Category | Place Distance | Place Confidence |")
         XCTAssertEqual(pointRows.first, "| Time | Lat | Lon | Speed | Altitude | Accuracy | Outlier |")
 
         return (
@@ -392,7 +439,14 @@ final class ExportRoundTripTests: XCTestCase {
     }
 
     private func parseJSONVisit(_ dict: [String: Any]) -> NormalizedVisit {
-        XCTAssertEqual(Set(dict.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "latitude", "locationName", "longitude", "notes"])
+        XCTAssertEqual(Set(dict.keys), [
+            "address", "arrivedAt", "confirmationStatus", "confirmedAt", "departedAt",
+            "detectedAddress", "detectedLatitude", "detectedLocationName", "detectedLongitude",
+            "durationMinutes", "latitude", "locationName", "longitude", "notes",
+            "originalAddress", "originalLatitude", "originalLocationName", "originalLongitude",
+            "placeCategory", "placeConfidence", "placeDistanceMeters", "placeSource",
+            "source", "updatedAt"
+        ])
         return NormalizedVisit(
             latitude: dict["latitude"] as! Double,
             longitude: dict["longitude"] as! Double,

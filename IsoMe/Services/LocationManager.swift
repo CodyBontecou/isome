@@ -5,6 +5,7 @@ import Combine
 import ActivityKit
 import WidgetKit
 import UserNotifications
+import WatchConnectivity
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
@@ -49,6 +50,7 @@ final class LocationManager: NSObject, ObservableObject {
     // Sliding window of recently saved points for outlier detection
     private var pointBeforeLast: LocationPoint?
     private var lastSavedPoint: LocationPoint?
+    private var oneShotLocationContinuations: [CheckedContinuation<CLLocation, Error>] = []
 
     private var usesMetricDistanceUnits: Bool {
         let key = "usesMetricDistanceUnits"
@@ -140,6 +142,23 @@ final class LocationManager: NSObject, ObservableObject {
 
     var hasAlwaysPermission: Bool {
         authorizationStatus == .authorizedAlways
+    }
+
+    func requestOneShotCurrentLocation() async throws -> CLLocation {
+        guard hasLocationPermission else {
+            requestWhenInUseAuthorization()
+            throw VisitMutationError.noCurrentLocation
+        }
+
+        if let currentLocation,
+           abs(currentLocation.timestamp.timeIntervalSinceNow) <= 60 {
+            return currentLocation
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            oneShotLocationContinuations.append(continuation)
+            locationManager.requestLocation()
+        }
     }
 
     // MARK: - Tracking Control
@@ -262,49 +281,71 @@ final class LocationManager: NSObject, ObservableObject {
     // MARK: - Data Storage
 
     private func saveVisit(_ clVisit: CLVisit) {
+        recordAutomaticVisit(
+            arrivalDate: clVisit.arrivalDate,
+            departureDate: clVisit.departureDate,
+            coordinate: clVisit.coordinate
+        )
+    }
+
+    func recordAutomaticVisit(
+        arrivalDate: Date,
+        departureDate: Date,
+        coordinate: CLLocationCoordinate2D
+    ) {
         guard let context = modelContext else { return }
 
-        // Check if this is a departure update for an existing visit
-        let arrivalDate = clVisit.arrivalDate
-        let latitude = clVisit.coordinate.latitude
-        let longitude = clVisit.coordinate.longitude
+        let latitude = coordinate.latitude
+        let longitude = coordinate.longitude
+        let isDepartureUpdate = departureDate != Date.distantFuture
 
-        let predicate = #Predicate<Visit> { visit in
-            visit.latitude == latitude &&
-            visit.longitude == longitude &&
-            visit.departedAt == nil
-        }
-
-        let descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        let descriptor = FetchDescriptor<Visit>(
+            predicate: #Predicate<Visit> { visit in
+                visit.departedAt == nil
+            }
+        )
 
         do {
             let existingVisits = try context.fetch(descriptor)
+            let existingVisit = existingVisits.first {
+                $0.matchesDetectedPlace(
+                    latitude: latitude,
+                    longitude: longitude,
+                    toleranceMeters: 100
+                )
+            }
+            var visitToGeocode: Visit?
 
-            if let existingVisit = existingVisits.first,
-               clVisit.departureDate != Date.distantFuture {
+            if let existingVisit, isDepartureUpdate {
                 // Update departure time
-                existingVisit.departedAt = clVisit.departureDate
-            } else if clVisit.arrivalDate != Date.distantPast {
+                existingVisit.departedAt = departureDate
+                existingVisit.updatedAt = Date()
+            } else if arrivalDate != Date.distantPast, existingVisit == nil {
                 // Create new visit
                 let visit = Visit(
                     latitude: latitude,
                     longitude: longitude,
-                    arrivedAt: arrivalDate
+                    arrivedAt: arrivalDate,
+                    departedAt: isDepartureUpdate ? departureDate : nil,
+                    source: .automatic,
+                    confirmationStatus: .unconfirmed,
+                    updatedAt: Date(),
+                    detectedLatitude: latitude,
+                    detectedLongitude: longitude
                 )
 
-                if clVisit.departureDate != Date.distantFuture {
-                    visit.departedAt = clVisit.departureDate
-                }
-
                 context.insert(visit)
-
-                // Trigger geocoding
-                Task {
-                    await geocodeVisit(visit)
-                }
+                visitToGeocode = visit
             }
 
             try context.save()
+
+            if let visitToGeocode, allowNetworkGeocoding {
+                Task {
+                    await geocodeVisit(visitToGeocode)
+                }
+            }
+
             syncDataToWatch()
         } catch {
             lastError = "Failed to save visit: \(error.localizedDescription)"
@@ -363,19 +404,29 @@ final class LocationManager: NSObject, ObservableObject {
     private func geocodeVisit(_ visit: Visit) async {
         guard !visit.geocodingCompleted else { return }
         guard allowNetworkGeocoding else { return }
+        guard visit.canBeAutomaticallyGeocoded else { return }
 
-        let location = CLLocation(latitude: visit.latitude, longitude: visit.longitude)
+        let coordinate = visit.detectedCoordinate ?? visit.coordinate
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 
         do {
             let result = try await geocodingService.reverseGeocode(location: location)
+            guard visit.canBeAutomaticallyGeocoded else { return }
+            visit.detectedLocationName = result.name
+            visit.detectedAddress = result.address
             visit.locationName = result.name
             visit.address = result.address
+            visit.placeSource = .coreLocationGeocode
             visit.geocodingCompleted = true
+            visit.updatedAt = Date()
 
             try modelContext?.save()
         } catch {
             // Mark as completed even on error to avoid retrying too often
-            visit.geocodingCompleted = true
+            if visit.canBeAutomaticallyGeocoded {
+                visit.geocodingCompleted = true
+                visit.updatedAt = Date()
+            }
             try? modelContext?.save()
         }
     }
@@ -431,6 +482,14 @@ final class LocationManager: NSObject, ObservableObject {
         let pointsDescriptor = FetchDescriptor<LocationPoint>(predicate: pointsPredicate)
         let todayPointsCount = (try? context.fetchCount(pointsDescriptor)) ?? 0
         let totalDistance = dailyDistanceTracker.distance(for: Date())
+        let openVisits = (try? context.fetch(FetchDescriptor<Visit>(
+            predicate: #Predicate<Visit> { visit in
+                visit.departedAt == nil
+            },
+            sortBy: [SortDescriptor(\.arrivedAt, order: .reverse)]
+        ))) ?? []
+        let currentVisit = openVisits.first
+        let openManualVisit = openVisits.first { $0.source == .manual }
 
         let sharedData = SharedLocationData(
             isTrackingEnabled: isTrackingEnabled,
@@ -444,16 +503,59 @@ final class LocationManager: NSObject, ObservableObject {
             todayPointsCount: todayPointsCount,
             trackingStartTime: trackingStartTime,
             stopAfterHours: stopAfterHours > 0 ? stopAfterHours : nil,
-            usesMetricDistanceUnits: usesMetricDistanceUnits
+            usesMetricDistanceUnits: usesMetricDistanceUnits,
+            currentVisitID: currentVisit?.id,
+            currentVisitName: currentVisit?.displayName,
+            currentVisitSourceRaw: currentVisit?.source.rawValue,
+            currentVisitConfirmationStatusRaw: currentVisit?.confirmationStatus.rawValue,
+            currentVisitArrivedAt: currentVisit?.arrivedAt,
+            hasOpenManualVisit: openManualVisit != nil,
+            openManualVisitID: openManualVisit?.id,
+            openManualVisitName: openManualVisit?.displayName,
+            openManualVisitArrivedAt: openManualVisit?.arrivedAt
         )
 
         sharedData.save()
         WidgetCenter.shared.reloadAllTimelines()
+        transferSharedDataToWatch(sharedData)
     }
 
     func refreshDistanceUnitPreference() {
         syncDataToWatch()
         liveActivityManager.refreshDistanceUnitPreference()
+    }
+
+    private func transferSharedDataToWatch(_ sharedData: SharedLocationData) {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated,
+              session.isPaired,
+              session.isWatchAppInstalled else {
+            return
+        }
+
+        let payload = sharedData.propertyListPayload
+        guard !payload.isEmpty else { return }
+
+        do {
+            try session.updateApplicationContext(payload)
+        } catch {
+            session.transferUserInfo(payload)
+        }
+    }
+
+    private func completeOneShotLocation(_ location: CLLocation) {
+        guard !oneShotLocationContinuations.isEmpty else { return }
+        let continuations = oneShotLocationContinuations
+        oneShotLocationContinuations.removeAll()
+        continuations.forEach { $0.resume(returning: location) }
+    }
+
+    private func failOneShotLocation(_ error: Error) {
+        guard !oneShotLocationContinuations.isEmpty else { return }
+        let continuations = oneShotLocationContinuations
+        oneShotLocationContinuations.removeAll()
+        continuations.forEach { $0.resume(throwing: error) }
     }
 }
 
@@ -480,6 +582,7 @@ extension LocationManager: CLLocationManagerDelegate {
         Task { @MainActor in
             guard let location = locations.last else { return }
             currentLocation = location
+            completeOneShotLocation(location)
 
             // Record location for daily distance history (stats only)
             dailyDistanceTracker.recordLocation(location)
@@ -503,6 +606,7 @@ extension LocationManager: CLLocationManagerDelegate {
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
+            failOneShotLocation(error)
             if let clError = error as? CLError {
                 switch clError.code {
                 case .denied:

@@ -18,6 +18,9 @@ struct LocationMapView: View {
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
+    @State private var showingCheckInSheet = false
+    @State private var showingPastLogSheet = false
+    @State private var mapMutationError: String?
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
@@ -46,6 +49,10 @@ struct LocationMapView: View {
         guard locationManager.isTrackingEnabled else { return [] }
         let points = viewModel.sessionMapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
+    }
+
+    var openManualVisit: Visit? {
+        viewModel.allVisits.first { $0.source == .manual && $0.departedAt == nil }
     }
     
     var spacedPoints: [LocationPoint] {
@@ -181,6 +188,39 @@ struct LocationMapView: View {
                 VStack(spacing: 8) {
                     Spacer()
 
+                    HStack(spacing: 8) {
+                        if let openManualVisit {
+                            MapActionButton(
+                                title: "Check Out",
+                                systemImage: "checkmark.square.fill",
+                                tint: .green
+                            ) {
+                                do {
+                                    try viewModel.checkoutVisit(openManualVisit)
+                                } catch {
+                                    mapMutationError = error.localizedDescription
+                                }
+                            }
+                        } else {
+                            MapActionButton(
+                                title: "Check In",
+                                systemImage: "mappin.circle.fill",
+                                tint: .green
+                            ) {
+                                showingCheckInSheet = true
+                            }
+                        }
+
+                        MapActionButton(
+                            title: "Log Past",
+                            systemImage: "calendar.badge.plus",
+                            tint: TE.accent
+                        ) {
+                            showingPastLogSheet = true
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+
                     MapTrackingControlPill(
                         viewModel: viewModel,
                         locationManager: locationManager,
@@ -260,6 +300,26 @@ struct LocationMapView: View {
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium])
             }
+            .sheet(isPresented: $showingCheckInSheet) {
+                ManualVisitSheet(mode: .checkIn, viewModel: viewModel) { error in
+                    mapMutationError = error.localizedDescription
+                }
+            }
+            .sheet(isPresented: $showingPastLogSheet) {
+                ManualVisitSheet(mode: .logPast, viewModel: viewModel) { error in
+                    mapMutationError = error.localizedDescription
+                }
+            }
+            .alert("Visit Update Failed", isPresented: Binding(
+                get: { mapMutationError != nil },
+                set: { if !$0 { mapMutationError = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let mapMutationError {
+                    Text(mapMutationError)
+                }
+            }
             .onAppear {
                 viewModel.loadAllVisits()
                 if let activePreset {
@@ -285,6 +345,17 @@ struct LocationMapView: View {
                 if pendingSessionAutoFocus {
                     attemptAutoFocusSession()
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .manualCheckInRequested)) { _ in
+                showingCheckInSheet = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .manualLogRequested)) { _ in
+                showingPastLogSheet = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .openVisitRequested)) { notification in
+                guard let id = notification.object as? UUID else { return }
+                viewModel.loadAllVisits()
+                selectedVisit = viewModel.allVisits.first { $0.id == id }
             }
         }
     }
@@ -344,6 +415,30 @@ struct LocationMapView: View {
 }
 
 // MARK: - Tracking Control Pills
+
+struct MapActionButton: View {
+    let title: String
+    let systemImage: String
+    let tint: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background {
+                    Capsule()
+                        .fill(tint)
+                        .shadow(color: tint.opacity(0.28), radius: 8, y: 3)
+                }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+    }
+}
 
 struct MapTrackingControlPill: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -566,18 +661,18 @@ struct VisitMarker: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(visit.isCurrentVisit ? .blue : .red)
+                    .fill(markerColor)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
                     .accessibilityHidden(true)
 
-                Image(systemName: "mappin")
+                Image(systemName: markerSymbol)
                     .font(isSelected ? .title3 : .callout)
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
 
             Triangle()
-                .fill(visit.isCurrentVisit ? .blue : .red)
+                .fill(markerColor)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
@@ -588,6 +683,24 @@ struct VisitMarker: View {
         .accessibilityValue(visit.accessibilityValue)
         .accessibilityHint(visit.accessibilityHint)
         .accessibilityAddTraits(.isButton)
+    }
+
+    private var markerColor: Color {
+        if visit.source == .manual { return .green }
+        switch visit.confirmationStatus {
+        case .unconfirmed: return .orange
+        case .confirmed: return visit.isCurrentVisit ? .blue : .red
+        case .corrected: return .purple
+        }
+    }
+
+    private var markerSymbol: String {
+        if visit.source == .manual { return "checkmark" }
+        switch visit.confirmationStatus {
+        case .unconfirmed: return "questionmark"
+        case .confirmed: return "mappin"
+        case .corrected: return "pencil"
+        }
     }
 }
 
@@ -797,6 +910,8 @@ struct DateRangeFilterSheet: View {
 struct VisitQuickView: View {
     let visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var showingCorrectionSheet = false
+    @State private var quickError: String?
 
     var body: some View {
         NavigationStack {
@@ -875,11 +990,192 @@ struct VisitQuickView: View {
                     }
                 }
 
+                Divider()
+
+                HStack(spacing: 10) {
+                    if visit.confirmationStatus == .unconfirmed {
+                        Button {
+                            viewModel.confirmVisit(visit)
+                        } label: {
+                            Label("Confirm", systemImage: "checkmark.circle")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
+                    Button {
+                        showingCorrectionSheet = true
+                    } label: {
+                        Label("Correct", systemImage: "mappin.and.ellipse")
+                    }
+                    .buttonStyle(.bordered)
+
+                    NavigationLink {
+                        VisitDetailView(visit: visit, viewModel: viewModel)
+                    } label: {
+                        Label("Details", systemImage: "info.circle")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .labelStyle(.iconOnly)
+                .accessibilityElement(children: .contain)
+
                 Spacer()
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
         }
+        .sheet(isPresented: $showingCorrectionSheet) {
+            PlaceCorrectionSheet(visit: visit, viewModel: viewModel) { update in
+                do {
+                    try viewModel.correctVisit(visit, with: update)
+                } catch {
+                    quickError = error.localizedDescription
+                }
+            }
+        }
+        .alert("Visit Update Failed", isPresented: Binding(
+            get: { quickError != nil },
+            set: { if !$0 { quickError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if let quickError {
+                Text(quickError)
+            }
+        }
+    }
+}
+
+enum ManualVisitSheetMode {
+    case checkIn
+    case logPast
+
+    var title: String {
+        switch self {
+        case .checkIn: return "Check In"
+        case .logPast: return "Log Past Visit"
+        }
+    }
+}
+
+private enum ManualVisitSheetError: LocalizedError {
+    case invalidCoordinate
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidCoordinate:
+            return "Enter a valid latitude and longitude."
+        }
+    }
+}
+
+struct ManualVisitSheet: View {
+    let mode: ManualVisitSheetMode
+    @Bindable var viewModel: LocationViewModel
+    let onError: (Error) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var locationName = ""
+    @State private var address = ""
+    @State private var notes = ""
+    @State private var latitude = ""
+    @State private var longitude = ""
+    @State private var arrivedAt: Date
+    @State private var departedAt: Date
+    @State private var isSaving = false
+
+    init(
+        mode: ManualVisitSheetMode,
+        viewModel: LocationViewModel,
+        onError: @escaping (Error) -> Void
+    ) {
+        self.mode = mode
+        self.viewModel = viewModel
+        self.onError = onError
+        let now = Date()
+        _arrivedAt = State(initialValue: now.addingTimeInterval(mode == .logPast ? -3600 : 0))
+        _departedAt = State(initialValue: now)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Place") {
+                    TextField("Name", text: $locationName)
+                        .textInputAutocapitalization(.words)
+                    TextField("Address", text: $address)
+                        .textInputAutocapitalization(.words)
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(2...4)
+                }
+
+                if mode == .logPast {
+                    Section("Coordinate") {
+                        TextField("Latitude", text: $latitude)
+                            .keyboardType(.numbersAndPunctuation)
+                        TextField("Longitude", text: $longitude)
+                            .keyboardType(.numbersAndPunctuation)
+                    }
+
+                    Section("Times") {
+                        DatePicker("Arrived", selection: $arrivedAt)
+                        DatePicker("Departed", selection: $departedAt)
+                    }
+                }
+            }
+            .navigationTitle(mode.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(isSaving ? "Saving" : "Save") {
+                        save()
+                    }
+                    .disabled(isSaving)
+                }
+            }
+        }
+    }
+
+    private func save() {
+        isSaving = true
+        Task {
+            do {
+                switch mode {
+                case .checkIn:
+                    _ = try await viewModel.createManualVisitAtCurrentLocation(
+                        locationName: normalized(locationName),
+                        address: normalized(address),
+                        notes: normalized(notes)
+                    )
+                case .logPast:
+                    guard let lat = Double(latitude), let lon = Double(longitude) else {
+                        throw ManualVisitSheetError.invalidCoordinate
+                    }
+                    _ = try viewModel.createManualVisit(from: ManualVisitDraft(
+                        latitude: lat,
+                        longitude: lon,
+                        arrivedAt: arrivedAt,
+                        departedAt: departedAt,
+                        locationName: normalized(locationName),
+                        address: normalized(address),
+                        notes: normalized(notes),
+                        placeSource: .userEntered
+                    ))
+                }
+                dismiss()
+            } catch {
+                onError(error)
+            }
+            isSaving = false
+        }
+    }
+
+    private func normalized(_ value: String) -> String? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
 

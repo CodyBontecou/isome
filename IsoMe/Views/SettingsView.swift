@@ -86,7 +86,7 @@ struct SettingsView: View {
                 locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
-                PaywallView(storeManager: storeManager)
+                PaywallView(storeManager: storeManager, context: .settings)
             }
         }
     }
@@ -246,7 +246,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
+            TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Location Names enables Apple geocoding and Apple Maps place search, which may send approximate coordinates or search text to Apple. Turn it off to keep place names manual.")
         }
     }
 

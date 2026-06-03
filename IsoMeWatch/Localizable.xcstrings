@@ -320,6 +320,86 @@
           }
         }
       }
+    },
+    "Manual Check-In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Check-In"
+          }
+        }
+      }
+    },
+    "Check In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check In"
+          }
+        }
+      }
+    },
+    "Check Out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Out"
+          }
+        }
+      }
+    },
+    "Queued for iPhone.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued for iPhone."
+          }
+        }
+      }
+    },
+    "Watch commands are unavailable.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch commands are unavailable."
+          }
+        }
+      }
+    },
+    "Could not prepare command.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not prepare command."
+          }
+        }
+      }
+    },
+    "Could not queue command.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not queue command."
+          }
+        }
+      }
+    },
+    "%d queued": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d queued"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

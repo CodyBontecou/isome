@@ -106,7 +106,7 @@ struct ExportView: View {
                 }
             }
             .sheet(isPresented: $showingPaywall) {
-                PaywallView(storeManager: storeManager)
+                PaywallView(storeManager: storeManager, context: .export)
             }
             .onAppear { ensurePointDataIfNeeded() }
             .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }

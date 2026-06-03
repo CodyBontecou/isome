@@ -58,6 +58,61 @@ final class ExportServiceRoundTripTests: XCTestCase {
         assertLocationPoints(importedPoints, match: points, coordinateAccuracy: 0.000001, valueAccuracy: 0.06)
     }
 
+    func testVisitCorrectionMetadataRoundTripsThroughLosslessVisitFormats() throws {
+        let visit = Visit(
+            latitude: 37.776800,
+            longitude: -122.424400,
+            arrivedAt: fixtureDate(hour: 9, minute: 0),
+            departedAt: fixtureDate(hour: 10, minute: 0),
+            locationName: "Civic Cafe",
+            address: "12 Market St",
+            notes: "Corrected from the bookstore next door",
+            geocodingCompleted: true,
+            source: .automatic,
+            confirmationStatus: .corrected,
+            confirmedAt: fixtureDate(hour: 9, minute: 5),
+            updatedAt: fixtureDate(hour: 9, minute: 6),
+            originalLatitude: 37.776500,
+            originalLongitude: -122.424100,
+            originalLocationName: "Civic Books",
+            originalAddress: "10 Market St",
+            detectedLatitude: 37.776500,
+            detectedLongitude: -122.424100,
+            detectedLocationName: "Civic Books",
+            detectedAddress: "10 Market St",
+            placeSource: .appleMaps,
+            placeCategoryRaw: "restaurant",
+            placeDistanceMeters: 42.4,
+            placeConfidence: 0.92
+        )
+
+        let payloads: [(ExportFormat, Data)] = [
+            (.json, try ExportService.exportToJSON(visits: [visit])),
+            (.csv, ExportService.exportToCSV(visits: [visit])),
+            (.markdown, ExportService.exportToMarkdown(visits: [visit]))
+        ]
+
+        for (format, data) in payloads {
+            let imported = try XCTUnwrap(try ImportService.importFile(data: data, format: format).visits.first)
+            XCTAssertEqual(imported.sourceRaw, VisitSource.automatic.rawValue)
+            XCTAssertEqual(imported.confirmationStatusRaw, VisitConfirmationStatus.corrected.rawValue)
+            XCTAssertEqualOptional(imported.confirmedAt?.timeIntervalSince1970, visit.confirmedAt?.timeIntervalSince1970, accuracy: dateAccuracy)
+            XCTAssertEqualOptional(imported.updatedAt?.timeIntervalSince1970, visit.updatedAt?.timeIntervalSince1970, accuracy: dateAccuracy)
+            XCTAssertEqualOptional(imported.originalLatitude, visit.originalLatitude, accuracy: coordinateAccuracy)
+            XCTAssertEqualOptional(imported.originalLongitude, visit.originalLongitude, accuracy: coordinateAccuracy)
+            XCTAssertEqual(imported.originalLocationName, visit.originalLocationName)
+            XCTAssertEqual(imported.originalAddress, visit.originalAddress)
+            XCTAssertEqualOptional(imported.detectedLatitude, visit.detectedLatitude, accuracy: coordinateAccuracy)
+            XCTAssertEqualOptional(imported.detectedLongitude, visit.detectedLongitude, accuracy: coordinateAccuracy)
+            XCTAssertEqual(imported.detectedLocationName, visit.detectedLocationName)
+            XCTAssertEqual(imported.detectedAddress, visit.detectedAddress)
+            XCTAssertEqual(imported.placeSourceRaw, VisitPlaceSource.appleMaps.rawValue)
+            XCTAssertEqual(imported.placeCategoryRaw, visit.placeCategoryRaw)
+            XCTAssertEqualOptional(imported.placeDistanceMeters, visit.placeDistanceMeters, accuracy: 0.1)
+            XCTAssertEqualOptional(imported.placeConfidence, visit.placeConfidence, accuracy: 0.001)
+        }
+    }
+
     func testMalformedJSONThrowsParsingError() {
         let corruptJSON = Data(#"{ "visits": [ }"#.utf8)
 
