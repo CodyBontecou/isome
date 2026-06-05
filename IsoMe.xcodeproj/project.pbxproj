@@ -7,10 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */; };
+		E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000003 /* ExportKitIntegrationTests.swift */; };
+		E9A100000000000000000008 /* ExportKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000006 /* ExportKit */; };
+		E9A100000000000000000009 /* ExportAutomationKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000007 /* ExportAutomationKit */; };
+		E9A10000000000000000000A /* ExportKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000006 /* ExportKit */; };
+		E9A10000000000000000000B /* ExportAutomationKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000007 /* ExportAutomationKit */; };
 		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		F1000001212F000100000001 /* FilenameTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000001212F000000000001 /* FilenameTemplate.swift */; };
 		5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000002212F000000000001 /* DailyExportScheduler.swift */; };
+		D6000001212F000100000001 /* PushRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6000001212F000000000001 /* PushRegistrationManager.swift */; };
+		D6000002212F000100000002 /* DailyExportNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6000002212F000000000002 /* DailyExportNotificationScheduler.swift */; };
 		90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */; };
 		D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15C04D0BA000000000000B2 /* DiscordPromoBanner.swift */; };
 		AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF000001212F000000000001 /* DailyDistanceTracker.swift */; };
@@ -142,12 +150,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeExportKitAdapter.swift; sourceTree = "<group>"; };
+		E9A100000000000000000003 /* ExportKitIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportKitIntegrationTests.swift; sourceTree = "<group>"; };
 		2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IsoMeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		5F000001212F000000000001 /* ExportFolderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFolderManager.swift; sourceTree = "<group>"; };
 		F1000001212F000000000001 /* FilenameTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilenameTemplate.swift; sourceTree = "<group>"; };
 		5F000002212F000000000001 /* DailyExportScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExportScheduler.swift; sourceTree = "<group>"; };
+		D6000001212F000000000001 /* PushRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushRegistrationManager.swift; sourceTree = "<group>"; };
+		D6000002212F000000000002 /* DailyExportNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExportNotificationScheduler.swift; sourceTree = "<group>"; };
 		76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManagerTrackingTests.swift; sourceTree = "<group>"; };
 		D5E7A1580000000000000058 /* ExportRoundTripTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportRoundTripTests.swift; sourceTree = "<group>"; };
 		7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
@@ -218,6 +230,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9A100000000000000000008 /* ExportKit in Frameworks */,
+				E9A100000000000000000009 /* ExportAutomationKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +261,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4362F7285B97503148012780 /* Foundation.framework in Frameworks */,
+				E9A10000000000000000000A /* ExportKit in Frameworks */,
+				E9A10000000000000000000B /* ExportAutomationKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +363,8 @@
 				E1000002212F000000000002 /* LogManager.swift */,
 				AB000001212F000000000001 /* IsoMeIntents.swift */,
 				5F000002212F000000000001 /* DailyExportScheduler.swift */,
+				D6000002212F000000000002 /* DailyExportNotificationScheduler.swift */,
+				D6000001212F000000000001 /* PushRegistrationManager.swift */,
 				E4E900BDC375415EB884300D /* WebhookManager.swift */,
 			);
 			path = Services;
@@ -381,6 +399,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000007212F000000000007 /* ExportService.swift */,
+				E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
@@ -439,6 +458,7 @@
 			isa = PBXGroup;
 			children = (
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
+				E9A100000000000000000003 /* ExportKitIntegrationTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
 				E6120001212F000000000012 /* ExportServiceRoundTripTests.swift */,
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
@@ -469,6 +489,10 @@
 				A3000012212F000000000012 /* PBXTargetDependency */,
 			);
 			name = IsoMe;
+			packageProductDependencies = (
+				E9A100000000000000000006 /* ExportKit */,
+				E9A100000000000000000007 /* ExportAutomationKit */,
+			);
 			productName = IsoMe;
 			productReference = A1000000212F000000000000 /* IsoMe.app */;
 			productType = "com.apple.product-type.application";
@@ -540,6 +564,10 @@
 				0B296FF4FE6B89E3287D145C /* PBXTargetDependency */,
 			);
 			name = IsoMeTests;
+			packageProductDependencies = (
+				E9A100000000000000000006 /* ExportKit */,
+				E9A100000000000000000007 /* ExportAutomationKit */,
+			);
 			productName = IsoMeTests;
 			productReference = 2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -586,6 +614,9 @@
 				fr,
 			);
 			mainGroup = A1FFFFF8212EFFFFFFFF0000;
+			packageReferences = (
+				E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */,
+			);
 			productRefGroup = A1FFFFF9212EFFFFFFFF0002 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -660,6 +691,7 @@
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
+				E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */,
 				A1000030212F000100000030 /* ExportOptions.swift in Sources */,
 				A1000031212F000100000031 /* ExportView.swift in Sources */,
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
@@ -683,6 +715,8 @@
 				AB000001212F000100000001 /* IsoMeIntents.swift in Sources */,
 				F1000001212F000100000001 /* FilenameTemplate.swift in Sources */,
 				5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */,
+				D6000002212F000100000002 /* DailyExportNotificationScheduler.swift in Sources */,
+				D6000001212F000100000001 /* PushRegistrationManager.swift in Sources */,
 				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
 				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
 			);
@@ -726,6 +760,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */,
+				E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */,
 				CB0AF0C284FF821E6D718E7E /* LocationManagerTrackingTests.swift in Sources */,
 				E6120001212F000100000012 /* ExportServiceRoundTripTests.swift in Sources */,
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
@@ -1215,6 +1250,31 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CodyBontecou/ExportKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9A100000000000000000006 /* ExportKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */;
+			productName = ExportKit;
+		};
+		E9A100000000000000000007 /* ExportAutomationKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */;
+			productName = ExportAutomationKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+
 	};
 	rootObject = A1FFFFF9212EFFFFFFFF0001 /* Project object */;
 }

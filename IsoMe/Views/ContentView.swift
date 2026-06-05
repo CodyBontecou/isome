@@ -86,6 +86,7 @@ struct ContentView: View {
 private struct MainTabView: View {
     let viewModel: LocationViewModel
     @State private var selectedTab: Int = MainTabView.initialTabFromLaunchArguments()
+    @ObservedObject private var exportToastCenter = ExportToastCenter.shared
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -107,6 +108,16 @@ private struct MainTabView: View {
                 }
                 .tag(2)
         }
+        .overlay(alignment: .top) {
+            if let toast = exportToastCenter.toast {
+                ExportToastBanner(toast: toast)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+            }
+        }
+        .animation(.spring(response: 0.28, dampingFraction: 0.86), value: exportToastCenter.toast?.id)
     }
 
     private static func initialTabFromLaunchArguments() -> Int {

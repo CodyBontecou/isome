@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import ExportKit
 
 /// Manages a user-selected default export folder using security-scoped bookmarks
 @MainActor
@@ -93,19 +94,52 @@ final class ExportFolderManager: ObservableObject {
     /// Save data to the default export folder
     /// - Returns: The URL where the file was saved, or nil if no default folder is set
     func saveToDefaultFolder(data: Data, fileName: String) throws -> URL? {
+        guard let content = String(data: data, encoding: .utf8) else {
+            return try saveBinaryDataToDefaultFolder(data: data, fileName: fileName)
+        }
+
+        let plannedFile = PlannedExportFile(
+            id: fileName,
+            role: .aggregate(formatID: "legacy"),
+            relativePath: fileName,
+            content: content,
+            estimatedByteCount: data.count
+        )
+        return try savePlannedFilesToDefaultFolder([plannedFile])?.first
+    }
+
+    /// Save ExportKit-planned files to the default export folder.
+    /// - Returns: URLs where the files were saved, or nil if no default folder is set.
+    func savePlannedFilesToDefaultFolder(_ files: [PlannedExportFile]) throws -> [URL]? {
         guard let folderURL = selectedFolderURL else {
             return nil
         }
-        
-        // Start accessing the security-scoped resource
+
         guard folderURL.startAccessingSecurityScopedResource() else {
             throw ExportFolderError.accessDenied
         }
         defer { folderURL.stopAccessingSecurityScopedResource() }
-        
+
+        let destination = ExportDestination(rootURL: folderURL, displayName: selectedFolderName)
+        let writer = ExportFileWriter(
+            fileSystem: FileManagerExportFileSystem(),
+            safetyPolicy: .rejectTraversalAndAbsolutePaths
+        )
+        return try writer.write(files, to: destination, mode: .overwrite).map(\.url)
+    }
+
+    private func saveBinaryDataToDefaultFolder(data: Data, fileName: String) throws -> URL? {
+        guard let folderURL = selectedFolderURL else {
+            return nil
+        }
+
+        guard folderURL.startAccessingSecurityScopedResource() else {
+            throw ExportFolderError.accessDenied
+        }
+        defer { folderURL.stopAccessingSecurityScopedResource() }
+
         let fileURL = folderURL.appendingPathComponent(fileName)
         try data.write(to: fileURL)
-        
         return fileURL
     }
     

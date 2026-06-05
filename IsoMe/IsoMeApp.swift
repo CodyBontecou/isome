@@ -38,6 +38,7 @@ struct IsoMeApp: App {
                 }
                 .task {
                     DailyExportScheduler.shared.attach(modelContainer: sharedModelContainer)
+                    DailyExportScheduler.shared.scheduleNextBackgroundRun()
                     await DailyExportScheduler.shared.runIfDue()
                 }
         }

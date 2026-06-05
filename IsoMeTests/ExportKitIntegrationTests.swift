@@ -1,0 +1,405 @@
+import XCTest
+import ExportKit
+import ExportAutomationKit
+@testable import IsoMe
+
+final class ExportKitIntegrationTests: XCTestCase {
+    func testExportKitRenderersEmitEveryIsoMeFormat() throws {
+        let visits = makeVisits()
+        let points = makePoints()
+
+        for format in ExportFormat.allCases {
+            var options = ExportOptions()
+            options.dataKind = .all
+            options.format = format
+
+            let rendered = try ExportService.render(
+                visits: visits,
+                points: points,
+                options: options,
+                filenamePattern: "{type}-{format}"
+            )
+
+            XCTAssertTrue(rendered.fileName.hasSuffix(".\(format.fileExtension)"), "\(format) filename mismatch")
+            XCTAssertFalse(rendered.data.isEmpty, "\(format) renderer emitted empty data")
+        }
+    }
+
+    func testPathPlannerRejectsTraversalAndPreservesPathFolders() throws {
+        let date = fixtureDate(hour: 12)
+
+        XCTAssertThrowsError(
+            try IsoMeExportPathPlanner.plannedRelativePath(
+                pattern: "../escape",
+                dataKind: .visits,
+                format: .json,
+                date: date
+            )
+        )
+        XCTAssertThrowsError(
+            try IsoMeExportPathPlanner.plannedRelativePath(
+                pattern: "/tmp/escape",
+                dataKind: .visits,
+                format: .json,
+                date: date
+            )
+        )
+
+        let filename = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: "trip:{date}/{type}",
+            dataKind: .visits,
+            format: .json,
+            date: date
+        )
+        XCTAssertEqual(filename, "trip-2026-04-03/visits.json")
+    }
+
+    func testPathPlannerSupportsDatedFoldersAndOptionalExtension() throws {
+        let date = fixtureDate(hour: 12)
+
+        let markdownPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: "{year}/{year}-{month}/Daily Track - {date}.md",
+            dataKind: .all,
+            format: .markdown,
+            date: date
+        )
+        XCTAssertEqual(markdownPath, "2026/2026-04/Daily Track - 2026-04-03.md")
+
+        let calendarPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: "{year}/{quarter}/{monthName}/{dayNumber}-{weekday}-{type}",
+            dataKind: .points,
+            format: .csv,
+            date: date
+        )
+        XCTAssertEqual(calendarPath, "2026/Q2/April/03-Friday-points.csv")
+    }
+
+    func testSplitByDayFilenameCollisionsStayInSameFolder() throws {
+        var options = ExportOptions()
+        options.dataKind = .visits
+        options.format = .markdown
+        options.splitByDay = true
+
+        let visits = [
+            Visit(
+                latitude: 37.7749,
+                longitude: -122.4194,
+                arrivedAt: fixtureDate(hour: 9),
+                departedAt: fixtureDate(hour: 10),
+                locationName: "Ferry Building"
+            ),
+            Visit(
+                latitude: 37.775,
+                longitude: -122.42,
+                arrivedAt: date(year: 2026, month: 4, day: 4, hour: 9),
+                departedAt: date(year: 2026, month: 4, day: 4, hour: 10),
+                locationName: "Market Street"
+            )
+        ]
+
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: visits,
+            points: [],
+            options: options,
+            filenamePattern: "{year}/{month}/Daily Track"
+        )
+
+        XCTAssertEqual(files.map(\.relativePath), [
+            "2026/04/Daily Track.md",
+            "2026/04/2026-04-04_Daily Track.md"
+        ])
+    }
+
+    func testExportFileWriterWriteModesAndTraversalRejection() throws {
+        let root = try makeTemporaryDirectory()
+        let destination = ExportDestination(rootURL: root)
+        let writer = ExportFileWriter(
+            fileSystem: FileManagerExportFileSystem(),
+            safetyPolicy: .rejectTraversalAndAbsolutePaths
+        )
+        let descriptor = ExportFormatDescriptor(
+            id: "markdown",
+            displayName: "Markdown",
+            fileExtension: "md",
+            contentType: "text/markdown"
+        )
+        let file = PlannedExportFile(
+            id: "daily-note",
+            role: .aggregate(formatID: descriptor.id),
+            relativePath: "exports/day.md",
+            content: "## iso.me\nFirst",
+            format: descriptor
+        )
+
+        let overwrite = try writer.write(file, to: destination, mode: .overwrite)
+        XCTAssertEqual(overwrite.action, .exported)
+        XCTAssertEqual(try String(contentsOf: overwrite.url, encoding: .utf8), "## iso.me\nFirst")
+
+        let appendedFile = PlannedExportFile(
+            id: "daily-note",
+            role: .aggregate(formatID: descriptor.id),
+            relativePath: "exports/day.md",
+            content: "Second",
+            format: descriptor
+        )
+        let append = try writer.write(appendedFile, to: destination, mode: .append)
+        XCTAssertEqual(append.action, .appended)
+        XCTAssertEqual(try String(contentsOf: append.url, encoding: .utf8), "## iso.me\nFirst\n\nSecond")
+
+        let userAuthored = "Intro\n\n## Notes\nKeep me\n\n## iso.me\nOld managed text"
+        try userAuthored.write(to: append.url, atomically: true, encoding: .utf8)
+        let updatedFile = PlannedExportFile(
+            id: "daily-note",
+            role: .aggregate(formatID: descriptor.id),
+            relativePath: "exports/day.md",
+            content: "## iso.me\nNew managed text",
+            format: descriptor
+        )
+        let update = try writer.write(
+            updatedFile,
+            to: destination,
+            mode: .update,
+            mergeStrategy: MarkdownMergeStrategy(managedSectionNames: ["iso.me"])
+        )
+        let updated = try String(contentsOf: update.url, encoding: .utf8)
+        XCTAssertEqual(update.action, .updated)
+        XCTAssertTrue(updated.contains("## Notes\nKeep me"))
+        XCTAssertTrue(updated.contains("## iso.me\nNew managed text"))
+        XCTAssertFalse(updated.contains("Old managed text"))
+
+        let traversalFile = PlannedExportFile(
+            id: "escape",
+            role: .aggregate(formatID: descriptor.id),
+            relativePath: "../escape.md",
+            content: "nope",
+            format: descriptor
+        )
+        XCTAssertThrowsError(try writer.write(traversalFile, to: destination, mode: .overwrite))
+    }
+
+    func testPreviewBuilderUsesIsoMeAdapterWithoutWriting() async throws {
+        var options = ExportOptions()
+        options.dataKind = .all
+        options.format = .markdown
+
+        let preview = try await IsoMeExportKitAdapter.preview(
+            visits: makeVisits(),
+            points: makePoints(),
+            options: options,
+            filenamePattern: "{date}-{type}"
+        )
+
+        XCTAssertEqual(preview.records.count, 1)
+        let file = try XCTUnwrap(preview.records.first?.files.first)
+        XCTAssertEqual(file.format?.id, ExportFormat.markdown.exportKitFormatID)
+        XCTAssertEqual(String(file.relativePath.suffix(7)), "-all.md")
+        XCTAssertTrue(file.displayContent().text.contains("# iso.me Complete Export"))
+    }
+
+    func testIsoMeExportRunOrchestratorReportsSuccessAndNoDestinationFailure() async throws {
+        var options = ExportOptions()
+        options.dataKind = .points
+        options.format = .json
+
+        let destination = ExportDestination(rootURL: try makeTemporaryDirectory())
+        let success = await IsoMeExportKitAdapter.run(
+            visits: makeVisits(),
+            points: makePoints(),
+            options: options,
+            filenamePattern: "{type}-{format}",
+            destination: destination
+        )
+        XCTAssertEqual(success.status, .fullSuccess)
+        XCTAssertEqual(success.filesWritten, 1)
+
+        let failure = await IsoMeExportKitAdapter.run(
+            visits: makeVisits(),
+            points: makePoints(),
+            options: options,
+            filenamePattern: "{type}-{format}",
+            destination: nil
+        )
+        XCTAssertEqual(failure.status, .failure)
+        XCTAssertEqual(failure.primaryFailure?.reason, .noDestination)
+    }
+
+    func testAutomationScheduleMathKeepsDailyExportBoundaries() throws {
+        let calendar = fixedCalendar
+        let schedule = AutomationSchedule(
+            isEnabled: true,
+            frequency: .daily,
+            preferredHour: 21,
+            preferredMinute: 0,
+            lookbackDays: 1,
+            timeZoneIdentifier: "UTC"
+        )
+
+        let beforePreferredTime = date(year: 2026, month: 4, day: 3, hour: 20, minute: 30)
+        let nextBefore = try XCTUnwrap(AutomationScheduleDateMath.calculateNextRunDate(
+            schedule: schedule,
+            now: beforePreferredTime,
+            calendar: calendar
+        ))
+        XCTAssertEqual(nextBefore, date(year: 2026, month: 4, day: 3, hour: 21, minute: 0))
+
+        let afterPreferredTime = date(year: 2026, month: 4, day: 3, hour: 21, minute: 30)
+        let nextAfter = try XCTUnwrap(AutomationScheduleDateMath.calculateNextRunDate(
+            schedule: schedule,
+            now: afterPreferredTime,
+            calendar: calendar
+        ))
+        XCTAssertEqual(nextAfter, date(year: 2026, month: 4, day: 4, hour: 21, minute: 0))
+    }
+
+    func testNonDomainInvoiceSampleProvesExportKitIsGeneric() async throws {
+        struct InvoiceRecord: ExportRecord, Equatable {
+            let id: String
+            let issuedAt: Date
+            let customer: String
+            let total: Decimal
+
+            var exportRecordID: String { id }
+            var exportDate: Date { issuedAt }
+        }
+
+        let markdown = ExportFormatDescriptor(
+            id: "invoice-markdown",
+            displayName: "Invoice Markdown",
+            fileExtension: "md",
+            contentType: "text/markdown"
+        )
+        let registry = try ExportRendererRegistry(renderers: [
+            AnyExportRenderer<InvoiceRecord>(descriptor: markdown) { invoice, _ in
+                RenderedExport(
+                    content: "# Invoice \(invoice.id)\nCustomer: \(invoice.customer)\nTotal: \(invoice.total)",
+                    contentType: markdown.contentType
+                )
+            }
+        ])
+        let invoice = InvoiceRecord(
+            id: "INV-001",
+            issuedAt: date(year: 2026, month: 4, day: 3, hour: 9),
+            customer: "Acme Co",
+            total: Decimal(42)
+        )
+        let rendered = try registry.render(record: invoice, formatID: markdown.id)
+        let template = ExportPathTemplate(
+            folderTemplate: "Invoices/{year}/{customerSlug}",
+            filenameTemplate: "{recordID}",
+            fileExtension: markdown.fileExtension
+        )
+        let relativePath = try template.plannedRelativePath(
+            variables: ExportPathVariables(date: invoice.exportDate, values: [
+                "customerSlug": "acme-co",
+                "recordID": invoice.exportRecordID
+            ]),
+            safetyPolicy: .rejectTraversalAndAbsolutePaths
+        )
+        let plannedFile = PlannedExportFile(
+            id: "\(invoice.exportRecordID)-\(markdown.id)",
+            role: .aggregate(formatID: markdown.id),
+            relativePath: relativePath,
+            content: rendered.content,
+            format: markdown
+        )
+
+        let root = try makeTemporaryDirectory()
+        let writer = ExportFileWriter(fileSystem: FileManagerExportFileSystem())
+        let writeResult = try writer.write(plannedFile, to: ExportDestination(rootURL: root), mode: .overwrite)
+        XCTAssertEqual(writeResult.relativePath, "Invoices/2026/acme-co/INV-001.md")
+        XCTAssertTrue(try String(contentsOf: writeResult.url, encoding: .utf8).contains("Acme Co"))
+
+        let dataSource = AnyExportRecordDataSource<Date, InvoiceRecord> { _ in
+            ExportFetchedRecord(record: invoice)
+        }
+        let previewRequest = ExportPreviewRequest(
+            recordInputs: [invoice.issuedAt],
+            selectedFormatIDs: [markdown.id],
+            dataSource: dataSource,
+            rendererRegistry: registry,
+            recordReference: { ExportRecordReference(id: "invoice", date: $0) },
+            planAggregateFile: { _, _, rendered in
+                PlannedExportFile(
+                    id: "invoice-preview",
+                    role: .aggregate(formatID: markdown.id),
+                    relativePath: "preview.md",
+                    content: rendered.content,
+                    format: markdown
+                )
+            }
+        )
+        let preview = try await ExportPreviewBuilder<Date, InvoiceRecord>().buildPreview(previewRequest)
+        XCTAssertEqual(preview.records.first?.files.first?.filename, "preview.md")
+    }
+
+    private func makeVisits() -> [Visit] {
+        [
+            Visit(
+                latitude: 37.7749,
+                longitude: -122.4194,
+                arrivedAt: fixtureDate(hour: 9),
+                departedAt: fixtureDate(hour: 10, minute: 30),
+                locationName: "Ferry Building",
+                address: "1 Ferry Building, San Francisco, CA",
+                notes: "Breakfast"
+            )
+        ]
+    }
+
+    private func makePoints() -> [LocationPoint] {
+        [
+            LocationPoint(
+                latitude: 37.7749,
+                longitude: -122.4194,
+                timestamp: fixtureDate(hour: 9, minute: 5),
+                altitude: 4.25,
+                speed: 1.2,
+                horizontalAccuracy: 5
+            ),
+            LocationPoint(
+                latitude: 37.7752,
+                longitude: -122.421,
+                timestamp: fixtureDate(hour: 9, minute: 10),
+                altitude: nil,
+                speed: nil,
+                horizontalAccuracy: 8,
+                isOutlier: true
+            )
+        ]
+    }
+
+    private func fixtureDate(hour: Int, minute: Int = 0) -> Date {
+        Self.date(year: 2026, month: 4, day: 3, hour: hour, minute: minute)
+    }
+
+    private var fixedCalendar: Calendar { Self.fixedCalendar }
+
+    private static var fixedCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    private static func date(year: Int, month: Int, day: Int, hour: Int, minute: Int = 0) -> Date {
+        fixedCalendar.date(from: DateComponents(
+            timeZone: TimeZone(secondsFromGMT: 0),
+            year: year,
+            month: month,
+            day: day,
+            hour: hour,
+            minute: minute
+        ))!
+    }
+
+    private func date(year: Int, month: Int, day: Int, hour: Int, minute: Int = 0) -> Date {
+        Self.date(year: year, month: month, day: day, hour: hour, minute: minute)
+    }
+
+    private func makeTemporaryDirectory() throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("IsoMeExportKitTests", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+}

@@ -1,8 +1,9 @@
 import UIKit
 import CoreLocation
 import UserNotifications
+import ExportAutomationKit
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     // Shared location manager instance for background launches
     static var sharedLocationManager: LocationManager?
 
@@ -21,6 +22,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             UserDefaults.standard.synchronize()
         }
 
+        UNUserNotificationCenter.current().delegate = self
+
         // Register the daily-export background task before applicationDidFinishLaunching returns.
         DailyExportScheduler.registerBackgroundTask()
 
@@ -37,6 +40,80 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Ensure location tracking continues in background
         print("App entered background - location tracking continues")
+    }
+
+    // MARK: - Remote notifications (server-side scheduled exports)
+
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        PushRegistrationManager.shared.submitDeviceToken(deviceToken)
+    }
+
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("APNs registration failed: \(error.localizedDescription)")
+    }
+
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        guard userInfo["type"] as? String == RemoteScheduleWorkerContract.scheduledExportPushType else {
+            completionHandler(.noData)
+            return
+        }
+
+        let fireDate = scheduledExportFireDate(from: userInfo)
+        Task { @MainActor in
+            let outcome = await DailyExportScheduler.shared.runFromServerNotification(fireDate: fireDate)
+            completionHandler(outcome.completedExport ? .newData : .noData)
+        }
+    }
+
+    private func scheduledExportFireDate(from userInfo: [AnyHashable: Any]) -> Date? {
+        let stringKeys = ["fireAt", "fire_at", "scheduledFireDate", "scheduled_fire_date"]
+        let formatter = ISO8601DateFormatter()
+        let fractionalFormatter = ISO8601DateFormatter()
+        fractionalFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        for key in stringKeys {
+            guard let value = userInfo[key] as? String else { continue }
+            if let date = fractionalFormatter.date(from: value) ?? formatter.date(from: value) {
+                return date
+            }
+        }
+
+        for key in stringKeys {
+            if let value = userInfo[key] as? TimeInterval {
+                return Date(timeIntervalSince1970: value)
+            }
+            if let value = userInfo[key] as? NSNumber {
+                return Date(timeIntervalSince1970: value.doubleValue)
+            }
+        }
+
+        return nil
+    }
+
+    // MARK: - Local notification taps
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let request = response.notification.request
+        if DailyExportNotificationPayload.isDailyExportNotification(
+            identifier: request.identifier,
+            userInfo: request.content.userInfo
+        ) {
+            Task { @MainActor in
+                await DailyExportScheduler.shared.runFromNotificationTap(userInfo: request.content.userInfo)
+            }
+        }
+        completionHandler()
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

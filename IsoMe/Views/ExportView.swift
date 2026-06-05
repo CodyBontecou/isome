@@ -12,8 +12,6 @@ struct ExportView: View {
     @State private var showingPaywall = false
     @State private var showingFolderPicker = false
     @State private var showingClearFolderConfirmation = false
-    @State private var exportSuccessMessage: String?
-    @State private var showingExportSuccess = false
     @State private var dailyTimeBinding = Date()
 
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
@@ -90,13 +88,6 @@ struct ExportView: View {
                 Button("Remove", role: .destructive) { exportFolderManager.clearDefaultFolder() }
             } message: {
                 Text("Exports will use the share sheet instead of saving directly to a folder.")
-            }
-            .alert("Export Complete", isPresented: $showingExportSuccess) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                if let message = exportSuccessMessage {
-                    Text(message)
-                }
             }
             .sheet(isPresented: $showingFolderPicker) {
                 FolderPicker { url in
@@ -538,7 +529,7 @@ struct ExportView: View {
             .padding(.horizontal, 16)
 
             TESectionFooter(text: dailyScheduler.isEnabled
-                ? "iOS schedules background runs near this time, but cannot guarantee them. The export also runs the next time you open the app if it's overdue."
+                ? "iso.me asks iOS and the server-side notification worker to wake near this time. If the export has not completed, tap the fallback notification or open the app to run it."
                 : "Save a fresh export to your folder once per day, automatically.")
         }
         .onAppear {
@@ -561,7 +552,7 @@ struct ExportView: View {
 
     private var filenameSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "FILENAME")
+            TESectionHeader(title: "FILE PATH")
 
             TECard {
                 VStack(spacing: 0) {
@@ -574,6 +565,10 @@ struct ExportView: View {
                             presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
                                 filenamePattern = FilenameTemplate.compactPattern
                             }
+                            Rectangle().fill(TE.border).frame(height: 1)
+                            presetButton("DATED", isSelected: filenamePattern == FilenameTemplate.datedFoldersPattern) {
+                                filenamePattern = FilenameTemplate.datedFoldersPattern
+                            }
                         } else {
                             HStack(spacing: 0) {
                                 presetButton("READABLE", isSelected: filenamePattern == FilenameTemplate.readablePattern) {
@@ -582,6 +577,10 @@ struct ExportView: View {
                                 Rectangle().fill(TE.border).frame(width: 1)
                                 presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
                                     filenamePattern = FilenameTemplate.compactPattern
+                                }
+                                Rectangle().fill(TE.border).frame(width: 1)
+                                presetButton("DATED", isSelected: filenamePattern == FilenameTemplate.datedFoldersPattern) {
+                                    filenamePattern = FilenameTemplate.datedFoldersPattern
                                 }
                             }
                         }
@@ -613,16 +612,17 @@ struct ExportView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " "))")
+            TESectionFooter(text: "Use / for folders. Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " ")). The format extension is added if omitted.")
         }
     }
 
     private var filenamePreview: String {
-        FilenameTemplate.resolve(
+        (try? IsoMeExportPathPlanner.plannedRelativePath(
             pattern: filenamePattern,
             dataKind: options.dataKind,
-            format: options.format
-        )
+            format: options.format,
+            safetyPolicy: .preserveCurrentBehavior
+        )) ?? "INVALID PATH"
     }
 
     private func presetButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -986,16 +986,10 @@ struct ExportView: View {
                     options: options,
                     filenamePattern: filenamePattern
                 )
-                if urls.count == 1, let url = urls.first {
-                    exportSuccessMessage = "Saved to \(url.lastPathComponent)"
-                } else if let folder = urls.first?.deletingLastPathComponent().lastPathComponent {
-                    exportSuccessMessage = "Saved \(urls.count) files to \(folder)"
-                } else {
-                    exportSuccessMessage = "Saved \(urls.count) files"
-                }
-                showingExportSuccess = true
+                ExportToastCenter.shared.show(.success(savedURLs: urls))
             } catch {
                 viewModel.exportError = error.localizedDescription
+                ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
             }
         } else {
             do {
@@ -1005,8 +999,10 @@ struct ExportView: View {
                     options: options,
                     filenamePattern: filenamePattern
                 )
+                ExportToastCenter.shared.show(.success(message: "Share sheet opened"))
             } catch {
                 viewModel.exportError = error.localizedDescription
+                ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
             }
         }
     }
@@ -1016,6 +1012,122 @@ struct ExportView: View {
         if options.dataKind != .visits || options.format.isPointsOnly {
             viewModel.ensureAllLocationPointsLoaded()
         }
+    }
+}
+
+struct ExportToast: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case success
+        case failure
+    }
+
+    let id = UUID()
+    let kind: Kind
+    let title: String
+    let message: String
+
+    static func success(message: String) -> ExportToast {
+        ExportToast(kind: .success, title: "EXPORT SUCCESSFUL", message: message)
+    }
+
+    static func success(savedURLs urls: [URL]) -> ExportToast {
+        if urls.count == 1, let url = urls.first {
+            return success(message: "Saved to \(url.lastPathComponent)")
+        }
+        if let folder = urls.first?.deletingLastPathComponent().lastPathComponent {
+            return success(message: "Saved \(urls.count) files to \(folder)")
+        }
+        return success(message: "Saved \(urls.count) files")
+    }
+
+    static func failure(message: String) -> ExportToast {
+        ExportToast(kind: .failure, title: "EXPORT FAILED", message: message)
+    }
+
+    var iconName: String {
+        switch kind {
+        case .success: return "checkmark.circle.fill"
+        case .failure: return "xmark.octagon.fill"
+        }
+    }
+
+    var tint: Color {
+        switch kind {
+        case .success: return TE.success
+        case .failure: return TE.danger
+        }
+    }
+}
+
+@MainActor
+final class ExportToastCenter: ObservableObject {
+    static let shared = ExportToastCenter()
+
+    @Published private(set) var toast: ExportToast?
+
+    private var dismissTask: Task<Void, Never>?
+
+    private init() {}
+
+    func show(_ toast: ExportToast) {
+        dismissTask?.cancel()
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+            self.toast = toast
+        }
+        dismissTask = Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.toast = nil
+            }
+        }
+    }
+
+    func clear() {
+        dismissTask?.cancel()
+        withAnimation(.easeOut(duration: 0.2)) {
+            toast = nil
+        }
+    }
+}
+
+struct ExportToastBanner: View {
+    let toast: ExportToast
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: toast.iconName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(toast.tint)
+                .padding(.top, 1)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(toast.title)
+                    .font(TE.mono(.caption, weight: .bold))
+                    .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
+                    .foregroundStyle(TE.textPrimary)
+
+                Text(toast.message)
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(TE.card)
+                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(toast.tint.opacity(0.55), lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
     }
 }
 
