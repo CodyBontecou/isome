@@ -13,6 +13,8 @@
 		E9A100000000000000000009 /* ExportAutomationKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000007 /* ExportAutomationKit */; };
 		E9A10000000000000000000A /* ExportKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000006 /* ExportKit */; };
 		E9A10000000000000000000B /* ExportAutomationKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000007 /* ExportAutomationKit */; };
+		BEE50012212F000100000012 /* Notelet in Frameworks */ = {isa = PBXBuildFile; productRef = BEE50011212F000000000011 /* Notelet */; };
+		BEE50001212F000100000001 /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE50001212F000000000001 /* ReleaseNotes.swift */; };
 		4362F7285B97503148012780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB4D5F4E2D01FCD4E9169E /* Foundation.framework */; };
 		5F000001212F000100000001 /* ExportFolderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F000001212F000000000001 /* ExportFolderManager.swift */; };
 		F1000001212F000100000001 /* FilenameTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000001212F000000000001 /* FilenameTemplate.swift */; };
@@ -174,6 +176,7 @@
 		A1000000212F000000000000 /* IsoMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001212F000000000001 /* IsoMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeApp.swift; sourceTree = "<group>"; };
 		A1000002212F000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BEE50001212F000000000001 /* ReleaseNotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseNotes.swift; sourceTree = "<group>"; };
 		A1000003212F000000000003 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		A1000004212F000000000004 /* LocationPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPoint.swift; sourceTree = "<group>"; };
 		A1000005212F000000000005 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
@@ -232,6 +235,7 @@
 			files = (
 				E9A100000000000000000008 /* ExportKit in Frameworks */,
 				E9A100000000000000000009 /* ExportAutomationKit in Frameworks */,
+				BEE50012212F000100000012 /* Notelet in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,6 +378,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000002212F000000000002 /* ContentView.swift */,
+				BEE50001212F000000000001 /* ReleaseNotes.swift */,
 				A100000B212F00000000000B /* MapView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
@@ -492,6 +497,7 @@
 			packageProductDependencies = (
 				E9A100000000000000000006 /* ExportKit */,
 				E9A100000000000000000007 /* ExportAutomationKit */,
+				BEE50011212F000000000011 /* Notelet */,
 			);
 			productName = IsoMe;
 			productReference = A1000000212F000000000000 /* IsoMe.app */;
@@ -616,6 +622,7 @@
 			mainGroup = A1FFFFF8212EFFFFFFFF0000;
 			packageReferences = (
 				E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */,
+				BEE50010212F000000000010 /* XCRemoteSwiftPackageReference "notelet" */,
 			);
 			productRefGroup = A1FFFFF9212EFFFFFFFF0002 /* Products */;
 			projectDirPath = "";
@@ -686,6 +693,7 @@
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,
+				BEE50001212F000100000001 /* ReleaseNotes.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
@@ -964,7 +972,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -980,7 +988,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -997,7 +1005,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1013,7 +1021,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1029,7 +1037,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1039,7 +1047,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1056,7 +1064,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1066,7 +1074,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1083,7 +1091,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1093,7 +1101,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1112,7 +1120,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1122,7 +1130,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1141,7 +1149,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1151,7 +1159,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1170,7 +1178,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 19;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1180,7 +1188,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1260,6 +1268,14 @@
 				kind = branch;
 			};
 		};
+		BEE50010212F000000000010 /* XCRemoteSwiftPackageReference "notelet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mykolaharmash/notelet";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1272,6 +1288,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E9A100000000000000000005 /* XCRemoteSwiftPackageReference "ExportKit" */;
 			productName = ExportAutomationKit;
+		};
+		BEE50011212F000000000011 /* Notelet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BEE50010212F000000000010 /* XCRemoteSwiftPackageReference "notelet" */;
+			productName = Notelet;
 		};
 /* End XCSwiftPackageProductDependency section */
 

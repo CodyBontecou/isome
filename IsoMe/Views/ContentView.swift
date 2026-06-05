@@ -118,6 +118,7 @@ private struct MainTabView: View {
             }
         }
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: exportToastCenter.toast?.id)
+        .isoMeReleaseNotesSheet()
     }
 
     private static func initialTabFromLaunchArguments() -> Int {
