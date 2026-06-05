@@ -9,6 +9,7 @@ struct ExportOptions {
     enum DateRangePreset: String, CaseIterable, Identifiable {
         case allTime
         case today
+        case yesterday
         case last7Days
         case last30Days
         case thisMonth
@@ -20,6 +21,7 @@ struct ExportOptions {
             switch self {
             case .allTime: return "ALL TIME"
             case .today: return "TODAY"
+            case .yesterday: return "YESTERDAY"
             case .last7Days: return "LAST 7 DAYS"
             case .last30Days: return "LAST 30 DAYS"
             case .thisMonth: return "THIS MONTH"
@@ -90,6 +92,11 @@ struct ExportOptions {
         case .today:
             let start = cal.startOfDay(for: now)
             return start...now
+        case .yesterday:
+            let startOfToday = cal.startOfDay(for: now)
+            let start = cal.date(byAdding: .day, value: -1, to: startOfToday) ?? now
+            let end = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
+            return start...end
         case .last7Days:
             let start = cal.date(byAdding: .day, value: -7, to: cal.startOfDay(for: now)) ?? now
             return start...now

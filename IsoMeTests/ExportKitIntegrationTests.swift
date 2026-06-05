@@ -25,6 +25,37 @@ final class ExportKitIntegrationTests: XCTestCase {
         }
     }
 
+    func testYesterdayDateRangeCoversPreviousCalendarDay() throws {
+        var options = ExportOptions()
+        options.datePreset = .yesterday
+
+        let calendar = Calendar.current
+        let now = calendar.date(from: DateComponents(year: 2026, month: 4, day: 3, hour: 12))!
+        let range = try XCTUnwrap(options.resolvedDateRange(now: now))
+        let startOfToday = calendar.startOfDay(for: now)
+        let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
+        let endOfYesterday = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
+
+        XCTAssertEqual(range.lowerBound, startOfYesterday)
+        XCTAssertEqual(range.upperBound, endOfYesterday)
+        XCTAssertTrue(range.contains(startOfYesterday.addingTimeInterval(12 * 60 * 60)))
+        XCTAssertFalse(range.contains(now))
+    }
+
+    func testMapYesterdayPresetCoversPreviousCalendarDay() throws {
+        let calendar = Calendar.current
+        let now = calendar.date(from: DateComponents(year: 2026, month: 4, day: 3, hour: 12))!
+        let range = MapDatePreset.yesterday.range(referenceDate: now)
+        let startOfToday = calendar.startOfDay(for: now)
+        let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
+        let endOfYesterday = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
+
+        XCTAssertEqual(range.lowerBound, startOfYesterday)
+        XCTAssertEqual(range.upperBound, endOfYesterday)
+        XCTAssertTrue(range.contains(startOfYesterday.addingTimeInterval(12 * 60 * 60)))
+        XCTAssertFalse(range.contains(now))
+    }
+
     func testPathPlannerRejectsTraversalAndPreservesPathFolders() throws {
         let date = fixtureDate(hour: 12)
 
