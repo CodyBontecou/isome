@@ -1198,6 +1198,7 @@ struct IsoMeExportPreviewView: View {
                         } label: {
                             fileRow(file)
                         }
+                        .listRowBackground(TE.card)
                     }
                 } header: {
                     Text(record.title)
@@ -1236,6 +1237,7 @@ struct IsoMeExportPreviewView: View {
                 }
             }
             .padding(.vertical, 4)
+            .listRowBackground(TE.card)
         }
     }
 
@@ -1266,6 +1268,7 @@ struct IsoMeExportPreviewView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(TE.warning)
                     }
+                    .listRowBackground(TE.card)
                 }
             }
         }
