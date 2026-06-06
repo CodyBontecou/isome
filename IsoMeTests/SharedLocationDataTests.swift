@@ -24,6 +24,8 @@ final class SharedLocationDataTests: XCTestCase {
         XCTAssertTrue(decoded.isTrackingEnabled)
         XCTAssertNil(decoded.usesMetricDistanceUnits,
                      "Missing key should decode as nil, not crash")
+        XCTAssertNil(decoded.currentVisitSourceRaw)
+        XCTAssertFalse(decoded.isManualCheckInOpen)
     }
 
     /// Data encoded with the OLD continuous-tracking fields must still decode.
@@ -60,7 +62,16 @@ final class SharedLocationDataTests: XCTestCase {
             todayPointsCount: 42,
             trackingStartTime: Date(),
             stopAfterHours: 2.0,
-            usesMetricDistanceUnits: false
+            usesMetricDistanceUnits: false,
+            currentVisitID: UUID(uuidString: "6B6AD473-7F13-4A6F-BA74-E81821BE7296"),
+            currentVisitName: "Coffee Shop",
+            currentVisitSourceRaw: "manual",
+            currentVisitConfirmationStatusRaw: "confirmed",
+            currentVisitArrivedAt: Date(),
+            hasOpenManualVisit: true,
+            openManualVisitID: UUID(uuidString: "6B6AD473-7F13-4A6F-BA74-E81821BE7296"),
+            openManualVisitName: "Coffee Shop",
+            openManualVisitArrivedAt: Date()
         )
 
         let data = try JSONEncoder().encode(original)
@@ -69,6 +80,62 @@ final class SharedLocationDataTests: XCTestCase {
         XCTAssertEqual(decoded.usesMetricDistanceUnits, false)
         XCTAssertEqual(decoded.todayVisitsCount, 5)
         XCTAssertEqual(decoded.stopAfterHours, 2.0)
+        XCTAssertEqual(decoded.currentVisitSourceRaw, "manual")
+        XCTAssertEqual(decoded.currentVisitConfirmationStatusRaw, "confirmed")
+        XCTAssertTrue(decoded.isManualCheckInOpen)
+        XCTAssertEqual(decoded.openManualVisitDisplayName, "Coffee Shop")
+    }
+
+    func testSharedLocationDataPropertyListPayloadRoundTrips() throws {
+        let original = SharedLocationData(
+            isTrackingEnabled: false,
+            currentLocationName: "Park",
+            currentAddress: nil,
+            lastLatitude: 37.0,
+            lastLongitude: -122.0,
+            lastUpdateTime: Date(),
+            todayVisitsCount: 2,
+            todayDistanceMeters: 100,
+            todayPointsCount: 4,
+            trackingStartTime: nil,
+            stopAfterHours: nil,
+            usesMetricDistanceUnits: true,
+            hasOpenManualVisit: true,
+            openManualVisitName: "Park"
+        )
+
+        let decoded = try XCTUnwrap(SharedLocationData.decode(from: original.propertyListPayload))
+
+        XCTAssertEqual(decoded.todayVisitsCount, 2)
+        XCTAssertTrue(decoded.isManualCheckInOpen)
+        XCTAssertEqual(decoded.openManualVisitDisplayName, "Park")
+    }
+
+    func testWatchManualVisitCommandPayloadRoundTrips() throws {
+        let command = WatchManualVisitCommand(
+            id: UUID(uuidString: "C237DD67-E4E7-4625-B7A8-41D67C510B1B")!,
+            action: .checkIn,
+            createdAt: Date(),
+            placeName: "Cafe"
+        )
+
+        let decoded = try XCTUnwrap(WatchManualVisitCommand.decode(from: command.propertyListPayload))
+
+        XCTAssertEqual(decoded.id, command.id)
+        XCTAssertEqual(decoded.action, .checkIn)
+        XCTAssertEqual(decoded.placeName, "Cafe")
+    }
+
+    func testWatchManualVisitCommandResponsePayloadRoundTrips() throws {
+        let response = WatchManualVisitCommandResponse(
+            commandID: UUID(uuidString: "A8CB1B35-46AF-474D-B5D7-2155C94E9B2B")!,
+            success: true,
+            message: "Checked in."
+        )
+
+        let decoded = try XCTUnwrap(WatchManualVisitCommandResponse.decode(from: response.propertyListPayload))
+
+        XCTAssertEqual(decoded, response)
     }
 
     // MARK: - Tracking status (2-state)

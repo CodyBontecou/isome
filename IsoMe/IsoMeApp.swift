@@ -37,6 +37,7 @@ struct IsoMeApp: App {
                     handleDeepLink(url)
                 }
                 .task {
+                    appDelegate.configureWatchCommands(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.attach(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.scheduleNextBackgroundRun()
                     await DailyExportScheduler.shared.runIfDue()
@@ -82,6 +83,15 @@ struct IsoMeApp: App {
         switch url.host {
         case "stop":
             NotificationCenter.default.post(name: .stopTracking, object: nil)
+        case "checkin":
+            NotificationCenter.default.post(name: .manualCheckInRequested, object: nil)
+        case "log":
+            NotificationCenter.default.post(name: .manualLogRequested, object: nil)
+        case "visit":
+            if let idString = url.pathComponents.dropFirst().first,
+               let id = UUID(uuidString: idString) {
+                NotificationCenter.default.post(name: .openVisitRequested, object: id)
+            }
         default:
             break
         }
@@ -94,4 +104,7 @@ extension Notification.Name {
     static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
     static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
     static let stopTracking = Notification.Name("stopTracking")
+    static let manualCheckInRequested = Notification.Name("manualCheckInRequested")
+    static let manualLogRequested = Notification.Name("manualLogRequested")
+    static let openVisitRequested = Notification.Name("openVisitRequested")
 }

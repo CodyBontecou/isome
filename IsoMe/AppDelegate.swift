@@ -2,15 +2,22 @@ import UIKit
 import CoreLocation
 import UserNotifications
 import ExportAutomationKit
+import SwiftData
+import WatchConnectivity
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     // Shared location manager instance for background launches
     static var sharedLocationManager: LocationManager?
+    private var watchCommandModelContainer: ModelContainer?
+    private var fallbackWatchCommandModelContainer: ModelContainer?
+    private let processedWatchCommandIDsKey = "processedWatchManualVisitCommandIDs"
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        activateWatchConnectivity()
+
         // Install crash handler to capture crash info for debugging
         NSSetUncaughtExceptionHandler { exception in
             let info = """
@@ -35,6 +42,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
 
         return true
+    }
+
+    @MainActor
+    func configureWatchCommands(modelContainer: ModelContainer) {
+        watchCommandModelContainer = modelContainer
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -119,5 +131,213 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func applicationWillTerminate(_ application: UIApplication) {
         // Save any pending data before termination
         print("App will terminate - saving state")
+    }
+
+    private func activateWatchConnectivity() {
+        guard WCSession.isSupported() else { return }
+        WCSession.default.delegate = self
+        WCSession.default.activate()
+    }
+
+    @MainActor
+    private func processWatchManualVisitCommand(_ command: WatchManualVisitCommand) async -> WatchManualVisitCommandResponse {
+        if hasProcessedWatchCommand(id: command.id) {
+            return WatchManualVisitCommandResponse(
+                commandID: command.id,
+                success: true,
+                message: "Command already handled."
+            )
+        }
+
+        do {
+            let container = try watchCommandContainer()
+            let context = container.mainContext
+            let manager = LocationManager.shared ?? LocationManager()
+            manager.setModelContext(context)
+
+            let viewModel = LocationViewModel(
+                modelContext: context,
+                locationManager: manager
+            )
+
+            switch command.action {
+            case .checkIn:
+                if let openVisit = try openManualVisit(in: context) {
+                    markWatchCommandProcessed(id: command.id)
+                    manager.syncDataToWatch()
+                    return WatchManualVisitCommandResponse(
+                        commandID: command.id,
+                        success: true,
+                        message: "Already checked in at \(openVisit.displayName)."
+                    )
+                }
+
+                guard manager.hasLocationPermission else {
+                    manager.requestWhenInUseAuthorization()
+                    return WatchManualVisitCommandResponse(
+                        commandID: command.id,
+                        success: false,
+                        message: "Open iso.me on iPhone to allow location access."
+                    )
+                }
+
+                let visit = try await viewModel.createManualVisitAtCurrentLocation(
+                    locationName: normalizedWatchCommandText(command.placeName)
+                )
+                markWatchCommandProcessed(id: command.id)
+                manager.syncDataToWatch()
+                return WatchManualVisitCommandResponse(
+                    commandID: command.id,
+                    success: true,
+                    message: "Checked in at \(visit.displayName)."
+                )
+
+            case .checkOut:
+                guard let visit = try openManualVisit(in: context) else {
+                    return WatchManualVisitCommandResponse(
+                        commandID: command.id,
+                        success: false,
+                        message: "There is no open manual check-in."
+                    )
+                }
+
+                try viewModel.checkoutVisit(visit)
+                markWatchCommandProcessed(id: command.id)
+                manager.syncDataToWatch()
+                return WatchManualVisitCommandResponse(
+                    commandID: command.id,
+                    success: true,
+                    message: "Checked out of \(visit.displayName)."
+                )
+            }
+        } catch VisitMutationError.noCurrentLocation {
+            return WatchManualVisitCommandResponse(
+                commandID: command.id,
+                success: false,
+                message: "Current location is unavailable on iPhone."
+            )
+        } catch VisitMutationError.overlappingManualVisit {
+            markWatchCommandProcessed(id: command.id)
+            return WatchManualVisitCommandResponse(
+                commandID: command.id,
+                success: true,
+                message: "A manual check-in is already open."
+            )
+        } catch {
+            return WatchManualVisitCommandResponse(
+                commandID: command.id,
+                success: false,
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    func processWatchManualVisitCommandForTesting(
+        _ command: WatchManualVisitCommand,
+        modelContainer: ModelContainer
+    ) async -> WatchManualVisitCommandResponse {
+        let previousContainer = watchCommandModelContainer
+        watchCommandModelContainer = modelContainer
+        defer { watchCommandModelContainer = previousContainer }
+        return await processWatchManualVisitCommand(command)
+    }
+
+    @MainActor
+    private func watchCommandContainer() throws -> ModelContainer {
+        if let watchCommandModelContainer {
+            return watchCommandModelContainer
+        }
+
+        if let fallbackWatchCommandModelContainer {
+            return fallbackWatchCommandModelContainer
+        }
+
+        let schema = Schema([Visit.self, LocationPoint.self])
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: true
+        )
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        fallbackWatchCommandModelContainer = container
+        return container
+    }
+
+    @MainActor
+    private func openManualVisit(in context: ModelContext) throws -> Visit? {
+        let descriptor = FetchDescriptor<Visit>(
+            predicate: #Predicate<Visit> { visit in
+                visit.departedAt == nil
+            },
+            sortBy: [SortDescriptor(\.arrivedAt, order: .reverse)]
+        )
+        return try context.fetch(descriptor).first { $0.source == .manual }
+    }
+
+    private func normalizedWatchCommandText(_ text: String?) -> String? {
+        let normalized = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return normalized.isEmpty ? nil : normalized
+    }
+
+    private func hasProcessedWatchCommand(id: UUID) -> Bool {
+        processedWatchCommandIDs().contains(id.uuidString)
+    }
+
+    private func markWatchCommandProcessed(id: UUID) {
+        var ids = processedWatchCommandIDs()
+        ids.insert(id.uuidString)
+        if ids.count > 200 {
+            ids = Set(ids.sorted().suffix(200))
+        }
+        UserDefaults.standard.set(Array(ids), forKey: processedWatchCommandIDsKey)
+    }
+
+    private func processedWatchCommandIDs() -> Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: processedWatchCommandIDsKey) ?? [])
+    }
+
+    private func transferWatchCommandResponse(_ response: WatchManualVisitCommandResponse) {
+        guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
+        WCSession.default.transferUserInfo(response.propertyListPayload)
+    }
+}
+
+extension AppDelegate: WCSessionDelegate {
+    nonisolated func session(
+        _ session: WCSession,
+        activationDidCompleteWith activationState: WCSessionActivationState,
+        error: Error?
+    ) {}
+
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
+
+    nonisolated func sessionDidDeactivate(_ session: WCSession) {
+        session.activate()
+    }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        guard let command = WatchManualVisitCommand.decode(from: message) else {
+            replyHandler([:])
+            return
+        }
+
+        Task { @MainActor in
+            let response = await processWatchManualVisitCommand(command)
+            replyHandler(response.propertyListPayload)
+        }
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any]) {
+        guard let command = WatchManualVisitCommand.decode(from: userInfo) else { return }
+
+        Task { @MainActor in
+            let response = await processWatchManualVisitCommand(command)
+            transferWatchCommandResponse(response)
+        }
     }
 }

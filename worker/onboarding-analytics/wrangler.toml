@@ -1,0 +1,21 @@
+name = "iso-me-onboarding-analytics"
+main = "src/index.ts"
+compatibility_date = "2026-05-30"
+
+# Create once with:
+#   wrangler d1 create iso-me-onboarding-analytics
+# Then paste the returned database_id below before deploying.
+[[d1_databases]]
+binding = "DB"
+database_name = "iso-me-onboarding-analytics"
+database_id = "20e95c7d-0939-4ead-8066-f2207505d273"
+
+[vars]
+# This worker deliberately does not store IP addresses, user agents, request URLs,
+# coordinates, addresses, place names, route points, webhook URLs, file/folder
+# paths, exported content, or device names.
+MAX_BATCH_SIZE = "50"
+
+# Optional ingest token. If configured:
+#   wrangler secret put INGEST_TOKEN
+# If unset, requests are accepted without Authorization after schema validation.

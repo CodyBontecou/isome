@@ -202,6 +202,26 @@
           }
         }
       }
+    },
+    "Manual Check-In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Check-In"
+          }
+        }
+      }
+    },
+    "Checked in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked in"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

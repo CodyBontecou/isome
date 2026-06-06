@@ -82,6 +82,15 @@
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
 		B2000008212F000100000008 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000004212F000000000004 /* Localizable.xcstrings */; };
 		B2000009212F000100000009 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000005212F000000000005 /* Localizable.xcstrings */; };
+		C0DA10000000000000000001 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000001 /* OnboardingAnalyticsEvent.swift */; };
+		C0DA10000000000000000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000002 /* OnboardingAnalyticsClient.swift */; };
+		C0DA10000000000000000003 /* OnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000003 /* OnboardingAnalyticsTransport.swift */; };
+		C0DA10000000000000000004 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000004 /* CloudflareOnboardingAnalyticsTransport.swift */; };
+		C0DA10000000000000000005 /* OnboardingAnalyticsFunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000005 /* OnboardingAnalyticsFunnel.swift */; };
+		C0DA10000000000000000006 /* FakeUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000006 /* FakeUserDefaults.swift */; };
+		C0DA10000000000000000007 /* OnboardingAnalyticsEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000007 /* OnboardingAnalyticsEventTests.swift */; };
+		C0DA10000000000000000008 /* OnboardingAnalyticsClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000008 /* OnboardingAnalyticsClientTests.swift */; };
+		C0DA10000000000000000009 /* OnboardingAnalyticsFunnelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA20000000000000000009 /* OnboardingAnalyticsFunnelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -226,6 +235,15 @@
 		B1000003212F000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000004212F000000000004 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B1000005212F000000000005 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		C0DA20000000000000000001 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000003 /* OnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000004 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000005 /* OnboardingAnalyticsFunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsFunnel.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000006 /* FakeUserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeUserDefaults.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000007 /* OnboardingAnalyticsEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEventTests.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000008 /* OnboardingAnalyticsClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClientTests.swift; sourceTree = "<group>"; };
+		C0DA20000000000000000009 /* OnboardingAnalyticsFunnelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsFunnelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -359,6 +377,7 @@
 		A1FFFFFC212EFFFFFFFF0004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C0DA30000000000000000001 /* Analytics */,
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
@@ -372,6 +391,18 @@
 				E4E900BDC375415EB884300D /* WebhookManager.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		C0DA30000000000000000001 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				C0DA20000000000000000001 /* OnboardingAnalyticsEvent.swift */,
+				C0DA20000000000000000002 /* OnboardingAnalyticsClient.swift */,
+				C0DA20000000000000000003 /* OnboardingAnalyticsTransport.swift */,
+				C0DA20000000000000000004 /* CloudflareOnboardingAnalyticsTransport.swift */,
+				C0DA20000000000000000005 /* OnboardingAnalyticsFunnel.swift */,
+			);
+			path = Analytics;
 			sourceTree = "<group>";
 		};
 		A1FFFFFD212EFFFFFFFF0005 /* Views */ = {
@@ -462,6 +493,7 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				C0DA30000000000000000002 /* Analytics */,
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				E9A100000000000000000003 /* ExportKitIntegrationTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
@@ -472,6 +504,17 @@
 			);
 			name = IsoMeTests;
 			path = IsoMeTests;
+			sourceTree = "<group>";
+		};
+		C0DA30000000000000000002 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				C0DA20000000000000000006 /* FakeUserDefaults.swift */,
+				C0DA20000000000000000007 /* OnboardingAnalyticsEventTests.swift */,
+				C0DA20000000000000000008 /* OnboardingAnalyticsClientTests.swift */,
+				C0DA20000000000000000009 /* OnboardingAnalyticsFunnelTests.swift */,
+			);
+			path = Analytics;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -727,6 +770,11 @@
 				D6000001212F000100000001 /* PushRegistrationManager.swift in Sources */,
 				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
 				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
+				C0DA10000000000000000001 /* OnboardingAnalyticsEvent.swift in Sources */,
+				C0DA10000000000000000002 /* OnboardingAnalyticsClient.swift in Sources */,
+				C0DA10000000000000000003 /* OnboardingAnalyticsTransport.swift in Sources */,
+				C0DA10000000000000000004 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */,
+				C0DA10000000000000000005 /* OnboardingAnalyticsFunnel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -774,6 +822,10 @@
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
+				C0DA10000000000000000006 /* FakeUserDefaults.swift in Sources */,
+				C0DA10000000000000000007 /* OnboardingAnalyticsEventTests.swift in Sources */,
+				C0DA10000000000000000008 /* OnboardingAnalyticsClientTests.swift in Sources */,
+				C0DA10000000000000000009 /* OnboardingAnalyticsFunnelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

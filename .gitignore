@@ -4,6 +4,8 @@ node_modules/
 .DS_Store
 .wrangler/
 .claude/
+node_modules/
+*.profraw
 
 # asc CLI build output (xcarchives, simulator builds) and release scratch.
 .asc/artifacts/

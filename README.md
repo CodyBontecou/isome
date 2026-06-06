@@ -21,6 +21,9 @@ iso.me is a location tracking app for iOS and watchOS. It automatically records 
 ### Visit Detection
 Automatic background detection of places you arrive at and depart from, powered by `CLLocationManager` visit monitoring. Each visit is reverse-geocoded to show a human-readable address and location name.
 
+### Manual Corrections & Check-Ins
+Confirm automatically detected visits, correct them to a nearby Apple Maps candidate, edit arrival/departure times, check in manually, or log a past visit. Corrected visits keep the original detected coordinate/name/address in export metadata so you can audit or undo changes later. The watch app can send manual check-in/check-out commands to iPhone and queues them with WatchConnectivity when the phone is temporarily unreachable.
+
 ### Continuous Tracking
 High-accuracy GPS tracking that records your exact path. Configurable distance filter (5m-200m) and auto-off timer (30 min to never). Tracked points include altitude, speed, and accuracy metadata.
 
@@ -28,7 +31,7 @@ High-accuracy GPS tracking that records your exact path. Configurable distance f
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
 ### Export & Import
-Export visits and location points as JSON, CSV, or Markdown. Choose a date range, time-of-day window, and per-format field toggles, and either condense everything into a single file or split the export into **one file per day** for easier downstream slicing. Customize filenames and dated subfolders with tokens (for example, Markdown can use `{year}/{year}-{month}/Daily Track - {date}.md`). Optionally set a default export folder for one-tap saves and schedule a daily auto-export. Scheduled exports use a routing-only APNs worker to wake the app near your selected time; your location records, files, folder paths, and filename templates stay on-device. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
+Export visits and location points as JSON, CSV, or Markdown. Choose a date range, time-of-day window, and per-format field toggles, and either condense everything into a single file or split the export into **one file per day** for easier downstream slicing. Visit exports include manual/corrected-place metadata where the format can carry it; OwnTracks and Overland stay points-only. Customize filenames and dated subfolders with tokens (for example, Markdown can use `{year}/{year}-{month}/Daily Track - {date}.md`). Optionally set a default export folder for one-tap saves and schedule a daily auto-export. Scheduled exports use a routing-only APNs worker to wake the app near your selected time; your location records, files, folder paths, and filename templates stay on-device. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
 
 Exports drop in cleanly to the [iso.me Maps Obsidian plugin](https://github.com/CodyBontecou/obsidian-iso-me-maps), which renders visits, routes, heatmaps, and outliers as Leaflet maps inline in your notes — point a code block at a single condensed export, a folder of per-day files, or a filename glob.
 
@@ -144,6 +147,17 @@ The app requests the following permissions at runtime:
 - **Location (When in Use)** - Foreground location display
 - **Motion & Fitness** - Activity detection for auto-start feature
 
+### Place Lookup Privacy
+
+The **Location Names** setting controls both reverse geocoding and Apple Maps place search. When it is on, Apple geocoding/search may receive approximate coordinates or search text. When it is off, iso.me does not call `CLGeocoder` or `MKLocalSearch`; use the custom-name fallback for manual corrections and check-ins.
+
+### Manual Visit QA Notes
+
+- With **Location Names** off, confirm/correct sheets should show the manual custom-name fallback and should not return Apple Maps candidates.
+- Correct an open automatic visit, then wait for the departure update; the visit should still close because iso.me matches against detected/original coordinates.
+- Export a corrected/manual visit as JSON, CSV, and Markdown, then re-import it; source/status/original/detected/place metadata should round-trip.
+- From Apple Watch, use **Check In** and **Check Out** with the iPhone reachable and unreachable; commands should apply immediately when reachable and queue for later delivery when not.
+
 ### Entitlements
 
 - App Groups (`group.com.bontecou.isome`) - Shared data between app, widgets, and watch
@@ -155,6 +169,9 @@ The app requests the following permissions at runtime:
 The app registers the `isome://` URL scheme. Currently supports:
 
 - `isome://stop` - Stops continuous tracking (used by Live Activity)
+- `isome://checkin` - Opens the manual check-in flow
+- `isome://log` - Opens the past-visit logging flow
+- `isome://visit/<uuid>` - Opens a visit by UUID
 
 ## Contributing
 

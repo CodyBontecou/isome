@@ -105,7 +105,7 @@ struct ExportView: View {
                 }
             }
             .sheet(isPresented: $showingPaywall) {
-                PaywallView(storeManager: storeManager)
+                PaywallView(storeManager: storeManager, context: .export)
             }
             .sheet(isPresented: $showingPreview) {
                 IsoMeExportPreviewView(

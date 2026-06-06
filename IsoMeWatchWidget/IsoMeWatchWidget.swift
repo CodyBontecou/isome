@@ -115,11 +115,13 @@ struct CircularWidgetView: View {
     }
 
     private var statusIcon: String {
-        data.isTrackingEnabled ? "location.fill" : "location.slash"
+        if data.isManualCheckInOpen { return "checkmark.circle.fill" }
+        return data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
 
     private var statusColor: Color {
-        data.isTrackingEnabled ? .green : .secondary
+        if data.isManualCheckInOpen { return Color.green }
+        return data.isTrackingEnabled ? Color.green : Color.secondary
     }
 }
 
@@ -147,6 +149,11 @@ struct RectangularWidgetView: View {
                         .font(.caption)
                         .fontWeight(.semibold)
                         .lineLimit(1)
+                } else if data.isManualCheckInOpen {
+                    Text(data.openManualVisitDisplayName)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .lineLimit(1)
                 }
 
                 HStack(spacing: 8) {
@@ -159,18 +166,24 @@ struct RectangularWidgetView: View {
                    let remaining = data.formattedRemainingTime {
                     Text("\(remaining) left")
                         .font(.caption2)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.orange)
+                } else if data.isManualCheckInOpen {
+                    Text("Checked in")
+                        .font(.caption2)
+                        .foregroundStyle(Color.green)
                 }
             }
         }
     }
 
     private var statusIcon: String {
-        data.isTrackingEnabled ? "location.fill" : "location.slash"
+        if data.isManualCheckInOpen { return "checkmark.circle.fill" }
+        return data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
 
     private var statusColor: Color {
-        data.isTrackingEnabled ? .green : .secondary
+        if data.isManualCheckInOpen { return Color.green }
+        return data.isTrackingEnabled ? Color.green : Color.secondary
     }
 }
 
@@ -180,7 +193,9 @@ struct InlineWidgetView: View {
     let data: SharedLocationData
 
     var body: some View {
-        if data.isTrackingEnabled {
+        if data.isManualCheckInOpen {
+            Label("Checked in • \(data.todayVisitsCount) visits", systemImage: "checkmark.circle")
+        } else if data.isTrackingEnabled {
             Label("\(data.todayVisitsCount) visits • \(data.formattedDistance)", systemImage: "location.fill")
         } else {
             Label("Tracking Off", systemImage: "location.slash")
@@ -209,11 +224,13 @@ struct CornerWidgetView: View {
     }
 
     private var statusIcon: String {
-        data.isTrackingEnabled ? "location.fill" : "location.slash"
+        if data.isManualCheckInOpen { return "checkmark.circle.fill" }
+        return data.isTrackingEnabled ? "location.fill" : "location.slash"
     }
 
     private var statusColor: Color {
-        data.isTrackingEnabled ? .green : .secondary
+        if data.isManualCheckInOpen { return Color.green }
+        return data.isTrackingEnabled ? Color.green : Color.secondary
     }
 }
 

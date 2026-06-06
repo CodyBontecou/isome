@@ -87,6 +87,22 @@ struct ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let source: String
+        let confirmationStatus: String
+        let confirmedAt: String?
+        let updatedAt: String?
+        let originalLatitude: Double?
+        let originalLongitude: Double?
+        let originalLocationName: String?
+        let originalAddress: String?
+        let detectedLatitude: Double?
+        let detectedLongitude: Double?
+        let detectedLocationName: String?
+        let detectedAddress: String?
+        let placeSource: String?
+        let placeCategory: String?
+        let placeDistanceMeters: Double?
+        let placeConfidence: Double?
     }
 
     struct ExportData: Codable {
@@ -95,18 +111,7 @@ struct ExportService {
     }
 
     static func exportToJSON(visits: [Visit], options: ExportOptions = ExportOptions()) throws -> Data {
-        let exportableVisits = visits.map { visit in
-            ExportableVisit(
-                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
-                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
-                arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
-                departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.locationName : nil,
-                address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
-            )
-        }
+        let exportableVisits = visits.map { exportableVisit($0, options: options) }
 
         let exportData = ExportData(
             exportDate: iso8601Formatter.string(from: Date()),
@@ -117,6 +122,35 @@ struct ExportService {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
         return try encoder.encode(exportData)
+    }
+
+    private static func exportableVisit(_ visit: Visit, options: ExportOptions) -> ExportableVisit {
+        ExportableVisit(
+            latitude: options.includeVisitCoordinates ? visit.latitude : nil,
+            longitude: options.includeVisitCoordinates ? visit.longitude : nil,
+            arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
+            departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
+            durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
+            locationName: options.includeVisitLocationName ? visit.locationName : nil,
+            address: options.includeVisitAddress ? visit.address : nil,
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            source: visit.source.rawValue,
+            confirmationStatus: visit.confirmationStatus.rawValue,
+            confirmedAt: visit.confirmedAt.map { iso8601Formatter.string(from: $0) },
+            updatedAt: visit.updatedAt.map { iso8601Formatter.string(from: $0) },
+            originalLatitude: options.includeVisitCoordinates ? visit.originalLatitude : nil,
+            originalLongitude: options.includeVisitCoordinates ? visit.originalLongitude : nil,
+            originalLocationName: options.includeVisitLocationName ? visit.originalLocationName : nil,
+            originalAddress: options.includeVisitAddress ? visit.originalAddress : nil,
+            detectedLatitude: options.includeVisitCoordinates ? visit.detectedLatitude : nil,
+            detectedLongitude: options.includeVisitCoordinates ? visit.detectedLongitude : nil,
+            detectedLocationName: options.includeVisitLocationName ? visit.detectedLocationName : nil,
+            detectedAddress: options.includeVisitAddress ? visit.detectedAddress : nil,
+            placeSource: visit.placeSource?.rawValue,
+            placeCategory: visit.placeCategoryRaw,
+            placeDistanceMeters: visit.placeDistanceMeters,
+            placeConfidence: visit.placeConfidence
+        )
     }
 
     // MARK: - CSV Export
@@ -131,6 +165,28 @@ struct ExportService {
         if options.includeVisitLocationName { headers.append("location_name") }
         if options.includeVisitAddress { headers.append("address") }
         if options.includeVisitNotes { headers.append("notes") }
+        headers.append("source")
+        headers.append("confirmation_status")
+        headers.append("confirmed_at")
+        headers.append("updated_at")
+        if options.includeVisitCoordinates {
+            headers.append("original_latitude")
+            headers.append("original_longitude")
+            headers.append("detected_latitude")
+            headers.append("detected_longitude")
+        }
+        if options.includeVisitLocationName {
+            headers.append("original_location_name")
+            headers.append("detected_location_name")
+        }
+        if options.includeVisitAddress {
+            headers.append("original_address")
+            headers.append("detected_address")
+        }
+        headers.append("place_source")
+        headers.append("place_category")
+        headers.append("place_distance_meters")
+        headers.append("place_confidence")
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -154,6 +210,28 @@ struct ExportService {
             if options.includeVisitNotes {
                 fields.append(escapeCSVField(visit.notes ?? ""))
             }
+            fields.append(visit.source.rawValue)
+            fields.append(visit.confirmationStatus.rawValue)
+            fields.append(visit.confirmedAt.map { iso8601Formatter.string(from: $0) } ?? "")
+            fields.append(visit.updatedAt.map { iso8601Formatter.string(from: $0) } ?? "")
+            if options.includeVisitCoordinates {
+                fields.append(visit.originalLatitude.map { String($0) } ?? "")
+                fields.append(visit.originalLongitude.map { String($0) } ?? "")
+                fields.append(visit.detectedLatitude.map { String($0) } ?? "")
+                fields.append(visit.detectedLongitude.map { String($0) } ?? "")
+            }
+            if options.includeVisitLocationName {
+                fields.append(escapeCSVField(visit.originalLocationName ?? ""))
+                fields.append(escapeCSVField(visit.detectedLocationName ?? ""))
+            }
+            if options.includeVisitAddress {
+                fields.append(escapeCSVField(visit.originalAddress ?? ""))
+                fields.append(escapeCSVField(visit.detectedAddress ?? ""))
+            }
+            fields.append(visit.placeSource?.rawValue ?? "")
+            fields.append(escapeCSVField(visit.placeCategoryRaw ?? ""))
+            fields.append(visit.placeDistanceMeters.map { String(format: "%.2f", $0) } ?? "")
+            fields.append(visit.placeConfidence.map { String(format: "%.3f", $0) } ?? "")
             csvString.append(fields.joined(separator: ",") + "\n")
         }
 
@@ -200,6 +278,28 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
+        headerCols.append("Source")
+        headerCols.append("Status")
+        headerCols.append("Confirmed")
+        headerCols.append("Updated")
+        if options.includeVisitCoordinates {
+            headerCols.append("Original Lat")
+            headerCols.append("Original Lon")
+            headerCols.append("Detected Lat")
+            headerCols.append("Detected Lon")
+        }
+        if options.includeVisitLocationName {
+            headerCols.append("Original Location")
+            headerCols.append("Detected Location")
+        }
+        if options.includeVisitAddress {
+            headerCols.append("Original Address")
+            headerCols.append("Detected Address")
+        }
+        headerCols.append("Place Source")
+        headerCols.append("Place Category")
+        headerCols.append("Place Distance")
+        headerCols.append("Place Confidence")
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -236,6 +336,28 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
+                cells.append(visit.source.rawValue)
+                cells.append(visit.confirmationStatus.rawValue)
+                cells.append(visit.confirmedAt.map { iso8601Formatter.string(from: $0) } ?? "-")
+                cells.append(visit.updatedAt.map { iso8601Formatter.string(from: $0) } ?? "-")
+                if options.includeVisitCoordinates {
+                    cells.append(visit.originalLatitude.map { String(format: "%.6f", $0) } ?? "-")
+                    cells.append(visit.originalLongitude.map { String(format: "%.6f", $0) } ?? "-")
+                    cells.append(visit.detectedLatitude.map { String(format: "%.6f", $0) } ?? "-")
+                    cells.append(visit.detectedLongitude.map { String(format: "%.6f", $0) } ?? "-")
+                }
+                if options.includeVisitLocationName {
+                    cells.append(escapeMarkdownTableCell(visit.originalLocationName))
+                    cells.append(escapeMarkdownTableCell(visit.detectedLocationName))
+                }
+                if options.includeVisitAddress {
+                    cells.append(escapeMarkdownTableCell(visit.originalAddress))
+                    cells.append(escapeMarkdownTableCell(visit.detectedAddress))
+                }
+                cells.append(visit.placeSource?.rawValue ?? "-")
+                cells.append(escapeMarkdownTableCell(visit.placeCategoryRaw))
+                cells.append(visit.placeDistanceMeters.map { String(format: "%.1f m", $0) } ?? "-")
+                cells.append(visit.placeConfidence.map { String(format: "%.3f", $0) } ?? "-")
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -757,18 +879,7 @@ extension ExportService {
     }
 
     static func exportCombinedToJSON(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
-        let exportableVisits = visits.map { visit in
-            ExportableVisit(
-                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
-                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
-                arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
-                departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.locationName : nil,
-                address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
-            )
-        }
+        let exportableVisits = visits.map { exportableVisit($0, options: options) }
 
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
         let exportablePoints = sortedPoints.map { point in
@@ -975,6 +1086,52 @@ extension ExportService {
         if options.includeVisitDuration, let mins = visit.durationMinutes {
             ext += "      <isome:durationMinutes>\(gpxNumber(mins, decimals: 2))</isome:durationMinutes>\n"
         }
+        ext += "      <isome:source>\(escapeXML(visit.source.rawValue))</isome:source>\n"
+        ext += "      <isome:confirmationStatus>\(escapeXML(visit.confirmationStatus.rawValue))</isome:confirmationStatus>\n"
+        if let confirmedAt = visit.confirmedAt {
+            ext += "      <isome:confirmedAt>\(iso8601Formatter.string(from: confirmedAt))</isome:confirmedAt>\n"
+        }
+        if let updatedAt = visit.updatedAt {
+            ext += "      <isome:updatedAt>\(iso8601Formatter.string(from: updatedAt))</isome:updatedAt>\n"
+        }
+        if options.includeVisitCoordinates {
+            if let originalLatitude = visit.originalLatitude, let originalLongitude = visit.originalLongitude {
+                ext += "      <isome:originalLatitude>\(gpxNumber(originalLatitude, decimals: 7))</isome:originalLatitude>\n"
+                ext += "      <isome:originalLongitude>\(gpxNumber(originalLongitude, decimals: 7))</isome:originalLongitude>\n"
+            }
+            if let detectedLatitude = visit.detectedLatitude, let detectedLongitude = visit.detectedLongitude {
+                ext += "      <isome:detectedLatitude>\(gpxNumber(detectedLatitude, decimals: 7))</isome:detectedLatitude>\n"
+                ext += "      <isome:detectedLongitude>\(gpxNumber(detectedLongitude, decimals: 7))</isome:detectedLongitude>\n"
+            }
+        }
+        if options.includeVisitLocationName {
+            if let originalLocationName = visit.originalLocationName, !originalLocationName.isEmpty {
+                ext += "      <isome:originalLocationName>\(escapeXML(originalLocationName))</isome:originalLocationName>\n"
+            }
+            if let detectedLocationName = visit.detectedLocationName, !detectedLocationName.isEmpty {
+                ext += "      <isome:detectedLocationName>\(escapeXML(detectedLocationName))</isome:detectedLocationName>\n"
+            }
+        }
+        if options.includeVisitAddress {
+            if let originalAddress = visit.originalAddress, !originalAddress.isEmpty {
+                ext += "      <isome:originalAddress>\(escapeXML(originalAddress))</isome:originalAddress>\n"
+            }
+            if let detectedAddress = visit.detectedAddress, !detectedAddress.isEmpty {
+                ext += "      <isome:detectedAddress>\(escapeXML(detectedAddress))</isome:detectedAddress>\n"
+            }
+        }
+        if let placeSource = visit.placeSource {
+            ext += "      <isome:placeSource>\(escapeXML(placeSource.rawValue))</isome:placeSource>\n"
+        }
+        if let placeCategoryRaw = visit.placeCategoryRaw, !placeCategoryRaw.isEmpty {
+            ext += "      <isome:placeCategory>\(escapeXML(placeCategoryRaw))</isome:placeCategory>\n"
+        }
+        if let placeDistanceMeters = visit.placeDistanceMeters {
+            ext += "      <isome:placeDistanceMeters>\(gpxNumber(placeDistanceMeters, decimals: 2))</isome:placeDistanceMeters>\n"
+        }
+        if let placeConfidence = visit.placeConfidence {
+            ext += "      <isome:placeConfidence>\(gpxNumber(placeConfidence, decimals: 3))</isome:placeConfidence>\n"
+        }
         if !ext.isEmpty {
             xml += "    <extensions>\n\(ext)    </extensions>\n"
         }
@@ -1149,6 +1306,52 @@ extension ExportService {
         if options.includeVisitNotes, let notes = visit.notes, !notes.isEmpty {
             extended += "        <Data name=\"notes\"><value>\(escapeXML(notes))</value></Data>\n"
         }
+        extended += "        <Data name=\"source\"><value>\(escapeXML(visit.source.rawValue))</value></Data>\n"
+        extended += "        <Data name=\"confirmationStatus\"><value>\(escapeXML(visit.confirmationStatus.rawValue))</value></Data>\n"
+        if let confirmedAt = visit.confirmedAt {
+            extended += "        <Data name=\"confirmedAt\"><value>\(iso8601Formatter.string(from: confirmedAt))</value></Data>\n"
+        }
+        if let updatedAt = visit.updatedAt {
+            extended += "        <Data name=\"updatedAt\"><value>\(iso8601Formatter.string(from: updatedAt))</value></Data>\n"
+        }
+        if options.includeVisitCoordinates {
+            if let originalLatitude = visit.originalLatitude, let originalLongitude = visit.originalLongitude {
+                extended += "        <Data name=\"originalLatitude\"><value>\(gpxNumber(originalLatitude, decimals: 7))</value></Data>\n"
+                extended += "        <Data name=\"originalLongitude\"><value>\(gpxNumber(originalLongitude, decimals: 7))</value></Data>\n"
+            }
+            if let detectedLatitude = visit.detectedLatitude, let detectedLongitude = visit.detectedLongitude {
+                extended += "        <Data name=\"detectedLatitude\"><value>\(gpxNumber(detectedLatitude, decimals: 7))</value></Data>\n"
+                extended += "        <Data name=\"detectedLongitude\"><value>\(gpxNumber(detectedLongitude, decimals: 7))</value></Data>\n"
+            }
+        }
+        if options.includeVisitLocationName {
+            if let originalLocationName = visit.originalLocationName, !originalLocationName.isEmpty {
+                extended += "        <Data name=\"originalLocationName\"><value>\(escapeXML(originalLocationName))</value></Data>\n"
+            }
+            if let detectedLocationName = visit.detectedLocationName, !detectedLocationName.isEmpty {
+                extended += "        <Data name=\"detectedLocationName\"><value>\(escapeXML(detectedLocationName))</value></Data>\n"
+            }
+        }
+        if options.includeVisitAddress {
+            if let originalAddress = visit.originalAddress, !originalAddress.isEmpty {
+                extended += "        <Data name=\"originalAddress\"><value>\(escapeXML(originalAddress))</value></Data>\n"
+            }
+            if let detectedAddress = visit.detectedAddress, !detectedAddress.isEmpty {
+                extended += "        <Data name=\"detectedAddress\"><value>\(escapeXML(detectedAddress))</value></Data>\n"
+            }
+        }
+        if let placeSource = visit.placeSource {
+            extended += "        <Data name=\"placeSource\"><value>\(escapeXML(placeSource.rawValue))</value></Data>\n"
+        }
+        if let placeCategoryRaw = visit.placeCategoryRaw, !placeCategoryRaw.isEmpty {
+            extended += "        <Data name=\"placeCategory\"><value>\(escapeXML(placeCategoryRaw))</value></Data>\n"
+        }
+        if let placeDistanceMeters = visit.placeDistanceMeters {
+            extended += "        <Data name=\"placeDistanceMeters\"><value>\(gpxNumber(placeDistanceMeters, decimals: 2))</value></Data>\n"
+        }
+        if let placeConfidence = visit.placeConfidence {
+            extended += "        <Data name=\"placeConfidence\"><value>\(gpxNumber(placeConfidence, decimals: 3))</value></Data>\n"
+        }
         xml += "      <ExtendedData>\n\(extended)      </ExtendedData>\n"
         xml += "      <Point><coordinates>\(kmlCoordinate(lon: visit.longitude, lat: visit.latitude))</coordinates></Point>\n"
         xml += "    </Placemark>\n"
@@ -1278,6 +1481,22 @@ extension ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let source: String
+        let confirmationStatus: String
+        let confirmedAt: String?
+        let updatedAt: String?
+        let originalLatitude: Double?
+        let originalLongitude: Double?
+        let originalLocationName: String?
+        let originalAddress: String?
+        let detectedLatitude: Double?
+        let detectedLongitude: Double?
+        let detectedLocationName: String?
+        let detectedAddress: String?
+        let placeSource: String?
+        let placeCategory: String?
+        let placeDistanceMeters: Double?
+        let placeConfidence: Double?
     }
 
     private struct PointProperties: Encodable {
@@ -1300,7 +1519,23 @@ extension ExportService {
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
             locationName: options.includeVisitLocationName ? visit.locationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            source: visit.source.rawValue,
+            confirmationStatus: visit.confirmationStatus.rawValue,
+            confirmedAt: visit.confirmedAt.map { iso8601Formatter.string(from: $0) },
+            updatedAt: visit.updatedAt.map { iso8601Formatter.string(from: $0) },
+            originalLatitude: options.includeVisitCoordinates ? visit.originalLatitude : nil,
+            originalLongitude: options.includeVisitCoordinates ? visit.originalLongitude : nil,
+            originalLocationName: options.includeVisitLocationName ? visit.originalLocationName : nil,
+            originalAddress: options.includeVisitAddress ? visit.originalAddress : nil,
+            detectedLatitude: options.includeVisitCoordinates ? visit.detectedLatitude : nil,
+            detectedLongitude: options.includeVisitCoordinates ? visit.detectedLongitude : nil,
+            detectedLocationName: options.includeVisitLocationName ? visit.detectedLocationName : nil,
+            detectedAddress: options.includeVisitAddress ? visit.detectedAddress : nil,
+            placeSource: visit.placeSource?.rawValue,
+            placeCategory: visit.placeCategoryRaw,
+            placeDistanceMeters: visit.placeDistanceMeters,
+            placeConfidence: visit.placeConfidence
         )
 
         return GeoJSONFeature(

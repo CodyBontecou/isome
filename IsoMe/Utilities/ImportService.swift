@@ -30,6 +30,22 @@ struct ImportedVisit {
     let locationName: String?
     let address: String?
     let notes: String?
+    var sourceRaw: String? = nil
+    var confirmationStatusRaw: String? = nil
+    var confirmedAt: Date? = nil
+    var updatedAt: Date? = nil
+    var originalLatitude: Double? = nil
+    var originalLongitude: Double? = nil
+    var originalLocationName: String? = nil
+    var originalAddress: String? = nil
+    var detectedLatitude: Double? = nil
+    var detectedLongitude: Double? = nil
+    var detectedLocationName: String? = nil
+    var detectedAddress: String? = nil
+    var placeSourceRaw: String? = nil
+    var placeCategoryRaw: String? = nil
+    var placeDistanceMeters: Double? = nil
+    var placeConfidence: Double? = nil
 }
 
 struct ImportedLocationPoint {
@@ -192,7 +208,23 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: dict["locationName"] as? String,
                 address: dict["address"] as? String,
-                notes: dict["notes"] as? String
+                notes: dict["notes"] as? String,
+                sourceRaw: dict["source"] as? String,
+                confirmationStatusRaw: dict["confirmationStatus"] as? String,
+                confirmedAt: (dict["confirmedAt"] as? String).flatMap { parseISO8601Date($0) },
+                updatedAt: (dict["updatedAt"] as? String).flatMap { parseISO8601Date($0) },
+                originalLatitude: numberValue(dict["originalLatitude"]),
+                originalLongitude: numberValue(dict["originalLongitude"]),
+                originalLocationName: dict["originalLocationName"] as? String,
+                originalAddress: dict["originalAddress"] as? String,
+                detectedLatitude: numberValue(dict["detectedLatitude"]),
+                detectedLongitude: numberValue(dict["detectedLongitude"]),
+                detectedLocationName: dict["detectedLocationName"] as? String,
+                detectedAddress: dict["detectedAddress"] as? String,
+                placeSourceRaw: dict["placeSource"] as? String,
+                placeCategoryRaw: dict["placeCategory"] as? String,
+                placeDistanceMeters: numberValue(dict["placeDistanceMeters"]),
+                placeConfidence: numberValue(dict["placeConfidence"])
             )
         }
     }
@@ -304,6 +336,21 @@ struct ImportService {
                 return val.isEmpty ? nil : val
             }
 
+            func optionalString(_ column: String) -> String? {
+                colIndex[column].flatMap { col in
+                    let value = fields[col]
+                    return value.isEmpty ? nil : value
+                }
+            }
+
+            func optionalDouble(_ column: String) -> Double? {
+                optionalString(column).flatMap(Double.init)
+            }
+
+            func optionalDate(_ column: String) -> Date? {
+                optionalString(column).flatMap(parseISO8601Date)
+            }
+
             return ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
@@ -311,7 +358,23 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: locationName,
                 address: address,
-                notes: notes
+                notes: notes,
+                sourceRaw: optionalString("source"),
+                confirmationStatusRaw: optionalString("confirmation_status"),
+                confirmedAt: optionalDate("confirmed_at"),
+                updatedAt: optionalDate("updated_at"),
+                originalLatitude: optionalDouble("original_latitude"),
+                originalLongitude: optionalDouble("original_longitude"),
+                originalLocationName: optionalString("original_location_name"),
+                originalAddress: optionalString("original_address"),
+                detectedLatitude: optionalDouble("detected_latitude"),
+                detectedLongitude: optionalDouble("detected_longitude"),
+                detectedLocationName: optionalString("detected_location_name"),
+                detectedAddress: optionalString("detected_address"),
+                placeSourceRaw: optionalString("place_source"),
+                placeCategoryRaw: optionalString("place_category"),
+                placeDistanceMeters: optionalDouble("place_distance_meters"),
+                placeConfidence: optionalDouble("place_confidence")
             )
         }
     }
@@ -559,14 +622,40 @@ struct ImportService {
                 return combineDateAndTime(date: date, time: time)
             }
 
+            func cell(_ column: String) -> String? {
+                guard let index = colIndex[column], index < cells.count else { return nil }
+                return optionalMarkdownCell(cells[index])
+            }
+
+            func cellDouble(_ column: String) -> Double? {
+                guard let value = cell(column) else { return nil }
+                return Double(value.components(separatedBy: " ").first ?? value)
+            }
+
             visits.append(ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
                 arrivedAt: combineDateAndTime(date: date, time: arrivalTime),
                 departedAt: departedAt,
-                locationName: optionalMarkdownCell(colIndex["Location"].map { cells[$0] }),
-                address: optionalMarkdownCell(colIndex["Address"].map { cells[$0] }),
-                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] })
+                locationName: cell("Location"),
+                address: cell("Address"),
+                notes: cell("Notes"),
+                sourceRaw: cell("Source"),
+                confirmationStatusRaw: cell("Status"),
+                confirmedAt: cell("Confirmed").flatMap(parseISO8601Date),
+                updatedAt: cell("Updated").flatMap(parseISO8601Date),
+                originalLatitude: cellDouble("Original Lat"),
+                originalLongitude: cellDouble("Original Lon"),
+                originalLocationName: cell("Original Location"),
+                originalAddress: cell("Original Address"),
+                detectedLatitude: cellDouble("Detected Lat"),
+                detectedLongitude: cellDouble("Detected Lon"),
+                detectedLocationName: cell("Detected Location"),
+                detectedAddress: cell("Detected Address"),
+                placeSourceRaw: cell("Place Source"),
+                placeCategoryRaw: cell("Place Category"),
+                placeDistanceMeters: cellDouble("Place Distance"),
+                placeConfidence: cellDouble("Place Confidence")
             ))
         }
 
@@ -663,6 +752,19 @@ struct ImportService {
 
     private static func parseISO8601Date(_ string: String) -> Date? {
         iso8601Formatter.date(from: string) ?? iso8601FallbackFormatter.date(from: string)
+    }
+
+    private static func numberValue(_ value: Any?) -> Double? {
+        switch value {
+        case let value as Double:
+            return value
+        case let value as Int:
+            return Double(value)
+        case let value as String:
+            return Double(value)
+        default:
+            return nil
+        }
     }
 
     private static func combineDateAndTime(date: Date, time: Date) -> Date {

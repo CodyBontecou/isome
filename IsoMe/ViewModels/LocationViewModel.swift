@@ -2,12 +2,15 @@ import Foundation
 import SwiftData
 import SwiftUI
 import Combine
+import CoreLocation
 
 @MainActor
 @Observable
 final class LocationViewModel {
     var locationManager: LocationManager
     private var modelContext: ModelContext
+    private let placeSearchService: any PlaceSearching
+    private let now: () -> Date
 
     // Cached data
     var todayVisits: [Visit] = []
@@ -27,6 +30,7 @@ final class LocationViewModel {
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?
+    var visitMutationError: String?
 
     private var hasLoadedAllLocationPoints = false
     private var sessionLocationPointsCache: [LocationPoint] = []
@@ -38,9 +42,16 @@ final class LocationViewModel {
     private let maximumRawMapPointFetchCount = 10_000
     private let mapFetchBatchSize = 500
 
-    init(modelContext: ModelContext, locationManager: LocationManager) {
+    init(
+        modelContext: ModelContext,
+        locationManager: LocationManager,
+        placeSearchService: any PlaceSearching = PlaceSearchService(),
+        now: @escaping () -> Date = Date.init
+    ) {
         self.modelContext = modelContext
         self.locationManager = locationManager
+        self.placeSearchService = placeSearchService
+        self.now = now
         locationManager.setModelContext(modelContext)
 
         loadData()
@@ -457,7 +468,220 @@ final class LocationViewModel {
 
     func updateVisitNotes(_ visit: Visit, notes: String) {
         visit.notes = notes.isEmpty ? nil : notes
+        visit.updatedAt = now()
         try? modelContext.save()
+    }
+
+    func confirmVisit(_ visit: Visit) {
+        let timestamp = now()
+        visit.confirmationStatus = .confirmed
+        visit.confirmedAt = timestamp
+        visit.updatedAt = timestamp
+        visit.geocodingCompleted = true
+        saveVisitMutation()
+    }
+
+    func correctVisit(_ visit: Visit, with update: VisitPlaceUpdate) throws {
+        if visit.originalLatitude == nil || visit.originalLongitude == nil {
+            visit.originalLatitude = visit.latitude
+            visit.originalLongitude = visit.longitude
+            visit.originalLocationName = visit.locationName
+            visit.originalAddress = visit.address
+        }
+
+        let timestamp = now()
+        visit.latitude = update.latitude
+        visit.longitude = update.longitude
+        visit.locationName = normalizedOptional(update.locationName)
+        visit.address = normalizedOptional(update.address)
+        visit.placeSource = update.placeSource
+        visit.placeCategoryRaw = normalizedOptional(update.placeCategoryRaw)
+        visit.placeDistanceMeters = update.placeDistanceMeters
+        visit.placeConfidence = update.placeConfidence
+        visit.confirmationStatus = .corrected
+        visit.confirmedAt = visit.confirmedAt ?? timestamp
+        visit.updatedAt = timestamp
+        visit.geocodingCompleted = true
+
+        try saveVisitMutationThrowing()
+    }
+
+    func undoVisitCorrection(_ visit: Visit) throws {
+        guard let originalLatitude = visit.originalLatitude,
+              let originalLongitude = visit.originalLongitude else {
+            throw VisitMutationError.noCorrectionToUndo
+        }
+
+        visit.latitude = originalLatitude
+        visit.longitude = originalLongitude
+        visit.locationName = visit.originalLocationName
+        visit.address = visit.originalAddress
+        visit.originalLatitude = nil
+        visit.originalLongitude = nil
+        visit.originalLocationName = nil
+        visit.originalAddress = nil
+        visit.placeSource = visit.detectedLocationName != nil || visit.detectedAddress != nil ? .coreLocationGeocode : nil
+        visit.placeCategoryRaw = nil
+        visit.placeDistanceMeters = nil
+        visit.placeConfidence = nil
+        visit.confirmationStatus = visit.source == .manual ? .confirmed : .unconfirmed
+        visit.updatedAt = now()
+        visit.geocodingCompleted = visit.locationName != nil || visit.address != nil
+
+        try saveVisitMutationThrowing()
+    }
+
+    @discardableResult
+    func createManualVisit(from draft: ManualVisitDraft) throws -> Visit {
+        try validateTimeRange(arrivedAt: draft.arrivedAt, departedAt: draft.departedAt)
+        guard try !hasOverlappingManualVisit(
+            arrivedAt: draft.arrivedAt,
+            departedAt: draft.departedAt
+        ) else {
+            throw VisitMutationError.overlappingManualVisit
+        }
+
+        let timestamp = now()
+        let visit = Visit(
+            latitude: draft.latitude,
+            longitude: draft.longitude,
+            arrivedAt: draft.arrivedAt,
+            departedAt: draft.departedAt,
+            locationName: normalizedOptional(draft.locationName),
+            address: normalizedOptional(draft.address),
+            notes: normalizedOptional(draft.notes),
+            geocodingCompleted: true,
+            source: .manual,
+            confirmationStatus: .confirmed,
+            confirmedAt: timestamp,
+            updatedAt: timestamp,
+            placeSource: draft.placeSource,
+            placeCategoryRaw: normalizedOptional(draft.placeCategoryRaw),
+            placeDistanceMeters: draft.placeDistanceMeters,
+            placeConfidence: draft.placeConfidence
+        )
+
+        modelContext.insert(visit)
+        try saveVisitMutationThrowing()
+        return visit
+    }
+
+    @discardableResult
+    func createManualVisitAtCurrentLocation(
+        locationName: String? = nil,
+        address: String? = nil,
+        notes: String? = nil
+    ) async throws -> Visit {
+        let location = try await locationManager.requestOneShotCurrentLocation()
+        let timestamp = now()
+        return try createManualVisit(from: ManualVisitDraft(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude,
+            arrivedAt: timestamp,
+            departedAt: nil,
+            locationName: locationName,
+            address: address,
+            notes: notes,
+            placeSource: .userEntered
+        ))
+    }
+
+    func updateVisitTimes(_ visit: Visit, arrivedAt: Date, departedAt: Date?) throws {
+        try validateTimeRange(arrivedAt: arrivedAt, departedAt: departedAt)
+        if visit.source == .manual {
+            guard try !hasOverlappingManualVisit(
+                arrivedAt: arrivedAt,
+                departedAt: departedAt,
+                excluding: visit.id
+            ) else {
+                throw VisitMutationError.overlappingManualVisit
+            }
+        }
+
+        visit.arrivedAt = arrivedAt
+        visit.departedAt = departedAt
+        visit.updatedAt = now()
+        try saveVisitMutationThrowing()
+    }
+
+    func checkoutVisit(_ visit: Visit, at departedAt: Date? = nil) throws {
+        guard visit.source == .manual else {
+            throw VisitMutationError.checkoutRequiresManualVisit
+        }
+        guard visit.departedAt == nil else {
+            throw VisitMutationError.visitAlreadyCheckedOut
+        }
+        try updateVisitTimes(visit, arrivedAt: visit.arrivedAt, departedAt: departedAt ?? now())
+    }
+
+    func searchPlaceCandidates(near coordinate: CLLocationCoordinate2D, query: String?) async -> [PlaceCandidate] {
+        do {
+            return try await placeSearchService.search(
+                near: coordinate,
+                query: query,
+                allowNetworkGeocoding: allowNetworkGeocoding
+            )
+        } catch {
+            return []
+        }
+    }
+
+    private var allowNetworkGeocoding: Bool {
+        let key = "allowNetworkGeocoding"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
+    private func validateTimeRange(arrivedAt: Date, departedAt: Date?) throws {
+        guard let departedAt else { return }
+        guard departedAt >= arrivedAt else {
+            throw VisitMutationError.invalidTimeRange
+        }
+    }
+
+    private func hasOverlappingManualVisit(
+        arrivedAt: Date,
+        departedAt: Date?,
+        excluding excludedID: UUID? = nil
+    ) throws -> Bool {
+        let visits = try modelContext.fetch(FetchDescriptor<Visit>())
+        return visits.contains { visit in
+            guard visit.source == .manual else { return false }
+            guard visit.id != excludedID else { return false }
+            return dateRangesOverlap(
+                arrivedAt...manualRangeUpperBound(departedAt),
+                visit.arrivedAt...manualRangeUpperBound(visit.departedAt)
+            )
+        }
+    }
+
+    private func manualRangeUpperBound(_ departedAt: Date?) -> Date {
+        departedAt ?? Date.distantFuture
+    }
+
+    private func dateRangesOverlap(_ lhs: ClosedRange<Date>, _ rhs: ClosedRange<Date>) -> Bool {
+        lhs.lowerBound < rhs.upperBound && rhs.lowerBound < lhs.upperBound
+    }
+
+    private func normalizedOptional(_ value: String?) -> String? {
+        let normalized = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return normalized.isEmpty ? nil : normalized
+    }
+
+    private func saveVisitMutation() {
+        do {
+            try saveVisitMutationThrowing()
+        } catch {
+            visitMutationError = error.localizedDescription
+        }
+    }
+
+    private func saveVisitMutationThrowing() throws {
+        try modelContext.save()
+        loadData()
+        locationManager.syncDataToWatch()
     }
 
     // MARK: - Export
@@ -548,7 +772,23 @@ final class LocationViewModel {
                 locationName: imported.locationName,
                 address: imported.address,
                 notes: imported.notes,
-                geocodingCompleted: imported.locationName != nil || imported.address != nil
+                geocodingCompleted: true,
+                source: VisitSource(rawValue: imported.sourceRaw ?? "") ?? .imported,
+                confirmationStatus: VisitConfirmationStatus(rawValue: imported.confirmationStatusRaw ?? "") ?? .confirmed,
+                confirmedAt: imported.confirmedAt,
+                updatedAt: imported.updatedAt ?? now(),
+                originalLatitude: imported.originalLatitude,
+                originalLongitude: imported.originalLongitude,
+                originalLocationName: imported.originalLocationName,
+                originalAddress: imported.originalAddress,
+                detectedLatitude: imported.detectedLatitude,
+                detectedLongitude: imported.detectedLongitude,
+                detectedLocationName: imported.detectedLocationName,
+                detectedAddress: imported.detectedAddress,
+                placeSource: VisitPlaceSource(rawValue: imported.placeSourceRaw ?? "") ?? .import,
+                placeCategoryRaw: imported.placeCategoryRaw,
+                placeDistanceMeters: imported.placeDistanceMeters,
+                placeConfidence: imported.placeConfidence
             )
             modelContext.insert(visit)
         }
