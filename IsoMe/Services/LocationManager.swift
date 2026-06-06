@@ -33,6 +33,7 @@ final class LocationManager: NSObject, ObservableObject {
     // Publisher for data changes (fires when new location points are saved)
     @Published var locationPointsSavedCount: Int = 0
     @Published var lastSavedLocationPoint: LocationPoint?
+    @Published var lastSavedLocationPoints: [LocationPoint] = []
 
     // Live Activity manager
     private let liveActivityManager = LiveActivityManager.shared
@@ -352,50 +353,67 @@ final class LocationManager: NSObject, ObservableObject {
         }
     }
 
-    private func saveLocationPoint(_ location: CLLocation) {
-        guard let context = modelContext else { return }
-        guard location.horizontalAccuracy >= 0 && location.horizontalAccuracy <= 100 else {
-            return // Skip inaccurate readings
+    @discardableResult
+    private func saveLocationPoints(_ locations: [CLLocation]) -> [LocationPoint] {
+        guard let context = modelContext else { return [] }
+
+        let validLocations = locations.filter { location in
+            location.horizontalAccuracy >= 0 && location.horizontalAccuracy <= 100
         }
+        guard !validLocations.isEmpty else { return [] }
 
-        let point = LocationPoint(from: location)
+        var savedPoints: [LocationPoint] = []
+        savedPoints.reserveCapacity(validLocations.count)
+        var nextPointBeforeLast = pointBeforeLast
+        var nextLastSavedPoint = lastSavedPoint
 
-        // Flag obvious teleports: implied speed from the last saved point exceeds
-        // what a human moves (~40 m/s / ~90 mph). Cheap check, catches end-of-trail spikes.
-        if let last = lastSavedPoint {
-            let dt = point.timestamp.timeIntervalSince(last.timestamp)
-            if dt > 0 {
-                let impliedSpeed = last.distance(to: point) / dt
-                if impliedSpeed > 40 {
-                    point.isOutlier = true
+        for location in validLocations {
+            let point = LocationPoint(from: location)
+
+            // Flag obvious teleports: implied speed from the last saved point exceeds
+            // what a human moves (~40 m/s / ~90 mph). Cheap check, catches end-of-trail spikes.
+            if let last = nextLastSavedPoint {
+                let dt = point.timestamp.timeIntervalSince(last.timestamp)
+                if dt > 0 {
+                    let impliedSpeed = last.distance(to: point) / dt
+                    if impliedSpeed > 40 {
+                        point.isOutlier = true
+                    }
                 }
             }
-        }
 
-        context.insert(point)
+            context.insert(point)
 
-        // Re-evaluate the previously saved point now that we have a point after it.
-        // An out-and-back spike looks like: prev→last jumps far, last→new returns near prev.
-        if let before = pointBeforeLast, let last = lastSavedPoint, !last.isOutlier {
-            let spikeOut = before.distance(to: last)
-            let spikeBack = last.distance(to: point)
-            let endpointGap = before.distance(to: point)
-            if spikeOut > 100 && spikeBack > 100 && endpointGap < 30 {
-                last.isOutlier = true
+            // Re-evaluate the previously saved point now that we have a point after it.
+            // An out-and-back spike looks like: prev→last jumps far, last→new returns near prev.
+            if let before = nextPointBeforeLast, let last = nextLastSavedPoint, !last.isOutlier {
+                let spikeOut = before.distance(to: last)
+                let spikeBack = last.distance(to: point)
+                let endpointGap = before.distance(to: point)
+                if spikeOut > 100 && spikeBack > 100 && endpointGap < 30 {
+                    last.isOutlier = true
+                }
             }
+
+            savedPoints.append(point)
+            nextPointBeforeLast = nextLastSavedPoint
+            nextLastSavedPoint = point
         }
 
         do {
             try context.save()
-            pointBeforeLast = lastSavedPoint
-            lastSavedPoint = point
-            // Notify observers that new data is available without requiring a refetch of all points.
-            lastSavedLocationPoint = point
-            locationPointsSavedCount += 1
+            pointBeforeLast = nextPointBeforeLast
+            lastSavedPoint = nextLastSavedPoint
+            // Notify observers with the full Core Location batch so UI caches can append every point.
+            lastSavedLocationPoint = savedPoints.last
+            lastSavedLocationPoints = savedPoints
+            locationPointsSavedCount += savedPoints.count
             // Sync to watch widget (throttled by WidgetKit)
             syncDataToWatch()
+            return savedPoints
         } catch {
-            lastError = "Failed to save location point: \(error.localizedDescription)"
+            lastError = "Failed to save location points: \(error.localizedDescription)"
+            return []
         }
     }
 
@@ -584,14 +602,17 @@ extension LocationManager: CLLocationManagerDelegate {
             currentLocation = location
             completeOneShotLocation(location)
 
-            // Record location for daily distance history (stats only)
-            dailyDistanceTracker.recordLocation(location)
+            // Record every delivered location for daily distance history (stats only).
+            for deliveredLocation in locations {
+                dailyDistanceTracker.recordLocation(deliveredLocation)
+            }
 
             guard isTrackingEnabled else { return }
 
-            saveLocationPoint(location)
+            saveLocationPoints(locations)
 
-            // Geocode location for Live Activity (throttled to avoid too many requests)
+            // Geocode/update Live Activity only for the latest location to avoid doing
+            // network/UI work for every point in a Core Location batch.
             await geocodeForLiveActivity(location: location)
 
             if isLiveActivityEnabled {

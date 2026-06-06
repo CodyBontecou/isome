@@ -56,7 +56,7 @@ private enum IntentSupport {
         let cal = Calendar.current
         let startOfToday = cal.startOfDay(for: now)
         let startOfYesterday = cal.date(byAdding: .day, value: -1, to: startOfToday)!
-        let endOfYesterday = startOfToday.addingTimeInterval(-1)
+        let endOfYesterday = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
         return startOfYesterday...endOfYesterday
     }
 }

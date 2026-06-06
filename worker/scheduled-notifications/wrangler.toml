@@ -1,0 +1,27 @@
+name = "isome-scheduled-notifications"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Production for App Store/TestFlight builds using aps-environment=production.
+# Use api.sandbox.push.apple.com only for development-signed device builds.
+APNS_HOST = "api.push.apple.com"
+
+# D1 database for scheduled-export notification routing.
+# Create once with:
+#   wrangler d1 create isome-notifications
+# then replace database_id below and run migrations.
+[[d1_databases]]
+binding = "DB"
+database_name = "isome-notifications"
+database_id = "12500647-7f6e-4f1c-bec6-5e1c7e8633cf"
+migrations_dir = "migrations"
+
+# Cron trigger: every minute, fire due schedules.
+[triggers]
+crons = ["* * * * *"]
+
+# Secrets (set via `wrangler secret put`, never committed):
+#   APNS_AUTH_KEY — full PEM body of the .p8 APNs key
+#   APNS_KEY_ID   — 10-char Key ID matching APNS_AUTH_KEY
+#   APNS_TEAM_ID  — 10-char Apple Developer Team ID

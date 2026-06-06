@@ -1,7 +1,8 @@
 import Foundation
 import UIKit
+import ExportKit
 
-enum ExportFormat {
+enum ExportFormat: CaseIterable {
     case json
     case csv
     case markdown
@@ -994,7 +995,7 @@ extension ExportService {
         return savedURL
     }
 
-    private static func combinedData(visits: [Visit], points: [LocationPoint], format: ExportFormat, options: ExportOptions = ExportOptions()) throws -> Data {
+    static func combinedData(visits: [Visit], points: [LocationPoint], format: ExportFormat, options: ExportOptions = ExportOptions()) throws -> Data {
         switch format {
         case .json: return try exportCombinedToJSON(visits: visits, points: points, options: options)
         case .csv: return exportCombinedToCSV(visits: visits, points: points, options: options)
@@ -1604,128 +1605,30 @@ extension ExportService {
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> (data: Data, fileName: String) {
-        let filteredVisits = options.filterVisits(visits)
-        let filteredPoints = options.filterPoints(points)
-
-        // Tracking-protocol formats only carry GPS fixes; coerce to points-only output
-        // so the filename token and emitted payload agree.
-        let effectiveKind: ExportOptions.DataKind = options.format.isPointsOnly ? .points : options.dataKind
-
-        let data: Data
-        switch effectiveKind {
-        case .visits:
-            switch options.format {
-            case .json: data = try exportToJSON(visits: filteredVisits, options: options)
-            case .csv: data = exportToCSV(visits: filteredVisits, options: options)
-            case .markdown: data = exportToMarkdown(visits: filteredVisits, options: options)
-            case .owntracks, .overland: data = try exportToJSON(visits: filteredVisits, options: options)
-            case .gpx: data = exportVisitsToGPX(visits: filteredVisits, options: options)
-            case .kml: data = exportVisitsToKML(visits: filteredVisits, options: options)
-            case .geojson: data = try exportVisitsToGeoJSON(visits: filteredVisits, options: options)
-            }
-        case .points:
-            switch options.format {
-            case .json: data = try exportLocationPointsToJSON(points: filteredPoints, options: options)
-            case .csv: data = exportLocationPointsToCSV(points: filteredPoints, options: options)
-            case .markdown: data = exportLocationPointsToMarkdown(points: filteredPoints, options: options)
-            case .owntracks: data = try exportLocationPointsToOwnTracks(points: filteredPoints, options: options)
-            case .overland: data = try exportLocationPointsToOverland(points: filteredPoints, options: options)
-            case .gpx: data = exportLocationPointsToGPX(points: filteredPoints, options: options)
-            case .kml: data = exportLocationPointsToKML(points: filteredPoints, options: options)
-            case .geojson: data = try exportLocationPointsToGeoJSON(points: filteredPoints, options: options)
-            }
-        case .all:
-            data = try combinedData(
-                visits: filteredVisits,
-                points: filteredPoints,
-                format: options.format,
-                options: options
-            )
-        }
-
-        let fileName = FilenameTemplate.resolve(
-            pattern: filenamePattern,
-            dataKind: effectiveKind,
-            format: options.format
+        try IsoMeExportKitAdapter.render(
+            visits: visits,
+            points: points,
+            options: options,
+            filenamePattern: filenamePattern
         )
-        return (data, fileName)
     }
 
     /// Renders one file per calendar day. Each day's file is produced by running
     /// the standard `render` pipeline against just that day's data. The day's
-    /// `startOfDay` is threaded through `FilenameTemplate.resolve` so `{date}`
-    /// and `{day}` tokens reflect the day represented by the file.
+    /// `startOfDay` is threaded through the path planner so date tokens reflect
+    /// the day represented by the file.
     static func renderPerDay(
         visits: [Visit],
         points: [LocationPoint],
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [(data: Data, fileName: String)] {
-        let filteredVisits = options.filterVisits(visits)
-        let filteredPoints = options.filterPoints(points)
-        let groups = options.groupByDay(visits: filteredVisits, points: filteredPoints)
-
-        var results: [(data: Data, fileName: String)] = []
-        var usedNames = Set<String>()
-
-        for group in groups {
-            // Build a single-day options copy with filters already applied so
-            // the inner exporters don't re-filter (which would drop visits/points
-            // outside the synthetic per-day range).
-            var dayOptions = options
-            dayOptions.datePreset = .allTime
-            dayOptions.timeOfDayEnabled = false
-            dayOptions.excludeOutliers = false
-            dayOptions.onlyCompletedVisits = false
-            dayOptions.minVisitDurationMinutes = 0
-            dayOptions.maxAccuracyMeters = 0
-            dayOptions.splitByDay = false
-
-            let effectiveKind: ExportOptions.DataKind = dayOptions.format.isPointsOnly ? .points : dayOptions.dataKind
-
-            let data: Data
-            switch effectiveKind {
-            case .visits:
-                switch dayOptions.format {
-                case .json: data = try exportToJSON(visits: group.visits, options: dayOptions)
-                case .csv: data = exportToCSV(visits: group.visits, options: dayOptions)
-                case .markdown: data = exportToMarkdown(visits: group.visits, options: dayOptions)
-                case .owntracks, .overland: data = try exportToJSON(visits: group.visits, options: dayOptions)
-                case .gpx: data = exportVisitsToGPX(visits: group.visits, options: dayOptions)
-                case .kml: data = exportVisitsToKML(visits: group.visits, options: dayOptions)
-                case .geojson: data = try exportVisitsToGeoJSON(visits: group.visits, options: dayOptions)
-                }
-            case .points:
-                switch dayOptions.format {
-                case .json: data = try exportLocationPointsToJSON(points: group.points, options: dayOptions)
-                case .csv: data = exportLocationPointsToCSV(points: group.points, options: dayOptions)
-                case .markdown: data = exportLocationPointsToMarkdown(points: group.points, options: dayOptions)
-                case .owntracks: data = try exportLocationPointsToOwnTracks(points: group.points, options: dayOptions)
-                case .overland: data = try exportLocationPointsToOverland(points: group.points, options: dayOptions)
-                case .gpx: data = exportLocationPointsToGPX(points: group.points, options: dayOptions)
-                case .kml: data = exportLocationPointsToKML(points: group.points, options: dayOptions)
-                case .geojson: data = try exportLocationPointsToGeoJSON(points: group.points, options: dayOptions)
-                }
-            case .all:
-                data = try combinedData(
-                    visits: group.visits,
-                    points: group.points,
-                    format: dayOptions.format,
-                    options: dayOptions
-                )
-            }
-
-            let baseName = FilenameTemplate.resolve(
-                pattern: filenamePattern,
-                dataKind: effectiveKind,
-                format: options.format,
-                date: group.day
-            )
-            let fileName = uniqueFilename(baseName, in: &usedNames, day: group.day, format: options.format)
-            results.append((data, fileName))
-        }
-
-        return results
+        try IsoMeExportKitAdapter.renderPerDay(
+            visits: visits,
+            points: points,
+            options: options,
+            filenamePattern: filenamePattern
+        )
     }
 
     /// Ensures per-day filenames don't collide if the user's pattern omits
@@ -1772,21 +1675,14 @@ extension ExportService {
         filenamePattern: String = FilenameTemplate.defaultPattern,
         from viewController: UIViewController? = nil
     ) throws {
-        let fileURLs: [URL]
-
-        if options.splitByDay {
-            let rendered = try renderPerDay(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-            fileURLs = try rendered.map { item in
-                let url = FileManager.default.temporaryDirectory.appendingPathComponent(item.fileName)
-                try item.data.write(to: url)
-                return url
-            }
-        } else {
-            let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(rendered.fileName)
-            try rendered.data.write(to: url)
-            fileURLs = [url]
-        }
+        let fileURLs = try IsoMeExportKitAdapter.writeTemporaryFiles(
+            IsoMeExportKitAdapter.plannedFiles(
+                visits: visits,
+                points: points,
+                options: options,
+                filenamePattern: filenamePattern
+            )
+        )
 
         guard !fileURLs.isEmpty else { return }
 
@@ -1818,22 +1714,15 @@ extension ExportService {
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [URL] {
-        if options.splitByDay {
-            let rendered = try renderPerDay(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-            var saved: [URL] = []
-            for item in rendered {
-                guard let url = try ExportFolderManager.shared.saveToDefaultFolder(data: item.data, fileName: item.fileName) else {
-                    throw ExportFolderError.noDefaultFolder
-                }
-                saved.append(url)
-            }
-            return saved
-        } else {
-            let rendered = try render(visits: visits, points: points, options: options, filenamePattern: filenamePattern)
-            guard let savedURL = try ExportFolderManager.shared.saveToDefaultFolder(data: rendered.data, fileName: rendered.fileName) else {
-                throw ExportFolderError.noDefaultFolder
-            }
-            return [savedURL]
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: visits,
+            points: points,
+            options: options,
+            filenamePattern: filenamePattern
+        )
+        guard let urls = try ExportFolderManager.shared.savePlannedFilesToDefaultFolder(files) else {
+            throw ExportFolderError.noDefaultFolder
         }
+        return urls
     }
 }

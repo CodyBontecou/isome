@@ -1,6 +1,6 @@
 import XCTest
-import SwiftData
 import CoreLocation
+import SwiftData
 @testable import IsoMe
 
 @MainActor
@@ -14,6 +14,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "processedWatchManualVisitCommandIDs")
+        UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
     }
 
     override func tearDown() {
@@ -22,6 +23,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "processedWatchManualVisitCommandIDs")
+        UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
         super.tearDown()
     }
 
@@ -115,6 +117,37 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         assertSortedByTimestamp(viewModel.mapLocationPoints)
     }
 
+    func testLiveBatchAppendAddsEveryPointToMapAndSessionCaches() async throws {
+        UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
+        let container = try makeInMemoryContainer()
+        let manager = LocationManager()
+        let start = Date()
+        manager.isTrackingEnabled = true
+        manager.isLiveActivityEnabled = false
+        manager.trackingStartTime = start.addingTimeInterval(-1)
+
+        let viewModel = LocationViewModel(modelContext: container.mainContext, locationManager: manager)
+        let range = start.addingTimeInterval(-1)...start.addingTimeInterval(10)
+        viewModel.mapDateRange = range
+        viewModel.loadMapLocationPoints(in: range)
+
+        let locations = [
+            makeLocation(latitude: 18.3270, longitude: -67.2200, timestamp: start),
+            makeLocation(latitude: 18.3271, longitude: -67.2201, timestamp: start.addingTimeInterval(1)),
+            makeLocation(latitude: 18.3272, longitude: -67.2202, timestamp: start.addingTimeInterval(2))
+        ]
+
+        manager.locationManager(CLLocationManager(), didUpdateLocations: locations)
+        try await waitUntil { viewModel.mapLocationPoints.count == 3 }
+
+        XCTAssertEqual(viewModel.totalLocationPointCount, 3)
+        XCTAssertEqual(viewModel.mapLocationPointCount, 3)
+        XCTAssertEqual(viewModel.mapLocationPoints.count, 3)
+        XCTAssertEqual(viewModel.todayLocationPoints.count, 3)
+        XCTAssertEqual(viewModel.sessionLocationPoints.count, 3)
+        XCTAssertEqual(viewModel.mapLocationPoints.map(\.timestamp), locations.map(\.timestamp))
+    }
+
     private func makeInMemoryContainer() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self])
         let configuration = ModelConfiguration(
@@ -173,6 +206,32 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         components.minute = 0
         components.second = 0
         return components.date!
+    }
+
+    private func makeLocation(latitude: Double, longitude: Double, timestamp: Date) -> CLLocation {
+        CLLocation(
+            coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+            altitude: 0,
+            horizontalAccuracy: 5,
+            verticalAccuracy: 5,
+            course: -1,
+            speed: 10,
+            timestamp: timestamp
+        )
+    }
+
+    private func waitUntil(
+        _ condition: @escaping @MainActor () -> Bool,
+        timeout: TimeInterval = 1
+    ) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition() {
+            if Date() >= deadline {
+                XCTFail("Timed out waiting for condition")
+                return
+            }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
 
     private func assertSortedByTimestamp(

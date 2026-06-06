@@ -1,18 +1,40 @@
 import Foundation
 import BackgroundTasks
 import SwiftData
+import ExportAutomationKit
 
 /// Schedules and runs a once-per-day automatic export to the user's configured folder.
 ///
 /// Reliability: iOS does not guarantee `BGAppRefreshTask` fires at the requested time.
-/// To stay correct, the scheduler also runs on app foreground if today's run is overdue.
+/// The scheduler layers several best-effort triggers:
+/// - local BGAppRefresh;
+/// - a server-side APNs silent push at the chosen minute;
+/// - a local visible fallback notification shortly after the chosen minute;
+/// - foreground catch-up when the app is opened.
+///
+/// Tapping the fallback notification retries the exact scheduled occurrence, but
+/// only if `lastRun` does not already cover that fire date.
 @MainActor
 final class DailyExportScheduler: ObservableObject {
+    enum RunOutcome: Equatable {
+        case exported
+        case skippedDisabled
+        case skippedNotDue
+        case skippedAlreadyCompleted
+        case failed(String)
+
+        var completedExport: Bool {
+            if case .exported = self { return true }
+            return false
+        }
+    }
+
     static let shared = DailyExportScheduler()
 
     static let bgTaskIdentifier = "com.bontecou.isome.dailyexport"
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
+    private let notificationScheduler: DailyExportNotificationScheduling
     private let enabledKey = "dailyExport.enabled"
     private let hourKey = "dailyExport.hour"
     private let minuteKey = "dailyExport.minute"
@@ -20,6 +42,8 @@ final class DailyExportScheduler: ObservableObject {
     private let dataKindKey = "dailyExport.dataKind"
     private let lastRunKey = "dailyExport.lastRunAt"
     private let lastErrorKey = "dailyExport.lastError"
+    private let pendingNotificationIdentifierKey = "dailyExport.pendingNotificationIdentifier"
+    private let remoteScheduleHasSyncedKey = "dailyExport.remoteScheduleHasSynced"
 
     @Published var isEnabled: Bool {
         didSet {
@@ -55,7 +79,12 @@ final class DailyExportScheduler: ObservableObject {
 
     private weak var modelContainer: ModelContainer?
 
-    private init() {
+    private init(
+        defaults: UserDefaults = .standard,
+        notificationScheduler: DailyExportNotificationScheduling = UserNotificationDailyExportScheduler()
+    ) {
+        self.defaults = defaults
+        self.notificationScheduler = notificationScheduler
         self.isEnabled = defaults.bool(forKey: enabledKey)
         self.hour = defaults.object(forKey: hourKey) as? Int ?? 21
         self.minute = defaults.object(forKey: minuteKey) as? Int ?? 0
@@ -86,49 +115,126 @@ final class DailyExportScheduler: ObservableObject {
 
     // MARK: - Scheduling
 
-    /// Submit a `BGAppRefreshTaskRequest` for the next scheduled time.
-    func scheduleNextBackgroundRun() {
+    /// Submit a `BGAppRefreshTaskRequest` for the next scheduled time and mirror
+    /// the same schedule to the APNs worker.
+    func scheduleNextBackgroundRun(cancelPendingFallback: Bool = true) {
         BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.bgTaskIdentifier)
-        guard isEnabled else { return }
 
+        if cancelPendingFallback {
+            cancelStoredFallbackNotification()
+        }
+
+        guard isEnabled else {
+            if defaults.bool(forKey: remoteScheduleHasSyncedKey) {
+                PushRegistrationManager.shared.syncSchedule(automationSchedule)
+            }
+            return
+        }
+
+        PushRegistrationManager.shared.syncSchedule(automationSchedule)
+        defaults.set(true, forKey: remoteScheduleHasSyncedKey)
+
+        let nextRunDate = nextScheduledTime(after: Date())
         let request = BGAppRefreshTaskRequest(identifier: Self.bgTaskIdentifier)
-        request.earliestBeginDate = nextScheduledTime(after: Date())
+        request.earliestBeginDate = nextRunDate
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
             print("DailyExportScheduler: failed to submit BG task: \(error)")
         }
+
+        schedulePendingExportFallbackNotification(for: nextRunDate)
+        Task { await PushRegistrationManager.shared.registerForRemoteNotificationsIfNeeded() }
     }
 
     private func handleBackgroundTask(_ task: BGAppRefreshTask?) async {
-        // Always reschedule first so the chain continues regardless of run outcome.
-        scheduleNextBackgroundRun()
-        await runIfDue()
-        task?.setTaskCompleted(success: lastError == nil)
+        let outcome = await runIfDue(triggeredByScheduledWake: true)
+        if isEnabled {
+            switch outcome {
+            case .exported, .failed:
+                break
+            case .skippedDisabled, .skippedNotDue, .skippedAlreadyCompleted:
+                scheduleNextBackgroundRun()
+            }
+        }
+        task?.setTaskCompleted(success: outcome.completedExport)
     }
 
-    // MARK: - Foreground catch-up
+    // MARK: - Foreground, notification, and server-triggered runs
 
     /// Run the daily export if today's scheduled time has passed and we haven't run since.
-    func runIfDue() async {
-        guard isEnabled else { return }
-        guard isDue(at: Date()) else { return }
-        await runExport(now: Date())
+    @discardableResult
+    func runIfDue(triggeredByScheduledWake: Bool = false) async -> RunOutcome {
+        guard isEnabled else { return .skippedDisabled }
+        let now = Date()
+        guard let fireDate = latestScheduledOccurrence(at: now), isDue(for: fireDate, at: now) else {
+            return .skippedNotDue
+        }
+        return await runScheduledExport(fireDate: fireDate, source: triggeredByScheduledWake ? "scheduled wake" : "catch-up")
     }
 
     /// Run the export immediately, regardless of schedule. Used for "Run Now" UI button.
-    func runNow() async {
-        await runExport(now: Date())
+    @discardableResult
+    func runNow() async -> RunOutcome {
+        let outcome = await runExport(now: Date(), scheduledFireDate: nil)
+        if outcome.completedExport, isEnabled {
+            scheduleNextBackgroundRun()
+        }
+        return outcome
     }
 
-    private func runExport(now: Date) async {
-        guard let container = modelContainer else {
-            recordError("No model container attached")
-            return
+    /// Called by AppDelegate when the server-side APNs worker sends a silent
+    /// `scheduled-export` push. The APNs payload may include the exact fire date;
+    /// if it does not, use the latest local scheduled occurrence.
+    @discardableResult
+    func runFromServerNotification(fireDate: Date?) async -> RunOutcome {
+        guard isEnabled else { return .skippedDisabled }
+        let resolvedFireDate = fireDate ?? latestScheduledOccurrence(at: Date()) ?? Date()
+        return await runScheduledExport(fireDate: resolvedFireDate, source: "silent push")
+    }
+
+    /// Called when the user taps the visible fallback notification.
+    @discardableResult
+    func runFromNotificationTap(userInfo: [AnyHashable: Any]) async -> RunOutcome {
+        guard isEnabled else { return .skippedDisabled }
+        let fireDate = DailyExportNotificationPayload.fireDate(from: userInfo)
+            ?? latestScheduledOccurrence(at: Date())
+            ?? Date()
+        return await runScheduledExport(fireDate: fireDate, source: "notification tap")
+    }
+
+    @discardableResult
+    private func runScheduledExport(fireDate: Date, source: String) async -> RunOutcome {
+        guard isEnabled else { return .skippedDisabled }
+
+        if hasCompletedScheduledOccurrence(fireDate) {
+            notificationScheduler.cancelFallbackNotification(fireDate: fireDate)
+            return .skippedAlreadyCompleted
+        }
+
+        notificationScheduler.cancelFallbackNotification(fireDate: fireDate)
+        let outcome = await runExport(now: Date(), scheduledFireDate: fireDate)
+
+        switch outcome {
+        case .exported:
+            print("DailyExportScheduler: completed scheduled export from \(source)")
+            scheduleNextBackgroundRun()
+        case .failed(let message):
+            await sendImmediateRetryNotification(fireDate: fireDate, reason: message)
+            scheduleNextBackgroundRun(cancelPendingFallback: false)
+        case .skippedDisabled, .skippedNotDue, .skippedAlreadyCompleted:
+            break
+        }
+
+        return outcome
+    }
+
+    private func runExport(now: Date, scheduledFireDate: Date?) async -> RunOutcome {
+        guard let container = await waitForModelContainer() else {
+            return fail("No model container attached")
         }
         guard ExportFolderManager.shared.hasDefaultFolder else {
-            recordError("No export folder configured")
-            return
+            return fail("No export folder configured")
         }
 
         let context = container.mainContext
@@ -142,20 +248,46 @@ final class DailyExportScheduler: ObservableObject {
 
             let pattern = defaults.string(forKey: "exportFilenamePattern") ?? FilenameTemplate.defaultPattern
 
-            _ = try ExportService.saveToDefaultFolder(
+            let urls = try ExportService.saveToDefaultFolder(
                 visits: visits,
                 points: points,
                 options: options,
                 filenamePattern: pattern
             )
 
-            lastRun = now
-            defaults.set(now, forKey: lastRunKey)
-            lastError = nil
-            defaults.removeObject(forKey: lastErrorKey)
+            ExportToastCenter.shared.show(.success(savedURLs: urls))
+            recordSuccess(now)
+            if let scheduledFireDate {
+                notificationScheduler.cancelFallbackNotification(fireDate: scheduledFireDate)
+            }
+            return .exported
         } catch {
-            recordError(error.localizedDescription)
+            return fail(error.localizedDescription)
         }
+    }
+
+    private func waitForModelContainer() async -> ModelContainer? {
+        if let modelContainer { return modelContainer }
+
+        for _ in 0..<20 {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            if let modelContainer { return modelContainer }
+        }
+
+        return nil
+    }
+
+    private func recordSuccess(_ date: Date) {
+        lastRun = date
+        defaults.set(date, forKey: lastRunKey)
+        lastError = nil
+        defaults.removeObject(forKey: lastErrorKey)
+    }
+
+    private func fail(_ message: String) -> RunOutcome {
+        recordError(message)
+        ExportToastCenter.shared.show(.failure(message: message))
+        return .failed(message)
     }
 
     private func recordError(_ message: String) {
@@ -164,29 +296,75 @@ final class DailyExportScheduler: ObservableObject {
         print("DailyExportScheduler error: \(message)")
     }
 
+    // MARK: - Local fallback notifications
+
+    private func schedulePendingExportFallbackNotification(for fireDate: Date) {
+        let identifier = DailyExportNotificationPayload.identifier(for: fireDate)
+        defaults.set(identifier, forKey: pendingNotificationIdentifierKey)
+        Task {
+            do {
+                try await notificationScheduler.scheduleFallbackNotification(fireDate: fireDate)
+            } catch {
+                recordError("Failed to schedule export notification: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func sendImmediateRetryNotification(fireDate: Date, reason: String?) async {
+        do {
+            try await notificationScheduler.sendImmediateRetryNotification(fireDate: fireDate, reason: reason)
+            defaults.set(DailyExportNotificationPayload.identifier(for: fireDate), forKey: pendingNotificationIdentifierKey)
+        } catch {
+            recordError("Failed to send export retry notification: \(error.localizedDescription)")
+        }
+    }
+
+    private func cancelStoredFallbackNotification() {
+        guard let identifier = defaults.string(forKey: pendingNotificationIdentifierKey) else { return }
+        notificationScheduler.cancelNotification(identifier: identifier)
+        defaults.removeObject(forKey: pendingNotificationIdentifierKey)
+    }
+
     // MARK: - Date math
 
     func nextScheduledTime(after now: Date) -> Date {
-        let cal = Calendar.current
-        var comps = cal.dateComponents([.year, .month, .day], from: now)
-        comps.hour = hour
-        comps.minute = minute
-        var target = cal.date(from: comps) ?? now
-        if target <= now {
-            target = cal.date(byAdding: .day, value: 1, to: target) ?? target
-        }
-        return target
+        AutomationScheduleDateMath.calculateNextRunDate(
+            schedule: automationSchedule,
+            now: now,
+            calendar: Calendar.current
+        ) ?? now
     }
 
-    private func isDue(at now: Date) -> Bool {
+    private func latestScheduledOccurrence(at now: Date) -> Date? {
+        AutomationScheduleDateMath.latestScheduledOccurrenceDate(
+            schedule: automationSchedule,
+            now: now,
+            calendar: Calendar.current
+        )
+    }
+
+    private func isDue(for fireDate: Date, at now: Date) -> Bool {
         let cal = Calendar.current
-        var comps = cal.dateComponents([.year, .month, .day], from: now)
-        comps.hour = hour
-        comps.minute = minute
-        guard let scheduledToday = cal.date(from: comps) else { return false }
-        guard now >= scheduledToday else { return false }
-        if let last = lastRun, last >= scheduledToday { return false }
-        return true
+        guard cal.isDate(fireDate, inSameDayAs: now) else { return false }
+        guard now >= fireDate else { return false }
+        return !hasCompletedScheduledOccurrence(fireDate)
+    }
+
+    private func hasCompletedScheduledOccurrence(_ fireDate: Date) -> Bool {
+        guard let lastRun else { return false }
+        return lastRun >= fireDate
+    }
+
+    private var automationSchedule: AutomationSchedule {
+        AutomationSchedule(
+            isEnabled: isEnabled,
+            frequency: .daily,
+            preferredHour: hour,
+            preferredMinute: minute,
+            lookbackDays: 1,
+            timeZoneIdentifier: TimeZone.current.identifier,
+            lastExportDate: lastRun
+        )
     }
 
     // MARK: - Format helpers

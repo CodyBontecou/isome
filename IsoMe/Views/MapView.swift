@@ -864,6 +864,13 @@ struct DateRangeFilterSheet: View {
                         endDate = Date()
                     }
 
+                    Button("Yesterday") {
+                        let calendar = Calendar.current
+                        let startOfToday = calendar.startOfDay(for: Date())
+                        startDate = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
+                        endDate = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
+                    }
+
                     Button("Last 7 Days") {
                         endDate = Date()
                         startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
@@ -1182,11 +1189,12 @@ struct ManualVisitSheet: View {
 // MARK: - Quick Filter Bar
 
 enum MapDatePreset: CaseIterable, Hashable {
-    case today, sevenDays, thirtyDays, all
+    case today, yesterday, sevenDays, thirtyDays, all
 
     var label: String {
         switch self {
         case .today: return "Today"
+        case .yesterday: return "Yesterday"
         case .sevenDays: return "7D"
         case .thirtyDays: return "30D"
         case .all: return "All"
@@ -1196,6 +1204,7 @@ enum MapDatePreset: CaseIterable, Hashable {
     var accessibilityLabel: String {
         switch self {
         case .today: return "Today"
+        case .yesterday: return "Yesterday"
         case .sevenDays: return "Last 7 days"
         case .thirtyDays: return "Last 30 days"
         case .all: return "All time"
@@ -1207,6 +1216,11 @@ enum MapDatePreset: CaseIterable, Hashable {
         switch self {
         case .today:
             return calendar.startOfDay(for: referenceDate)...referenceDate
+        case .yesterday:
+            let startOfToday = calendar.startOfDay(for: referenceDate)
+            let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday)!
+            let endOfYesterday = Date(timeIntervalSinceReferenceDate: startOfToday.timeIntervalSinceReferenceDate.nextDown)
+            return startOfYesterday...endOfYesterday
         case .sevenDays:
             return calendar.date(byAdding: .day, value: -7, to: referenceDate)!...referenceDate
         case .thirtyDays:

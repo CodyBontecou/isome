@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import ExportKit
 
 struct ExportView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -10,14 +11,23 @@ struct ExportView: View {
 
     @State private var options = ExportOptions()
     @State private var showingPaywall = false
+    @State private var showingPreview = false
     @State private var showingFolderPicker = false
     @State private var showingClearFolderConfirmation = false
-    @State private var exportSuccessMessage: String?
-    @State private var showingExportSuccess = false
     @State private var dailyTimeBinding = Date()
 
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
+
+    private var effectiveDataKind: ExportOptions.DataKind {
+        options.format.isPointsOnly ? .points : options.dataKind
+    }
+
+    private var effectiveOptions: ExportOptions {
+        var copy = options
+        copy.dataKind = effectiveDataKind
+        return copy
+    }
 
     private var filteredVisits: [Visit] {
         options.filterVisits(viewModel.allVisits)
@@ -28,7 +38,7 @@ struct ExportView: View {
     }
 
     private var totalCount: Int {
-        switch options.dataKind {
+        switch effectiveDataKind {
         case .visits: return filteredVisits.count
         case .points: return filteredPoints.count
         case .all: return filteredVisits.count + filteredPoints.count
@@ -37,15 +47,15 @@ struct ExportView: View {
 
     private var splitFileCount: Int {
         guard options.splitByDay else { return totalCount > 0 ? 1 : 0 }
-        return options.groupByDay(visits: filteredVisits, points: filteredPoints).count
+        return effectiveOptions.groupByDay(visits: filteredVisits, points: filteredPoints).count
     }
 
     private var showsVisitFields: Bool {
-        options.dataKind == .visits || options.dataKind == .all
+        effectiveDataKind == .visits || effectiveDataKind == .all
     }
 
     private var showsPointFields: Bool {
-        options.dataKind == .points || options.dataKind == .all
+        effectiveDataKind == .points || effectiveDataKind == .all
     }
 
     var body: some View {
@@ -53,27 +63,23 @@ struct ExportView: View {
             ZStack {
                 TE.surface.ignoresSafeArea()
 
-                if storeManager.isPurchased {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        ScrollView {
-                            VStack(spacing: 0) {
-                                exportSections
-                                exportFooter
-                                    .padding(.top, 20)
-                            }
-                            .padding(.bottom, 170)
-                        }
-                    } else {
-                        ScrollView {
+                if dynamicTypeSize.isAccessibilitySize {
+                    ScrollView {
+                        VStack(spacing: 0) {
                             exportSections
-                                .padding(.bottom, 32)
-                        }
-                        .safeAreaInset(edge: .bottom, spacing: 0) {
                             exportFooter
+                                .padding(.top, 20)
                         }
+                        .padding(.bottom, 170)
                     }
                 } else {
-                    lockedState
+                    ScrollView {
+                        exportSections
+                            .padding(.bottom, 32)
+                    }
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        exportFooter
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -91,13 +97,6 @@ struct ExportView: View {
             } message: {
                 Text("Exports will use the share sheet instead of saving directly to a folder.")
             }
-            .alert("Export Complete", isPresented: $showingExportSuccess) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                if let message = exportSuccessMessage {
-                    Text(message)
-                }
-            }
             .sheet(isPresented: $showingFolderPicker) {
                 FolderPicker { url in
                     if let url = url {
@@ -107,6 +106,18 @@ struct ExportView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager, context: .export)
+            }
+            .sheet(isPresented: $showingPreview) {
+                IsoMeExportPreviewView(
+                    visits: viewModel.allVisits,
+                    points: viewModel.locationPoints,
+                    options: options,
+                    filenamePattern: filenamePattern,
+                    destinationLabel: previewDestinationLabel,
+                    destinationRootName: previewDestinationRootName,
+                    totalItemCount: totalCount,
+                    totalFileCount: splitFileCount
+                )
             }
             .onAppear { ensurePointDataIfNeeded() }
             .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
@@ -121,7 +132,7 @@ struct ExportView: View {
             dataKindSection
             webhookSection
             exportFolderSection
-            if exportFolderManager.hasDefaultFolder {
+            if exportFolderManager.hasDefaultFolder && storeManager.isPurchased {
                 dailyExportSection
             }
             filenameSection
@@ -299,7 +310,7 @@ struct ExportView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "POST location data to an external API or self-hosted server in real-time or batches. Supports OwnTracks, Overland, Dawarich, and generic JSON endpoints.")
+            TESectionFooter(text: "POST all data types (visits, points, or both) to an external API or self-hosted server in real-time or batches. Supports OwnTracks, Overland, Dawarich, and generic JSON endpoints.")
         }
     }
 
@@ -538,7 +549,7 @@ struct ExportView: View {
             .padding(.horizontal, 16)
 
             TESectionFooter(text: dailyScheduler.isEnabled
-                ? "iOS schedules background runs near this time, but cannot guarantee them. The export also runs the next time you open the app if it's overdue."
+                ? "iso.me asks iOS and the server-side notification worker to wake near this time. If the export has not completed, tap the fallback notification or open the app to run it."
                 : "Save a fresh export to your folder once per day, automatically.")
         }
         .onAppear {
@@ -561,7 +572,7 @@ struct ExportView: View {
 
     private var filenameSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "FILENAME")
+            TESectionHeader(title: "FILE PATH")
 
             TECard {
                 VStack(spacing: 0) {
@@ -574,6 +585,10 @@ struct ExportView: View {
                             presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
                                 filenamePattern = FilenameTemplate.compactPattern
                             }
+                            Rectangle().fill(TE.border).frame(height: 1)
+                            presetButton("DATED", isSelected: filenamePattern == FilenameTemplate.datedFoldersPattern) {
+                                filenamePattern = FilenameTemplate.datedFoldersPattern
+                            }
                         } else {
                             HStack(spacing: 0) {
                                 presetButton("READABLE", isSelected: filenamePattern == FilenameTemplate.readablePattern) {
@@ -582,6 +597,10 @@ struct ExportView: View {
                                 Rectangle().fill(TE.border).frame(width: 1)
                                 presetButton("COMPACT", isSelected: filenamePattern == FilenameTemplate.compactPattern) {
                                     filenamePattern = FilenameTemplate.compactPattern
+                                }
+                                Rectangle().fill(TE.border).frame(width: 1)
+                                presetButton("DATED", isSelected: filenamePattern == FilenameTemplate.datedFoldersPattern) {
+                                    filenamePattern = FilenameTemplate.datedFoldersPattern
                                 }
                             }
                         }
@@ -613,16 +632,31 @@ struct ExportView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " "))")
+            TESectionFooter(text: "Use / for folders. Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " ")). The format extension is added if omitted.")
         }
     }
 
     private var filenamePreview: String {
-        FilenameTemplate.resolve(
+        (try? IsoMeExportPathPlanner.plannedRelativePath(
             pattern: filenamePattern,
-            dataKind: options.dataKind,
-            format: options.format
-        )
+            dataKind: effectiveDataKind,
+            format: options.format,
+            safetyPolicy: .preserveCurrentBehavior
+        )) ?? "INVALID PATH"
+    }
+
+    private var previewDestinationLabel: String {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            return "Default folder: \(exportFolderManager.selectedFolderName ?? "Selected Folder")"
+        }
+        return "Share sheet"
+    }
+
+    private var previewDestinationRootName: String {
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            return exportFolderManager.selectedFolderName ?? "Selected Folder"
+        }
+        return "Share Sheet"
     }
 
     private func presetButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -898,6 +932,44 @@ struct ExportView: View {
 
     private var exportFooter: some View {
         VStack(spacing: 8) {
+            if !storeManager.isPurchased && totalCount > 0 {
+                Text("Preview is free. Unlock export with a one-time purchase.")
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 2)
+            }
+
+            Button {
+                ensurePointDataIfNeeded()
+                showingPreview = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "eye")
+                        .font(.caption.weight(.bold))
+                    Text(previewButtonLabel)
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 2)
+                }
+                .foregroundStyle(totalCount == 0 ? TE.textMuted : TE.accent)
+                .multilineTextAlignment(.center)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 44)
+                .background(totalCount == 0 ? TE.textMuted.opacity(0.08) : TE.accent.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .strokeBorder(totalCount == 0 ? TE.textMuted.opacity(0.2) : TE.accent, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            .buttonStyle(.plain)
+            .disabled(totalCount == 0)
+            .accessibilityLabel("Preview Export")
+            .accessibilityHint("Shows the files and contents that will be exported")
+
             Button {
                 runExport()
             } label: {
@@ -932,8 +1004,20 @@ struct ExportView: View {
         )
     }
 
+    private var previewButtonLabel: LocalizedStringKey {
+        if totalCount == 0 { return "NOTHING TO PREVIEW" }
+        if options.splitByDay {
+            let n = splitFileCount
+            if n == 0 { return "NOTHING TO PREVIEW" }
+            if n == 1 { return "PREVIEW 1 FILE" }
+            return "PREVIEW \(n) FILES"
+        }
+        return "PREVIEW"
+    }
+
     private var exportButtonLabel: LocalizedStringKey {
         if totalCount == 0 { return "NOTHING TO EXPORT" }
+        if !storeManager.isPurchased { return "UNLOCK EXPORT" }
         if options.splitByDay {
             let n = splitFileCount
             if n == 0 { return "NOTHING TO EXPORT" }
@@ -976,6 +1060,11 @@ struct ExportView: View {
     // MARK: - Actions
 
     private func runExport() {
+        guard storeManager.isPurchased else {
+            showingPaywall = true
+            return
+        }
+
         ensurePointDataIfNeeded()
 
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
@@ -986,16 +1075,10 @@ struct ExportView: View {
                     options: options,
                     filenamePattern: filenamePattern
                 )
-                if urls.count == 1, let url = urls.first {
-                    exportSuccessMessage = "Saved to \(url.lastPathComponent)"
-                } else if let folder = urls.first?.deletingLastPathComponent().lastPathComponent {
-                    exportSuccessMessage = "Saved \(urls.count) files to \(folder)"
-                } else {
-                    exportSuccessMessage = "Saved \(urls.count) files"
-                }
-                showingExportSuccess = true
+                ExportToastCenter.shared.show(.success(savedURLs: urls))
             } catch {
                 viewModel.exportError = error.localizedDescription
+                ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
             }
         } else {
             do {
@@ -1005,17 +1088,480 @@ struct ExportView: View {
                     options: options,
                     filenamePattern: filenamePattern
                 )
+                ExportToastCenter.shared.show(.success(message: "Share sheet opened"))
             } catch {
                 viewModel.exportError = error.localizedDescription
+                ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
             }
         }
     }
 
     private func ensurePointDataIfNeeded() {
-        guard storeManager.isPurchased else { return }
-        if options.dataKind != .visits || options.format.isPointsOnly {
+        if effectiveDataKind != .visits {
             viewModel.ensureAllLocationPointsLoaded()
         }
+    }
+}
+
+struct IsoMeExportPreviewView: View {
+    let visits: [Visit]
+    let points: [LocationPoint]
+    let options: ExportOptions
+    let filenamePattern: String
+    let destinationLabel: String
+    let destinationRootName: String
+    let totalItemCount: Int
+    let totalFileCount: Int
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var records: [IsoMePreviewRecord] = []
+    @State private var warnings: [ExportWarning] = []
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+    @State private var previewTotalRecordCount = 0
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if isLoading {
+                    loadingView
+                } else if let errorMessage {
+                    messageView(
+                        icon: "exclamationmark.triangle.fill",
+                        title: "Preview Failed",
+                        message: errorMessage
+                    )
+                } else if records.isEmpty {
+                    messageView(
+                        icon: "doc.text.magnifyingglass",
+                        title: "No data to preview",
+                        message: "There is no data for the selected export settings."
+                    )
+                } else {
+                    contentList
+                }
+            }
+            .background(TE.surface.ignoresSafeArea())
+            .navigationTitle("Export Preview")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .task {
+            await buildPreview()
+        }
+    }
+
+    private var loadingView: some View {
+        VStack(spacing: 14) {
+            ProgressView()
+                .controlSize(.large)
+                .tint(TE.accent)
+            Text("Building preview…")
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func messageView(icon: String, title: String, message: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.largeTitle.weight(.light))
+                .foregroundStyle(TE.textMuted)
+            Text(title)
+                .font(TE.mono(.headline, weight: .bold))
+                .foregroundStyle(TE.textPrimary)
+            Text(message)
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.horizontal, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var contentList: some View {
+        List {
+            summarySection
+            warningsSection
+
+            ForEach(records) { record in
+                Section {
+                    ForEach(record.files) { file in
+                        NavigationLink {
+                            IsoMePreviewFileContentView(file: file)
+                        } label: {
+                            fileRow(file)
+                        }
+                    }
+                } header: {
+                    Text(record.title)
+                        .font(TE.mono(.caption, weight: .bold))
+                        .foregroundStyle(TE.textMuted)
+                } footer: {
+                    if !record.folderPath.isEmpty {
+                        Text(record.folderPath)
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+    }
+
+    private var summarySection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                summaryRow("Destination", value: destinationLabel)
+                summaryRow("Format", value: options.format.displayName)
+                summaryRow("Items", value: "\(totalItemCount)")
+                summaryRow("Files", value: "\(totalFileCount)")
+
+                if previewTotalRecordCount > records.count {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "info.circle")
+                            .font(.caption2)
+                        Text("Previewing the \(records.count) most recent file\(records.count == 1 ? "" : "s") with data. Export will process every selected file.")
+                            .font(TE.mono(.caption2, weight: .medium))
+                    }
+                    .foregroundStyle(TE.textMuted)
+                    .padding(.top, 2)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    private func summaryRow(_ label: LocalizedStringKey, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(label)
+                .font(TE.mono(.caption, weight: .medium))
+                .foregroundStyle(TE.textMuted)
+            Spacer(minLength: 12)
+            Text(value)
+                .font(TE.mono(.caption, weight: .semibold))
+                .foregroundStyle(TE.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+    }
+
+    @ViewBuilder
+    private var warningsSection: some View {
+        if !warnings.isEmpty {
+            Section("Warnings") {
+                ForEach(Array(warnings.enumerated()), id: \.offset) { _, warning in
+                    Label {
+                        Text(warning.message)
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(TE.warning)
+                    }
+                }
+            }
+        }
+    }
+
+    private func fileRow(_ file: IsoMePreviewFile) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: file.iconName)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(TE.accent)
+                .frame(width: 30, height: 30)
+                .background(Circle().fill(TE.accent.opacity(0.1)))
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(file.filename)
+                    .font(TE.mono(.caption, weight: .semibold))
+                    .foregroundStyle(TE.textPrimary)
+                    .lineLimit(2)
+                    .truncationMode(.middle)
+                Text("\(file.displayName) · \(file.sizeLabel)")
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                if !file.folderPath.isEmpty {
+                    Text(file.folderPath)
+                        .font(TE.mono(.caption2, weight: .regular))
+                        .foregroundStyle(TE.textMuted)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func buildPreview() async {
+        do {
+            let preview = try await IsoMeExportKitAdapter.preview(
+                visits: visits,
+                points: points,
+                options: options,
+                filenamePattern: filenamePattern
+            )
+            let rootName = destinationRootName
+            records = preview.records.map {
+                IsoMePreviewRecord(record: $0, rootName: rootName, splitByDay: options.splitByDay)
+            }
+            warnings = preview.warnings
+            previewTotalRecordCount = preview.totalRecordCount
+            isLoading = false
+        } catch {
+            errorMessage = "Could not build export preview: \(error.localizedDescription)"
+            isLoading = false
+        }
+    }
+
+    fileprivate static let dateLabelFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d, yyyy"
+        return formatter
+    }()
+}
+
+private struct IsoMePreviewFileContentView: View {
+    let file: IsoMePreviewFile
+
+    private var displayContent: ExportPreviewDisplayContent {
+        file.plannedFile.displayContent()
+    }
+
+    var body: some View {
+        let content = displayContent
+
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                if content.isTruncated {
+                    Label {
+                        Text("Showing a lightweight preview of this \(content.originalSizeLabel) file. The full export will still include all data.")
+                            .font(TE.mono(.caption2, weight: .medium))
+                    } icon: {
+                        Image(systemName: "scissors")
+                    }
+                    .foregroundStyle(TE.textMuted)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                }
+
+                Text(content.text)
+                    .font(TE.mono(.caption2, weight: .regular))
+                    .foregroundStyle(TE.textPrimary)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+            }
+        }
+        .background(TE.surface.ignoresSafeArea())
+        .navigationTitle(file.filename)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct IsoMePreviewRecord: Identifiable {
+    let id: String
+    let title: String
+    let folderPath: String
+    let files: [IsoMePreviewFile]
+
+    init(record: ExportPreviewRecord, rootName: String, splitByDay: Bool) {
+        id = record.id
+        if splitByDay, let date = record.reference.date {
+            title = IsoMeExportPreviewView.dateLabelFormatter.string(from: date)
+        } else {
+            title = "Export file"
+        }
+
+        let aggregateFolderPath = record.files.firstAggregateFolderPath ?? record.files.first?.relativeFolderPath ?? ""
+        folderPath = Self.displayFolderPath(relativeFolderPath: aggregateFolderPath, rootName: rootName)
+        files = record.files.map { IsoMePreviewFile(plannedFile: $0, rootName: rootName) }
+    }
+
+    private static func displayFolderPath(relativeFolderPath: String, rootName: String) -> String {
+        var components = [rootName]
+        components.append(contentsOf: relativeFolderPath.previewPathComponents)
+        return components.filter { !$0.isEmpty }.joined(separator: "/") + "/"
+    }
+}
+
+private struct IsoMePreviewFile: Identifiable {
+    let plannedFile: PlannedExportFile
+    let rootName: String
+
+    var id: String { plannedFile.id }
+    var filename: String { plannedFile.filename }
+    var folderPath: String { Self.displayFolderPath(relativeFolderPath: plannedFile.relativeFolderPath, rootName: rootName) }
+    var sizeLabel: String { plannedFile.sizeLabel }
+
+    var displayName: String {
+        if let format = exportFormat {
+            return format.displayName
+        }
+        return plannedFile.displayName ?? "Export File"
+    }
+
+    var iconName: String {
+        switch exportFormat {
+        case .json: return "curlybraces"
+        case .csv: return "list.bullet.rectangle"
+        case .markdown: return "doc.text"
+        case .owntracks: return "location.fill"
+        case .overland: return "point.topleft.down.curvedto.point.bottomright.up"
+        case .gpx: return "map"
+        case .kml: return "globe.americas"
+        case .geojson: return "map.fill"
+        case nil: return "doc.text"
+        }
+    }
+
+    private var exportFormat: ExportFormat? {
+        guard case .aggregate(let formatID) = plannedFile.role else { return nil }
+        return ExportFormat(exportKitFormatID: formatID)
+    }
+
+    private static func displayFolderPath(relativeFolderPath: String, rootName: String) -> String {
+        var components = [rootName]
+        components.append(contentsOf: relativeFolderPath.previewPathComponents)
+        return components.filter { !$0.isEmpty }.joined(separator: "/") + "/"
+    }
+}
+
+private extension Array where Element == PlannedExportFile {
+    var firstAggregateFolderPath: String? {
+        first { file in
+            if case .aggregate = file.role { return true }
+            return false
+        }?.relativeFolderPath
+    }
+}
+
+private extension String {
+    var previewPathComponents: [String] {
+        split(separator: "/").map(String.init).filter { !$0.isEmpty }
+    }
+}
+
+struct ExportToast: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case success
+        case failure
+    }
+
+    let id = UUID()
+    let kind: Kind
+    let title: String
+    let message: String
+
+    static func success(message: String) -> ExportToast {
+        ExportToast(kind: .success, title: "EXPORT SUCCESSFUL", message: message)
+    }
+
+    static func success(savedURLs urls: [URL]) -> ExportToast {
+        if urls.count == 1, let url = urls.first {
+            return success(message: "Saved to \(url.lastPathComponent)")
+        }
+        if let folder = urls.first?.deletingLastPathComponent().lastPathComponent {
+            return success(message: "Saved \(urls.count) files to \(folder)")
+        }
+        return success(message: "Saved \(urls.count) files")
+    }
+
+    static func failure(message: String) -> ExportToast {
+        ExportToast(kind: .failure, title: "EXPORT FAILED", message: message)
+    }
+
+    var iconName: String {
+        switch kind {
+        case .success: return "checkmark.circle.fill"
+        case .failure: return "xmark.octagon.fill"
+        }
+    }
+
+    var tint: Color {
+        switch kind {
+        case .success: return TE.success
+        case .failure: return TE.danger
+        }
+    }
+}
+
+@MainActor
+final class ExportToastCenter: ObservableObject {
+    static let shared = ExportToastCenter()
+
+    @Published private(set) var toast: ExportToast?
+
+    private var dismissTask: Task<Void, Never>?
+
+    private init() {}
+
+    func show(_ toast: ExportToast) {
+        dismissTask?.cancel()
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+            self.toast = toast
+        }
+        dismissTask = Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.toast = nil
+            }
+        }
+    }
+
+    func clear() {
+        dismissTask?.cancel()
+        withAnimation(.easeOut(duration: 0.2)) {
+            toast = nil
+        }
+    }
+}
+
+struct ExportToastBanner: View {
+    let toast: ExportToast
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: toast.iconName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(toast.tint)
+                .padding(.top, 1)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(toast.title)
+                    .font(TE.mono(.caption, weight: .bold))
+                    .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
+                    .foregroundStyle(TE.textPrimary)
+
+                Text(toast.message)
+                    .font(TE.mono(.caption2, weight: .medium))
+                    .foregroundStyle(TE.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(TE.card)
+                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(toast.tint.opacity(0.55), lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
     }
 }
 

@@ -58,11 +58,11 @@ final class LocationViewModel {
 
         // Observe location manager for new data points. Append the saved point to
         // in-memory caches instead of refetching the entire day on every update.
-        locationManager.$locationPointsSavedCount
+        locationManager.$lastSavedLocationPoints
             .dropFirst() // Skip initial value
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.handleSavedLocationPoint()
+            .sink { [weak self] points in
+                self?.handleSavedLocationPoints(points)
             }
             .store(in: &cancellables)
     }
@@ -249,8 +249,8 @@ final class LocationViewModel {
         }
     }
 
-    private func handleSavedLocationPoint() {
-        guard let point = locationManager.lastSavedLocationPoint else {
+    private func handleSavedLocationPoints(_ points: [LocationPoint]) {
+        guard !points.isEmpty else {
             refreshLocationPointCount()
             loadTodayLocationPoints()
             loadMapLocationPoints(in: mapDateRange)
@@ -260,36 +260,45 @@ final class LocationViewModel {
             return
         }
 
-        totalLocationPointCount += 1
+        let orderedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        totalLocationPointCount += orderedPoints.count
 
         if hasLoadedAllLocationPoints {
-            locationPoints.append(point)
+            locationPoints.append(contentsOf: orderedPoints)
         }
 
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
         let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
+        var didAppendMapPoint = false
 
-        if point.timestamp >= startOfToday && point.timestamp < endOfToday {
-            let previousTodayPoint = todayLocationPoints.last
-            todayLocationPoints.append(point)
+        for point in orderedPoints {
+            if point.timestamp >= startOfToday && point.timestamp < endOfToday {
+                let previousTodayPoint = todayLocationPoints.last
+                todayLocationPoints.append(point)
 
-            if let previousTodayPoint {
-                todayDistanceTraveledCache += previousTodayPoint.distance(to: point)
+                if let previousTodayPoint {
+                    todayDistanceTraveledCache += previousTodayPoint.distance(to: point)
+                }
+
+                if let sessionStart = locationManager.trackingStartTime,
+                   point.timestamp >= sessionStart {
+                    if let previousSessionPoint = sessionLocationPointsCache.last {
+                        sessionDistanceTraveledCache += previousSessionPoint.distance(to: point)
+                    }
+                    sessionLocationPointsCache.append(point)
+                }
             }
 
-            if let sessionStart = locationManager.trackingStartTime,
-               point.timestamp >= sessionStart {
-                if let previousSessionPoint = sessionLocationPointsCache.last {
-                    sessionDistanceTraveledCache += previousSessionPoint.distance(to: point)
-                }
-                sessionLocationPointsCache.append(point)
+            if mapDateRange.contains(point.timestamp) {
+                mapLocationPointCount += 1
+                mapLocationPoints.append(point)
+                didAppendMapPoint = true
             }
         }
 
-        if mapDateRange.contains(point.timestamp) {
-            mapLocationPointCount += 1
-            mapLocationPoints.append(point)
+        if didAppendMapPoint {
+            mapLocationPoints.sort { $0.timestamp < $1.timestamp }
             mapLocationPoints = downsample(points: mapLocationPoints, maxCount: maximumMapPointCount)
         }
     }

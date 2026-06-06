@@ -1,4 +1,6 @@
 build/
+node_modules/
+*.profraw
 .DS_Store
 .wrangler/
 .claude/
