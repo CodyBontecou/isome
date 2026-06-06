@@ -14,15 +14,43 @@ concurrency:
 jobs:
   test:
     name: IsoMe XCTest
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 30
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select Swift 6.3-capable Xcode
+        run: |
+          set -euo pipefail
+
+          # notelet 1.1.0 declares swift-tools-version: 6.3, so the
+          # package graph must be resolved with Xcode 26.4+ / Swift 6.3+.
+          for xcode in \
+            /Applications/Xcode_26.5.app \
+            /Applications/Xcode_26.5.0.app \
+            /Applications/Xcode_26.4.1.app \
+            /Applications/Xcode_26.4.app \
+            /Applications/Xcode.app
+          do
+            if [[ -d "$xcode" ]]; then
+              sudo xcode-select -s "$xcode/Contents/Developer"
+              break
+            fi
+          done
+
+          xcodebuild -version
+          swift --version
+
+          XCODE_VERSION=$(xcodebuild -version | awk '/^Xcode / { print $2 }')
+          XCODE_MAJOR=${XCODE_VERSION%%.*}
+          XCODE_MINOR=${XCODE_VERSION#*.}
+          XCODE_MINOR=${XCODE_MINOR%%.*}
+          if (( XCODE_MAJOR < 26 || (XCODE_MAJOR == 26 && XCODE_MINOR < 4) )); then
+            echo "::error::Xcode 26.4+ is required for Swift tools 6.3 packages like notelet."
+            exit 1
+          fi
 
       - name: Resolve iPhone simulator
         id: simulator
