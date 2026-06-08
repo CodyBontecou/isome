@@ -471,7 +471,11 @@ final class LocationViewModel {
         }
 
         do {
-            try ExportService.share(visits: visitsToExport, format: format)
+            try ExportService.share(
+                visits: visitsToExport,
+                format: format,
+                completion: Self.recordSuccessfulShareExportForReviewPrompt
+            )
         } catch {
             exportError = error.localizedDescription
         }
@@ -487,7 +491,11 @@ final class LocationViewModel {
         }
 
         do {
-            try ExportService.shareLocationPoints(points: pointsToExport, format: format)
+            try ExportService.shareLocationPoints(
+                points: pointsToExport,
+                format: format,
+                completion: Self.recordSuccessfulShareExportForReviewPrompt
+            )
         } catch {
             exportError = error.localizedDescription
         }
@@ -500,7 +508,12 @@ final class LocationViewModel {
         totalLocationPointCount = pointsToExport.count
 
         do {
-            try ExportService.shareCombined(visits: allVisits, points: pointsToExport, format: format)
+            try ExportService.shareCombined(
+                visits: allVisits,
+                points: pointsToExport,
+                format: format,
+                completion: Self.recordSuccessfulShareExportForReviewPrompt
+            )
         } catch {
             exportError = error.localizedDescription
         }
@@ -518,9 +531,21 @@ final class LocationViewModel {
         }
 
         do {
-            try ExportService.share(visits: allVisits, points: pointsToExport, options: options)
+            try ExportService.share(
+                visits: allVisits,
+                points: pointsToExport,
+                options: options,
+                completion: Self.recordSuccessfulShareExportForReviewPrompt
+            )
         } catch {
             exportError = error.localizedDescription
+        }
+    }
+
+    private static func recordSuccessfulShareExportForReviewPrompt(completed: Bool) {
+        guard completed else { return }
+        Task { @MainActor in
+            AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
         }
     }
 

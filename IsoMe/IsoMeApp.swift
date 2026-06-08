@@ -5,9 +5,6 @@ import StoreKit
 @main
 struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @State private var sessionStart: Date?
-    @AppStorage("hasRequestedReview") private var hasRequestedReview = false
-    @AppStorage("cumulativeUsageSeconds") private var cumulativeUsageSeconds: Double = 0
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -46,17 +43,12 @@ struct IsoMeApp: App {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
             case .active:
-                sessionStart = Date()
-                requestReviewIfEligible()
+                AppReviewPromptCoordinator.shared.recordAppUse()
                 NotificationCenter.default.post(name: .appDidBecomeActive, object: nil)
                 Task { await DailyExportScheduler.shared.runIfDue() }
             case .inactive:
                 break
             case .background:
-                if let start = sessionStart {
-                    cumulativeUsageSeconds += Date().timeIntervalSince(start)
-                    sessionStart = nil
-                }
                 NotificationCenter.default.post(name: .appDidEnterBackground, object: nil)
                 DailyExportScheduler.shared.scheduleNextBackgroundRun()
             @unknown default:
@@ -65,17 +57,6 @@ struct IsoMeApp: App {
         }
     }
     
-    private func requestReviewIfEligible() {
-        guard !hasRequestedReview, cumulativeUsageSeconds >= 1800 else { return }
-        hasRequestedReview = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            if let scene = UIApplication.shared.connectedScenes
-                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                AppStore.requestReview(in: scene)
-            }
-        }
-    }
-
     private func handleDeepLink(_ url: URL) {
         guard url.scheme == "isome" else { return }
 
@@ -85,6 +66,120 @@ struct IsoMeApp: App {
         default:
             break
         }
+    }
+}
+
+// MARK: - App Store Review Prompt
+
+@MainActor
+final class AppReviewPromptCoordinator {
+    static let shared = AppReviewPromptCoordinator()
+
+    private enum DefaultsKey {
+        static let usedDayIDs = "reviewPrompt.usedDayIDs"
+        static let completedFileExport = "reviewPrompt.completedFileExport"
+        static let requestedSecondDayExportReview = "reviewPrompt.requestedSecondDayExportReview"
+    }
+
+    private let defaults: UserDefaults
+    private let calendar: Calendar
+    private let reviewRequestDelay: TimeInterval
+    private let requestReview: @MainActor () -> Bool
+    private var isReviewRequestScheduled = false
+
+    init(
+        defaults: UserDefaults = .standard,
+        calendar: Calendar = .current,
+        reviewRequestDelay: TimeInterval = 1,
+        requestReview: @escaping @MainActor () -> Bool = AppReviewPromptCoordinator.requestStoreKitReview
+    ) {
+        self.defaults = defaults
+        self.calendar = calendar
+        self.reviewRequestDelay = reviewRequestDelay
+        self.requestReview = requestReview
+    }
+
+    func recordAppUse(on date: Date = Date()) {
+        recordUseDay(on: date)
+        requestReviewIfEligible()
+    }
+
+    func recordSuccessfulFileExport(on date: Date = Date()) {
+        defaults.set(true, forKey: DefaultsKey.completedFileExport)
+        recordUseDay(on: date)
+        requestReviewIfEligible()
+    }
+
+    var recordedUseDayCount: Int {
+        usedDayIDs.count
+    }
+
+    var hasCompletedFileExport: Bool {
+        defaults.bool(forKey: DefaultsKey.completedFileExport)
+    }
+
+    var hasRequestedMilestoneReview: Bool {
+        defaults.bool(forKey: DefaultsKey.requestedSecondDayExportReview)
+    }
+
+    private var isEligibleForReviewRequest: Bool {
+        !hasRequestedMilestoneReview && hasCompletedFileExport && recordedUseDayCount >= 2
+    }
+
+    private var usedDayIDs: [String] {
+        get { defaults.stringArray(forKey: DefaultsKey.usedDayIDs) ?? [] }
+        set { defaults.set(newValue.sorted(), forKey: DefaultsKey.usedDayIDs) }
+    }
+
+    private func recordUseDay(on date: Date) {
+        var ids = Set(usedDayIDs)
+        if ids.insert(dayIdentifier(for: date)).inserted {
+            usedDayIDs = Array(ids)
+        }
+    }
+
+    private func dayIdentifier(for date: Date) -> String {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        return String(
+            format: "%04d-%02d-%02d",
+            components.year ?? 0,
+            components.month ?? 0,
+            components.day ?? 0
+        )
+    }
+
+    private func requestReviewIfEligible() {
+        guard isEligibleForReviewRequest, !isReviewRequestScheduled else { return }
+
+        isReviewRequestScheduled = true
+        if reviewRequestDelay <= 0 {
+            performScheduledReviewRequest()
+        } else {
+            let delay = UInt64(reviewRequestDelay * 1_000_000_000)
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: delay)
+                self?.performScheduledReviewRequest()
+            }
+        }
+    }
+
+    private func performScheduledReviewRequest() {
+        isReviewRequestScheduled = false
+        guard isEligibleForReviewRequest else { return }
+
+        if requestReview() {
+            defaults.set(true, forKey: DefaultsKey.requestedSecondDayExportReview)
+        }
+    }
+
+    private static func requestStoreKitReview() -> Bool {
+        guard let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else {
+            return false
+        }
+
+        AppStore.requestReview(in: scene)
+        return true
     }
 }
 

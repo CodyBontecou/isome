@@ -525,7 +525,12 @@ struct ExportView: View {
 
                         TERow(showDivider: false) {
                             Button {
-                                Task { await dailyScheduler.runNow() }
+                                Task { @MainActor in
+                                    let outcome = await dailyScheduler.runNow()
+                                    if outcome.completedExport {
+                                        AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
+                                    }
+                                }
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: "arrow.down.doc.fill")
@@ -1076,6 +1081,7 @@ struct ExportView: View {
                     filenamePattern: filenamePattern
                 )
                 ExportToastCenter.shared.show(.success(savedURLs: urls))
+                AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
             } catch {
                 viewModel.exportError = error.localizedDescription
                 ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
@@ -1086,7 +1092,13 @@ struct ExportView: View {
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
                     options: options,
-                    filenamePattern: filenamePattern
+                    filenamePattern: filenamePattern,
+                    completion: { completed in
+                        guard completed else { return }
+                        Task { @MainActor in
+                            AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
+                        }
+                    }
                 )
                 ExportToastCenter.shared.show(.success(message: "Share sheet opened"))
             } catch {

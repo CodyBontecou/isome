@@ -123,3 +123,108 @@ final class SharedLocationDataTests: XCTestCase {
                        "nil should fall back to metric")
     }
 }
+
+@MainActor
+final class AppReviewPromptCoordinatorTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private var suiteName: String!
+    private var calendar: Calendar!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "AppReviewPromptCoordinatorTests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)!
+        calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        suiteName = nil
+        calendar = nil
+        super.tearDown()
+    }
+
+    func testRequiresTwoUseDaysAndFileExportBeforePrompting() {
+        var requestCount = 0
+        let coordinator = makeCoordinator { requestCount += 1; return true }
+
+        coordinator.recordAppUse(on: date(day: 1, hour: 9))
+        coordinator.recordAppUse(on: date(day: 2, hour: 9))
+
+        XCTAssertEqual(coordinator.recordedUseDayCount, 2)
+        XCTAssertFalse(coordinator.hasCompletedFileExport)
+        XCTAssertEqual(requestCount, 0)
+
+        coordinator.recordSuccessfulFileExport(on: date(day: 2, hour: 10))
+
+        XCTAssertEqual(requestCount, 1)
+        XCTAssertTrue(coordinator.hasRequestedMilestoneReview)
+    }
+
+    func testExportOnFirstDayPromptsWhenSecondUseDayIsRecorded() {
+        var requestCount = 0
+        let coordinator = makeCoordinator { requestCount += 1; return true }
+
+        coordinator.recordSuccessfulFileExport(on: date(day: 1, hour: 18))
+
+        XCTAssertEqual(coordinator.recordedUseDayCount, 1)
+        XCTAssertTrue(coordinator.hasCompletedFileExport)
+        XCTAssertEqual(requestCount, 0)
+
+        coordinator.recordAppUse(on: date(day: 2, hour: 9))
+
+        XCTAssertEqual(requestCount, 1)
+        XCTAssertTrue(coordinator.hasRequestedMilestoneReview)
+    }
+
+    func testMultipleEventsOnSameDayOnlyCountAsOneUseDay() {
+        var requestCount = 0
+        let coordinator = makeCoordinator { requestCount += 1; return true }
+
+        coordinator.recordAppUse(on: date(day: 1, hour: 9))
+        coordinator.recordSuccessfulFileExport(on: date(day: 1, hour: 10))
+        coordinator.recordAppUse(on: date(day: 1, hour: 20))
+
+        XCTAssertEqual(coordinator.recordedUseDayCount, 1)
+        XCTAssertEqual(requestCount, 0)
+
+        coordinator.recordAppUse(on: date(day: 2, hour: 9))
+
+        XCTAssertEqual(coordinator.recordedUseDayCount, 2)
+        XCTAssertEqual(requestCount, 1)
+    }
+
+    func testFailedRequestIsRetriedInsteadOfMarkedComplete() {
+        var requestCount = 0
+        let coordinator = makeCoordinator {
+            requestCount += 1
+            return requestCount > 1
+        }
+
+        coordinator.recordAppUse(on: date(day: 1, hour: 9))
+        coordinator.recordSuccessfulFileExport(on: date(day: 2, hour: 9))
+
+        XCTAssertEqual(requestCount, 1)
+        XCTAssertFalse(coordinator.hasRequestedMilestoneReview)
+
+        coordinator.recordAppUse(on: date(day: 3, hour: 9))
+
+        XCTAssertEqual(requestCount, 2)
+        XCTAssertTrue(coordinator.hasRequestedMilestoneReview)
+    }
+
+    private func makeCoordinator(requestReview: @escaping @MainActor () -> Bool) -> AppReviewPromptCoordinator {
+        AppReviewPromptCoordinator(
+            defaults: defaults,
+            calendar: calendar,
+            reviewRequestDelay: 0,
+            requestReview: requestReview
+        )
+    }
+
+    private func date(day: Int, hour: Int) -> Date {
+        calendar.date(from: DateComponents(year: 2026, month: 6, day: day, hour: hour))!
+    }
+}

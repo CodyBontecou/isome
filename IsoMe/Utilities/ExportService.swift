@@ -284,7 +284,12 @@ struct ExportService {
     }
 
     @MainActor
-    static func share(visits: [Visit], format: ExportFormat, from viewController: UIViewController? = nil) throws {
+    static func share(
+        visits: [Visit],
+        format: ExportFormat,
+        from viewController: UIViewController? = nil,
+        completion: ((Bool) -> Void)? = nil
+    ) throws {
         let data: Data
         switch format {
         case .json:
@@ -310,6 +315,9 @@ struct ExportService {
             activityItems: activityItems(for: [fileURL], format: format),
             applicationActivities: nil
         )
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            completion?(completed)
+        }
 
         // Get the presenting view controller
         guard let presenter = viewController ?? UIApplication.shared.connectedScenes
@@ -572,7 +580,12 @@ extension ExportService {
     }
     
     @MainActor
-    static func shareLocationPoints(points: [LocationPoint], format: ExportFormat, from viewController: UIViewController? = nil) throws {
+    static func shareLocationPoints(
+        points: [LocationPoint],
+        format: ExportFormat,
+        from viewController: UIViewController? = nil,
+        completion: ((Bool) -> Void)? = nil
+    ) throws {
         let data: Data
         switch format {
         case .json:
@@ -601,6 +614,9 @@ extension ExportService {
             activityItems: activityItems(for: [tempURL], format: format),
             applicationActivities: nil
         )
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            completion?(completed)
+        }
         
         guard let presenter = viewController ?? UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
@@ -844,7 +860,13 @@ extension ExportService {
     }
 
     @MainActor
-    static func shareCombined(visits: [Visit], points: [LocationPoint], format: ExportFormat, from viewController: UIViewController? = nil) throws {
+    static func shareCombined(
+        visits: [Visit],
+        points: [LocationPoint],
+        format: ExportFormat,
+        from viewController: UIViewController? = nil,
+        completion: ((Bool) -> Void)? = nil
+    ) throws {
         let data = try combinedData(visits: visits, points: points, format: format)
 
         let fileName = "isome_complete_export_\(formattedDate()).\(format.fileExtension)"
@@ -855,6 +877,9 @@ extension ExportService {
             activityItems: activityItems(for: [tempURL], format: format),
             applicationActivities: nil
         )
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            completion?(completed)
+        }
 
         guard let presenter = viewController ?? UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
@@ -1438,7 +1463,8 @@ extension ExportService {
         points: [LocationPoint],
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern,
-        from viewController: UIViewController? = nil
+        from viewController: UIViewController? = nil,
+        completion: ((Bool) -> Void)? = nil
     ) throws {
         let fileURLs = try IsoMeExportKitAdapter.writeTemporaryFiles(
             IsoMeExportKitAdapter.plannedFiles(
@@ -1455,6 +1481,9 @@ extension ExportService {
             activityItems: activityItems(for: fileURLs, format: options.format),
             applicationActivities: nil
         )
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            completion?(completed)
+        }
 
         guard let presenter = viewController ?? UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
