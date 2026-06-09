@@ -51,6 +51,15 @@ final class LocationManager: NSObject, ObservableObject {
     private var pointBeforeLast: LocationPoint?
     private var lastSavedPoint: LocationPoint?
 
+    // Core Location visit departure events can arrive with slightly different
+    // centroid coordinates than their arrival events. Matching by exact doubles
+    // leaves stale open visits behind, which then render as many blue "current"
+    // pins on the map.
+    private let visitCoordinateMatchThresholdMeters: CLLocationDistance = 150
+    private let visitArrivalMatchTolerance: TimeInterval = 15 * 60
+    private let duplicateVisitMergeThresholdMeters: CLLocationDistance = 100
+    private let duplicateVisitMergeGap: TimeInterval = 30 * 60
+
     private var usesMetricDistanceUnits: Bool {
         let key = "usesMetricDistanceUnits"
         if UserDefaults.standard.object(forKey: key) == nil {
@@ -119,6 +128,7 @@ final class LocationManager: NSObject, ObservableObject {
 
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
+        reconcileOpenVisits()
     }
 
     // MARK: - Permission Handling
@@ -262,54 +272,300 @@ final class LocationManager: NSObject, ObservableObject {
 
     // MARK: - Data Storage
 
+    /// Repairs stale/duplicate visits so the app has at most one current visit
+    /// and Core Location jitter does not leave stacked pins for the same stop.
+    @discardableResult
+    func reconcileOpenVisits(referenceDate: Date = Date()) -> Int {
+        guard let context = modelContext else { return 0 }
+
+        do {
+            var descriptor = FetchDescriptor<Visit>()
+            descriptor.sortBy = [SortDescriptor(\.arrivedAt, order: .forward)]
+            let visits = try context.fetch(descriptor)
+            let openVisits = visits.filter { $0.departedAt == nil }
+            let latestOpenVisit = openVisits.max { $0.arrivedAt < $1.arrivedAt }
+            var changedCount = 0
+
+            for visit in openVisits where openVisits.count > 1 && visit.id != latestOpenVisit?.id {
+                visit.departedAt = inferredDepartureDate(
+                    for: visit,
+                    in: visits,
+                    fallback: referenceDate
+                )
+                changedCount += 1
+            }
+
+            changedCount += mergeDuplicateVisits(
+                in: visits,
+                context: context,
+                referenceDate: referenceDate
+            )
+
+            if changedCount > 0 {
+                try context.save()
+                syncDataToWatch()
+            }
+
+            return changedCount
+        } catch {
+            lastError = "Failed to reconcile visits: \(error.localizedDescription)"
+            return 0
+        }
+    }
+
     private func saveVisit(_ clVisit: CLVisit) {
         guard let context = modelContext else { return }
 
-        // Check if this is a departure update for an existing visit
         let arrivalDate = clVisit.arrivalDate
-        let latitude = clVisit.coordinate.latitude
-        let longitude = clVisit.coordinate.longitude
-
-        let predicate = #Predicate<Visit> { visit in
-            visit.latitude == latitude &&
-            visit.longitude == longitude &&
-            visit.departedAt == nil
-        }
-
-        let descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        let departureDate = clVisit.departureDate
+        let hasArrival = arrivalDate != Date.distantPast
+        let hasDeparture = departureDate != Date.distantFuture
+        var visitToGeocodeID: UUID?
 
         do {
-            let existingVisits = try context.fetch(descriptor)
+            if hasDeparture,
+               let existingVisit = try matchingOpenVisit(for: clVisit, in: context) {
+                // Departure update for an existing open visit.
+                existingVisit.departedAt = max(existingVisit.arrivedAt, departureDate)
+            } else if hasArrival {
+                // A new arrival means any previous open visit is no longer current,
+                // even if iOS never delivered a matching departure callback.
+                _ = try closeOpenVisits(before: arrivalDate, in: context)
 
-            if let existingVisit = existingVisits.first,
-               clVisit.departureDate != Date.distantFuture {
-                // Update departure time
-                existingVisit.departedAt = clVisit.departureDate
-            } else if clVisit.arrivalDate != Date.distantPast {
-                // Create new visit
                 let visit = Visit(
-                    latitude: latitude,
-                    longitude: longitude,
+                    latitude: clVisit.coordinate.latitude,
+                    longitude: clVisit.coordinate.longitude,
                     arrivedAt: arrivalDate
                 )
 
-                if clVisit.departureDate != Date.distantFuture {
-                    visit.departedAt = clVisit.departureDate
+                if hasDeparture {
+                    visit.departedAt = max(arrivalDate, departureDate)
                 }
 
-                context.insert(visit)
-
-                // Trigger geocoding
-                Task {
-                    await geocodeVisit(visit)
+                if let duplicateVisit = try matchingDuplicateVisit(
+                    for: visit,
+                    in: context,
+                    referenceDate: Date()
+                ) {
+                    mergeVisit(visit, into: duplicateVisit)
+                    visitToGeocodeID = duplicateVisit.id
+                } else {
+                    context.insert(visit)
+                    visitToGeocodeID = visit.id
                 }
             }
 
             try context.save()
+            reconcileOpenVisits()
             syncDataToWatch()
+
+            if let visitToGeocodeID,
+               let visitToGeocode = try visit(withID: visitToGeocodeID, in: context),
+               !visitToGeocode.geocodingCompleted {
+                Task {
+                    await geocodeVisit(visitToGeocode)
+                }
+            }
         } catch {
             lastError = "Failed to save visit: \(error.localizedDescription)"
         }
+    }
+
+    private func matchingOpenVisit(for clVisit: CLVisit, in context: ModelContext) throws -> Visit? {
+        let predicate = #Predicate<Visit> { visit in
+            visit.departedAt == nil
+        }
+        var descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.arrivedAt, order: .reverse)]
+        let openVisits = try context.fetch(descriptor)
+        guard !openVisits.isEmpty else { return nil }
+
+        let clVisitLocation = CLLocation(
+            latitude: clVisit.coordinate.latitude,
+            longitude: clVisit.coordinate.longitude
+        )
+
+        return openVisits
+            .compactMap { visit -> (visit: Visit, score: Double)? in
+                guard let score = matchScore(
+                    for: visit,
+                    clVisit: clVisit,
+                    clVisitLocation: clVisitLocation
+                ) else { return nil }
+                return (visit, score)
+            }
+            .min { $0.score < $1.score }?
+            .visit
+    }
+
+    private func matchScore(
+        for visit: Visit,
+        clVisit: CLVisit,
+        clVisitLocation: CLLocation
+    ) -> Double? {
+        let visitLocation = CLLocation(latitude: visit.latitude, longitude: visit.longitude)
+        let distance = visitLocation.distance(from: clVisitLocation)
+        let isNearby = distance <= visitCoordinateMatchThresholdMeters
+
+        let hasArrival = clVisit.arrivalDate != Date.distantPast
+        let arrivalDelta = hasArrival
+            ? abs(visit.arrivedAt.timeIntervalSince(clVisit.arrivalDate))
+            : .greatestFiniteMagnitude
+        let isSameArrival = arrivalDelta <= visitArrivalMatchTolerance
+
+        guard isNearby || isSameArrival else { return nil }
+
+        let normalizedArrivalScore: Double
+        if arrivalDelta.isFinite {
+            normalizedArrivalScore = min(arrivalDelta / visitArrivalMatchTolerance, 1)
+        } else {
+            normalizedArrivalScore = 1
+        }
+
+        return distance + (normalizedArrivalScore * visitCoordinateMatchThresholdMeters)
+    }
+
+    private func matchingDuplicateVisit(
+        for candidate: Visit,
+        in context: ModelContext,
+        referenceDate: Date
+    ) throws -> Visit? {
+        var descriptor = FetchDescriptor<Visit>()
+        descriptor.sortBy = [SortDescriptor(\.arrivedAt, order: .forward)]
+        let visits = try context.fetch(descriptor)
+
+        return visits.first { visit in
+            shouldMergeDuplicateVisits(visit, candidate, referenceDate: referenceDate)
+        }
+    }
+
+    private func mergeDuplicateVisits(
+        in chronologicalVisits: [Visit],
+        context: ModelContext,
+        referenceDate: Date
+    ) -> Int {
+        var keptVisits: [Visit] = []
+        var deletedVisitIDs = Set<UUID>()
+        var mergeCount = 0
+
+        for visit in chronologicalVisits where !deletedVisitIDs.contains(visit.id) {
+            if let duplicateVisit = keptVisits.first(where: {
+                shouldMergeDuplicateVisits($0, visit, referenceDate: referenceDate)
+            }) {
+                mergeVisit(visit, into: duplicateVisit)
+                context.delete(visit)
+                deletedVisitIDs.insert(visit.id)
+                mergeCount += 1
+            } else {
+                keptVisits.append(visit)
+            }
+        }
+
+        return mergeCount
+    }
+
+    private func shouldMergeDuplicateVisits(
+        _ lhs: Visit,
+        _ rhs: Visit,
+        referenceDate: Date
+    ) -> Bool {
+        guard lhs.id != rhs.id else { return false }
+
+        let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
+        let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
+        guard lhsLocation.distance(from: rhsLocation) <= duplicateVisitMergeThresholdMeters else {
+            return false
+        }
+
+        let arrivalDelta = abs(lhs.arrivedAt.timeIntervalSince(rhs.arrivedAt))
+        if arrivalDelta <= visitArrivalMatchTolerance {
+            return true
+        }
+
+        return timeGapBetween(lhs, rhs, referenceDate: referenceDate) <= duplicateVisitMergeGap
+    }
+
+    private func timeGapBetween(_ lhs: Visit, _ rhs: Visit, referenceDate: Date) -> TimeInterval {
+        let lhsEnd = lhs.departedAt ?? referenceDate
+        let rhsEnd = rhs.departedAt ?? referenceDate
+
+        if lhsEnd < rhs.arrivedAt {
+            return rhs.arrivedAt.timeIntervalSince(lhsEnd)
+        }
+
+        if rhsEnd < lhs.arrivedAt {
+            return lhs.arrivedAt.timeIntervalSince(rhsEnd)
+        }
+
+        return 0
+    }
+
+    private func mergeVisit(_ source: Visit, into target: Visit) {
+        target.arrivedAt = min(target.arrivedAt, source.arrivedAt)
+
+        switch (target.departedAt, source.departedAt) {
+        case (nil, _), (_, nil):
+            target.departedAt = nil
+        case let (targetDeparture?, sourceDeparture?):
+            target.departedAt = max(targetDeparture, sourceDeparture)
+        }
+
+        target.customName = target.customName ?? source.customName
+        target.locationName = target.locationName ?? source.locationName
+        target.address = target.address ?? source.address
+        target.geocodingCompleted = target.geocodingCompleted || source.geocodingCompleted
+
+        if let sourceNotes = source.notes?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !sourceNotes.isEmpty {
+            if let targetNotes = target.notes?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !targetNotes.isEmpty,
+               targetNotes != sourceNotes {
+                target.notes = "\(targetNotes)\n\n\(sourceNotes)"
+            } else if target.notes == nil || target.notes?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
+                target.notes = source.notes
+            }
+        }
+    }
+
+    private func closeOpenVisits(
+        before arrivalDate: Date,
+        in context: ModelContext,
+        excluding excludedID: UUID? = nil
+    ) throws -> Int {
+        let predicate = #Predicate<Visit> { visit in
+            visit.departedAt == nil
+        }
+        let descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        let openVisits = try context.fetch(descriptor)
+        var closedCount = 0
+
+        for visit in openVisits where visit.id != excludedID && visit.arrivedAt <= arrivalDate {
+            visit.departedAt = max(visit.arrivedAt, arrivalDate)
+            closedCount += 1
+        }
+
+        return closedCount
+    }
+
+    private func inferredDepartureDate(
+        for visit: Visit,
+        in chronologicalVisits: [Visit],
+        fallback: Date
+    ) -> Date {
+        let nextArrival = chronologicalVisits.first { candidate in
+            candidate.id != visit.id && candidate.arrivedAt > visit.arrivedAt
+        }?.arrivedAt
+
+        return max(visit.arrivedAt, nextArrival ?? fallback)
+    }
+
+    private func visit(withID id: UUID, in context: ModelContext) throws -> Visit? {
+        let predicate = #Predicate<Visit> { visit in
+            visit.id == id
+        }
+        var descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
     }
 
     @discardableResult

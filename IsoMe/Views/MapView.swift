@@ -252,7 +252,11 @@ struct LocationMapView: View {
                                 coordinate: visit.coordinate,
                                 anchor: .bottom
                             ) {
-                                VisitMarker(visit: visit, isSelected: selectedVisit?.id == visit.id)
+                                VisitMarker(
+                                    visit: visit,
+                                    isSelected: selectedVisit?.id == visit.id,
+                                    isCurrentVisit: viewModel.isCurrentVisit(visit)
+                                )
                             }
                             .tag(visit)
                         }
@@ -802,12 +806,13 @@ struct VisitMarker: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visit: Visit
     let isSelected: Bool
+    let isCurrentVisit: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(visit.isCurrentVisit ? .blue : .red)
+                    .fill(isCurrentVisit ? .blue : .red)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
                     .accessibilityHidden(true)
 
@@ -818,14 +823,14 @@ struct VisitMarker: View {
             }
 
             Triangle()
-                .fill(visit.isCurrentVisit ? .blue : .red)
+                .fill(isCurrentVisit ? .blue : .red)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
         .frame(minWidth: 44, minHeight: 44)
         .animation(reduceMotion ? nil : .spring(duration: 0.2), value: isSelected)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(visit.accessibilityLabel)
+        .accessibilityLabel(isCurrentVisit ? "Current visit at \(visit.displayName)" : "Visit at \(visit.displayName)")
         .accessibilityValue(visit.accessibilityValue)
         .accessibilityHint(visit.accessibilityHint)
         .accessibilityAddTraits(.isButton)
@@ -1257,7 +1262,7 @@ struct VisitQuickView: View {
                             .accessibilityHint("Restores the automatically detected visit name.")
                         }
 
-                        if visit.isCurrentVisit {
+                        if viewModel.isCurrentVisit(visit) {
                             Text("Now")
                                 .font(.caption)
                                 .fontWeight(.medium)

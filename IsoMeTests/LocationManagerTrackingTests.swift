@@ -125,6 +125,137 @@ final class LocationManagerTrackingTests: XCTestCase {
         XCTAssertEqual(manager.currentLocation?.timestamp, locations.last?.timestamp)
     }
 
+    func testReconcilingOpenVisitsLeavesOnlyLatestVisitCurrent() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let base = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let staleOpenVisit = Visit(
+            latitude: 18.3270,
+            longitude: -67.2200,
+            arrivedAt: base.addingTimeInterval(-4 * 3600)
+        )
+        let completedVisitAfterStaleOpenVisit = Visit(
+            latitude: 18.3280,
+            longitude: -67.2210,
+            arrivedAt: base.addingTimeInterval(-3 * 3600),
+            departedAt: base.addingTimeInterval(-2 * 3600)
+        )
+        let latestOpenVisit = Visit(
+            latitude: 18.3290,
+            longitude: -67.2220,
+            arrivedAt: base.addingTimeInterval(-3600)
+        )
+
+        context.insert(staleOpenVisit)
+        context.insert(completedVisitAfterStaleOpenVisit)
+        context.insert(latestOpenVisit)
+        try context.save()
+
+        manager.setModelContext(context)
+
+        let openPredicate = #Predicate<Visit> { visit in
+            visit.departedAt == nil
+        }
+        let openVisits = try context.fetch(FetchDescriptor<Visit>(predicate: openPredicate))
+
+        XCTAssertEqual(openVisits.map(\.id), [latestOpenVisit.id])
+        XCTAssertEqual(staleOpenVisit.departedAt, completedVisitAfterStaleOpenVisit.arrivedAt)
+        XCTAssertNil(latestOpenVisit.departedAt)
+    }
+
+    func testReconcilingDuplicateVisitsMergesNearbyStackedPins() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let base = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let firstVisit = Visit(
+            latitude: 18.3270,
+            longitude: -67.2200,
+            arrivedAt: base,
+            departedAt: base.addingTimeInterval(10 * 60),
+            locationName: "Puerto Rico"
+        )
+        let duplicateVisit = Visit(
+            latitude: 18.3272,
+            longitude: -67.2201,
+            arrivedAt: base.addingTimeInterval(2 * 60),
+            departedAt: base.addingTimeInterval(15 * 60),
+            address: "Puerto Rico"
+        )
+
+        context.insert(firstVisit)
+        context.insert(duplicateVisit)
+        try context.save()
+
+        manager.setModelContext(context)
+
+        let visits = try context.fetch(FetchDescriptor<Visit>())
+
+        XCTAssertEqual(visits.count, 1)
+        XCTAssertEqual(visits.first?.arrivedAt, firstVisit.arrivedAt)
+        XCTAssertEqual(visits.first?.departedAt, duplicateVisit.departedAt)
+        XCTAssertEqual(visits.first?.locationName, "Puerto Rico")
+    }
+
+    func testReconcilingDuplicateOpenAndCompletedVisitKeepsOneCurrentVisit() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let base = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let completedVisit = Visit(
+            latitude: 18.3270,
+            longitude: -67.2200,
+            arrivedAt: base,
+            departedAt: base.addingTimeInterval(10 * 60)
+        )
+        let openDuplicateVisit = Visit(
+            latitude: 18.3271,
+            longitude: -67.2201,
+            arrivedAt: base.addingTimeInterval(2 * 60)
+        )
+
+        context.insert(completedVisit)
+        context.insert(openDuplicateVisit)
+        try context.save()
+
+        manager.setModelContext(context)
+
+        let visits = try context.fetch(FetchDescriptor<Visit>())
+
+        XCTAssertEqual(visits.count, 1)
+        XCTAssertNil(visits.first?.departedAt)
+    }
+
+    func testReconcilingVisitsDoesNotMergeSeparateReturnsToSamePlace() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let base = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let morningVisit = Visit(
+            latitude: 18.3270,
+            longitude: -67.2200,
+            arrivedAt: base,
+            departedAt: base.addingTimeInterval(10 * 60)
+        )
+        let afternoonVisit = Visit(
+            latitude: 18.3271,
+            longitude: -67.2201,
+            arrivedAt: base.addingTimeInterval(2 * 3600),
+            departedAt: base.addingTimeInterval(2 * 3600 + 10 * 60)
+        )
+
+        context.insert(morningVisit)
+        context.insert(afternoonVisit)
+        try context.save()
+
+        manager.setModelContext(context)
+
+        let visits = try context.fetch(FetchDescriptor<Visit>())
+
+        XCTAssertEqual(visits.count, 2)
+    }
+
     private func makeInMemoryContainer() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self])
         let configuration = ModelConfiguration(

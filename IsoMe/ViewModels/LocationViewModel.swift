@@ -334,7 +334,14 @@ final class LocationViewModel {
     // MARK: - Computed Properties
 
     var currentVisit: Visit? {
-        todayVisits.first { $0.isCurrentVisit }
+        allVisits
+            .filter { $0.isCurrentVisit }
+            .max { $0.arrivedAt < $1.arrivedAt }
+    }
+
+    func isCurrentVisit(_ visit: Visit) -> Bool {
+        guard visit.departedAt == nil else { return false }
+        return currentVisit?.id == visit.id
     }
 
     // Session-specific location points (only points from current tracking session)
@@ -612,6 +619,7 @@ final class LocationViewModel {
         }
 
         try modelContext.save()
+        locationManager.reconcileOpenVisits()
         if !result.points.isEmpty {
             locationPoints = []
             hasLoadedAllLocationPoints = false

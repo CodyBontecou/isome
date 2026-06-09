@@ -71,7 +71,7 @@ struct VisitDetailView: View {
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         ))) {
             Marker(visit.displayName, coordinate: visit.coordinate)
-                .tint(visit.isCurrentVisit ? .blue : .red)
+                .tint(viewModel.isCurrentVisit(visit) ? .blue : .red)
         }
         .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -108,7 +108,7 @@ struct VisitDetailView: View {
                     .accessibilityHint("Restores the automatically detected visit name.")
                 }
 
-                if visit.isCurrentVisit {
+                if viewModel.isCurrentVisit(visit) {
                     Text("Now")
                         .font(.caption)
                         .fontWeight(.medium)
