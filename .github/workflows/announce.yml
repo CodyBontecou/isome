@@ -51,7 +51,7 @@ env:
 
 jobs:
   announce:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -61,12 +61,13 @@ jobs:
 
       - name: Install CLI dependencies
         run: |
-          for formula in asc jq gh; do
-            if ! brew list "$formula" >/dev/null 2>&1; then
-              brew install "$formula"
-            fi
-          done
-          asc version
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+          export INSTALL_DIR="$HOME/.local/bin"
+          curl -fsSL https://asccli.sh/install | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/asc" version
+          gh --version
 
       - name: Configure asc CLI
         env:
