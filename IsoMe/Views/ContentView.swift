@@ -96,6 +96,14 @@ private struct MainTabView: View {
                 }
                 .tag(0)
 
+            OutingsView(viewModel: viewModel) {
+                selectedTab = 0
+            }
+            .tabItem {
+                Label("Outings", systemImage: "figure.walk.motion")
+            }
+            .tag(3)
+
             ExportView(viewModel: viewModel)
                 .tabItem {
                     Label("Export", systemImage: "square.and.arrow.up")
@@ -126,7 +134,7 @@ private struct MainTabView: View {
         let prefix = "--default-tab="
         if let arg = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
            let index = Int(arg.dropFirst(prefix.count)),
-           (0...2).contains(index) {
+           (0...3).contains(index) {
             return index
         }
         #endif
@@ -935,5 +943,5 @@ private extension CLAuthorizationStatus {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Visit.self, LocationPoint.self], inMemory: true)
+        .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self], inMemory: true)
 }

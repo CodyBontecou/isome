@@ -281,7 +281,7 @@ struct VisitDetailView: View {
         VisitDetailView(
             visit: Visit.preview,
             viewModel: LocationViewModel(
-                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
+                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self).mainContext,
                 locationManager: LocationManager()
             )
         )

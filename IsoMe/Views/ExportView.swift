@@ -1582,7 +1582,7 @@ struct ExportToastBanner: View {
 
 #Preview {
     ExportView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self).mainContext,
         locationManager: LocationManager()
     ))
 }

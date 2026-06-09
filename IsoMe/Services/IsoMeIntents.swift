@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 private enum IntentSupport {
     /// A dedicated container for intent-side reads. Uses the same on-disk store as the app.
     static let modelContainer: ModelContainer = {
-        let schema = Schema([Visit.self, LocationPoint.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
         do {
             return try ModelContainer(for: schema, configurations: [config])
@@ -102,8 +102,10 @@ struct StopTrackingIntent: AppIntent {
         if let manager = LocationManager.shared {
             manager.stopTracking()
         } else {
-            // No live manager — the app isn't running. Persist the off state so the next
-            // launch doesn't auto-resume tracking.
+            // No live manager — the app isn't running. Persist the off state and close
+            // the active outing so the next launch does not show it as still recording.
+            let context = IntentSupport.makeContext()
+            LocationManager.closePersistedRecordingSessions(in: context)
             UserDefaults.standard.set(false, forKey: "isTrackingEnabled")
         }
         return .result(dialog: "Tracking stopped.")

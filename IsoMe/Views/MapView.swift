@@ -23,6 +23,7 @@ struct LocationMapView: View {
     @State private var routeReplayProgress: Double = 1.0
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
+    @State private var appliedMapFocusRequestID: UUID?
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
@@ -388,12 +389,14 @@ struct LocationMapView: View {
             }
             .onAppear {
                 viewModel.loadAllVisits()
-                if let activePreset {
-                    let range = activePreset.range()
-                    viewModel.mapDateRange = range
-                    viewModel.loadMapLocationPoints(in: range)
-                } else {
-                    viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                if !applyMapFocusRequestIfNeeded() {
+                    if let activePreset {
+                        let range = activePreset.range()
+                        viewModel.mapDateRange = range
+                        viewModel.loadMapLocationPoints(in: range)
+                    } else {
+                        viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                    }
                 }
 
                 validateRouteReplayState()
@@ -415,6 +418,9 @@ struct LocationMapView: View {
             .onChange(of: showOutliers) { _, _ in
                 validateRouteReplayState()
             }
+            .onChange(of: viewModel.mapFocusRequest?.id) { _, _ in
+                _ = applyMapFocusRequestIfNeeded()
+            }
             .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
                 if isEnabled {
@@ -427,6 +433,22 @@ struct LocationMapView: View {
                 }
             }
         }
+    }
+
+    @discardableResult
+    private func applyMapFocusRequestIfNeeded() -> Bool {
+        guard let request = viewModel.mapFocusRequest,
+              appliedMapFocusRequestID != request.id else {
+            return false
+        }
+
+        appliedMapFocusRequestID = request.id
+        activePreset = nil
+        viewModel.mapDateRange = request.range
+        viewModel.loadMapLocationPoints(in: request.range)
+        validateRouteReplayState()
+        fitMapToContent()
+        return true
     }
 
     private func fitMapToContent() {
@@ -2191,7 +2213,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self).mainContext,
         locationManager: LocationManager()
     ))
 }

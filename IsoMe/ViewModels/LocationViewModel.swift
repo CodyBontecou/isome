@@ -3,6 +3,13 @@ import SwiftData
 import SwiftUI
 import Combine
 
+struct MapSessionFocusRequest: Equatable {
+    let id = UUID()
+    let sessionID: String
+    let title: String
+    let range: ClosedRange<Date>
+}
+
 @MainActor
 @Observable
 final class LocationViewModel {
@@ -12,6 +19,7 @@ final class LocationViewModel {
     // Cached data
     var todayVisits: [Visit] = []
     var allVisits: [Visit] = []
+    var allRecordingSessions: [RecordingSession] = []
     /// Full point history. Loaded lazily for export so the map does not hydrate
     /// tens of thousands of SwiftData models on launch.
     var locationPoints: [LocationPoint] = []
@@ -24,6 +32,7 @@ final class LocationViewModel {
 
     // UI State
     var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
+    var mapFocusRequest: MapSessionFocusRequest?
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?
@@ -61,6 +70,7 @@ final class LocationViewModel {
     func loadData() {
         loadTodayVisits()
         loadAllVisits()
+        loadRecordingSessions()
         refreshLocationPointCount()
         if locationManager.isTrackingEnabled {
             loadTodayLocationPoints()
@@ -100,6 +110,18 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch all visits: \(error)")
             allVisits = []
+        }
+    }
+
+    func loadRecordingSessions() {
+        var descriptor = FetchDescriptor<RecordingSession>()
+        descriptor.sortBy = [SortDescriptor(\.startedAt, order: .reverse)]
+
+        do {
+            allRecordingSessions = try modelContext.fetch(descriptor)
+        } catch {
+            print("Failed to fetch recording sessions: \(error)")
+            allRecordingSessions = []
         }
     }
 
@@ -454,6 +476,27 @@ final class LocationViewModel {
         fetchLocationPoints(in: range)
     }
 
+    func recordingSessionSummaries(
+        gapThreshold: TimeInterval = RecordingSessionBuilder.defaultGapThreshold
+    ) -> [RecordingSessionSummary] {
+        RecordingSessionBuilder.summaries(
+            storedSessions: allRecordingSessions,
+            points: locationPoints,
+            activeTrackingStart: locationManager.trackingStartTime,
+            gapThreshold: gapThreshold
+        )
+    }
+
+    func focusMap(on session: RecordingSessionSummary) {
+        mapDateRange = session.dateRange
+        loadMapLocationPoints(in: session.dateRange)
+        mapFocusRequest = MapSessionFocusRequest(
+            sessionID: session.id,
+            title: session.title,
+            range: session.dateRange
+        )
+    }
+
     // MARK: - Visit Management
 
     func deleteVisit(_ visit: Visit) {
@@ -485,6 +528,19 @@ final class LocationViewModel {
         let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         visit.notes = trimmed.isEmpty ? nil : notes
         try? modelContext.save()
+    }
+
+    // MARK: - Recording Session Management
+
+    func updateRecordingSession(_ session: RecordingSession, customName: String, notes: String) {
+        let trimmedName = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+        session.customName = trimmedName.isEmpty ? nil : trimmedName
+
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        session.notes = trimmedNotes.isEmpty ? nil : notes
+
+        try? modelContext.save()
+        loadRecordingSessions()
     }
 
     // MARK: - Export
@@ -635,7 +691,9 @@ final class LocationViewModel {
         do {
             try modelContext.delete(model: Visit.self)
             try modelContext.delete(model: LocationPoint.self)
+            try modelContext.delete(model: RecordingSession.self)
             try modelContext.save()
+            allRecordingSessions = []
             locationPoints = []
             todayLocationPoints = []
             mapLocationPoints = []
@@ -645,6 +703,8 @@ final class LocationViewModel {
             todayDistanceTraveledCache = 0
             sessionDistanceTraveledCache = 0
             hasLoadedAllLocationPoints = false
+            mapFocusRequest = nil
+            UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
             loadData()
         } catch {
             print("Failed to clear data: \(error)")
@@ -655,11 +715,13 @@ final class LocationViewModel {
 
     func startTracking() {
         locationManager.startTracking()
+        loadRecordingSessions()
         refreshDerivedPointCaches()
     }
 
     func stopTracking() {
         locationManager.stopTracking()
+        loadRecordingSessions()
         refreshDerivedPointCaches()
     }
 }

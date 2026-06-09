@@ -18,6 +18,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
         manager = LocationManager()
     }
 
@@ -28,6 +29,7 @@ final class LocationManagerTrackingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
         super.tearDown()
     }
 
@@ -256,8 +258,35 @@ final class LocationManagerTrackingTests: XCTestCase {
         XCTAssertEqual(visits.count, 2)
     }
 
+    func testReconcilingTrackingStateCreatesAndClosesRecordingSession() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let base = Date(timeIntervalSince1970: 1_800_000_000)
+
+        manager.isTrackingEnabled = true
+        manager.trackingStartTime = base
+        manager.setModelContext(context)
+
+        var descriptor = FetchDescriptor<RecordingSession>()
+        descriptor.sortBy = [SortDescriptor(\.startedAt, order: .forward)]
+        var sessions = try context.fetch(descriptor)
+
+        XCTAssertEqual(sessions.count, 1)
+        XCTAssertEqual(sessions.first?.startedAt, base)
+        XCTAssertNil(sessions.first?.endedAt)
+
+        let end = base.addingTimeInterval(2 * 3600)
+        manager.isTrackingEnabled = false
+        XCTAssertEqual(manager.reconcileRecordingSessions(referenceDate: end), 1)
+
+        sessions = try context.fetch(descriptor)
+        XCTAssertEqual(sessions.count, 1)
+        XCTAssertEqual(sessions.first?.startedAt, base)
+        XCTAssertEqual(sessions.first?.endedAt, end)
+    }
+
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let schema = Schema([Visit.self, LocationPoint.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self])
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: true,

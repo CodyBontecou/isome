@@ -60,6 +60,24 @@ final class LocationManager: NSObject, ObservableObject {
     private let duplicateVisitMergeThresholdMeters: CLLocationDistance = 100
     private let duplicateVisitMergeGap: TimeInterval = 30 * 60
 
+    private static let activeRecordingSessionIDKey = "activeRecordingSessionID"
+
+    private var activeRecordingSessionID: UUID? {
+        get {
+            guard let rawValue = UserDefaults.standard.string(forKey: Self.activeRecordingSessionIDKey) else {
+                return nil
+            }
+            return UUID(uuidString: rawValue)
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue.uuidString, forKey: Self.activeRecordingSessionIDKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.activeRecordingSessionIDKey)
+            }
+        }
+    }
+
     private var usesMetricDistanceUnits: Bool {
         let key = "usesMetricDistanceUnits"
         if UserDefaults.standard.object(forKey: key) == nil {
@@ -129,6 +147,7 @@ final class LocationManager: NSObject, ObservableObject {
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
         reconcileOpenVisits()
+        reconcileRecordingSessions()
     }
 
     // MARK: - Permission Handling
@@ -168,6 +187,10 @@ final class LocationManager: NSObject, ObservableObject {
             trackingStartTime = Date()
         }
 
+        if let trackingStartTime {
+            ensureActiveRecordingSession(startedAt: trackingStartTime)
+        }
+
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = distanceFilter
         locationManager.startMonitoringVisits()
@@ -183,6 +206,9 @@ final class LocationManager: NSObject, ObservableObject {
     }
 
     func stopTracking() {
+        let endedAt = Date()
+        endActiveRecordingSession(at: endedAt)
+
         isTrackingEnabled = false
         UserDefaults.standard.set(false, forKey: "isTrackingEnabled")
 
@@ -268,6 +294,156 @@ final class LocationManager: NSObject, ObservableObject {
 
     private var liveActivityRemainingSeconds: Int? {
         remainingTime.map { Int($0) }
+    }
+
+    // MARK: - Recording Sessions
+
+    @discardableResult
+    func reconcileRecordingSessions(referenceDate: Date = Date()) -> Int {
+        guard let context = modelContext else { return 0 }
+
+        do {
+            var descriptor = FetchDescriptor<RecordingSession>(
+                predicate: #Predicate { session in
+                    session.endedAt == nil
+                }
+            )
+            descriptor.sortBy = [SortDescriptor(\.startedAt, order: .forward)]
+            let openSessions = try context.fetch(descriptor)
+            var changedCount = 0
+
+            if isTrackingEnabled {
+                if let latestOpenSession = openSessions.last {
+                    for staleSession in openSessions.dropLast() {
+                        staleSession.endedAt = max(staleSession.startedAt, latestOpenSession.startedAt)
+                        changedCount += 1
+                    }
+
+                    activeRecordingSessionID = latestOpenSession.id
+                    if trackingStartTime == nil || trackingStartTime! > latestOpenSession.startedAt {
+                        trackingStartTime = latestOpenSession.startedAt
+                    }
+                } else {
+                    let start = trackingStartTime ?? referenceDate
+                    let session = RecordingSession(startedAt: start)
+                    context.insert(session)
+                    activeRecordingSessionID = session.id
+                    trackingStartTime = start
+                    changedCount += 1
+                }
+            } else {
+                for session in openSessions {
+                    session.endedAt = max(session.startedAt, referenceDate)
+                    changedCount += 1
+                }
+                activeRecordingSessionID = nil
+            }
+
+            if changedCount > 0 {
+                try context.save()
+            }
+
+            return changedCount
+        } catch {
+            lastError = "Failed to reconcile recording sessions: \(error.localizedDescription)"
+            return 0
+        }
+    }
+
+    private func ensureActiveRecordingSession(startedAt: Date) {
+        guard let context = modelContext else { return }
+
+        do {
+            if let activeRecordingSessionID,
+               let activeSession = try recordingSession(withID: activeRecordingSessionID, in: context),
+               activeSession.endedAt == nil {
+                return
+            }
+
+            let openSessions = try openRecordingSessions(in: context)
+            if let latestOpenSession = openSessions.last {
+                for staleSession in openSessions.dropLast() {
+                    staleSession.endedAt = max(staleSession.startedAt, latestOpenSession.startedAt)
+                }
+                activeRecordingSessionID = latestOpenSession.id
+                try context.save()
+                return
+            }
+
+            let session = RecordingSession(startedAt: startedAt)
+            context.insert(session)
+            activeRecordingSessionID = session.id
+            try context.save()
+        } catch {
+            lastError = "Failed to start recording session: \(error.localizedDescription)"
+        }
+    }
+
+    private func endActiveRecordingSession(at endedAt: Date) {
+        guard let context = modelContext else {
+            activeRecordingSessionID = nil
+            return
+        }
+
+        do {
+            let sessionsToClose: [RecordingSession]
+            if let activeRecordingSessionID,
+               let activeSession = try recordingSession(withID: activeRecordingSessionID, in: context),
+               activeSession.endedAt == nil {
+                sessionsToClose = [activeSession]
+            } else {
+                sessionsToClose = try openRecordingSessions(in: context)
+            }
+
+            for session in sessionsToClose {
+                session.endedAt = max(session.startedAt, endedAt)
+            }
+
+            if !sessionsToClose.isEmpty {
+                try context.save()
+            }
+            activeRecordingSessionID = nil
+        } catch {
+            lastError = "Failed to end recording session: \(error.localizedDescription)"
+        }
+    }
+
+    private func openRecordingSessions(in context: ModelContext) throws -> [RecordingSession] {
+        var descriptor = FetchDescriptor<RecordingSession>(
+            predicate: #Predicate { session in
+                session.endedAt == nil
+            }
+        )
+        descriptor.sortBy = [SortDescriptor(\.startedAt, order: .forward)]
+        return try context.fetch(descriptor)
+    }
+
+    private func recordingSession(withID id: UUID, in context: ModelContext) throws -> RecordingSession? {
+        let predicate = #Predicate<RecordingSession> { session in
+            session.id == id
+        }
+        var descriptor = FetchDescriptor<RecordingSession>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    static func closePersistedRecordingSessions(in context: ModelContext, at endedAt: Date = Date()) {
+        do {
+            let predicate = #Predicate<RecordingSession> { session in
+                session.endedAt == nil
+            }
+            let sessions = try context.fetch(FetchDescriptor<RecordingSession>(predicate: predicate))
+            for session in sessions {
+                session.endedAt = max(session.startedAt, endedAt)
+            }
+            if !sessions.isEmpty {
+                try context.save()
+            }
+            UserDefaults.standard.removeObject(forKey: activeRecordingSessionIDKey)
+        } catch {
+            // Intents call this from a background launch path where surfacing UI is
+            // impossible; leave the persisted off switch below as the source of truth.
+        }
     }
 
     // MARK: - Data Storage

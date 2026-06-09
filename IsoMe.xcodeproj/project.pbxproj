@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0DE0001212F000100000001 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0001212F000000000001 /* RecordingSession.swift */; };
+		C0DE0002212F000100000002 /* OutingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0002212F000000000002 /* OutingsView.swift */; };
 		E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */; };
 		E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000003 /* ExportKitIntegrationTests.swift */; };
 		E9A100000000000000000008 /* ExportKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9A100000000000000000006 /* ExportKit */; };
@@ -152,6 +154,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C0DE0001212F000000000001 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
+		C0DE0002212F000000000002 /* OutingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutingsView.swift; sourceTree = "<group>"; };
 		E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeExportKitAdapter.swift; sourceTree = "<group>"; };
 		E9A100000000000000000003 /* ExportKitIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportKitIntegrationTests.swift; sourceTree = "<group>"; };
 		2E1B75491004BD3A7D223DB3 /* IsoMeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IsoMeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -349,6 +353,7 @@
 			children = (
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
+				C0DE0001212F000000000001 /* RecordingSession.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 				A1000030212F000000000030 /* ExportOptions.swift */,
 				F1000001212F000000000001 /* FilenameTemplate.swift */,
@@ -380,6 +385,7 @@
 				A1000002212F000000000002 /* ContentView.swift */,
 				BEE50001212F000000000001 /* ReleaseNotes.swift */,
 				A100000B212F00000000000B /* MapView.swift */,
+				C0DE0002212F000000000002 /* OutingsView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
@@ -696,6 +702,7 @@
 				BEE50001212F000100000001 /* ReleaseNotes.swift in Sources */,
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
+				C0DE0001212F000100000001 /* RecordingSession.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
@@ -705,6 +712,7 @@
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
+				C0DE0002212F000100000002 /* OutingsView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,

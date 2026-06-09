@@ -14,6 +14,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
     }
 
     override func tearDown() {
@@ -22,6 +23,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: "distanceFilter")
         UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
         UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
         super.tearDown()
     }
 
@@ -146,8 +148,65 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertEqual(viewModel.mapLocationPoints.map(\.timestamp), locations.map(\.timestamp))
     }
 
-    func testRouteReplaySnapshotMapsProgressToVisiblePathAndMetrics() throws {
+    func testRecordingSessionBuilderSplitsLegacyPointHistoryByQuietGaps() throws {
         let start = fixtureDate(dayOffset: 4)
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0100, longitude: -122.0100, timestamp: start.addingTimeInterval(45 * 60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0110, longitude: -122.0100, timestamp: start.addingTimeInterval(46 * 60), horizontalAccuracy: 5)
+        ]
+
+        let sessions = RecordingSessionBuilder.summaries(
+            storedSessions: [],
+            points: points,
+            activeTrackingStart: nil,
+            gapThreshold: 30 * 60,
+            now: start.addingTimeInterval(47 * 60)
+        )
+
+        XCTAssertEqual(sessions.count, 2)
+        XCTAssertTrue(sessions.allSatisfy(\.isInferred))
+        XCTAssertEqual(sessions[0].sequenceNumber, 1)
+        XCTAssertEqual(sessions[0].points.map(\.timestamp), [points[0].timestamp, points[1].timestamp])
+        XCTAssertEqual(sessions[1].sequenceNumber, 2)
+        XCTAssertEqual(sessions[1].points.map(\.timestamp), [points[2].timestamp, points[3].timestamp])
+        XCTAssertEqual(RecordingSessionSort.newest.sorted(sessions).map(\.sequenceNumber), [2, 1])
+    }
+
+    func testRecordingSessionBuilderPrefersStoredSessionRanges() throws {
+        let start = fixtureDate(dayOffset: 5)
+        let storedSession = RecordingSession(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000123")!,
+            startedAt: start,
+            endedAt: start.addingTimeInterval(90 * 60),
+            customName: "Airport Run"
+        )
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(45 * 60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0020, longitude: -122.0000, timestamp: start.addingTimeInterval(89 * 60), horizontalAccuracy: 5)
+        ]
+
+        let sessions = RecordingSessionBuilder.summaries(
+            storedSessions: [storedSession],
+            points: points,
+            activeTrackingStart: nil,
+            gapThreshold: 30 * 60,
+            now: start.addingTimeInterval(2 * 3600)
+        )
+
+        XCTAssertEqual(sessions.count, 1)
+        let session = try XCTUnwrap(sessions.first)
+        XCTAssertFalse(session.isInferred)
+        XCTAssertEqual(session.title, "Airport Run")
+        XCTAssertEqual(session.startedAt, storedSession.startedAt)
+        XCTAssertEqual(session.effectiveEndDate, try XCTUnwrap(storedSession.endedAt))
+        XCTAssertEqual(session.points.count, 3)
+    }
+
+    func testRouteReplaySnapshotMapsProgressToVisiblePathAndMetrics() throws {
+        let start = fixtureDate(dayOffset: 6)
         let points = [
             LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
             LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
@@ -172,7 +231,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
     }
 
     func testRouteReplayCalculatorClampsProgressAndHandlesShortRoutes() throws {
-        let start = fixtureDate(dayOffset: 5)
+        let start = fixtureDate(dayOffset: 7)
         let point = LocationPoint(latitude: 37.0, longitude: -122.0, timestamp: start, horizontalAccuracy: 5)
 
         XCTAssertNil(RouteReplayCalculator.snapshot(points: [], progress: 0.5))
@@ -186,7 +245,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
     }
 
     func testRoadSnappedRouteBuilderCoalescesShortSegmentsWithoutDirections() async throws {
-        let start = fixtureDate(dayOffset: 6)
+        let start = fixtureDate(dayOffset: 8)
         let points = [
             LocationPoint(latitude: 37.00000, longitude: -122.00000, timestamp: start, horizontalAccuracy: 5),
             LocationPoint(latitude: 37.00005, longitude: -122.00005, timestamp: start.addingTimeInterval(10), horizontalAccuracy: 5),
@@ -242,7 +301,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
     }
 
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let schema = Schema([Visit.self, LocationPoint.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self])
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: true,

@@ -9,7 +9,8 @@ struct IsoMeApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Visit.self,
-            LocationPoint.self
+            LocationPoint.self,
+            RecordingSession.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
