@@ -97,9 +97,23 @@ struct LocationMapView: View {
                     // Current user location
                     UserAnnotation()
 
-                    // Travel path from location points. Replay mode trims this to the scrubbed point.
-                    if (showTravelPath || isRouteReplayEnabled) && displayedTravelPathPoints.count >= 2 {
-                        let coordinates = displayedTravelPathPoints.map { $0.coordinate }
+                    // Travel path from location points. In replay mode, keep the
+                    // full route hidden and only draw the segment the playhead has reached.
+                    if isRouteReplayEnabled, let routeReplaySnapshot {
+                        if routeReplaySnapshot.visiblePoints.count >= 2 {
+                            let coordinates = routeReplaySnapshot.visiblePoints.map { $0.coordinate }
+                            MapPolyline(coordinates: coordinates)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ),
+                                    lineWidth: 4
+                                )
+                        }
+                    } else if showTravelPath && filteredPoints.count >= 2 {
+                        let coordinates = filteredPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(
                                 LinearGradient(
