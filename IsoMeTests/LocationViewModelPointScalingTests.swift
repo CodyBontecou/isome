@@ -146,6 +146,45 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertEqual(viewModel.mapLocationPoints.map(\.timestamp), locations.map(\.timestamp))
     }
 
+    func testRouteReplaySnapshotMapsProgressToVisiblePathAndMetrics() throws {
+        let start = fixtureDate(dayOffset: 4)
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0010, timestamp: start.addingTimeInterval(180), horizontalAccuracy: 5)
+        ]
+
+        let snapshot = try XCTUnwrap(RouteReplayCalculator.snapshot(points: points, progress: 0.5))
+
+        XCTAssertEqual(snapshot.index, 1)
+        XCTAssertEqual(snapshot.progress, 0.5, accuracy: 0.001)
+        XCTAssertEqual(snapshot.totalPointCount, 3)
+        XCTAssertEqual(snapshot.visiblePoints.count, 2)
+        XCTAssertEqual(snapshot.currentPoint.timestamp, points[1].timestamp)
+        XCTAssertEqual(snapshot.elapsedDuration, 60, accuracy: 0.001)
+        XCTAssertEqual(snapshot.totalDuration, 180, accuracy: 0.001)
+        XCTAssertEqual(snapshot.distanceMeters, points[0].distance(to: points[1]), accuracy: 0.01)
+        XCTAssertEqual(
+            snapshot.totalDistanceMeters,
+            points[0].distance(to: points[1]) + points[1].distance(to: points[2]),
+            accuracy: 0.01
+        )
+    }
+
+    func testRouteReplayCalculatorClampsProgressAndHandlesShortRoutes() throws {
+        let start = fixtureDate(dayOffset: 5)
+        let point = LocationPoint(latitude: 37.0, longitude: -122.0, timestamp: start, horizontalAccuracy: 5)
+
+        XCTAssertNil(RouteReplayCalculator.snapshot(points: [], progress: 0.5))
+        XCTAssertNil(RouteReplayCalculator.snapshot(points: [point], progress: 0.5))
+        XCTAssertEqual(RouteReplayCalculator.clampedProgress(-0.25), 0)
+        XCTAssertEqual(RouteReplayCalculator.clampedProgress(1.25), 1)
+        XCTAssertEqual(RouteReplayCalculator.index(for: 1.25, pointCount: 4), 3)
+        XCTAssertEqual(RouteReplayCalculator.progress(forIndex: 10, pointCount: 4), 1)
+        XCTAssertEqual(RouteReplayCalculator.playbackStepSize(pointCount: 2), 1)
+        XCTAssertGreaterThanOrEqual(RouteReplayCalculator.playbackStepSize(pointCount: 2_500), 2)
+    }
+
     private func makeInMemoryContainer() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self])
         let configuration = ModelConfiguration(

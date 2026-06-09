@@ -102,7 +102,7 @@ struct ExportService {
                 arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
                 departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
                 durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.locationName : nil,
+                locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
                 address: options.includeVisitAddress ? visit.address : nil,
                 notes: options.includeVisitNotes ? visit.notes : nil
             )
@@ -146,7 +146,7 @@ struct ExportService {
                 fields.append(String(visit.longitude))
             }
             if options.includeVisitLocationName {
-                fields.append(escapeCSVField(visit.locationName ?? ""))
+                fields.append(escapeCSVField(visit.exportLocationName ?? ""))
             }
             if options.includeVisitAddress {
                 fields.append(escapeCSVField(visit.address ?? ""))
@@ -228,7 +228,7 @@ struct ExportService {
                     cells.append(String(format: "%.6f", visit.longitude))
                 }
                 if options.includeVisitLocationName {
-                    cells.append(escapeMarkdownTableCell(visit.locationName))
+                    cells.append(escapeMarkdownTableCell(visit.exportLocationName))
                 }
                 if options.includeVisitAddress {
                     cells.append(escapeMarkdownTableCell(visit.address))
@@ -780,7 +780,7 @@ extension ExportService {
                 arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
                 departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
                 durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.locationName : nil,
+                locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
                 address: options.includeVisitAddress ? visit.address : nil,
                 notes: options.includeVisitNotes ? visit.notes : nil
             )
@@ -976,7 +976,7 @@ extension ExportService {
         var xml = "  <wpt lat=\"\(gpxCoord(visit.latitude))\" lon=\"\(gpxCoord(visit.longitude))\">\n"
         xml += "    <time>\(iso8601Formatter.string(from: visit.arrivedAt))</time>\n"
 
-        if options.includeVisitLocationName, let name = visit.locationName, !name.isEmpty {
+        if options.includeVisitLocationName, let name = visit.exportLocationName, !name.isEmpty {
             xml += "    <name>\(escapeXML(name))</name>\n"
         } else {
             xml += "    <name>Visit</name>\n"
@@ -1138,7 +1138,7 @@ extension ExportService {
         guard options.includeVisitCoordinates else { return nil }
 
         let name = {
-            if options.includeVisitLocationName, let locationName = visit.locationName, !locationName.isEmpty {
+            if options.includeVisitLocationName, let locationName = visit.exportLocationName, !locationName.isEmpty {
                 return locationName
             }
             return "Visit"
@@ -1323,7 +1323,7 @@ extension ExportService {
             arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
             departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-            locationName: options.includeVisitLocationName ? visit.locationName : nil,
+            locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
             notes: options.includeVisitNotes ? visit.notes : nil
         )

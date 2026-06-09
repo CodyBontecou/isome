@@ -9,6 +9,7 @@ final class Visit {
     var longitude: Double
     var arrivedAt: Date
     var departedAt: Date?
+    var customName: String?
     var locationName: String?
     var address: String?
     var notes: String?
@@ -22,6 +23,7 @@ final class Visit {
         longitude: Double,
         arrivedAt: Date,
         departedAt: Date? = nil,
+        customName: String? = nil,
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
@@ -32,6 +34,7 @@ final class Visit {
         self.longitude = longitude
         self.arrivedAt = arrivedAt
         self.departedAt = departedAt
+        self.customName = customName
         self.locationName = locationName
         self.address = address
         self.notes = notes
@@ -76,8 +79,27 @@ final class Visit {
         return "\(arrival) - now"
     }
 
-    var displayName: String {
+    var automaticDisplayName: String {
         locationName ?? address ?? "Unknown Location"
+    }
+
+    var normalizedCustomName: String? {
+        guard let trimmed = customName?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+
+    var displayName: String {
+        normalizedCustomName ?? automaticDisplayName
+    }
+
+    var exportLocationName: String? {
+        normalizedCustomName ?? locationName
+    }
+
+    var hasCustomName: Bool {
+        normalizedCustomName != nil
     }
 
     var isCurrentVisit: Bool {

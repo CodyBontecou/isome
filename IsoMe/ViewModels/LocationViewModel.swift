@@ -455,8 +455,28 @@ final class LocationViewModel {
         loadData()
     }
 
+    func updateVisitName(_ visit: Visit, customName: String) {
+        let trimmed = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty || trimmed == visit.automaticDisplayName {
+            visit.customName = nil
+        } else {
+            visit.customName = trimmed
+        }
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+    }
+
+    func clearVisitName(_ visit: Visit) {
+        visit.customName = nil
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+    }
+
     func updateVisitNotes(_ visit: Visit, notes: String) {
-        visit.notes = notes.isEmpty ? nil : notes
+        let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        visit.notes = trimmed.isEmpty ? nil : notes
         try? modelContext.save()
     }
 

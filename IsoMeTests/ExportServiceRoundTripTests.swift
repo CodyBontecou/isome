@@ -116,6 +116,7 @@ final class ExportServiceRoundTripTests: XCTestCase {
                 longitude: -122.450600,
                 arrivedAt: fixtureDate(hour: 12, minute: 15),
                 departedAt: fixtureDate(hour: 13, minute: 0),
+                customName: "Golden Gate Park Walk",
                 locationName: "Panhandle",
                 address: "Stanyan St, San Francisco, CA",
                 notes: "Walked west"
@@ -188,7 +189,7 @@ final class ExportServiceRoundTripTests: XCTestCase {
             XCTAssertEqual(importedVisit.longitude, expectedVisit.longitude, accuracy: accuracy)
             XCTAssertEqual(importedVisit.arrivedAt.timeIntervalSince1970, expectedVisit.arrivedAt.timeIntervalSince1970, accuracy: dateAccuracy)
             XCTAssertEqualOptional(importedVisit.departedAt?.timeIntervalSince1970, expectedVisit.departedAt?.timeIntervalSince1970, accuracy: dateAccuracy)
-            XCTAssertEqual(importedVisit.locationName, expectedVisit.locationName)
+            XCTAssertEqual(importedVisit.locationName, expectedVisit.exportLocationName)
             XCTAssertEqual(importedVisit.address, expectedVisit.address)
             XCTAssertEqual(importedVisit.notes, expectedVisit.notes)
             XCTAssertEqualOptional(

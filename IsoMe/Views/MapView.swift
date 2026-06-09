@@ -1,6 +1,7 @@
 import SwiftUI
 import MapKit
 import SwiftData
+import Combine
 
 struct LocationMapView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -15,6 +16,9 @@ struct LocationMapView: View {
     @State private var showStartEndMarkers = true
     @State private var showSessionPath = true
     @State private var showVisitMarkers = true
+    @State private var isRouteReplayEnabled = false
+    @State private var isRouteReplayPlaying = false
+    @State private var routeReplayProgress: Double = 1.0
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var pendingSessionAutoFocus = false
     @State private var activePreset: MapDatePreset? = .today
@@ -32,6 +36,7 @@ struct LocationMapView: View {
 
     // Minimum distance in meters between points to show as markers
     private let minimumPointDistance: Double = 50
+    private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
 
     var filteredVisits: [Visit] {
         viewModel.visitsInDateRange(viewModel.mapDateRange)
@@ -47,13 +52,33 @@ struct LocationMapView: View {
         let points = viewModel.sessionMapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
     }
+
+    var canReplayRoute: Bool {
+        routeReplaySourcePoints.count >= 2
+    }
+
+    var routeReplaySourcePoints: [LocationPoint] {
+        filteredPoints
+    }
+
+    var routeReplaySnapshot: RouteReplaySnapshot? {
+        RouteReplayCalculator.snapshot(points: routeReplaySourcePoints, progress: routeReplayProgress)
+    }
+
+    var displayedTravelPathPoints: [LocationPoint] {
+        if isRouteReplayEnabled, let routeReplaySnapshot {
+            return routeReplaySnapshot.visiblePoints
+        }
+        return filteredPoints
+    }
     
     var spacedPoints: [LocationPoint] {
-        guard !filteredPoints.isEmpty else { return [] }
+        let pathPoints = displayedTravelPathPoints
+        guard !pathPoints.isEmpty else { return [] }
         
-        var result: [LocationPoint] = [filteredPoints[0]]
+        var result: [LocationPoint] = [pathPoints[0]]
         
-        for point in filteredPoints.dropFirst() {
+        for point in pathPoints.dropFirst() {
             if let lastPoint = result.last {
                 let distance = lastPoint.distance(to: point)
                 if distance >= minimumPointDistance {
@@ -72,9 +97,9 @@ struct LocationMapView: View {
                     // Current user location
                     UserAnnotation()
 
-                    // Travel path from location points
-                    if showTravelPath && !filteredPoints.isEmpty {
-                        let coordinates = filteredPoints.map { $0.coordinate }
+                    // Travel path from location points. Replay mode trims this to the scrubbed point.
+                    if (showTravelPath || isRouteReplayEnabled) && displayedTravelPathPoints.count >= 2 {
+                        let coordinates = displayedTravelPathPoints.map { $0.coordinate }
                         MapPolyline(coordinates: coordinates)
                             .stroke(
                                 LinearGradient(
@@ -84,6 +109,12 @@ struct LocationMapView: View {
                                 ),
                                 lineWidth: 4
                             )
+                    }
+
+                    if isRouteReplayEnabled, let routeReplaySnapshot {
+                        Annotation("Replay Position", coordinate: routeReplaySnapshot.currentPoint.coordinate) {
+                            RouteReplayMarker(snapshot: routeReplaySnapshot)
+                        }
                     }
                     
                     // Live session path (moved from Track tab)
@@ -181,6 +212,22 @@ struct LocationMapView: View {
                 VStack(spacing: 8) {
                     Spacer()
 
+                    if isRouteReplayEnabled, let routeReplaySnapshot {
+                        RouteReplayControl(
+                            snapshot: routeReplaySnapshot,
+                            pointCount: routeReplaySourcePoints.count,
+                            progress: Binding(
+                                get: { routeReplayProgress },
+                                set: { routeReplayProgress = RouteReplayCalculator.clampedProgress($0) }
+                            ),
+                            isPlaying: isRouteReplayPlaying,
+                            onPlayPause: toggleRouteReplayPlayback,
+                            onScrub: { isRouteReplayPlaying = false },
+                            onClose: disableRouteReplay
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+
                     MapTrackingControlPill(
                         viewModel: viewModel,
                         locationManager: locationManager,
@@ -206,16 +253,20 @@ struct LocationMapView: View {
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                isRouteReplayEnabled: isRouteReplayEnabled,
+                                canReplayRoute: canReplayRoute,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
                                 onSelectPreset: { preset in
                                     activePreset = preset
                                     let range = preset.range()
                                     viewModel.mapDateRange = range
                                     viewModel.loadMapLocationPoints(in: range)
+                                    validateRouteReplayState()
                                 },
                                 onSelectCustom: {
                                     showingFilters = true
                                 },
+                                onToggleRouteReplay: toggleRouteReplayMode,
                                 onFitContent: { fitMapToContent() },
                                 onFitSession: !activeSessionPoints.isEmpty ? { fitMapToSession() } : nil
                             )
@@ -237,6 +288,7 @@ struct LocationMapView: View {
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
                 .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isTracking)
+                .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82), value: isRouteReplayEnabled)
                 .onChange(of: isTracking) { _, newValue in
                     if !newValue {
                         withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
@@ -253,12 +305,13 @@ struct LocationMapView: View {
                     onApply: {
                         activePreset = nil
                         viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                        validateRouteReplayState()
                     }
                 )
             }
             .sheet(item: $selectedVisit) { visit in
                 VisitQuickView(visit: visit, viewModel: viewModel)
-                    .presentationDetents([.medium])
+                    .presentationDetents([.medium, .large])
             }
             .onAppear {
                 viewModel.loadAllVisits()
@@ -270,10 +323,21 @@ struct LocationMapView: View {
                     viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
                 }
 
+                validateRouteReplayState()
+
                 if locationManager.isTrackingEnabled {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
+            }
+            .onReceive(routeReplayTimer) { _ in
+                advanceRouteReplayIfNeeded()
+            }
+            .onChange(of: filteredPoints.count) { _, _ in
+                validateRouteReplayState()
+            }
+            .onChange(of: showOutliers) { _, _ in
+                validateRouteReplayState()
             }
             .onChange(of: locationManager.isTrackingEnabled) { _, isEnabled in
                 pendingSessionAutoFocus = isEnabled
@@ -326,6 +390,79 @@ struct LocationMapView: View {
         }
     }
 
+    private func toggleRouteReplayMode() {
+        if isRouteReplayEnabled {
+            disableRouteReplay()
+        } else {
+            guard canReplayRoute else { return }
+            showTravelPath = true
+            routeReplayProgress = 0
+            withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
+                isRouteReplayEnabled = true
+            }
+        }
+    }
+
+    private func disableRouteReplay() {
+        isRouteReplayPlaying = false
+        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
+            isRouteReplayEnabled = false
+        }
+    }
+
+    private func toggleRouteReplayPlayback() {
+        guard canReplayRoute else {
+            disableRouteReplay()
+            return
+        }
+
+        if !isRouteReplayEnabled {
+            toggleRouteReplayMode()
+        }
+
+        if !isRouteReplayPlaying,
+           let currentIndex = RouteReplayCalculator.index(for: routeReplayProgress, pointCount: routeReplaySourcePoints.count),
+           currentIndex >= routeReplaySourcePoints.count - 1 {
+            routeReplayProgress = 0
+        }
+
+        isRouteReplayPlaying.toggle()
+    }
+
+    private func advanceRouteReplayIfNeeded() {
+        guard isRouteReplayEnabled, isRouteReplayPlaying else { return }
+        guard canReplayRoute,
+              let currentIndex = RouteReplayCalculator.index(for: routeReplayProgress, pointCount: routeReplaySourcePoints.count) else {
+            disableRouteReplay()
+            return
+        }
+
+        let lastIndex = routeReplaySourcePoints.count - 1
+        let nextIndex = min(currentIndex + RouteReplayCalculator.playbackStepSize(pointCount: routeReplaySourcePoints.count), lastIndex)
+        routeReplayProgress = RouteReplayCalculator.progress(forIndex: nextIndex, pointCount: routeReplaySourcePoints.count)
+
+        if nextIndex >= lastIndex {
+            isRouteReplayPlaying = false
+        }
+    }
+
+    private func validateRouteReplayState() {
+        routeReplayProgress = RouteReplayCalculator.clampedProgress(routeReplayProgress)
+
+        guard canReplayRoute else {
+            if isRouteReplayEnabled {
+                disableRouteReplay()
+            } else {
+                isRouteReplayPlaying = false
+            }
+            return
+        }
+
+        if isRouteReplayEnabled, routeReplaySnapshot == nil {
+            routeReplayProgress = 0
+        }
+    }
+
     private var mapAccessibilitySummary: String {
         var parts: [String] = []
         parts.append("\(filteredVisits.count) \(filteredVisits.count == 1 ? "visit" : "visits")")
@@ -333,6 +470,10 @@ struct LocationMapView: View {
             parts.append("Showing \(filteredPoints.count) of \(viewModel.mapLocationPointCount) path points")
         } else {
             parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+        }
+
+        if isRouteReplayEnabled, let routeReplaySnapshot {
+            parts.append("Route replay: \(routeReplaySnapshot.accessibilitySummary)")
         }
 
         if !activeSessionPoints.isEmpty {
@@ -692,6 +833,179 @@ struct PathEndMarker: View {
     }
 }
 
+struct RouteReplayMarker: View {
+    let snapshot: RouteReplaySnapshot
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(.white)
+                .frame(width: 34, height: 34)
+                .shadow(color: TE.accent.opacity(0.35), radius: 8, y: 3)
+                .accessibilityHidden(true)
+
+            Circle()
+                .fill(TE.accent)
+                .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
+
+            Image(systemName: "play.fill")
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.white)
+                .offset(x: 1)
+                .accessibilityHidden(true)
+        }
+        .frame(minWidth: 44, minHeight: 44)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Route replay position")
+        .accessibilityValue(snapshot.accessibilitySummary)
+    }
+}
+
+struct RouteReplayControl: View {
+    @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
+    let snapshot: RouteReplaySnapshot
+    let pointCount: Int
+    @Binding var progress: Double
+    let isPlaying: Bool
+    let onPlayPause: () -> Void
+    let onScrub: () -> Void
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Button(action: onPlayPause) {
+                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(TE.accent))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isPlaying ? "Pause route replay" : "Play route replay")
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("ROUTE REPLAY")
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.6)
+                        .foregroundStyle(TE.textMuted)
+
+                    Text(snapshot.currentPoint.timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.subheadline.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                }
+
+                Spacer()
+
+                Text("\(snapshot.index + 1)/\(pointCount) PTS")
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .foregroundStyle(TE.textMuted)
+                    .monospacedDigit()
+
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.primary.opacity(0.7))
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(Color.primary.opacity(0.08)))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Close route replay")
+            }
+
+            Slider(
+                value: Binding(
+                    get: { progress },
+                    set: { newValue in
+                        progress = RouteReplayCalculator.clampedProgress(newValue)
+                        onScrub()
+                    }
+                ),
+                in: 0...1,
+                onEditingChanged: { editing in
+                    if editing { onScrub() }
+                }
+            ) {
+                Text("Route replay progress")
+            }
+            .tint(TE.accent)
+            .accessibilityValue(snapshot.accessibilitySummary)
+
+            HStack(spacing: 8) {
+                RouteReplayStat(label: "ELAPSED", value: formatDuration(snapshot.elapsedDuration))
+                RouteReplayStat(label: "DURATION", value: formatDuration(snapshot.totalDuration))
+                RouteReplayStat(label: "DISTANCE", value: formattedDistanceProgress)
+            }
+        }
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.8
+                        )
+                }
+                .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var formattedDistanceProgress: String {
+        let current = DistanceFormatter.format(meters: snapshot.distanceMeters, usesMetric: usesMetricDistanceUnits)
+        let total = DistanceFormatter.format(meters: snapshot.totalDistanceMeters, usesMetric: usesMetricDistanceUnits)
+        return "\(current) / \(total)"
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let totalSeconds = max(0, Int(duration.rounded()))
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+struct RouteReplayStat: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(TE.mono(.caption2, weight: .semibold))
+                .tracking(1.1)
+                .foregroundStyle(TE.textMuted)
+
+            Text(value)
+                .font(TE.mono(.caption, weight: .semibold))
+                .foregroundStyle(.primary)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .background {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+        }
+    }
+}
+
 struct DateRangeChip: View {
     let range: ClosedRange<Date>
 
@@ -802,37 +1116,69 @@ struct DateRangeFilterSheet: View {
 }
 
 struct VisitQuickView: View {
-    let visit: Visit
+    @Bindable var visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var nameText: String = ""
+    @FocusState private var isNameFieldFocused: Bool
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
                 // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(visit.displayName)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-
-                        if let address = visit.address {
-                            Text(address)
-                                .font(.subheadline)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .center, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Name")
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
+
+                            TextField("Visit name", text: $nameText)
+                                .font(.title2.weight(.semibold))
+                                .textFieldStyle(.plain)
+                                .submitLabel(.done)
+                                .focused($isNameFieldFocused)
+                                .onSubmit(saveName)
+                                .onChange(of: isNameFieldFocused) { _, focused in
+                                    if !focused {
+                                        saveName()
+                                    }
+                                }
+                        }
+
+                        Spacer()
+
+                        if visit.hasCustomName {
+                            Button("Reset") {
+                                resetName()
+                            }
+                            .font(.caption.weight(.semibold))
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                            .accessibilityHint("Restores the automatically detected visit name.")
+                        }
+
+                        if visit.isCurrentVisit {
+                            Text("Now")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.blue)
+                                .foregroundStyle(.white)
+                                .clipShape(Capsule())
                         }
                     }
 
-                    Spacer()
-
-                    if visit.isCurrentVisit {
-                        Text("Now")
+                    if visit.hasCustomName, visit.automaticDisplayName != visit.displayName {
+                        Text("Detected as \(visit.automaticDisplayName)")
                             .font(.caption)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.blue)
-                            .foregroundStyle(.white)
-                            .clipShape(Capsule())
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    if let address = visit.address, !address.isEmpty, address != visit.displayName {
+                        Text(address)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -882,11 +1228,41 @@ struct VisitQuickView: View {
                     }
                 }
 
+                NavigationLink {
+                    VisitDetailView(visit: visit, viewModel: viewModel)
+                } label: {
+                    Label("More Details", systemImage: "info.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
                 Spacer()
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                nameText = visit.displayName
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        isNameFieldFocused = false
+                        saveName()
+                    }
+                }
+            }
         }
+    }
+
+    private func saveName() {
+        viewModel.updateVisitName(visit, customName: nameText)
+        nameText = visit.displayName
+    }
+
+    private func resetName() {
+        viewModel.clearVisitName(visit)
+        nameText = visit.displayName
     }
 }
 
@@ -978,9 +1354,12 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    let isRouteReplayEnabled: Bool
+    let canReplayRoute: Bool
     let hasSessionPoints: Bool
     let onSelectPreset: (MapDatePreset) -> Void
     let onSelectCustom: () -> Void
+    let onToggleRouteReplay: () -> Void
     let onFitContent: () -> Void
     let onFitSession: (() -> Void)?
 
@@ -1015,6 +1394,12 @@ struct QuickFilterBar: View {
                 if hasSessionPoints {
                     LayerToggleButton(systemImage: "waveform.path.ecg", label: "Active session path", isOn: $showSessionPath)
                 }
+
+                RouteReplayToggleButton(
+                    isOn: isRouteReplayEnabled,
+                    isEnabled: canReplayRoute,
+                    action: onToggleRouteReplay
+                )
 
                 PillSeparator()
 
@@ -1107,6 +1492,41 @@ struct LayerToggleButton: View {
     }
 }
 
+struct RouteReplayToggleButton: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let isOn: Bool
+    let isEnabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.25)) {
+                action()
+            }
+        } label: {
+            Image(systemName: isOn ? "pause.rectangle.fill" : "play.rectangle")
+                .font(.subheadline.weight(.semibold))
+                .frame(width: 44, height: 44)
+                .foregroundStyle(foregroundStyle)
+                .background {
+                    Circle()
+                        .fill(isOn ? TE.accent : Color.clear)
+                }
+                .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled && !isOn)
+        .accessibilityLabel(isOn ? "Close route replay" : "Open route replay")
+        .accessibilityValue(isEnabled ? (isOn ? "Replay controls are open" : "Available") : "Unavailable")
+        .accessibilityHint(isEnabled ? "Shows controls for scrubbing and replaying the visible route." : "Select a date range with at least two path points.")
+    }
+
+    private var foregroundStyle: Color {
+        if isOn { return .white }
+        return isEnabled ? Color.primary.opacity(0.7) : Color.primary.opacity(0.25)
+    }
+}
+
 struct PillSeparator: View {
     var body: some View {
         Rectangle()
@@ -1143,6 +1563,102 @@ struct FitMenuButton: View {
         }
         .accessibilityLabel("Fit map")
         .accessibilityHint("Shows options for zooming the map to available content.")
+    }
+}
+
+// MARK: - Route Replay Helpers
+
+struct RouteReplaySnapshot {
+    let index: Int
+    let progress: Double
+    let totalPointCount: Int
+    let visiblePoints: [LocationPoint]
+    let currentPoint: LocationPoint
+    let elapsedDuration: TimeInterval
+    let totalDuration: TimeInterval
+    let distanceMeters: Double
+    let totalDistanceMeters: Double
+
+    var accessibilitySummary: String {
+        let elapsed = RouteReplayCalculator.formattedDuration(elapsedDuration)
+        let duration = RouteReplayCalculator.formattedDuration(totalDuration)
+        let distance = DistanceFormatter.format(meters: distanceMeters, usesMetric: true)
+        let totalDistance = DistanceFormatter.format(meters: totalDistanceMeters, usesMetric: true)
+        return "Point \(index + 1) of \(totalPointCount). Time \(currentPoint.accessibilityTimestamp). Elapsed \(elapsed) of \(duration). Distance \(distance) of \(totalDistance)."
+    }
+}
+
+enum RouteReplayCalculator {
+    static func clampedProgress(_ progress: Double) -> Double {
+        guard progress.isFinite else { return 0 }
+        return min(1, max(0, progress))
+    }
+
+    static func index(for progress: Double, pointCount: Int) -> Int? {
+        guard pointCount > 0 else { return nil }
+        guard pointCount > 1 else { return 0 }
+        let lastIndex = pointCount - 1
+        let scaled = clampedProgress(progress) * Double(lastIndex)
+        return min(lastIndex, max(0, Int(scaled.rounded())))
+    }
+
+    static func progress(forIndex index: Int, pointCount: Int) -> Double {
+        guard pointCount > 1 else { return 0 }
+        let lastIndex = pointCount - 1
+        let clampedIndex = min(lastIndex, max(0, index))
+        return Double(clampedIndex) / Double(lastIndex)
+    }
+
+    static func playbackStepSize(pointCount: Int) -> Int {
+        guard pointCount > 1 else { return 1 }
+        // Keep long, downsampled routes from taking several minutes while still
+        // advancing smoothly for short paths.
+        let targetTicks = 180.0
+        return max(1, Int(ceil(Double(pointCount - 1) / targetTicks)))
+    }
+
+    static func snapshot(points: [LocationPoint], progress: Double) -> RouteReplaySnapshot? {
+        guard points.count >= 2, let index = index(for: progress, pointCount: points.count) else {
+            return nil
+        }
+
+        let visiblePoints = Array(points.prefix(index + 1))
+        let currentPoint = points[index]
+        let firstTimestamp = points.first?.timestamp ?? currentPoint.timestamp
+        let lastTimestamp = points.last?.timestamp ?? currentPoint.timestamp
+
+        return RouteReplaySnapshot(
+            index: index,
+            progress: clampedProgress(progress),
+            totalPointCount: points.count,
+            visiblePoints: visiblePoints,
+            currentPoint: currentPoint,
+            elapsedDuration: currentPoint.timestamp.timeIntervalSince(firstTimestamp),
+            totalDuration: lastTimestamp.timeIntervalSince(firstTimestamp),
+            distanceMeters: totalDistance(in: visiblePoints),
+            totalDistanceMeters: totalDistance(in: points)
+        )
+    }
+
+    static func totalDistance(in points: [LocationPoint]) -> Double {
+        guard points.count > 1 else { return 0 }
+        var total: Double = 0
+        for index in 1..<points.count {
+            total += points[index - 1].distance(to: points[index])
+        }
+        return total
+    }
+
+    static func formattedDuration(_ duration: TimeInterval) -> String {
+        let totalSeconds = max(0, Int(duration.rounded()))
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 
