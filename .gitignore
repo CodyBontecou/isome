@@ -39,3 +39,6 @@ metadata/spotted-reference/
 
 # In-flight 1.3.0 metadata pull — commit when the release ships.
 metadata/isome/version/1.3.0/
+
+# Local Android planning scratchpad.
+docs/android-native-roadmap.md
