@@ -31,6 +31,11 @@ on:
         description: 'Version (e.g. 1.5.1)'
         required: true
         type: string
+      dry_run:
+        description: 'Resolve notes and render the Discord post without publishing side effects'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -133,6 +138,7 @@ jobs:
             echo "tag=v$VERSION"
             echo "platform_label=iOS"
             echo "skip=false"
+            echo "dry_run=${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Fetch release (or fall back to ASC notes)
@@ -179,7 +185,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Promote draft GitHub release
-        if: steps.meta.outputs.skip != 'true' && steps.release.outputs.is_draft == 'true'
+        if: steps.meta.outputs.skip != 'true' && steps.meta.outputs.dry_run != 'true' && steps.release.outputs.is_draft == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release edit '${{ steps.meta.outputs.tag }}' --draft=false
@@ -189,11 +195,6 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: |
-          if [[ -z "$DISCORD_BOT_TOKEN" ]]; then
-            echo "::error::Missing DISCORD_BOT_TOKEN repository secret"
-            exit 1
-          fi
-
           BODY_FILE="$RUNNER_TEMP/discord.md"
           NOTES=$(head -c 1500 "$RUNNER_TEMP/notes.md")
           cat > "$BODY_FILE" <<DISCORD_EOF
@@ -204,6 +205,25 @@ jobs:
           App Store: ${APP_STORE_URL}
           Repo: ${REPO_URL}
           DISCORD_EOF
+
+          if [[ "${{ steps.meta.outputs.dry_run }}" == "true" ]]; then
+            echo "::notice::Dry run: would post to Discord channel ${DISCORD_CHANNEL_ID}"
+            {
+              echo "### Dry-run Discord post"
+              echo ""
+              echo "Channel: #iso-me-updates (${DISCORD_CHANNEL_ID})"
+              echo ""
+              echo '```'
+              cat "$BODY_FILE"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [[ -z "$DISCORD_BOT_TOKEN" ]]; then
+            echo "::error::Missing DISCORD_BOT_TOKEN repository secret"
+            exit 1
+          fi
 
           PAYLOAD=$(jq -n \
             --rawfile c "$BODY_FILE" \
@@ -219,7 +239,7 @@ jobs:
           echo "Posted to Discord: https://discord.com/channels/${DISCORD_GUILD_ID}/${DISCORD_CHANNEL_ID}/${MSG_ID}"
 
       - name: Trigger llm-wiki launch checklist scaffold
-        if: steps.meta.outputs.skip != 'true'
+        if: steps.meta.outputs.skip != 'true' && steps.meta.outputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ secrets.LLM_WIKI_DISPATCH_TOKEN }}
         run: |
@@ -244,12 +264,20 @@ jobs:
             if [[ "${{ steps.meta.outputs.skip }}" == "true" ]]; then
               echo "- skipped (non-iOS platform)"
             else
+              if [[ "${{ steps.meta.outputs.dry_run }}" == "true" ]]; then
+                echo "- Mode: dry run (no GitHub release promotion, Discord post, or llm-wiki dispatch)"
+              fi
               if [[ "${{ steps.release.outputs.has_release }}" == "true" ]]; then
                 echo "- GitHub release: ${{ steps.release.outputs.is_draft == 'true' && 'promoted from draft' || 'already published' }}"
               else
                 echo "- GitHub release: skipped (no draft existed; submitted via asc directly)"
               fi
-              echo "- Discord: posted to #iso-me-updates"
-              echo "- llm-wiki: dispatched if token was configured"
+              if [[ "${{ steps.meta.outputs.dry_run }}" == "true" ]]; then
+                echo "- Discord: rendered only for #iso-me-updates"
+                echo "- llm-wiki: skipped"
+              else
+                echo "- Discord: posted to #iso-me-updates"
+                echo "- llm-wiki: dispatched if token was configured"
+              fi
             fi
           } >> "$GITHUB_STEP_SUMMARY"
