@@ -133,6 +133,10 @@ struct VisitDetailView: View {
                     .foregroundStyle(.secondary)
             }
 
+            NearbyVisitNameSuggestionSection(visit: visit) { suggestion in
+                applyNameSuggestion(suggestion)
+            }
+
             // Coordinates (for debugging/reference)
             Text(String(format: "%.6f, %.6f", visit.latitude, visit.longitude))
                 .font(.caption)
@@ -264,6 +268,12 @@ struct VisitDetailView: View {
         nameText = visit.displayName
     }
 
+    private func applyNameSuggestion(_ suggestion: NearbyPlaceSuggestion) {
+        focusedField = nil
+        nameText = suggestion.name
+        saveName()
+    }
+
     private func saveNotes() {
         viewModel.updateVisitNotes(visit, notes: notesText)
     }
@@ -273,6 +283,209 @@ struct VisitDetailView: View {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = visit.displayName
         mapItem.openInMaps(launchOptions: nil)
+    }
+}
+
+struct NearbyVisitNameSuggestionSection: View {
+    let visit: Visit
+    let onSelect: (NearbyPlaceSuggestion) -> Void
+
+    @State private var suggestions: [NearbyPlaceSuggestion] = []
+    @State private var isLoading = false
+    @State private var hasSearched = false
+    @State private var loadFailed = false
+    @State private var businessSearchText = ""
+
+    private var normalizedBusinessSearchText: String {
+        businessSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var filteredSuggestions: [NearbyPlaceSuggestion] {
+        let searchText = normalizedBusinessSearchText
+        guard !searchText.isEmpty else { return suggestions }
+
+        return suggestions.filter { suggestion in
+            suggestion.name.localizedCaseInsensitiveContains(searchText) ||
+            (suggestion.address?.localizedCaseInsensitiveContains(searchText) ?? false)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Label("Nearby businesses", systemImage: "building.2")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .accessibilityLabel("Loading nearby businesses")
+                }
+            }
+
+            searchField
+                .disabled(suggestions.isEmpty)
+                .opacity(suggestions.isEmpty ? 0.65 : 1)
+
+            if suggestions.isEmpty {
+                emptyState
+            } else if filteredSuggestions.isEmpty {
+                filteredEmptyState
+            } else {
+                suggestionList
+            }
+        }
+        .padding(.top, 6)
+        .task(id: visit.id) {
+            await loadSuggestions()
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+
+            TextField("Filter businesses", text: $businessSearchText)
+                .font(.caption)
+                .textInputAutocapitalization(.words)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+
+            if !businessSearchText.isEmpty {
+                Button {
+                    businessSearchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                        .accessibilityLabel("Clear business filter")
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if loadFailed {
+                Text("Couldn’t load nearby businesses.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            } else if isLoading || !hasSearched {
+                Text("Looking for places near this visit…")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            } else {
+                Text("No nearby businesses found. Try again, or use More Details to inspect the map.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            if loadFailed || (hasSearched && suggestions.isEmpty && !isLoading) {
+                Button {
+                    Task { await loadSuggestions(force: true) }
+                } label: {
+                    Label("Try nearby search again", systemImage: "arrow.clockwise")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+    }
+
+    private var filteredEmptyState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("No nearby businesses match “\(normalizedBusinessSearchText)”.")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+
+            Button {
+                businessSearchText = ""
+            } label: {
+                Label("Clear filter", systemImage: "xmark.circle")
+                    .font(.caption)
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+
+    private var suggestionList: some View {
+        VStack(spacing: 8) {
+            ForEach(filteredSuggestions) { suggestion in
+                Button {
+                    onSelect(suggestion)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "mappin.and.ellipse")
+                            .foregroundStyle(.blue)
+                            .accessibilityHidden(true)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(suggestion.name)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+
+                            if let address = suggestion.address, !address.isEmpty {
+                                Text(address)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+
+                        Spacer(minLength: 8)
+
+                        Text(suggestion.distanceLabel)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(10)
+                    .background(Color(.tertiarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Use \(suggestion.name) as visit name")
+                .accessibilityValue(suggestion.distanceLabel)
+            }
+        }
+    }
+
+    @MainActor
+    private func loadSuggestions(force: Bool = false) async {
+        guard force || (!isLoading && !hasSearched) else { return }
+
+        let coordinate = visit.coordinate
+        isLoading = true
+        loadFailed = false
+        defer {
+            isLoading = false
+            hasSearched = true
+        }
+
+        do {
+            let nearbySuggestions = try await NearbyPlaceSearchService.shared.suggestions(
+                near: coordinate,
+                limit: 6
+            )
+
+            guard !Task.isCancelled else { return }
+            suggestions = nearbySuggestions
+        } catch is CancellationError {
+            // Ignore cancellation from SwiftUI task lifecycle changes.
+        } catch {
+            suggestions = []
+            loadFailed = true
+        }
     }
 }
 

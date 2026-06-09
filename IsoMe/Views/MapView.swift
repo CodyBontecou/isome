@@ -1250,122 +1250,126 @@ struct VisitQuickView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                // Header
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .center, spacing: 8) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Name")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Header
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .center, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Name")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+
+                                TextField("Visit name", text: $nameText)
+                                    .font(.title2.weight(.semibold))
+                                    .textFieldStyle(.plain)
+                                    .submitLabel(.done)
+                                    .focused($isNameFieldFocused)
+                                    .onSubmit(saveName)
+                                    .onChange(of: isNameFieldFocused) { _, focused in
+                                        if !focused {
+                                            saveName()
+                                        }
+                                    }
+                            }
+
+                            Spacer()
+
+                            if visit.hasCustomName {
+                                Button("Reset") {
+                                    resetName()
+                                }
+                                .font(.caption.weight(.semibold))
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                                .accessibilityHint("Restores the automatically detected visit name.")
+                            }
+
+                            if viewModel.isCurrentVisit(visit) {
+                                Text("Now")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(.blue)
+                                    .foregroundStyle(.white)
+                                    .clipShape(Capsule())
+                            }
+                        }
+
+                        if visit.hasCustomName, visit.automaticDisplayName != visit.displayName {
+                            Text("Detected as \(visit.automaticDisplayName)")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+
+                        if let address = visit.address, !address.isEmpty, address != visit.displayName {
+                            Text(address)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        NearbyVisitNameSuggestionSection(visit: visit) { suggestion in
+                            applyNameSuggestion(suggestion)
+                        }
+                    }
+
+                    Divider()
+
+                    // Time info
+                    HStack(spacing: 24) {
+                        VStack(alignment: .leading) {
+                            Text("Arrived")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                            Text(visit.arrivedAt.formatted(date: .abbreviated, time: .shortened))
+                                .font(.subheadline)
+                        }
 
-                            TextField("Visit name", text: $nameText)
-                                .font(.title2.weight(.semibold))
-                                .textFieldStyle(.plain)
-                                .submitLabel(.done)
-                                .focused($isNameFieldFocused)
-                                .onSubmit(saveName)
-                                .onChange(of: isNameFieldFocused) { _, focused in
-                                    if !focused {
-                                        saveName()
-                                    }
-                                }
+                        if let departed = visit.departedAt {
+                            VStack(alignment: .leading) {
+                                Text("Departed")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(departed.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.subheadline)
+                            }
                         }
 
                         Spacer()
 
-                        if visit.hasCustomName {
-                            Button("Reset") {
-                                resetName()
-                            }
-                            .font(.caption.weight(.semibold))
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                            .accessibilityHint("Restores the automatically detected visit name.")
-                        }
-
-                        if viewModel.isCurrentVisit(visit) {
-                            Text("Now")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.blue)
-                                .foregroundStyle(.white)
-                                .clipShape(Capsule())
-                        }
-                    }
-
-                    if visit.hasCustomName, visit.automaticDisplayName != visit.displayName {
-                        Text("Detected as \(visit.automaticDisplayName)")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-
-                    if let address = visit.address, !address.isEmpty, address != visit.displayName {
-                        Text(address)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Divider()
-
-                // Time info
-                HStack(spacing: 24) {
-                    VStack(alignment: .leading) {
-                        Text("Arrived")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(visit.arrivedAt.formatted(date: .abbreviated, time: .shortened))
-                            .font(.subheadline)
-                    }
-
-                    if let departed = visit.departedAt {
-                        VStack(alignment: .leading) {
-                            Text("Departed")
+                        VStack(alignment: .trailing) {
+                            Text("Duration")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text(departed.formatted(date: .abbreviated, time: .shortened))
+                            Text(visit.formattedDuration)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                    }
+
+                    if let notes = visit.notes, !notes.isEmpty {
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Notes")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(notes)
                                 .font(.subheadline)
                         }
                     }
 
-                    Spacer()
-
-                    VStack(alignment: .trailing) {
-                        Text("Duration")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(visit.formattedDuration)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+                    NavigationLink {
+                        VisitDetailView(visit: visit, viewModel: viewModel)
+                    } label: {
+                        Label("More Details", systemImage: "info.circle")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.bordered)
                 }
-
-                if let notes = visit.notes, !notes.isEmpty {
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Notes")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(notes)
-                            .font(.subheadline)
-                    }
-                }
-
-                NavigationLink {
-                    VisitDetailView(visit: visit, viewModel: viewModel)
-                } label: {
-                    Label("More Details", systemImage: "info.circle")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-
-                Spacer()
+                .padding()
             }
-            .padding()
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 nameText = visit.displayName
@@ -1390,6 +1394,12 @@ struct VisitQuickView: View {
     private func resetName() {
         viewModel.clearVisitName(visit)
         nameText = visit.displayName
+    }
+
+    private func applyNameSuggestion(_ suggestion: NearbyPlaceSuggestion) {
+        isNameFieldFocused = false
+        nameText = suggestion.name
+        saveName()
     }
 }
 
