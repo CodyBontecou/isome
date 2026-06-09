@@ -185,6 +185,62 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(RouteReplayCalculator.playbackStepSize(pointCount: 2_500), 2)
     }
 
+    func testRoadSnappedRouteBuilderCoalescesShortSegmentsWithoutDirections() async throws {
+        let start = fixtureDate(dayOffset: 6)
+        let points = [
+            LocationPoint(latitude: 37.00000, longitude: -122.00000, timestamp: start, horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.00005, longitude: -122.00005, timestamp: start.addingTimeInterval(10), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.00010, longitude: -122.00010, timestamp: start.addingTimeInterval(20), horizontalAccuracy: 5)
+        ]
+
+        let route = await RoadSnappedRouteBuilder.buildRoute(
+            for: points.map { RoadSnappingPoint(point: $0) },
+            sourceFingerprint: 42
+        )
+
+        XCTAssertEqual(route.sourceFingerprint, 42)
+        XCTAssertEqual(route.sourcePointCount, points.count)
+        XCTAssertFalse(route.hasSnappedSegments)
+        XCTAssertEqual(route.segments.count, 1)
+
+        let segment = try XCTUnwrap(route.segments.first)
+        XCTAssertEqual(segment.startIndex, 0)
+        XCTAssertEqual(segment.endIndex, 2)
+        XCTAssertEqual(segment.coordinates.count, 3)
+        assertCoordinate(segment.coordinates[0], equals: points[0].coordinate)
+        assertCoordinate(segment.coordinates[2], equals: points[2].coordinate)
+    }
+
+    func testRoadSnappedRouteClipsCoalescedRawSegmentForReplayProgress() throws {
+        let coordinates = [
+            CLLocationCoordinate2D(latitude: 37.0000, longitude: -122.0000),
+            CLLocationCoordinate2D(latitude: 37.0001, longitude: -122.0001),
+            CLLocationCoordinate2D(latitude: 37.0002, longitude: -122.0002),
+            CLLocationCoordinate2D(latitude: 37.0003, longitude: -122.0003)
+        ]
+        let route = RoadSnappedRoute(
+            sourceFingerprint: 7,
+            sourcePointCount: coordinates.count,
+            segments: [
+                RoadSnappedRouteSegment(
+                    startIndex: 0,
+                    endIndex: 3,
+                    coordinates: coordinates,
+                    isSnapped: false
+                )
+            ]
+        )
+
+        let replaySegments = route.segments(upTo: 2)
+
+        XCTAssertEqual(replaySegments.count, 1)
+        let segment = try XCTUnwrap(replaySegments.first)
+        XCTAssertEqual(segment.startIndex, 0)
+        XCTAssertEqual(segment.endIndex, 2)
+        XCTAssertEqual(segment.coordinates.count, 3)
+        assertCoordinate(segment.coordinates.last, equals: coordinates[2])
+    }
+
     private func makeInMemoryContainer() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self])
         let configuration = ModelConfiguration(
@@ -279,5 +335,20 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         for pair in zip(points, points.dropFirst()) {
             XCTAssertLessThanOrEqual(pair.0.timestamp, pair.1.timestamp, file: file, line: line)
         }
+    }
+
+    private func assertCoordinate(
+        _ actual: CLLocationCoordinate2D?,
+        equals expected: CLLocationCoordinate2D,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let actual else {
+            XCTFail("Expected coordinate", file: file, line: line)
+            return
+        }
+
+        XCTAssertEqual(actual.latitude, expected.latitude, accuracy: 0.000001, file: file, line: line)
+        XCTAssertEqual(actual.longitude, expected.longitude, accuracy: 0.000001, file: file, line: line)
     }
 }

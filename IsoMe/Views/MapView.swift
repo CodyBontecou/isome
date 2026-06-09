@@ -16,6 +16,8 @@ struct LocationMapView: View {
     @State private var showStartEndMarkers = true
     @State private var showSessionPath = true
     @State private var showVisitMarkers = true
+    @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
+    @State private var roadSnappedRoute: RoadSnappedRoute?
     @State private var isRouteReplayEnabled = false
     @State private var isRouteReplayPlaying = false
     @State private var routeReplayProgress: Double = 1.0
@@ -61,6 +63,29 @@ struct LocationMapView: View {
         filteredPoints
     }
 
+    private var roadSnappingSourceFingerprint: Int {
+        RoadSnappedRouteBuilder.fingerprint(for: filteredPoints)
+    }
+
+    private var roadSnappingTaskKey: Int {
+        RoadSnappedRouteBuilder.taskFingerprint(
+            for: filteredPoints,
+            isEnabled: snapTravelPathToRoads
+        )
+    }
+
+    private var activeRoadSnappedRoute: RoadSnappedRoute? {
+        guard snapTravelPathToRoads,
+              let roadSnappedRoute,
+              roadSnappedRoute.sourceFingerprint == roadSnappingSourceFingerprint,
+              roadSnappedRoute.sourcePointCount == filteredPoints.count,
+              roadSnappedRoute.hasSnappedSegments else {
+            return nil
+        }
+
+        return roadSnappedRoute
+    }
+
     var routeReplaySnapshot: RouteReplaySnapshot? {
         RouteReplayCalculator.snapshot(points: routeReplaySourcePoints, progress: routeReplayProgress)
     }
@@ -99,8 +124,23 @@ struct LocationMapView: View {
 
                     // Travel path from location points. In replay mode, keep the
                     // full route hidden and only draw the segment the playhead has reached.
+                    // When road snapping is enabled, sparse GPS gaps are replaced with
+                    // MapKit route polylines so the path follows roads instead of drawing
+                    // abrupt straight chords between disconnected dots.
                     if isRouteReplayEnabled, let routeReplaySnapshot {
-                        if routeReplaySnapshot.visiblePoints.count >= 2 {
+                        if let activeRoadSnappedRoute {
+                            ForEach(activeRoadSnappedRoute.segments(upTo: routeReplaySnapshot.index)) { segment in
+                                MapPolyline(coordinates: segment.coordinates)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ),
+                                        style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
+                                    )
+                            }
+                        } else if routeReplaySnapshot.visiblePoints.count >= 2 {
                             let coordinates = routeReplaySnapshot.visiblePoints.map { $0.coordinate }
                             MapPolyline(coordinates: coordinates)
                                 .stroke(
@@ -109,20 +149,34 @@ struct LocationMapView: View {
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     ),
-                                    lineWidth: 4
+                                    style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
                                 )
                         }
                     } else if showTravelPath && filteredPoints.count >= 2 {
-                        let coordinates = filteredPoints.map { $0.coordinate }
-                        MapPolyline(coordinates: coordinates)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ),
-                                lineWidth: 4
-                            )
+                        if let activeRoadSnappedRoute {
+                            ForEach(activeRoadSnappedRoute.segments) { segment in
+                                MapPolyline(coordinates: segment.coordinates)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ),
+                                        style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
+                                    )
+                            }
+                        } else {
+                            let coordinates = filteredPoints.map { $0.coordinate }
+                            MapPolyline(coordinates: coordinates)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.blue.opacity(0.3), .blue.opacity(0.7), .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ),
+                                    style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
+                                )
+                        }
                     }
 
                     if isRouteReplayEnabled, let routeReplaySnapshot {
@@ -267,6 +321,7 @@ struct LocationMapView: View {
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                snapTravelPathToRoads: $snapTravelPathToRoads,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
                                 canReplayRoute: canReplayRoute,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
@@ -343,6 +398,9 @@ struct LocationMapView: View {
                     pendingSessionAutoFocus = true
                     attemptAutoFocusSession()
                 }
+            }
+            .task(id: roadSnappingTaskKey) {
+                await refreshRoadSnappedRoute()
             }
             .onReceive(routeReplayTimer) { _ in
                 advanceRouteReplayIfNeeded()
@@ -475,6 +533,34 @@ struct LocationMapView: View {
         if isRouteReplayEnabled, routeReplaySnapshot == nil {
             routeReplayProgress = 0
         }
+    }
+
+    @MainActor
+    private func refreshRoadSnappedRoute() async {
+        guard snapTravelPathToRoads else {
+            roadSnappedRoute = nil
+            return
+        }
+
+        let sourcePoints = filteredPoints
+        guard sourcePoints.count >= 2 else {
+            roadSnappedRoute = nil
+            return
+        }
+
+        let fingerprint = RoadSnappedRouteBuilder.fingerprint(for: sourcePoints)
+        if roadSnappedRoute?.sourceFingerprint == fingerprint {
+            return
+        }
+
+        let snapPoints = sourcePoints.map { RoadSnappingPoint(point: $0) }
+        let route = await RoadSnappedRouteBuilder.buildRoute(
+            for: snapPoints,
+            sourceFingerprint: fingerprint
+        )
+
+        guard !Task.isCancelled else { return }
+        roadSnappedRoute = route
     }
 
     private var mapAccessibilitySummary: String {
@@ -1368,6 +1454,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    @Binding var snapTravelPathToRoads: Bool
     let isRouteReplayEnabled: Bool
     let canReplayRoute: Bool
     let hasSessionPoints: Bool
@@ -1403,6 +1490,7 @@ struct QuickFilterBar: View {
 
                 LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
                 LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
+                LayerToggleButton(systemImage: "road.lanes", label: "Snap path to roads", isOn: $snapTravelPathToRoads)
                 LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
                 LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
                 if hasSessionPoints {
@@ -1673,6 +1761,391 @@ enum RouteReplayCalculator {
             return String(format: "%d:%02d:%02d", hours, minutes, seconds)
         }
         return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Road Snapping Helpers
+
+struct RoadSnappingPoint: @unchecked Sendable {
+    let coordinate: CLLocationCoordinate2D
+    let timestamp: Date
+    let speed: Double?
+    let horizontalAccuracy: Double
+
+    init(
+        coordinate: CLLocationCoordinate2D,
+        timestamp: Date,
+        speed: Double? = nil,
+        horizontalAccuracy: Double
+    ) {
+        self.coordinate = coordinate
+        self.timestamp = timestamp
+        self.speed = speed
+        self.horizontalAccuracy = horizontalAccuracy
+    }
+
+    init(point: LocationPoint) {
+        self.init(
+            coordinate: point.coordinate,
+            timestamp: point.timestamp,
+            speed: point.speed,
+            horizontalAccuracy: point.horizontalAccuracy
+        )
+    }
+}
+
+extension RoadSnappingPoint {
+    init(_ point: LocationPoint) {
+        self.init(point: point)
+    }
+}
+
+struct RoadSnappedRouteSegment: Identifiable, @unchecked Sendable {
+    let id: String
+    let startIndex: Int
+    let endIndex: Int
+    let coordinates: [CLLocationCoordinate2D]
+    let isSnapped: Bool
+
+    init(
+        startIndex: Int,
+        endIndex: Int,
+        coordinates: [CLLocationCoordinate2D],
+        isSnapped: Bool
+    ) {
+        self.id = "\(startIndex)-\(endIndex)-\(isSnapped ? "snapped" : "raw")"
+        self.startIndex = startIndex
+        self.endIndex = endIndex
+        self.coordinates = coordinates
+        self.isSnapped = isSnapped
+    }
+
+    func mergingRaw(
+        endIndex newEndIndex: Int,
+        coordinates newCoordinates: [CLLocationCoordinate2D]
+    ) -> RoadSnappedRouteSegment {
+        var mergedCoordinates = coordinates
+        if newCoordinates.count > 1 {
+            mergedCoordinates.append(contentsOf: newCoordinates.dropFirst())
+        }
+
+        return RoadSnappedRouteSegment(
+            startIndex: startIndex,
+            endIndex: newEndIndex,
+            coordinates: mergedCoordinates,
+            isSnapped: false
+        )
+    }
+
+    func clipped(toEndIndex requestedEndIndex: Int) -> RoadSnappedRouteSegment? {
+        guard !isSnapped else { return nil }
+        let clippedEndIndex = min(endIndex, max(startIndex, requestedEndIndex))
+        guard clippedEndIndex > startIndex else { return nil }
+
+        let coordinateCount = clippedEndIndex - startIndex + 1
+        guard coordinates.count >= coordinateCount else { return nil }
+
+        return RoadSnappedRouteSegment(
+            startIndex: startIndex,
+            endIndex: clippedEndIndex,
+            coordinates: Array(coordinates.prefix(coordinateCount)),
+            isSnapped: false
+        )
+    }
+}
+
+struct RoadSnappedRoute: @unchecked Sendable {
+    let sourceFingerprint: Int
+    let sourcePointCount: Int
+    let segments: [RoadSnappedRouteSegment]
+
+    var hasSnappedSegments: Bool {
+        segments.contains { $0.isSnapped }
+    }
+
+    func segments(upTo sourceIndex: Int) -> [RoadSnappedRouteSegment] {
+        guard sourceIndex > 0 else { return [] }
+
+        var visibleSegments: [RoadSnappedRouteSegment] = []
+        for segment in segments {
+            if segment.endIndex <= sourceIndex {
+                visibleSegments.append(segment)
+                continue
+            }
+
+            if segment.startIndex < sourceIndex,
+               let clipped = segment.clipped(toEndIndex: sourceIndex) {
+                visibleSegments.append(clipped)
+            }
+            break
+        }
+
+        return visibleSegments
+    }
+}
+
+enum RoadSnappedRouteBuilder {
+    private static let minimumSnapDistance: CLLocationDistance = 120
+    private static let maximumSnapDistance: CLLocationDistance = 25_000
+    private static let maximumSnapTimeGap: TimeInterval = 2 * 60 * 60
+    private static let maximumSnapSpeed: CLLocationSpeed = 55
+    private static let walkingSpeedThreshold: CLLocationSpeed = 3.2
+    private static let maximumDirectionsRequests = 40
+    private static let duplicateCoordinateThreshold: CLLocationDistance = 2
+
+    static func fingerprint(for points: [LocationPoint]) -> Int {
+        var hasher = Hasher()
+        hasher.combine(points.count)
+
+        for point in points {
+            hasher.combine(point.id)
+            hasher.combine(point.latitude)
+            hasher.combine(point.longitude)
+            hasher.combine(point.timestamp)
+            hasher.combine(point.isOutlier)
+        }
+
+        return hasher.finalize()
+    }
+
+    static func taskFingerprint(for points: [LocationPoint], isEnabled: Bool) -> Int {
+        var hasher = Hasher()
+        hasher.combine(isEnabled)
+        hasher.combine(fingerprint(for: points))
+        return hasher.finalize()
+    }
+
+    static func buildRoute(
+        for points: [RoadSnappingPoint],
+        sourceFingerprint: Int
+    ) async -> RoadSnappedRoute {
+        guard points.count >= 2 else {
+            return RoadSnappedRoute(
+                sourceFingerprint: sourceFingerprint,
+                sourcePointCount: points.count,
+                segments: []
+            )
+        }
+
+        let candidates = zip(points.indices, points.dropFirst()).compactMap { index, endPoint -> CandidateSegment? in
+            let startPoint = points[index]
+            let endIndex = index + 1
+            guard startPoint.coordinate.isValidRoadSnapCoordinate,
+                  endPoint.coordinate.isValidRoadSnapCoordinate else {
+                return nil
+            }
+
+            return CandidateSegment(
+                startIndex: index,
+                endIndex: endIndex,
+                start: startPoint,
+                end: endPoint
+            )
+        }
+
+        let snapIndexes = Set(
+            candidates
+                .filter(shouldAttemptRoadSnap)
+                .sorted { $0.distance > $1.distance }
+                .prefix(maximumDirectionsRequests)
+                .map(\.startIndex)
+        )
+
+        var routeSegments: [RoadSnappedRouteSegment] = []
+        routeSegments.reserveCapacity(candidates.count)
+
+        for candidate in candidates {
+            if Task.isCancelled { break }
+
+            if snapIndexes.contains(candidate.startIndex),
+               let coordinates = await snappedCoordinates(for: candidate) {
+                appendSegment(
+                    startIndex: candidate.startIndex,
+                    endIndex: candidate.endIndex,
+                    coordinates: coordinates,
+                    isSnapped: true,
+                    to: &routeSegments
+                )
+            } else {
+                appendSegment(
+                    startIndex: candidate.startIndex,
+                    endIndex: candidate.endIndex,
+                    coordinates: [candidate.start.coordinate, candidate.end.coordinate],
+                    isSnapped: false,
+                    to: &routeSegments
+                )
+            }
+        }
+
+        return RoadSnappedRoute(
+            sourceFingerprint: sourceFingerprint,
+            sourcePointCount: points.count,
+            segments: routeSegments
+        )
+    }
+
+    private static func shouldAttemptRoadSnap(_ segment: CandidateSegment) -> Bool {
+        guard segment.distance >= minimumSnapDistance,
+              segment.distance <= maximumSnapDistance else {
+            return false
+        }
+
+        guard segment.elapsed > 0,
+              segment.elapsed <= maximumSnapTimeGap else {
+            return false
+        }
+
+        let impliedSpeed = segment.distance / segment.elapsed
+        guard impliedSpeed <= maximumSnapSpeed else {
+            return false
+        }
+
+        let maxAccuracy = max(segment.start.horizontalAccuracy, segment.end.horizontalAccuracy)
+        guard maxAccuracy <= max(120, segment.distance * 0.75) else {
+            return false
+        }
+
+        return true
+    }
+
+    private static func appendSegment(
+        startIndex: Int,
+        endIndex: Int,
+        coordinates: [CLLocationCoordinate2D],
+        isSnapped: Bool,
+        to segments: inout [RoadSnappedRouteSegment]
+    ) {
+        guard coordinates.count >= 2 else { return }
+
+        if !isSnapped,
+           let lastSegment = segments.last,
+           !lastSegment.isSnapped,
+           lastSegment.endIndex == startIndex {
+            segments[segments.count - 1] = lastSegment.mergingRaw(
+                endIndex: endIndex,
+                coordinates: coordinates
+            )
+        } else {
+            segments.append(RoadSnappedRouteSegment(
+                startIndex: startIndex,
+                endIndex: endIndex,
+                coordinates: coordinates,
+                isSnapped: isSnapped
+            ))
+        }
+    }
+
+    private static func snappedCoordinates(for segment: CandidateSegment) async -> [CLLocationCoordinate2D]? {
+        for transport in preferredTransports(for: segment) {
+            guard !Task.isCancelled else { return nil }
+
+            let request = MKDirections.Request()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: segment.start.coordinate))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: segment.end.coordinate))
+            request.transportType = transport
+            request.requestsAlternateRoutes = false
+
+            do {
+                let response = try await MKDirections(request: request).calculate()
+                guard let route = response.routes.first,
+                      isPlausible(route: route, for: segment) else {
+                    continue
+                }
+
+                let coordinates = stitchedCoordinates(
+                    route.polyline.roadSnapCoordinates,
+                    source: segment.start.coordinate,
+                    destination: segment.end.coordinate
+                )
+
+                guard coordinates.count >= 2 else { continue }
+                return coordinates
+            } catch {
+                continue
+            }
+        }
+
+        return nil
+    }
+
+    private static func preferredTransports(for segment: CandidateSegment) -> [MKDirectionsTransportType] {
+        let impliedSpeed = segment.distance / max(segment.elapsed, 1)
+        if impliedSpeed <= walkingSpeedThreshold {
+            return [.walking, .automobile]
+        }
+
+        return [.automobile, .walking]
+    }
+
+    private static func isPlausible(route: MKRoute, for segment: CandidateSegment) -> Bool {
+        guard route.distance.isFinite, route.distance > 0 else { return false }
+        let maximumRouteDistance = max(segment.distance + 1_000, segment.distance * 4)
+        return route.distance <= maximumRouteDistance
+    }
+
+    private static func stitchedCoordinates(
+        _ routeCoordinates: [CLLocationCoordinate2D],
+        source: CLLocationCoordinate2D,
+        destination: CLLocationCoordinate2D
+    ) -> [CLLocationCoordinate2D] {
+        var stitched = [source]
+
+        for coordinate in routeCoordinates where coordinate.isValidRoadSnapCoordinate {
+            guard let previous = stitched.last else {
+                stitched.append(coordinate)
+                continue
+            }
+
+            if previous.roadSnapDistance(to: coordinate) > duplicateCoordinateThreshold {
+                stitched.append(coordinate)
+            }
+        }
+
+        if let previous = stitched.last,
+           previous.roadSnapDistance(to: destination) <= duplicateCoordinateThreshold {
+            stitched[stitched.count - 1] = destination
+        } else {
+            stitched.append(destination)
+        }
+
+        return stitched
+    }
+
+    private struct CandidateSegment {
+        let startIndex: Int
+        let endIndex: Int
+        let start: RoadSnappingPoint
+        let end: RoadSnappingPoint
+
+        var distance: CLLocationDistance {
+            start.coordinate.roadSnapDistance(to: end.coordinate)
+        }
+
+        var elapsed: TimeInterval {
+            end.timestamp.timeIntervalSince(start.timestamp)
+        }
+    }
+}
+
+private extension MKPolyline {
+    var roadSnapCoordinates: [CLLocationCoordinate2D] {
+        guard pointCount > 0 else { return [] }
+        var coordinates = Array(
+            repeating: kCLLocationCoordinate2DInvalid,
+            count: pointCount
+        )
+        getCoordinates(&coordinates, range: NSRange(location: 0, length: pointCount))
+        return coordinates
+    }
+}
+
+private extension CLLocationCoordinate2D {
+    var isValidRoadSnapCoordinate: Bool {
+        CLLocationCoordinate2DIsValid(self) && latitude.isFinite && longitude.isFinite
+    }
+
+    func roadSnapDistance(to other: CLLocationCoordinate2D) -> CLLocationDistance {
+        MKMapPoint(self).distance(to: MKMapPoint(other))
     }
 }
 
