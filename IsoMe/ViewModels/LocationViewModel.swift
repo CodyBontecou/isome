@@ -477,13 +477,15 @@ final class LocationViewModel {
     }
 
     func recordingSessionSummaries(
-        gapThreshold: TimeInterval = RecordingSessionBuilder.defaultGapThreshold
+        gapThreshold: TimeInterval = RecordingSessionBuilder.defaultGapThreshold,
+        inferenceConfiguration: RecordingSessionInferenceConfiguration? = nil
     ) -> [RecordingSessionSummary] {
         RecordingSessionBuilder.summaries(
             storedSessions: allRecordingSessions,
             points: locationPoints,
             activeTrackingStart: locationManager.trackingStartTime,
-            gapThreshold: gapThreshold
+            gapThreshold: gapThreshold,
+            inferenceConfiguration: inferenceConfiguration
         )
     }
 

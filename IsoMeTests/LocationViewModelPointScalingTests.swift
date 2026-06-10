@@ -9,21 +9,11 @@ final class LocationViewModelPointScalingTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
-        UserDefaults.standard.removeObject(forKey: "distanceFilter")
-        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
-        UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
-        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
+        resetUserDefaults()
     }
 
     override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
-        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
-        UserDefaults.standard.removeObject(forKey: "distanceFilter")
-        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
-        UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
-        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
+        resetUserDefaults()
         super.tearDown()
     }
 
@@ -205,8 +195,83 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertEqual(session.points.count, 3)
     }
 
-    func testRouteReplaySnapshotMapsProgressToVisiblePathAndMetrics() throws {
+    func testRecordingSessionBuilderCanDisableInferredOutings() throws {
         let start = fixtureDate(dayOffset: 6)
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5)
+        ]
+
+        let sessions = RecordingSessionBuilder.summaries(
+            storedSessions: [],
+            points: points,
+            activeTrackingStart: nil,
+            inferenceConfiguration: RecordingSessionInferenceConfiguration(includesInferredSessions: false),
+            now: start.addingTimeInterval(10 * 60)
+        )
+
+        XCTAssertTrue(sessions.isEmpty)
+    }
+
+    func testRecordingSessionBuilderFiltersInferredOutingsByUserConfiguration() throws {
+        let start = fixtureDate(dayOffset: 7)
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0100, longitude: -122.0100, timestamp: start.addingTimeInterval(45 * 60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0110, longitude: -122.0100, timestamp: start.addingTimeInterval(55 * 60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 37.0120, longitude: -122.0100, timestamp: start.addingTimeInterval(65 * 60), horizontalAccuracy: 5)
+        ]
+
+        let sessions = RecordingSessionBuilder.summaries(
+            storedSessions: [],
+            points: points,
+            activeTrackingStart: nil,
+            inferenceConfiguration: RecordingSessionInferenceConfiguration(
+                gapThreshold: 30 * 60,
+                minimumDuration: 10 * 60,
+                minimumPointCount: 3
+            ),
+            now: start.addingTimeInterval(70 * 60)
+        )
+
+        XCTAssertEqual(sessions.count, 1)
+        let session = try XCTUnwrap(sessions.first)
+        XCTAssertTrue(session.isInferred)
+        XCTAssertEqual(session.sequenceNumber, 1)
+        XCTAssertEqual(session.points.map(\.timestamp), [points[2].timestamp, points[3].timestamp, points[4].timestamp])
+    }
+
+    func testRecordingSessionBuilderKeepsStoredSessionsWhenInferredOutingsAreDisabled() throws {
+        let start = fixtureDate(dayOffset: 8)
+        let storedSession = RecordingSession(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000456")!,
+            startedAt: start,
+            endedAt: start.addingTimeInterval(30 * 60),
+            customName: "School Run"
+        )
+        let points = [
+            LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
+            LocationPoint(latitude: 38.0000, longitude: -123.0000, timestamp: start.addingTimeInterval(2 * 3600), horizontalAccuracy: 5)
+        ]
+
+        let sessions = RecordingSessionBuilder.summaries(
+            storedSessions: [storedSession],
+            points: points,
+            activeTrackingStart: nil,
+            inferenceConfiguration: RecordingSessionInferenceConfiguration(includesInferredSessions: false),
+            now: start.addingTimeInterval(3 * 3600)
+        )
+
+        XCTAssertEqual(sessions.count, 1)
+        let session = try XCTUnwrap(sessions.first)
+        XCTAssertFalse(session.isInferred)
+        XCTAssertEqual(session.title, "School Run")
+        XCTAssertEqual(session.points.map(\.timestamp), [points[0].timestamp])
+    }
+
+    func testRouteReplaySnapshotMapsProgressToVisiblePathAndMetrics() throws {
+        let start = fixtureDate(dayOffset: 9)
         let points = [
             LocationPoint(latitude: 37.0000, longitude: -122.0000, timestamp: start, horizontalAccuracy: 5),
             LocationPoint(latitude: 37.0010, longitude: -122.0000, timestamp: start.addingTimeInterval(60), horizontalAccuracy: 5),
@@ -298,6 +363,19 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertEqual(segment.endIndex, 2)
         XCTAssertEqual(segment.coordinates.count, 3)
         assertCoordinate(segment.coordinates.last, equals: coordinates[2])
+    }
+
+    private func resetUserDefaults() {
+        UserDefaults.standard.removeObject(forKey: "isTrackingEnabled")
+        UserDefaults.standard.removeObject(forKey: "stopAfterHours")
+        UserDefaults.standard.removeObject(forKey: "distanceFilter")
+        UserDefaults.standard.removeObject(forKey: "isLiveActivityEnabled")
+        UserDefaults.standard.removeObject(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.removeObject(forKey: "activeRecordingSessionID")
+        UserDefaults.standard.removeObject(forKey: RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
+        UserDefaults.standard.removeObject(forKey: RecordingSessionInferenceConfiguration.gapPresetKey)
+        UserDefaults.standard.removeObject(forKey: RecordingSessionInferenceConfiguration.minimumDurationPresetKey)
+        UserDefaults.standard.removeObject(forKey: RecordingSessionInferenceConfiguration.minimumPointCountKey)
     }
 
     private func makeInMemoryContainer() throws -> ModelContainer {

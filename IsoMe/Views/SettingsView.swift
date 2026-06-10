@@ -19,6 +19,14 @@ struct SettingsView: View {
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
+    @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
+    private var includesInferredSessions = RecordingSessionInferenceConfiguration.defaultIncludesInferredSessions
+    @AppStorage(RecordingSessionInferenceConfiguration.gapPresetKey)
+    private var inferenceGapPresetRawValue = RecordingSessionInferenceConfiguration.defaultGapPreset.rawValue
+    @AppStorage(RecordingSessionInferenceConfiguration.minimumDurationPresetKey)
+    private var inferenceMinimumDurationPresetRawValue = RecordingSessionInferenceConfiguration.defaultMinimumDurationPreset.rawValue
+    @AppStorage(RecordingSessionInferenceConfiguration.minimumPointCountKey)
+    private var inferenceMinimumPointCount = RecordingSessionInferenceConfiguration.defaultMinimumPointCountPreset.rawValue
 
     init(viewModel: LocationViewModel) {
         _viewModel = Bindable(wrappedValue: viewModel)
@@ -34,6 +42,7 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         purchaseSection
                         trackingSection
+                        inferredOutingsSection
                         liveActivitySection
                         unitsSection
                         mapDisplaySection
@@ -247,6 +256,63 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
 
             TESectionFooter(text: "Tracking records visits, significant changes, and a continuous high-accuracy path. Distance filter controls how often points are saved while moving. Stop After auto-stops as a safety net.")
+        }
+    }
+
+    // MARK: - Inferred Outings Section
+
+    private var inferredOutingsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "INFERRED OUTINGS")
+
+            TECard {
+                VStack(spacing: 0) {
+                    TERow(showDivider: includesInferredSessions) {
+                        settingsToggle("AUTO-GENERATE", isOn: $includesInferredSessions)
+                    }
+
+                    if includesInferredSessions {
+                        TERow {
+                            settingsPickerRow(title: "SPLIT AFTER") {
+                                Picker("", selection: $inferenceGapPresetRawValue) {
+                                    ForEach(RecordingSessionGapPreset.allCases) { option in
+                                        Text(option.settingsLabel).tag(option.rawValue)
+                                    }
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+
+                        TERow {
+                            settingsPickerRow(title: "IGNORE SHORTER THAN") {
+                                Picker("", selection: $inferenceMinimumDurationPresetRawValue) {
+                                    ForEach(RecordingSessionMinimumDurationPreset.allCases) { option in
+                                        Text(option.label).tag(option.rawValue)
+                                    }
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+
+                        TERow(showDivider: false) {
+                            settingsPickerRow(title: "MIN GPS POINTS") {
+                                Picker("", selection: $inferenceMinimumPointCount) {
+                                    ForEach(RecordingSessionMinimumPointCountPreset.allCases) { option in
+                                        Text(option.label).tag(option.rawValue)
+                                    }
+                                }
+                                .labelsHidden()
+                                .tint(TE.accent)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "When exact start/stop sessions don't exist, iso.me can infer outings from saved GPS points. These settings only affect auto-generated inferred outings; recorded sessions stay intact.")
         }
     }
 

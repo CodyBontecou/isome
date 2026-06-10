@@ -7,11 +7,36 @@ struct OutingsView: View {
     let onShowOnMap: () -> Void
 
     @State private var sort: RecordingSessionSort = .newest
-    @State private var gapPreset: RecordingSessionGapPreset = .thirtyMinutes
     @State private var hasLoadedSessions = false
 
+    @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
+    private var includesInferredSessions = RecordingSessionInferenceConfiguration.defaultIncludesInferredSessions
+    @AppStorage(RecordingSessionInferenceConfiguration.gapPresetKey)
+    private var inferenceGapPresetRawValue = RecordingSessionInferenceConfiguration.defaultGapPreset.rawValue
+    @AppStorage(RecordingSessionInferenceConfiguration.minimumDurationPresetKey)
+    private var inferenceMinimumDurationPresetRawValue = RecordingSessionInferenceConfiguration.defaultMinimumDurationPreset.rawValue
+    @AppStorage(RecordingSessionInferenceConfiguration.minimumPointCountKey)
+    private var inferenceMinimumPointCount = RecordingSessionInferenceConfiguration.defaultMinimumPointCountPreset.rawValue
+
     private var sessions: [RecordingSessionSummary] {
-        sort.sorted(viewModel.recordingSessionSummaries(gapThreshold: gapPreset.seconds))
+        sort.sorted(viewModel.recordingSessionSummaries(inferenceConfiguration: inferenceConfiguration))
+    }
+
+    private var inferenceConfiguration: RecordingSessionInferenceConfiguration {
+        RecordingSessionInferenceConfiguration(
+            includesInferredSessions: includesInferredSessions,
+            gapThreshold: inferenceGapPreset.seconds,
+            minimumDuration: inferenceMinimumDurationPreset.seconds,
+            minimumPointCount: inferenceMinimumPointCount
+        )
+    }
+
+    private var inferenceGapPreset: RecordingSessionGapPreset {
+        RecordingSessionGapPreset(rawValue: inferenceGapPresetRawValue) ?? RecordingSessionInferenceConfiguration.defaultGapPreset
+    }
+
+    private var inferenceMinimumDurationPreset: RecordingSessionMinimumDurationPreset {
+        RecordingSessionMinimumDurationPreset(rawValue: inferenceMinimumDurationPresetRawValue) ?? RecordingSessionInferenceConfiguration.defaultMinimumDurationPreset
     }
 
     private var totalDistance: Double {
@@ -93,13 +118,13 @@ struct OutingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Each start/stop recording becomes its own outing. Older data is grouped by gaps between GPS points.")
+            TESectionFooter(text: "Each start/stop recording becomes its own outing. Older GPS history can be auto-inferred using your saved inference settings.")
         }
     }
 
     private var controlsSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "SORT")
+            TESectionHeader(title: "CONTROLS")
 
             TECard {
                 VStack(spacing: 0) {
@@ -137,36 +162,48 @@ struct OutingsView: View {
                         }
                     }
 
-                    TERow(showDivider: false) {
-                        HStack(spacing: 12) {
-                            Text("LEGACY SPLIT")
+                    TERow(showDivider: includesInferredSessions) {
+                        Toggle(isOn: $includesInferredSessions) {
+                            Text("INFERRED")
                                 .font(TE.mono(.caption, weight: .medium))
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
+                        }
+                        .toggleStyle(TEToggleStyle())
+                    }
 
-                            Spacer()
+                    if includesInferredSessions {
+                        TERow(showDivider: false) {
+                            HStack(spacing: 12) {
+                                Text("SPLIT AFTER")
+                                    .font(TE.mono(.caption, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.textPrimary)
 
-                            Menu {
-                                ForEach(RecordingSessionGapPreset.allCases) { option in
-                                    Button {
-                                        gapPreset = option
-                                    } label: {
-                                        if gapPreset == option {
-                                            Label(option.label, systemImage: "checkmark")
-                                        } else {
-                                            Text(option.label)
+                                Spacer()
+
+                                Menu {
+                                    ForEach(RecordingSessionGapPreset.allCases) { option in
+                                        Button {
+                                            inferenceGapPresetRawValue = option.rawValue
+                                        } label: {
+                                            if inferenceGapPreset == option {
+                                                Label(option.settingsLabel, systemImage: "checkmark")
+                                            } else {
+                                                Text(option.settingsLabel)
+                                            }
                                         }
                                     }
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Text(inferenceGapPreset.label.uppercased())
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.caption2.weight(.bold))
+                                    }
+                                    .font(TE.mono(.caption2, weight: .semibold))
+                                    .tracking(1)
+                                    .foregroundStyle(TE.accent)
                                 }
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Text(gapPreset.label.uppercased())
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2.weight(.bold))
-                                }
-                                .font(TE.mono(.caption2, weight: .semibold))
-                                .tracking(1)
-                                .foregroundStyle(TE.accent)
                             }
                         }
                     }
@@ -174,7 +211,7 @@ struct OutingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "The legacy split only affects inferred outings that predate exact session tracking.")
+            TESectionFooter(text: "Inference controls only affect auto-generated outings from older GPS points. Exact start/stop recordings stay unchanged.")
         }
     }
 
@@ -214,9 +251,7 @@ struct OutingsView: View {
                 .tracking(2)
                 .foregroundStyle(TE.textPrimary)
 
-            Text(viewModel.locationManager.isTrackingEnabled
-                ? "Tracking is active. Your outing will appear after iso.me saves the first location point."
-                : "Start tracking from the Map tab or your Shortcuts automation. Each start/stop recording will appear here as its own outing.")
+            Text(emptyStateMessage)
                 .font(TE.mono(.caption2, weight: .medium))
                 .foregroundStyle(TE.textMuted)
                 .multilineTextAlignment(.center)
@@ -224,6 +259,22 @@ struct OutingsView: View {
                 .padding(.horizontal, 36)
         }
         .padding()
+    }
+
+    private var emptyStateMessage: String {
+        if viewModel.locationManager.isTrackingEnabled {
+            return "Tracking is active. Your outing will appear after iso.me saves the first location point."
+        }
+
+        if viewModel.totalLocationPointCount > 0 && !includesInferredSessions {
+            return "Auto-inferred outings are turned off. Enable inferred outings to build outings from older GPS points."
+        }
+
+        if viewModel.totalLocationPointCount > 0 {
+            return "No outings match your current inference settings. Lower the minimum duration or GPS point count in Settings."
+        }
+
+        return "Start tracking from the Map tab or your Shortcuts automation. Each start/stop recording will appear here as its own outing."
     }
 
     private var usesMetricDistanceUnits: Bool {
@@ -553,7 +604,7 @@ private struct RecordingSessionDetailView: View {
                             .foregroundStyle(TE.warning)
                             .accessibilityHidden(true)
 
-                        Text("This older outing was inferred from a quiet gap in your GPS history. New Shortcut start/stop recordings are saved exactly and can be named.")
+                        Text("This outing was auto-inferred from your GPS history using your inferred outing settings. New Shortcut start/stop recordings are saved exactly and can be named.")
                             .font(TE.mono(.caption2, weight: .medium))
                             .foregroundStyle(TE.textMuted)
                             .fixedSize(horizontal: false, vertical: true)

@@ -8,6 +8,8 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
+    @State private var selectedPointID: UUID?
+    @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
     @State private var showFilterBar = false
     @State private var trackingPillExpanded = false
@@ -233,14 +235,11 @@ struct LocationMapView: View {
                     if showPointMarkers {
                         ForEach(spacedPoints) { point in
                             Annotation("", coordinate: point.coordinate) {
-                                Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
-                                    .overlay {
-                                        Circle()
-                                            .stroke(.white, lineWidth: 1.5)
-                                    }
-                                    .accessibilityHidden(true)
+                                PathPointMarker(
+                                    point: point,
+                                    isSelected: selectedPointID == point.id,
+                                    onTap: { togglePointTooltip(for: point) }
+                                )
                             }
                         }
                     }
@@ -268,6 +267,9 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .simultaneousGesture(
+                    TapGesture().onEnded(handleMapTap)
+                )
                 .accessibilityLabel("Location map")
                 .accessibilityValue(mapAccessibilitySummary)
                 .safeAreaInset(edge: .top, spacing: 0) {
@@ -475,6 +477,28 @@ struct LocationMapView: View {
     private func dismissDiscordPromo() {
         withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
             discordPromoDismissed = true
+        }
+    }
+
+    private func togglePointTooltip(for point: LocationPoint) {
+        lastPointMarkerTap = Date()
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+            selectedPointID = selectedPointID == point.id ? nil : point.id
+        }
+    }
+
+    private func handleMapTap() {
+        // Map receives a tap alongside annotation buttons. Defer the check so a
+        // point-marker tap can mark itself first, then only dismiss on true map taps.
+        DispatchQueue.main.async {
+            guard Date().timeIntervalSince(lastPointMarkerTap) > 0.15,
+                  selectedPointID != nil else {
+                return
+            }
+
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.2)) {
+                selectedPointID = nil
+            }
         }
     }
 
@@ -870,6 +894,173 @@ struct Triangle: Shape {
     }
 }
 
+// MARK: - Path Point Markers
+
+struct MapAnnotationTooltipOverlay<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            content
+
+            Color.clear
+                .frame(width: 44, height: 44)
+                .accessibilityHidden(true)
+        }
+        .fixedSize(horizontal: true, vertical: true)
+        .allowsHitTesting(false)
+        .transition(.scale.combined(with: .opacity))
+    }
+}
+
+struct PathPointMarker: View {
+    let point: LocationPoint
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    private var markerColor: Color {
+        if isSelected { return TE.lcdGreen }
+        return point.isOutlier ? .orange : .blue
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            ZStack {
+                if isSelected {
+                    Circle()
+                        .fill(markerColor.opacity(0.18))
+                        .frame(width: 24, height: 24)
+
+                    Circle()
+                        .stroke(.white.opacity(0.9), lineWidth: 2)
+                        .frame(width: 16, height: 16)
+                }
+
+                Circle()
+                    .fill(markerColor)
+                    .frame(width: isSelected ? 12 : 8, height: isSelected ? 12 : 8)
+                    .overlay {
+                        Circle()
+                            .stroke(.white, lineWidth: isSelected ? 2 : 1.5)
+                    }
+            }
+            .shadow(color: markerColor.opacity(isSelected ? 0.55 : 0.35), radius: isSelected ? 6 : 3, y: 1)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .overlay(alignment: .bottom) {
+            if isSelected {
+                MapAnnotationTooltipOverlay {
+                    PathPointTooltip(point: point)
+                }
+            }
+        }
+        .accessibilityLabel(point.isOutlier ? "Outlier path point" : "Path point")
+        .accessibilityValue(point.accessibilityValue)
+        .accessibilityHint(isSelected ? "Hides point metadata." : "Shows point metadata.")
+    }
+}
+
+struct PathPointTooltip: View {
+    @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
+    let point: LocationPoint
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("POINT")
+                    .font(TE.mono(.caption2, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(TE.textMuted)
+
+                Spacer(minLength: 4)
+
+                Text(point.timestamp.formatted(date: .abbreviated, time: .standard))
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(2)
+            }
+
+            Divider()
+                .overlay(Color.primary.opacity(0.12))
+
+            PathPointTooltipRow(label: "COORDS", value: coordinateText)
+            PathPointTooltipRow(label: "ACCURACY", value: "±\(formatDistance(point.horizontalAccuracy))")
+
+            if let altitude = point.altitude {
+                PathPointTooltipRow(label: "ALTITUDE", value: formatDistance(altitude))
+            }
+
+            if let speed = point.speed {
+                PathPointTooltipRow(label: "SPEED", value: formattedSpeed(speed))
+            }
+
+            if point.isOutlier {
+                PathPointTooltipRow(label: "STATUS", value: "GPS outlier")
+            }
+        }
+        .padding(10)
+        .frame(width: 240, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.28), lineWidth: 0.8)
+                }
+        }
+        .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+        .transition(.scale.combined(with: .opacity))
+        .accessibilityHidden(true)
+    }
+
+    private var coordinateText: String {
+        String(format: "%.5f, %.5f", point.latitude, point.longitude)
+    }
+
+    private func formatDistance(_ meters: Double) -> String {
+        DistanceFormatter.format(meters: meters, usesMetric: usesMetricDistanceUnits)
+    }
+
+    private func formattedSpeed(_ metersPerSecond: Double) -> String {
+        if usesMetricDistanceUnits {
+            return String(format: "%.1f km/h", metersPerSecond * 3.6)
+        }
+        return String(format: "%.1f mph", metersPerSecond * 2.23693629)
+    }
+}
+
+struct PathPointTooltipRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(label)
+                .font(TE.mono(.caption2, weight: .medium))
+                .tracking(0.8)
+                .foregroundStyle(TE.textMuted)
+                .frame(width: 62, alignment: .leading)
+
+            Text(value)
+                .font(TE.mono(.caption2, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
+
+            Spacer(minLength: 0)
+        }
+    }
+}
+
 // MARK: - Path Start/End Markers
 
 struct PathStartMarker: View {
@@ -883,36 +1074,58 @@ struct PathStartMarker: View {
                 showingTooltip.toggle()
             }
         } label: {
-            VStack(spacing: 2) {
-                if showingTooltip {
-                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .transition(.scale.combined(with: .opacity))
-                        .accessibilityHidden(true)
-                }
+            ZStack {
+                Circle()
+                    .fill(.green)
+                    .frame(width: 28, height: 28)
+                    .accessibilityHidden(true)
 
-                ZStack {
-                    Circle()
-                        .fill(.green)
-                        .frame(width: 28, height: 28)
-                        .accessibilityHidden(true)
-
-                    Image(systemName: "flag.fill")
-                        .font(.callout)
-                        .foregroundStyle(.white)
-                        .accessibilityHidden(true)
-                }
-                .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
+                Image(systemName: "flag.fill")
+                    .font(.callout)
+                    .foregroundStyle(.white)
+                    .accessibilityHidden(true)
             }
-            .frame(minWidth: 44, minHeight: 44)
+            .shadow(color: .green.opacity(0.4), radius: 4, y: 2)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .bottom) {
+            if showingTooltip {
+                MapAnnotationTooltipOverlay {
+                    PathEndpointTooltip(label: "START", timestamp: timestamp)
+                }
+            }
+        }
         .accessibilityLabel("Path start")
         .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
         .accessibilityHint(showingTooltip ? "Hides the start time." : "Shows the start time.")
+    }
+}
+
+struct PathEndpointTooltip: View {
+    let label: String
+    let timestamp: Date
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(label)
+                .font(TE.mono(.caption2, weight: .semibold))
+                .tracking(0.8)
+                .foregroundStyle(TE.textMuted)
+
+            Text(timestamp.formatted(date: .abbreviated, time: .shortened))
+                .font(.caption2.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+        }
+        .lineLimit(1)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 3)
+        .background(.ultraThinMaterial, in: Capsule())
+        .fixedSize(horizontal: true, vertical: false)
+        .transition(.scale.combined(with: .opacity))
+        .accessibilityHidden(true)
     }
 }
 
@@ -927,33 +1140,29 @@ struct PathEndMarker: View {
                 showingTooltip.toggle()
             }
         } label: {
-            VStack(spacing: 2) {
-                if showingTooltip {
-                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .transition(.scale.combined(with: .opacity))
-                        .accessibilityHidden(true)
-                }
+            ZStack {
+                Circle()
+                    .fill(.red)
+                    .frame(width: 28, height: 28)
+                    .accessibilityHidden(true)
 
-                ZStack {
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 28, height: 28)
-                        .accessibilityHidden(true)
-
-                    Image(systemName: "flag.checkered")
-                        .font(.callout)
-                        .foregroundStyle(.white)
-                        .accessibilityHidden(true)
-                }
-                .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
+                Image(systemName: "flag.checkered")
+                    .font(.callout)
+                    .foregroundStyle(.white)
+                    .accessibilityHidden(true)
             }
-            .frame(minWidth: 44, minHeight: 44)
+            .shadow(color: .red.opacity(0.4), radius: 4, y: 2)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .bottom) {
+            if showingTooltip {
+                MapAnnotationTooltipOverlay {
+                    PathEndpointTooltip(label: "END", timestamp: timestamp)
+                }
+            }
+        }
         .accessibilityLabel("Path end")
         .accessibilityValue(timestamp.formatted(date: .abbreviated, time: .shortened))
         .accessibilityHint(showingTooltip ? "Hides the end time." : "Shows the end time.")

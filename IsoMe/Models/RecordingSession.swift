@@ -210,6 +210,7 @@ enum RecordingSessionGapPreset: String, CaseIterable, Identifiable {
     case thirtyMinutes
     case oneHour
     case twoHours
+    case fourHours
 
     var id: String { rawValue }
 
@@ -219,6 +220,7 @@ enum RecordingSessionGapPreset: String, CaseIterable, Identifiable {
         case .thirtyMinutes: return 30 * 60
         case .oneHour: return 60 * 60
         case .twoHours: return 2 * 60 * 60
+        case .fourHours: return 4 * 60 * 60
         }
     }
 
@@ -228,7 +230,148 @@ enum RecordingSessionGapPreset: String, CaseIterable, Identifiable {
         case .thirtyMinutes: return "30m gaps"
         case .oneHour: return "1h gaps"
         case .twoHours: return "2h gaps"
+        case .fourHours: return "4h gaps"
         }
+    }
+
+    var settingsLabel: String {
+        switch self {
+        case .fifteenMinutes: return "15 minutes"
+        case .thirtyMinutes: return "30 minutes"
+        case .oneHour: return "1 hour"
+        case .twoHours: return "2 hours"
+        case .fourHours: return "4 hours"
+        }
+    }
+}
+
+enum RecordingSessionMinimumDurationPreset: String, CaseIterable, Identifiable {
+    case none
+    case fiveMinutes
+    case fifteenMinutes
+    case thirtyMinutes
+    case oneHour
+
+    var id: String { rawValue }
+
+    var seconds: TimeInterval {
+        switch self {
+        case .none: return 0
+        case .fiveMinutes: return 5 * 60
+        case .fifteenMinutes: return 15 * 60
+        case .thirtyMinutes: return 30 * 60
+        case .oneHour: return 60 * 60
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .none: return "No minimum"
+        case .fiveMinutes: return "5 minutes"
+        case .fifteenMinutes: return "15 minutes"
+        case .thirtyMinutes: return "30 minutes"
+        case .oneHour: return "1 hour"
+        }
+    }
+}
+
+enum RecordingSessionMinimumPointCountPreset: Int, CaseIterable, Identifiable {
+    case one = 1
+    case two = 2
+    case three = 3
+    case five = 5
+    case ten = 10
+
+    var id: Int { rawValue }
+
+    var label: String {
+        rawValue == 1 ? "1+ point" : "\(rawValue)+ points"
+    }
+}
+
+struct RecordingSessionInferenceConfiguration: Equatable {
+    static let includesInferredSessionsKey = "inferredOutings.includeInferredSessions"
+    static let gapPresetKey = "inferredOutings.gapPreset"
+    static let minimumDurationPresetKey = "inferredOutings.minimumDurationPreset"
+    static let minimumPointCountKey = "inferredOutings.minimumPointCount"
+
+    static let defaultIncludesInferredSessions = true
+    static let defaultGapPreset = RecordingSessionGapPreset.thirtyMinutes
+    static let defaultMinimumDurationPreset = RecordingSessionMinimumDurationPreset.none
+    static let defaultMinimumPointCountPreset = RecordingSessionMinimumPointCountPreset.one
+
+    static let `default` = RecordingSessionInferenceConfiguration(
+        includesInferredSessions: defaultIncludesInferredSessions,
+        gapThreshold: defaultGapPreset.seconds,
+        minimumDuration: defaultMinimumDurationPreset.seconds,
+        minimumPointCount: defaultMinimumPointCountPreset.rawValue
+    )
+
+    let includesInferredSessions: Bool
+    let gapThreshold: TimeInterval
+    let minimumDuration: TimeInterval
+    let minimumPointCount: Int
+
+    init(
+        includesInferredSessions: Bool = defaultIncludesInferredSessions,
+        gapThreshold: TimeInterval = defaultGapPreset.seconds,
+        minimumDuration: TimeInterval = defaultMinimumDurationPreset.seconds,
+        minimumPointCount: Int = defaultMinimumPointCountPreset.rawValue
+    ) {
+        self.includesInferredSessions = includesInferredSessions
+        self.gapThreshold = max(1, gapThreshold)
+        self.minimumDuration = max(0, minimumDuration)
+        self.minimumPointCount = max(1, minimumPointCount)
+    }
+
+    static func legacy(gapThreshold: TimeInterval) -> RecordingSessionInferenceConfiguration {
+        RecordingSessionInferenceConfiguration(
+            includesInferredSessions: true,
+            gapThreshold: gapThreshold,
+            minimumDuration: 0,
+            minimumPointCount: 1
+        )
+    }
+
+    static func stored(in defaults: UserDefaults = .standard) -> RecordingSessionInferenceConfiguration {
+        let includesInferredSessions: Bool
+        if defaults.object(forKey: includesInferredSessionsKey) == nil {
+            includesInferredSessions = defaultIncludesInferredSessions
+        } else {
+            includesInferredSessions = defaults.bool(forKey: includesInferredSessionsKey)
+        }
+
+        let gapPreset = RecordingSessionGapPreset(
+            rawValue: defaults.string(forKey: gapPresetKey) ?? defaultGapPreset.rawValue
+        ) ?? defaultGapPreset
+        let minimumDurationPreset = RecordingSessionMinimumDurationPreset(
+            rawValue: defaults.string(forKey: minimumDurationPresetKey) ?? defaultMinimumDurationPreset.rawValue
+        ) ?? defaultMinimumDurationPreset
+        let minimumPointCount: Int
+        if defaults.object(forKey: minimumPointCountKey) == nil {
+            minimumPointCount = defaultMinimumPointCountPreset.rawValue
+        } else {
+            minimumPointCount = max(1, defaults.integer(forKey: minimumPointCountKey))
+        }
+
+        return RecordingSessionInferenceConfiguration(
+            includesInferredSessions: includesInferredSessions,
+            gapThreshold: gapPreset.seconds,
+            minimumDuration: minimumDurationPreset.seconds,
+            minimumPointCount: minimumPointCount
+        )
+    }
+
+    func shouldIncludeInferredChunk(_ chunk: [LocationPoint], isActive: Bool) -> Bool {
+        guard includesInferredSessions, !chunk.isEmpty else { return false }
+        if isActive { return true }
+        guard chunk.count >= minimumPointCount else { return false }
+        guard minimumDuration > 0,
+              let first = chunk.first,
+              let last = chunk.last else {
+            return true
+        }
+        return last.timestamp.timeIntervalSince(first.timestamp) >= minimumDuration
     }
 }
 
@@ -273,8 +416,10 @@ enum RecordingSessionBuilder {
         points: [LocationPoint],
         activeTrackingStart: Date?,
         gapThreshold: TimeInterval = defaultGapThreshold,
+        inferenceConfiguration: RecordingSessionInferenceConfiguration? = nil,
         now: Date = Date()
     ) -> [RecordingSessionSummary] {
+        let resolvedInferenceConfiguration = inferenceConfiguration ?? .legacy(gapThreshold: gapThreshold)
         let orderedPoints = points.sorted { $0.timestamp < $1.timestamp }
         let orderedStoredSessions = storedSessions.sorted { lhs, rhs in
             if lhs.startedAt == rhs.startedAt { return lhs.id.uuidString < rhs.id.uuidString }
@@ -303,27 +448,33 @@ enum RecordingSessionBuilder {
         }
 
         let remainingPoints = orderedPoints.filter { !consumedPointIDs.contains($0.id) }
-        let inferredChunks = inferredPointChunks(
-            from: remainingPoints,
-            activeTrackingStart: activeTrackingStart,
-            gapThreshold: gapThreshold
-        )
+        if resolvedInferenceConfiguration.includesInferredSessions {
+            let inferredChunks = inferredPointChunks(
+                from: remainingPoints,
+                activeTrackingStart: activeTrackingStart,
+                gapThreshold: resolvedInferenceConfiguration.gapThreshold
+            )
 
-        for chunk in inferredChunks {
-            guard let first = chunk.first, let last = chunk.last else { continue }
-            let containsActiveTrackingStart = activeTrackingStart.map { activeStart in
-                first.timestamp >= activeStart || (first.timestamp < activeStart && last.timestamp >= activeStart)
-            } ?? false
+            for chunk in inferredChunks {
+                guard let first = chunk.first, let last = chunk.last else { continue }
+                let containsActiveTrackingStart = activeTrackingStart.map { activeStart in
+                    first.timestamp >= activeStart || (first.timestamp < activeStart && last.timestamp >= activeStart)
+                } ?? false
+                guard resolvedInferenceConfiguration.shouldIncludeInferredChunk(
+                    chunk,
+                    isActive: containsActiveTrackingStart
+                ) else { continue }
 
-            pending.append(PendingSessionSummary(
-                id: "inferred-\(first.id.uuidString)-\(last.id.uuidString)-\(chunk.count)",
-                storedSession: nil,
-                startedAt: first.timestamp,
-                endedAt: containsActiveTrackingStart ? nil : last.timestamp,
-                points: chunk,
-                isInferred: true,
-                isActive: containsActiveTrackingStart
-            ))
+                pending.append(PendingSessionSummary(
+                    id: "inferred-\(first.id.uuidString)-\(last.id.uuidString)-\(chunk.count)",
+                    storedSession: nil,
+                    startedAt: first.timestamp,
+                    endedAt: containsActiveTrackingStart ? nil : last.timestamp,
+                    points: chunk,
+                    isInferred: true,
+                    isActive: containsActiveTrackingStart
+                ))
+            }
         }
 
         let chronological = pending.sorted { lhs, rhs in
