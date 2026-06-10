@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import MapKit
+import Combine
 
 struct OutingsView: View {
     @Bindable var viewModel: LocationViewModel
@@ -385,17 +386,78 @@ private struct RecordingSessionCard: View {
 }
 
 private struct RecordingSessionDetailView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let session: RecordingSessionSummary
     @Bindable var viewModel: LocationViewModel
     let onShowOnMap: () -> Void
 
     @State private var nameText = ""
     @State private var notesText = ""
+    @State private var isRouteReplayEnabled = false
+    @State private var isRouteReplayPlaying = false
+    @State private var routeReplayProgress: Double = 1.0
+    @State private var roadSnappedRoute: RoadSnappedRoute?
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isNotesFieldFocused: Bool
 
+    @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
+    @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
+
+    private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
+
     private var visits: [Visit] {
         viewModel.visitsInDateRange(session.dateRange)
+    }
+
+    private var routeReplayPoints: [LocationPoint] {
+        session.distancePoints
+    }
+
+    private var canReplayRoute: Bool {
+        routeReplayPoints.count >= 2
+    }
+
+    private var routeReplaySnapshot: RouteReplaySnapshot? {
+        RouteReplayCalculator.snapshot(points: routeReplayPoints, progress: routeReplayProgress)
+    }
+
+    private var roadSnappingSourceFingerprint: Int {
+        RoadSnappedRouteBuilder.fingerprint(for: routeReplayPoints)
+    }
+
+    private var roadSnappingTaskKey: Int {
+        RoadSnappedRouteBuilder.taskFingerprint(
+            for: routeReplayPoints,
+            isEnabled: snapTravelPathToRoads
+        )
+    }
+
+    private var preparedRoadSnappedRoute: RoadSnappedRoute? {
+        guard snapTravelPathToRoads,
+              let roadSnappedRoute,
+              roadSnappedRoute.sourceFingerprint == roadSnappingSourceFingerprint,
+              roadSnappedRoute.sourcePointCount == routeReplayPoints.count else {
+            return nil
+        }
+
+        return roadSnappedRoute
+    }
+
+    private var activeRoadSnappedRoute: RoadSnappedRoute? {
+        guard let preparedRoadSnappedRoute,
+              preparedRoadSnappedRoute.hasSnappedSegments else {
+            return nil
+        }
+
+        return preparedRoadSnappedRoute
+    }
+
+    private var isPreparingRoadRoute: Bool {
+        snapTravelPathToRoads && canReplayRoute && preparedRoadSnappedRoute == nil && !showStraightLinePathSegments
+    }
+
+    private var shouldDrawStraightLinePath: Bool {
+        showStraightLinePathSegments || !snapTravelPathToRoads
     }
 
     private var usesMetricDistanceUnits: Bool {
@@ -435,6 +497,16 @@ private struct RecordingSessionDetailView: View {
         .onAppear {
             nameText = session.storedSession?.displayName(defaultName: session.defaultTitle) ?? session.title
             notesText = session.storedSession?.notes ?? ""
+            validateRouteReplayState()
+        }
+        .onDisappear {
+            isRouteReplayPlaying = false
+        }
+        .onReceive(routeReplayTimer) { _ in
+            advanceRouteReplayIfNeeded()
+        }
+        .task(id: roadSnappingTaskKey) {
+            await refreshRoadSnappedRoute()
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -485,14 +557,93 @@ private struct RecordingSessionDetailView: View {
         VStack(spacing: 0) {
             TESectionHeader(title: "PATH")
 
-            SessionPathMapView(points: session.distancePoints)
-                .frame(height: 260)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            SessionPathMapView(
+                points: routeReplayPoints,
+                replaySnapshot: isRouteReplayEnabled ? routeReplaySnapshot : nil,
+                roadSnappedRoute: activeRoadSnappedRoute,
+                showsStraightLineSegments: showStraightLinePathSegments,
+                showsRawPathFallback: shouldDrawStraightLinePath
+            )
+            .frame(height: 260)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay {
+                RoundedRectangle(cornerRadius: 4)
+                    .strokeBorder(TE.border, lineWidth: 1)
+            }
+            .padding(.horizontal, 16)
+
+            if isPreparingRoadRoute {
+                routeSnappingStatus
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+            }
+
+            if canReplayRoute {
+                routeReplayControls
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+            }
+        }
+    }
+
+    private var routeSnappingStatus: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .controlSize(.mini)
+                .tint(TE.accent)
+
+            Text("MATCHING PATH TO ROADS…")
+                .font(TE.mono(.caption2, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(TE.textMuted)
+
+            Spacer()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .background(TE.textMuted.opacity(0.08), in: RoundedRectangle(cornerRadius: 4))
+    }
+
+    @ViewBuilder
+    private var routeReplayControls: some View {
+        if isRouteReplayEnabled, let routeReplaySnapshot {
+            RouteReplayControl(
+                snapshot: routeReplaySnapshot,
+                pointCount: routeReplayPoints.count,
+                progress: Binding(
+                    get: { routeReplayProgress },
+                    set: { routeReplayProgress = RouteReplayCalculator.clampedProgress($0) }
+                ),
+                isPlaying: isRouteReplayPlaying,
+                onPlayPause: toggleRouteReplayPlayback,
+                onScrub: { isRouteReplayPlaying = false },
+                onClose: disableRouteReplay
+            )
+        } else {
+            Button(action: startRouteReplay) {
+                HStack(spacing: 8) {
+                    Image(systemName: "play.fill")
+                        .font(.caption.weight(.bold))
+
+                    Text("PLAY OUTING")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(2)
+                }
+                .foregroundStyle(TE.accent)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(TE.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4))
                 .overlay {
                     RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(TE.border, lineWidth: 1)
+                        .strokeBorder(TE.accent.opacity(0.35), lineWidth: 1)
                 }
-                .padding(.horizontal, 16)
+            }
+            .buttonStyle(.plain)
+            .disabled(isPreparingRoadRoute)
+            .opacity(isPreparingRoadRoute ? 0.55 : 1)
+            .accessibilityHint(isPreparingRoadRoute
+                ? "Wait for the outing path to be matched to roads."
+                : "Opens route replay controls for this outing.")
         }
     }
 
@@ -723,6 +874,103 @@ private struct RecordingSessionDetailView: View {
         )
         nameText = storedSession.displayName(defaultName: session.defaultTitle)
         notesText = storedSession.notes ?? ""
+    }
+
+    private func startRouteReplay() {
+        guard canReplayRoute else { return }
+        if isPreparingRoadRoute { return }
+        routeReplayProgress = 0
+        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
+            isRouteReplayEnabled = true
+        }
+        isRouteReplayPlaying = true
+    }
+
+    private func disableRouteReplay() {
+        isRouteReplayPlaying = false
+        routeReplayProgress = 1
+        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
+            isRouteReplayEnabled = false
+        }
+    }
+
+    private func toggleRouteReplayPlayback() {
+        guard canReplayRoute else {
+            disableRouteReplay()
+            return
+        }
+
+        if !isRouteReplayEnabled {
+            startRouteReplay()
+            return
+        }
+
+        if !isRouteReplayPlaying,
+           let currentIndex = RouteReplayCalculator.index(for: routeReplayProgress, pointCount: routeReplayPoints.count),
+           currentIndex >= routeReplayPoints.count - 1 {
+            routeReplayProgress = 0
+        }
+
+        isRouteReplayPlaying.toggle()
+    }
+
+    private func advanceRouteReplayIfNeeded() {
+        guard isRouteReplayEnabled, isRouteReplayPlaying else { return }
+        guard canReplayRoute,
+              let currentIndex = RouteReplayCalculator.index(for: routeReplayProgress, pointCount: routeReplayPoints.count) else {
+            disableRouteReplay()
+            return
+        }
+
+        let lastIndex = routeReplayPoints.count - 1
+        let nextIndex = min(currentIndex + RouteReplayCalculator.playbackStepSize(pointCount: routeReplayPoints.count), lastIndex)
+        routeReplayProgress = RouteReplayCalculator.progress(forIndex: nextIndex, pointCount: routeReplayPoints.count)
+
+        if nextIndex >= lastIndex {
+            isRouteReplayPlaying = false
+        }
+    }
+
+    private func validateRouteReplayState() {
+        routeReplayProgress = RouteReplayCalculator.clampedProgress(routeReplayProgress)
+
+        guard canReplayRoute else {
+            isRouteReplayPlaying = false
+            isRouteReplayEnabled = false
+            return
+        }
+
+        if isRouteReplayEnabled, routeReplaySnapshot == nil {
+            routeReplayProgress = 0
+        }
+    }
+
+    @MainActor
+    private func refreshRoadSnappedRoute() async {
+        guard snapTravelPathToRoads else {
+            roadSnappedRoute = nil
+            return
+        }
+
+        let sourcePoints = routeReplayPoints
+        guard sourcePoints.count >= 2 else {
+            roadSnappedRoute = nil
+            return
+        }
+
+        let fingerprint = RoadSnappedRouteBuilder.fingerprint(for: sourcePoints)
+        if roadSnappedRoute?.sourceFingerprint == fingerprint {
+            return
+        }
+
+        let snapPoints = sourcePoints.map { RoadSnappingPoint(point: $0) }
+        let route = await RoadSnappedRouteBuilder.buildRoute(
+            for: snapPoints,
+            sourceFingerprint: fingerprint
+        )
+
+        guard !Task.isCancelled else { return }
+        roadSnappedRoute = route
     }
 
     private func formattedSpeed(_ metersPerSecond: Double) -> String {

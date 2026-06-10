@@ -6,21 +6,52 @@ import MapKit
 struct SessionPathMapView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let points: [LocationPoint]
+    let replaySnapshot: RouteReplaySnapshot?
+    let roadSnappedRoute: RoadSnappedRoute?
+    let showsStraightLineSegments: Bool
+    let showsRawPathFallback: Bool
     @State private var cameraPosition: MapCameraPosition = .automatic
+
+    init(
+        points: [LocationPoint],
+        replaySnapshot: RouteReplaySnapshot? = nil,
+        roadSnappedRoute: RoadSnappedRoute? = nil,
+        showsStraightLineSegments: Bool = false,
+        showsRawPathFallback: Bool = true
+    ) {
+        self.points = points
+        self.replaySnapshot = replaySnapshot
+        self.roadSnappedRoute = roadSnappedRoute
+        self.showsStraightLineSegments = showsStraightLineSegments
+        self.showsRawPathFallback = showsRawPathFallback
+    }
     
     var body: some View {
         Map(position: $cameraPosition) {
-            // Draw path segments with gradient effect
-            if points.count >= 2 {
-                // Main path polyline
-                MapPolyline(coordinates: points.map { $0.coordinate })
+            // Draw road-snapped route segments when available. During replay,
+            // only draw the route up to the current playhead so scrubbing mirrors
+            // the main map without drawing straight chords between sparse dots.
+            if let roadSnappedRoute, roadSnappedRoute.hasSnappedSegments {
+                ForEach(displayedRoadSegments(from: roadSnappedRoute)) { segment in
+                    MapPolyline(coordinates: segment.coordinates)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.4), .blue],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
+                        )
+                }
+            } else if showsRawPathFallback, displayedPoints.count >= 2 {
+                MapPolyline(coordinates: displayedPoints.map { $0.coordinate })
                     .stroke(
                         LinearGradient(
                             colors: [.blue.opacity(0.4), .blue],
                             startPoint: .leading,
                             endPoint: .trailing
                         ),
-                        lineWidth: 4
+                        style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
                     )
             }
             
@@ -33,9 +64,13 @@ struct SessionPathMapView: View {
                     )
                 }
             }
-            
-            // End/Current marker (last point)
-            if let lastPoint = points.last, points.count > 1 {
+
+            if let replaySnapshot {
+                Annotation("Replay Position", coordinate: replaySnapshot.currentPoint.coordinate) {
+                    RouteReplayMarker(snapshot: replaySnapshot)
+                }
+            } else if let lastPoint = points.last, points.count > 1 {
+                // End/Current marker (last point)
                 Annotation("Current", coordinate: lastPoint.coordinate) {
                     CurrentLocationMarker(
                         accessibilityLabel: "Session path current location",
@@ -61,6 +96,9 @@ struct SessionPathMapView: View {
         .onChange(of: points.count) { _, _ in
             updateCameraPosition()
         }
+        .onChange(of: roadSnappedRoute?.sourceFingerprint) { _, _ in
+            updateCameraPosition()
+        }
         .onAppear {
             updateCameraPosition()
         }
@@ -68,24 +106,49 @@ struct SessionPathMapView: View {
         .accessibilityValue(sessionAccessibilitySummary)
     }
     
+    private var displayedPoints: [LocationPoint] {
+        replaySnapshot?.visiblePoints ?? points
+    }
+
+    private func displayedRoadSegments(from route: RoadSnappedRoute) -> [RoadSnappedRouteSegment] {
+        let segments: [RoadSnappedRouteSegment]
+        if let replaySnapshot {
+            segments = route.segments(upTo: replaySnapshot.index)
+        } else {
+            segments = route.segments
+        }
+
+        guard !showsStraightLineSegments else { return segments }
+        return segments.filter(\.isSnapped)
+    }
+
+    private var cameraCoordinates: [CLLocationCoordinate2D] {
+        if let roadSnappedRoute, roadSnappedRoute.hasSnappedSegments {
+            let routeCoordinates = roadSnappedRoute.segments.flatMap(\.coordinates)
+            if !routeCoordinates.isEmpty { return routeCoordinates }
+        }
+
+        return points.map { $0.coordinate }
+    }
+
     /// Returns intermediate points (every 10th point, excluding first and last)
     private var intermediatePoints: [LocationPoint] {
-        guard points.count > 2 else { return [] }
+        guard displayedPoints.count > 2 else { return [] }
         
-        let step = max(1, points.count / 10) // Show roughly 10 intermediate markers
+        let step = max(1, displayedPoints.count / 10) // Show roughly 10 intermediate markers
         var result: [LocationPoint] = []
         
-        for i in stride(from: step, to: points.count - 1, by: step) {
-            result.append(points[i])
+        for i in stride(from: step, to: displayedPoints.count - 1, by: step) {
+            result.append(displayedPoints[i])
         }
         
         return result
     }
     
     private func updateCameraPosition() {
-        guard !points.isEmpty else { return }
+        let coordinates = cameraCoordinates
+        guard !coordinates.isEmpty else { return }
         
-        let coordinates = points.map { $0.coordinate }
         let region = MKCoordinateRegion(coordinates: coordinates, padding: 1.3)
         
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
@@ -94,6 +157,10 @@ struct SessionPathMapView: View {
     }
 
     private var sessionAccessibilitySummary: String {
+        if let replaySnapshot {
+            return "Route replay. \(replaySnapshot.accessibilitySummary)"
+        }
+
         guard let first = points.first else {
             return "No path points."
         }

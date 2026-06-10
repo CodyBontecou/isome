@@ -16,9 +16,10 @@ struct LocationMapView: View {
     @State private var showTravelPath = true
     @State private var showPointMarkers = true
     @State private var showStartEndMarkers = true
-    @State private var showSessionPath = true
+    @State private var showSessionPath = false
     @State private var showVisitMarkers = true
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
+    @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
     @State private var isRouteReplayEnabled = false
     @State private var isRouteReplayPlaying = false
@@ -77,16 +78,19 @@ struct LocationMapView: View {
         )
     }
 
-    private var activeRoadSnappedRoute: RoadSnappedRoute? {
+    private var preparedRoadSnappedRoute: RoadSnappedRoute? {
         guard snapTravelPathToRoads,
               let roadSnappedRoute,
               roadSnappedRoute.sourceFingerprint == roadSnappingSourceFingerprint,
-              roadSnappedRoute.sourcePointCount == filteredPoints.count,
-              roadSnappedRoute.hasSnappedSegments else {
+              roadSnappedRoute.sourcePointCount == filteredPoints.count else {
             return nil
         }
 
         return roadSnappedRoute
+    }
+
+    private var shouldDrawStraightLinePath: Bool {
+        showStraightLinePathSegments || !snapTravelPathToRoads
     }
 
     var routeReplaySnapshot: RouteReplaySnapshot? {
@@ -98,6 +102,21 @@ struct LocationMapView: View {
             return routeReplaySnapshot.visiblePoints
         }
         return filteredPoints
+    }
+
+    private func displayedRoadSegments(
+        from route: RoadSnappedRoute,
+        upTo sourceIndex: Int? = nil
+    ) -> [RoadSnappedRouteSegment] {
+        let segments: [RoadSnappedRouteSegment]
+        if let sourceIndex {
+            segments = route.segments(upTo: sourceIndex)
+        } else {
+            segments = route.segments
+        }
+
+        guard !showStraightLinePathSegments else { return segments }
+        return segments.filter(\.isSnapped)
     }
     
     var spacedPoints: [LocationPoint] {
@@ -131,8 +150,8 @@ struct LocationMapView: View {
                     // MapKit route polylines so the path follows roads instead of drawing
                     // abrupt straight chords between disconnected dots.
                     if isRouteReplayEnabled, let routeReplaySnapshot {
-                        if let activeRoadSnappedRoute {
-                            ForEach(activeRoadSnappedRoute.segments(upTo: routeReplaySnapshot.index)) { segment in
+                        if let preparedRoadSnappedRoute {
+                            ForEach(displayedRoadSegments(from: preparedRoadSnappedRoute, upTo: routeReplaySnapshot.index)) { segment in
                                 MapPolyline(coordinates: segment.coordinates)
                                     .stroke(
                                         LinearGradient(
@@ -143,7 +162,7 @@ struct LocationMapView: View {
                                         style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
                                     )
                             }
-                        } else if routeReplaySnapshot.visiblePoints.count >= 2 {
+                        } else if shouldDrawStraightLinePath, routeReplaySnapshot.visiblePoints.count >= 2 {
                             let coordinates = routeReplaySnapshot.visiblePoints.map { $0.coordinate }
                             MapPolyline(coordinates: coordinates)
                                 .stroke(
@@ -156,8 +175,8 @@ struct LocationMapView: View {
                                 )
                         }
                     } else if showTravelPath && filteredPoints.count >= 2 {
-                        if let activeRoadSnappedRoute {
-                            ForEach(activeRoadSnappedRoute.segments) { segment in
+                        if let preparedRoadSnappedRoute {
+                            ForEach(displayedRoadSegments(from: preparedRoadSnappedRoute)) { segment in
                                 MapPolyline(coordinates: segment.coordinates)
                                     .stroke(
                                         LinearGradient(
@@ -168,7 +187,7 @@ struct LocationMapView: View {
                                         style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
                                     )
                             }
-                        } else {
+                        } else if shouldDrawStraightLinePath {
                             let coordinates = filteredPoints.map { $0.coordinate }
                             MapPolyline(coordinates: coordinates)
                                 .stroke(
@@ -329,6 +348,7 @@ struct LocationMapView: View {
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
+                                showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
                                 canReplayRoute: canReplayRoute,
                                 hasSessionPoints: !activeSessionPoints.isEmpty,
@@ -1701,6 +1721,7 @@ struct QuickFilterBar: View {
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
     @Binding var snapTravelPathToRoads: Bool
+    @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
     let canReplayRoute: Bool
     let hasSessionPoints: Bool
@@ -1709,6 +1730,7 @@ struct QuickFilterBar: View {
     let onToggleRouteReplay: () -> Void
     let onFitContent: () -> Void
     let onFitSession: (() -> Void)?
+    @State private var activeLayerHelp: LayerToggleHelp?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -1734,13 +1756,56 @@ struct QuickFilterBar: View {
 
                 PillSeparator()
 
-                LayerToggleButton(systemImage: "mappin.circle.fill", label: "Visit markers", isOn: $showVisitMarkers)
-                LayerToggleButton(systemImage: "point.topleft.down.to.point.bottomright.curvepath", label: "Travel path", isOn: $showTravelPath)
-                LayerToggleButton(systemImage: "road.lanes", label: "Snap path to roads", isOn: $snapTravelPathToRoads)
-                LayerToggleButton(systemImage: "smallcircle.filled.circle", label: "Point markers", isOn: $showPointMarkers)
-                LayerToggleButton(systemImage: "flag.fill", label: "Start and end markers", isOn: $showStartEndMarkers)
+                LayerToggleButton(
+                    systemImage: "mappin.circle.fill",
+                    label: "Visit markers",
+                    help: .visitMarkers,
+                    isOn: $showVisitMarkers,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "point.topleft.down.to.point.bottomright.curvepath",
+                    label: "Travel path",
+                    help: .travelPath,
+                    isOn: $showTravelPath,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "road.lanes",
+                    label: "Road-matched path",
+                    help: .roadMatchedPath,
+                    isOn: $snapTravelPathToRoads,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "line.diagonal",
+                    label: "Straight-line path gaps",
+                    help: .straightLinePathGaps,
+                    isOn: $showStraightLinePathSegments,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "smallcircle.filled.circle",
+                    label: "Point markers",
+                    help: .pointMarkers,
+                    isOn: $showPointMarkers,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "flag.fill",
+                    label: "Start and end markers",
+                    help: .startEndMarkers,
+                    isOn: $showStartEndMarkers,
+                    activeHelp: $activeLayerHelp
+                )
                 if hasSessionPoints {
-                    LayerToggleButton(systemImage: "waveform.path.ecg", label: "Active session path", isOn: $showSessionPath)
+                    LayerToggleButton(
+                        systemImage: "waveform.path.ecg",
+                        label: "Active session path",
+                        help: .activeSessionPath,
+                        isOn: $showSessionPath,
+                        activeHelp: $activeLayerHelp
+                    )
                 }
 
                 RouteReplayToggleButton(
@@ -1812,31 +1877,179 @@ struct PresetPill: View {
     }
 }
 
+struct LayerToggleHelp: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let message: String
+
+    static let visitMarkers = LayerToggleHelp(
+        id: "visit-markers",
+        title: "Visit markers",
+        message: "Shows places iso.me detected as stops in the selected date range. Hide them when you want an uncluttered route-only map."
+    )
+
+    static let travelPath = LayerToggleHelp(
+        id: "travel-path",
+        title: "Travel path",
+        message: "Draws your GPS trail for the selected date range. Turn it off to focus on visits, pins, or the live session."
+    )
+
+    static let roadMatchedPath = LayerToggleHelp(
+        id: "road-matched-path",
+        title: "Road-matched path",
+        message: "Uses Apple Maps routes to bend sparse GPS gaps onto nearby roads when possible, instead of drawing rough point-to-point lines."
+    )
+
+    static let straightLinePathGaps = LayerToggleHelp(
+        id: "straight-line-path-gaps",
+        title: "Straight-line path gaps",
+        message: "Reveals fallback straight segments wherever road matching has no confident route. Useful when you want to inspect raw gaps."
+    )
+
+    static let pointMarkers = LayerToggleHelp(
+        id: "point-markers",
+        title: "Point markers",
+        message: "Shows sampled GPS dots along the path. Tap a dot to inspect its timestamp, coordinates, and accuracy."
+    )
+
+    static let startEndMarkers = LayerToggleHelp(
+        id: "start-end-markers",
+        title: "Start and end markers",
+        message: "Marks the first and latest recorded points in the current date range so you can see where the route begins and ends."
+    )
+
+    static let activeSessionPath = LayerToggleHelp(
+        id: "active-session-path",
+        title: "Active session path",
+        message: "Overlays the route for the tracking session that is currently running, separate from the historical date-range path."
+    )
+}
+
+struct LayerToggleButtonLabel: View {
+    let systemImage: String
+    let isOn: Bool
+
+    private var iconColor: Color {
+        isOn ? Color.white : Color.primary.opacity(0.55)
+    }
+
+    private var fillColor: Color {
+        isOn ? TE.accent : Color.clear
+    }
+
+    var body: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .frame(width: 44, height: 44)
+            .foregroundStyle(iconColor)
+            .background(Circle().fill(fillColor))
+    }
+}
+
 struct LayerToggleButton: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let systemImage: String
     let label: String
+    let help: LayerToggleHelp
     @Binding var isOn: Bool
+    @Binding var activeHelp: LayerToggleHelp?
+
+    private var isShowingHelp: Binding<Bool> {
+        Binding(
+            get: { activeHelp?.id == help.id },
+            set: { isPresented in
+                guard !isPresented, activeHelp?.id == help.id else { return }
+                activeHelp = nil
+            }
+        )
+    }
 
     var body: some View {
-        Button {
-            withAnimation(reduceMotion ? nil : .spring(duration: 0.25)) {
-                isOn.toggle()
+        buttonContent
+            .popover(isPresented: isShowingHelp) {
+                popoverContent
             }
-        } label: {
-            Image(systemName: systemImage)
-                .font(.subheadline.weight(.semibold))
-                .frame(width: 44, height: 44)
-                .foregroundStyle(isOn ? Color.white : Color.primary.opacity(0.55))
-                .background {
-                    Circle()
-                        .fill(isOn ? TE.accent : Color.clear)
+            .sensoryFeedback(.selection, trigger: activeHelp?.id == help.id)
+    }
+
+    private var buttonContent: some View {
+        LayerToggleButtonLabel(systemImage: systemImage, isOn: isOn)
+            .contentShape(Circle())
+            .gesture(layerGesture)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label)
+            .accessibilityValue(isOn ? "Shown" : "Hidden")
+            .accessibilityHint("Double-tap to toggle this map layer. Touch and hold for an explanation.")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction {
+                toggleLayer()
+            }
+            .accessibilityAction(named: Text("Show Explanation")) {
+                activeHelp = help
+            }
+    }
+
+    private var popoverContent: some View {
+        LayerToggleHelpPopover(systemImage: systemImage, help: help, isOn: isOn)
+            .presentationCompactAdaptation(.popover)
+    }
+
+    private var layerGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.45)
+            .exclusively(before: TapGesture())
+            .onEnded { value in
+                switch value {
+                case .first(_):
+                    activeHelp = help
+                case .second(_):
+                    toggleLayer()
                 }
+            }
+    }
+
+    private func toggleLayer() {
+        activeHelp = nil
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.25)) {
+            isOn.toggle()
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
-        .accessibilityValue(isOn ? "Shown" : "Hidden")
-        .accessibilityHint("Toggles this map layer.")
+    }
+}
+
+struct LayerToggleHelpPopover: View {
+    let systemImage: String
+    let help: LayerToggleHelp
+    let isOn: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 34, height: 34)
+                    .background {
+                        Circle().fill(isOn ? TE.accent : TE.textMuted.opacity(0.55))
+                    }
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(help.title)
+                        .font(TE.mono(.subheadline, weight: .bold))
+                        .foregroundStyle(.primary)
+                    Text(isOn ? "CURRENTLY SHOWN" : "CURRENTLY HIDDEN")
+                        .font(TE.mono(.caption2, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(isOn ? TE.accent : TE.textMuted)
+                }
+            }
+
+            Text(help.message)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(width: 260, alignment: .leading)
+        .padding(14)
     }
 }
 
