@@ -8,6 +8,7 @@ struct SessionPathMapView: View {
     let points: [LocationPoint]
     let replaySnapshot: RouteReplaySnapshot?
     let roadSnappedRoute: RoadSnappedRoute?
+    let photoMoments: [PhotoMoment]
     let showsStraightLineSegments: Bool
     let showsRawPathFallback: Bool
     @State private var cameraPosition: MapCameraPosition = .automatic
@@ -16,12 +17,14 @@ struct SessionPathMapView: View {
         points: [LocationPoint],
         replaySnapshot: RouteReplaySnapshot? = nil,
         roadSnappedRoute: RoadSnappedRoute? = nil,
+        photoMoments: [PhotoMoment] = [],
         showsStraightLineSegments: Bool = false,
         showsRawPathFallback: Bool = true
     ) {
         self.points = points
         self.replaySnapshot = replaySnapshot
         self.roadSnappedRoute = roadSnappedRoute
+        self.photoMoments = photoMoments
         self.showsStraightLineSegments = showsStraightLineSegments
         self.showsRawPathFallback = showsRawPathFallback
     }
@@ -88,6 +91,12 @@ struct SessionPathMapView: View {
                         .accessibilityHidden(true)
                 }
             }
+
+            ForEach(photoMoments) { photo in
+                Annotation("Photo", coordinate: photo.coordinate) {
+                    PhotoMomentMiniMarker(photo: photo)
+                }
+            }
         }
         .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
         .mapControls {
@@ -97,6 +106,9 @@ struct SessionPathMapView: View {
             updateCameraPosition()
         }
         .onChange(of: roadSnappedRoute?.sourceFingerprint) { _, _ in
+            updateCameraPosition()
+        }
+        .onChange(of: photoMoments.count) { _, _ in
             updateCameraPosition()
         }
         .onAppear {
@@ -128,7 +140,7 @@ struct SessionPathMapView: View {
             if !routeCoordinates.isEmpty { return routeCoordinates }
         }
 
-        return points.map { $0.coordinate }
+        return points.map { $0.coordinate } + photoMoments.map { $0.coordinate }
     }
 
     /// Returns intermediate points (every 10th point, excluding first and last)
@@ -166,6 +178,9 @@ struct SessionPathMapView: View {
         }
 
         var parts = ["\(points.count) \(points.count == 1 ? "point" : "points")"]
+        if !photoMoments.isEmpty {
+            parts.append("\(photoMoments.count) \(photoMoments.count == 1 ? "geotagged photo" : "geotagged photos")")
+        }
         parts.append("Started \(first.accessibilityTimestamp)")
 
         if let last = points.last, points.count > 1 {

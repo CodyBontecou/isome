@@ -20,14 +20,17 @@ final class LocationViewModel {
     var todayVisits: [Visit] = []
     var allVisits: [Visit] = []
     var allRecordingSessions: [RecordingSession] = []
+    var photoLibraryAccessState: PhotoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
     /// Full point history. Loaded lazily for export so the map does not hydrate
     /// tens of thousands of SwiftData models on launch.
     var locationPoints: [LocationPoint] = []
     var todayLocationPoints: [LocationPoint] = []
     /// Downsampled points used by the map for the currently selected date range.
     var mapLocationPoints: [LocationPoint] = []
+    var mapPhotoMoments: [PhotoMoment] = []
     /// Raw count for the current map date range, before downsampling.
     var mapLocationPointCount: Int = 0
+    var mapPhotoMomentCount: Int = 0
     var totalLocationPointCount: Int = 0
 
     // UI State
@@ -44,6 +47,7 @@ final class LocationViewModel {
     private var cancellables = Set<AnyCancellable>()
 
     private let maximumMapPointCount = 2_500
+    private let maximumMapPhotoMomentCount = 500
     private let maximumRawMapPointFetchCount = 10_000
     private let mapFetchBatchSize = 500
 
@@ -63,6 +67,16 @@ final class LocationViewModel {
                 self?.handleSavedLocationPoints(points)
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .photoLibraryDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                Task { @MainActor in
+                    await self.syncPhotoMomentsIfAuthorized(in: self.mapDateRange)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Data Loading
@@ -72,6 +86,7 @@ final class LocationViewModel {
         loadAllVisits()
         loadRecordingSessions()
         refreshLocationPointCount()
+        refreshPhotoLibraryAuthorizationState()
         if locationManager.isTrackingEnabled {
             loadTodayLocationPoints()
         } else {
@@ -79,6 +94,7 @@ final class LocationViewModel {
             refreshDerivedPointCaches()
         }
         loadMapLocationPoints(in: mapDateRange)
+        loadMapPhotoMoments(in: mapDateRange)
     }
 
     func loadTodayVisits() {
@@ -184,6 +200,66 @@ final class LocationViewModel {
         }
     }
 
+    func refreshPhotoLibraryAuthorizationState() {
+        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        if photoLibraryAccessState.canRead {
+            PhotoLibraryManager.shared.startObservingChangesIfNeeded()
+        } else {
+            mapPhotoMomentCount = 0
+            mapPhotoMoments = []
+        }
+    }
+
+    func loadMapPhotoMoments(in range: ClosedRange<Date>? = nil) {
+        refreshPhotoLibraryAuthorizationState()
+        guard photoLibraryAccessState.canRead else { return }
+
+        let moments = fetchPhotoMoments(in: range ?? mapDateRange)
+        mapPhotoMomentCount = moments.count
+        mapPhotoMoments = downsample(photoMoments: moments, maxCount: maximumMapPhotoMomentCount)
+    }
+
+    func requestPhotoLibraryAccessAndSync(in range: ClosedRange<Date>? = nil) async {
+        photoLibraryAccessState = await PhotoLibraryManager.shared.requestAuthorization()
+        guard photoLibraryAccessState.canRead else {
+            mapPhotoMomentCount = 0
+            mapPhotoMoments = []
+            return
+        }
+
+        await syncPhotoMoments(in: range ?? mapDateRange)
+    }
+
+    func syncPhotoMomentsIfAuthorized(in range: ClosedRange<Date>? = nil) async {
+        refreshPhotoLibraryAuthorizationState()
+        guard photoLibraryAccessState.canRead else { return }
+        await syncPhotoMoments(in: range ?? mapDateRange)
+    }
+
+    func syncPhotoMoments(in range: ClosedRange<Date>) async {
+        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        guard photoLibraryAccessState.canRead else {
+            mapPhotoMomentCount = 0
+            mapPhotoMoments = []
+            return
+        }
+
+        let metadata = PhotoLibraryManager.shared.fetchGeotaggedPhotoMetadata(in: range)
+        upsertPhotoMoments(metadata)
+
+        if photoLibraryAccessState == .authorized {
+            deleteMissingPhotoMoments(in: range, keeping: Set(metadata.map(\.assetLocalIdentifier)))
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save photo moments: \(error)")
+        }
+
+        loadMapPhotoMoments(in: mapDateRange)
+    }
+
     func loadTodayLocationPoints() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: Date())
@@ -257,6 +333,70 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch location points: \(error)")
             return []
+        }
+    }
+
+    private func fetchPhotoMoments(in range: ClosedRange<Date>) -> [PhotoMoment] {
+        let start = range.lowerBound
+        let end = range.upperBound
+        let predicate = #Predicate<PhotoMoment> { photo in
+            photo.takenAt >= start && photo.takenAt <= end
+        }
+
+        var descriptor = FetchDescriptor<PhotoMoment>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.takenAt, order: .forward)]
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print("Failed to fetch photo moments: \(error)")
+            return []
+        }
+    }
+
+    private func fetchPhotoMoment(assetLocalIdentifier: String) -> PhotoMoment? {
+        let identifier = assetLocalIdentifier
+        let predicate = #Predicate<PhotoMoment> { photo in
+            photo.assetLocalIdentifier == identifier
+        }
+
+        var descriptor = FetchDescriptor<PhotoMoment>(predicate: predicate)
+        descriptor.fetchLimit = 1
+
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            print("Failed to fetch photo moment: \(error)")
+            return nil
+        }
+    }
+
+    private func upsertPhotoMoments(_ metadata: [PhotoAssetMetadata]) {
+        let now = Date()
+        for item in metadata {
+            if let existing = fetchPhotoMoment(assetLocalIdentifier: item.assetLocalIdentifier) {
+                existing.takenAt = item.takenAt
+                existing.latitude = item.latitude
+                existing.longitude = item.longitude
+                existing.coordinateSource = item.coordinateSource
+                existing.lastSyncedAt = now
+            } else {
+                modelContext.insert(PhotoMoment(
+                    assetLocalIdentifier: item.assetLocalIdentifier,
+                    takenAt: item.takenAt,
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    coordinateSource: item.coordinateSource,
+                    lastSyncedAt: now
+                ))
+            }
+        }
+    }
+
+    private func deleteMissingPhotoMoments(in range: ClosedRange<Date>, keeping identifiers: Set<String>) {
+        let cached = fetchPhotoMoments(in: range)
+        for photo in cached where photo.coordinateSource == .photoGPS && !identifiers.contains(photo.assetLocalIdentifier) {
+            modelContext.delete(photo)
         }
     }
 
@@ -348,6 +488,23 @@ final class LocationViewModel {
         for outputIndex in 0..<maxCount {
             let sourceIndex = Int((Double(outputIndex) * Double(lastIndex) / denominator).rounded())
             sampled.append(points[sourceIndex])
+        }
+
+        return sampled
+    }
+
+    private func downsample(photoMoments: [PhotoMoment], maxCount: Int) -> [PhotoMoment] {
+        guard photoMoments.count > maxCount else { return photoMoments }
+        guard maxCount > 1 else { return Array(photoMoments.prefix(max(0, maxCount))) }
+
+        let lastIndex = photoMoments.count - 1
+        let denominator = Double(maxCount - 1)
+        var sampled: [PhotoMoment] = []
+        sampled.reserveCapacity(maxCount)
+
+        for outputIndex in 0..<maxCount {
+            let sourceIndex = Int((Double(outputIndex) * Double(lastIndex) / denominator).rounded())
+            sampled.append(photoMoments[sourceIndex])
         }
 
         return sampled
@@ -476,6 +633,11 @@ final class LocationViewModel {
         fetchLocationPoints(in: range)
     }
 
+    func photosInDateRange(_ range: ClosedRange<Date>) -> [PhotoMoment] {
+        guard photoLibraryAccessState.canRead else { return [] }
+        return fetchPhotoMoments(in: range)
+    }
+
     func recordingSessionSummaries(
         gapThreshold: TimeInterval = RecordingSessionBuilder.defaultGapThreshold,
         inferenceConfiguration: RecordingSessionInferenceConfiguration? = nil
@@ -492,6 +654,7 @@ final class LocationViewModel {
     func focusMap(on session: RecordingSessionSummary) {
         mapDateRange = session.dateRange
         loadMapLocationPoints(in: session.dateRange)
+        loadMapPhotoMoments(in: session.dateRange)
         mapFocusRequest = MapSessionFocusRequest(
             sessionID: session.id,
             title: session.title,
@@ -696,13 +859,16 @@ final class LocationViewModel {
             try modelContext.delete(model: Visit.self)
             try modelContext.delete(model: LocationPoint.self)
             try modelContext.delete(model: RecordingSession.self)
+            try modelContext.delete(model: PhotoMoment.self)
             try modelContext.save()
             allRecordingSessions = []
             locationPoints = []
             todayLocationPoints = []
             mapLocationPoints = []
+            mapPhotoMoments = []
             sessionLocationPointsCache = []
             mapLocationPointCount = 0
+            mapPhotoMomentCount = 0
             totalLocationPointCount = 0
             todayDistanceTraveledCache = 0
             sessionDistanceTraveledCache = 0

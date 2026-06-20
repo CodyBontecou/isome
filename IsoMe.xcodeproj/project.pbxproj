@@ -13,6 +13,9 @@
 		AA110004212F000100000004 /* OnboardingAnalyticsFunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */; };
 		AA110005212F000100000005 /* OnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */; };
 		C0DE0001212F000100000001 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0001212F000000000001 /* RecordingSession.swift */; };
+		C0DE0101212F000100000101 /* PhotoMoment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0101212F000000000101 /* PhotoMoment.swift */; };
+		C0DE0102212F000100000102 /* PhotoLibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0102212F000000000102 /* PhotoLibraryManager.swift */; };
+		C0DE0103212F000100000103 /* PhotoMomentViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0103212F000000000103 /* PhotoMomentViews.swift */; };
 		C0DE0002212F000100000002 /* OutingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0002212F000000000002 /* OutingsView.swift */; };
 		E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */; };
 		E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000003 /* ExportKitIntegrationTests.swift */; };
@@ -175,6 +178,9 @@
 		AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsFunnel.swift; sourceTree = "<group>"; };
 		AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		C0DE0001212F000000000001 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
+		C0DE0101212F000000000101 /* PhotoMoment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMoment.swift; sourceTree = "<group>"; };
+		C0DE0102212F000000000102 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
+		C0DE0103212F000000000103 /* PhotoMomentViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMomentViews.swift; sourceTree = "<group>"; };
 		C0DE0002212F000000000002 /* OutingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutingsView.swift; sourceTree = "<group>"; };
 		E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeExportKitAdapter.swift; sourceTree = "<group>"; };
 		E9A100000000000000000003 /* ExportKitIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportKitIntegrationTests.swift; sourceTree = "<group>"; };
@@ -413,6 +419,7 @@
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
 				C0DE0001212F000000000001 /* RecordingSession.swift */,
+				C0DE0101212F000000000101 /* PhotoMoment.swift */,
 				A100001A212F00000000001A /* LocationActivityAttributes.swift */,
 				A1000030212F000000000030 /* ExportOptions.swift */,
 				F1000001212F000000000001 /* FilenameTemplate.swift */,
@@ -427,6 +434,7 @@
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
+				C0DE0102212F000000000102 /* PhotoLibraryManager.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
 				E1000002212F000000000002 /* LogManager.swift */,
@@ -445,6 +453,7 @@
 				A1000002212F000000000002 /* ContentView.swift */,
 				BEE50001212F000000000001 /* ReleaseNotes.swift */,
 				A100000B212F00000000000B /* MapView.swift */,
+				C0DE0103212F000000000103 /* PhotoMomentViews.swift */,
 				C0DE0002212F000000000002 /* OutingsView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
@@ -773,8 +782,10 @@
 				A1000003212F000100000003 /* Visit.swift in Sources */,
 				A1000004212F000100000004 /* LocationPoint.swift in Sources */,
 				C0DE0001212F000100000001 /* RecordingSession.swift in Sources */,
+				C0DE0101212F000100000101 /* PhotoMoment.swift in Sources */,
 				A1000005212F000100000005 /* LocationManager.swift in Sources */,
 				A1000006212F000100000006 /* GeocodingService.swift in Sources */,
+				C0DE0102212F000100000102 /* PhotoLibraryManager.swift in Sources */,
 				A1000007212F000100000007 /* ExportService.swift in Sources */,
 				E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */,
 				A1000030212F000100000030 /* ExportOptions.swift in Sources */,
@@ -782,6 +793,7 @@
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
+				C0DE0103212F000100000103 /* PhotoMomentViews.swift in Sources */,
 				C0DE0002212F000100000002 /* OutingsView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,

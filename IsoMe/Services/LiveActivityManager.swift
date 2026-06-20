@@ -206,30 +206,37 @@ final class LiveActivityManager: ObservableObject {
         isGeneratingSnapshot = true
 
         let coordinates = trackedCoordinates
+        let snapshotURL = Self.mapSnapshotURL
 
-        Task.detached { [weak self] in
-            let snapshotImage = await Self.renderMapSnapshot(coordinates: coordinates)
+        Task.detached {
+            var didWriteSnapshot = false
 
-            await MainActor.run {
-                guard let self else { return }
-                self.isGeneratingSnapshot = false
-
-                guard let image = snapshotImage,
-                      let data = image.pngData(),
-                      let url = Self.mapSnapshotURL else { return }
-
+            if let snapshotImage = await Self.renderMapSnapshot(coordinates: coordinates),
+               let data = snapshotImage.pngData(),
+               let url = snapshotURL {
                 do {
                     try data.write(to: url, options: .atomic)
-                    self.mapSnapshotVersion += 1
-                    // Push the updated version to the Live Activity
-                    self.updateActivity(location: nil)
+                    didWriteSnapshot = true
                 } catch {
                     #if DEBUG
                     print("❌ Failed to write map snapshot: \(error)")
                     #endif
                 }
             }
+
+            await Self.finishMapSnapshotGeneration(didWriteSnapshot: didWriteSnapshot)
         }
+    }
+
+    @MainActor
+    private static func finishMapSnapshotGeneration(didWriteSnapshot: Bool) {
+        let manager = Self.shared
+        manager.isGeneratingSnapshot = false
+
+        guard didWriteSnapshot else { return }
+        manager.mapSnapshotVersion += 1
+        // Push the updated version to the Live Activity
+        manager.updateActivity(location: nil)
     }
 
     private static func renderMapSnapshot(coordinates: [CLLocationCoordinate2D]) async -> UIImage? {

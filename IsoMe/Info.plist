@@ -26,6 +26,9 @@
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>iso.me needs location access to show your current location and record visits when the app is open.</string>
 
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>iso.me can connect geotagged photos to your private map and outings. Photo files stay in your Photos library; iso.me stores only local metadata on-device.</string>
+
     <key>UIBackgroundModes</key>
     <array>
         <string>location</string>

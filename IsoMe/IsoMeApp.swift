@@ -10,7 +10,8 @@ struct IsoMeApp: App {
         let schema = Schema([
             Visit.self,
             LocationPoint.self,
-            RecordingSession.self
+            RecordingSession.self,
+            PhotoMoment.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,

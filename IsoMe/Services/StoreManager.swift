@@ -19,13 +19,13 @@ final class StoreManager: ObservableObject {
     private init() {
         #if DEBUG
         isPurchased = true
-        return
-        #endif
+        #else
         transactionListener = listenForTransactions()
         Task {
             await loadProduct()
             await checkEntitlement()
         }
+        #endif
     }
 
     deinit {
@@ -118,18 +118,21 @@ final class StoreManager: ObservableObject {
 
     private func listenForTransactions() -> Task<Void, Never> {
         let productID = Self.lifetimeProductID
-        return Task.detached { [weak self] in
+        return Task.detached {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()
                     if transaction.productID == productID {
-                        await MainActor.run {
-                            self?.isPurchased = transaction.revocationDate == nil
-                        }
+                        await Self.updatePurchasedState(transaction.revocationDate == nil)
                     }
                 }
             }
         }
+    }
+
+    @MainActor
+    private static func updatePurchasedState(_ isPurchased: Bool) {
+        shared.isPurchased = isPurchased
     }
 
     // MARK: - Verification

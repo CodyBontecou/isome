@@ -379,7 +379,7 @@ final class LocationViewModelPointScalingTests: XCTestCase {
     }
 
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self])
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: true,

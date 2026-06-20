@@ -400,6 +400,8 @@ private struct RecordingSessionDetailView: View {
     @State private var routeReplayProgress: Double = 1.0
     @State private var roadSnappedRoute: RoadSnappedRoute?
     @State private var showingPaywall = false
+    @State private var isSyncingPhotos = false
+    @State private var selectedPhotoMoment: PhotoMoment?
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isNotesFieldFocused: Bool
 
@@ -408,11 +410,16 @@ private struct RecordingSessionDetailView: View {
     @AppStorage("outingDetailExportFormat") private var outingDetailExportFormatToken = ExportFormat.markdown.token
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
+    @AppStorage("showPhotoMarkers") private var showPhotoMarkersOnMap = false
 
     private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
 
     private var visits: [Visit] {
         viewModel.visitsInDateRange(session.dateRange)
+    }
+
+    private var photoMoments: [PhotoMoment] {
+        viewModel.photosInDateRange(session.dateRange)
     }
 
     private var routeReplayPoints: [LocationPoint] {
@@ -493,6 +500,8 @@ private struct RecordingSessionDetailView: View {
 
                 visitsSection
 
+                photoMomentsSection
+
                 actionSection
             }
             .padding(.bottom, 28)
@@ -504,12 +513,17 @@ private struct RecordingSessionDetailView: View {
             nameText = session.storedSession?.displayName(defaultName: session.defaultTitle) ?? session.title
             notesText = session.storedSession?.notes ?? ""
             validateRouteReplayState()
+            syncPhotoMomentsIfAllowed()
         }
         .onDisappear {
             isRouteReplayPlaying = false
         }
         .onReceive(routeReplayTimer) { _ in
             advanceRouteReplayIfNeeded()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
+            viewModel.refreshPhotoLibraryAuthorizationState()
+            syncPhotoMomentsIfAllowed()
         }
         .task(id: roadSnappingTaskKey) {
             await refreshRoadSnappedRoute()
@@ -526,6 +540,10 @@ private struct RecordingSessionDetailView: View {
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(storeManager: storeManager, context: .export)
+        }
+        .sheet(item: $selectedPhotoMoment) { photo in
+            PhotoMomentQuickView(photo: photo)
+                .presentationDetents([.medium, .large])
         }
     }
 
@@ -570,6 +588,7 @@ private struct RecordingSessionDetailView: View {
                 points: routeReplayPoints,
                 replaySnapshot: isRouteReplayEnabled ? routeReplaySnapshot : nil,
                 roadSnappedRoute: activeRoadSnappedRoute,
+                photoMoments: photoMoments,
                 showsStraightLineSegments: showStraightLinePathSegments,
                 showsRawPathFallback: shouldDrawStraightLinePath
             )
@@ -828,6 +847,173 @@ private struct RecordingSessionDetailView: View {
         }
     }
 
+    private var photoMomentsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "PHOTOS")
+
+            TECard {
+                VStack(spacing: 0) {
+                    if !viewModel.photoLibraryAccessState.canRead {
+                        photoAccessPromptRow
+                    } else if photoMoments.isEmpty {
+                        emptyPhotosRow
+                    } else {
+                        photoStripRow
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: photoSectionFooterText)
+        }
+    }
+
+    private var photoAccessPromptRow: some View {
+        TERow(showDivider: false) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "camera.fill")
+                        .foregroundStyle(TE.accent)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("CONNECT PHOTOS")
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(1.2)
+                            .foregroundStyle(TE.textPrimary)
+
+                        Text(viewModel.photoLibraryAccessState.explanation)
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                Button(action: requestPhotoAccessForOuting) {
+                    HStack(spacing: 8) {
+                        if isSyncingPhotos {
+                            ProgressView()
+                                .controlSize(.mini)
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.caption.weight(.bold))
+                        }
+
+                        Text(isSyncingPhotos ? "SYNCING PHOTOS" : "CONNECT PHOTOS")
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(2)
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 42)
+                    .background(TE.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+                .disabled(isSyncingPhotos)
+            }
+        }
+    }
+
+    private var emptyPhotosRow: some View {
+        TERow(showDivider: false) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: isSyncingPhotos ? "arrow.triangle.2.circlepath" : "photo")
+                    .foregroundStyle(TE.textMuted)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(isSyncingPhotos ? "SYNCING PHOTOS…" : "NO GEOTAGGED PHOTOS")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(1.2)
+                        .foregroundStyle(TE.textPrimary)
+
+                    Text(isSyncingPhotos ? "Checking your Photos library for pictures taken during this outing." : "No photos with GPS metadata were found during this outing.")
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(TE.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if !isSyncingPhotos {
+                        Button("REFRESH PHOTOS") {
+                            syncPhotoMomentsIfAllowed()
+                        }
+                        .font(TE.mono(.caption2, weight: .bold))
+                        .tracking(1.2)
+                        .foregroundStyle(TE.accent)
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    private var photoStripRow: some View {
+        TERow(showDivider: false) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "camera.fill")
+                        .foregroundStyle(TE.accent)
+                        .accessibilityHidden(true)
+
+                    Text("\(photoMoments.count) GEOTAGGED \(photoMoments.count == 1 ? "PHOTO" : "PHOTOS")")
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(1.2)
+                        .foregroundStyle(TE.textPrimary)
+
+                    Spacer()
+
+                    Button("REFRESH") {
+                        syncPhotoMomentsIfAllowed()
+                    }
+                    .font(TE.mono(.caption2, weight: .bold))
+                    .tracking(1.2)
+                    .foregroundStyle(TE.accent)
+                    .buttonStyle(.plain)
+                    .disabled(isSyncingPhotos)
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(photoMoments) { photo in
+                            Button {
+                                selectedPhotoMoment = photo
+                            } label: {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    PhotoThumbnailView(
+                                        assetLocalIdentifier: photo.assetLocalIdentifier,
+                                        targetPointSize: CGSize(width: 88, height: 88),
+                                        cornerRadius: 5
+                                    )
+
+                                    Text(photo.takenAt.formatted(date: .omitted, time: .shortened))
+                                        .font(TE.mono(.caption2, weight: .medium))
+                                        .foregroundStyle(TE.textMuted)
+                                        .monospacedDigit()
+                                        .lineLimit(1)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(photo.accessibilityLabel)
+                            .accessibilityValue(photo.accessibilityValue)
+                        }
+                    }
+                    .padding(.trailing, 8)
+                }
+            }
+        }
+    }
+
+    private var photoSectionFooterText: LocalizedStringKey {
+        if viewModel.photoLibraryAccessState == .limited {
+            return "Limited Photos access is enabled, so only selected photos can appear."
+        }
+        if viewModel.photoLibraryAccessState.canRead {
+            return "Photos are matched to outings by timestamp and shown at their geotagged location. Photo files stay in Photos."
+        }
+        return "Connecting Photos lets iso.me show geotagged pictures taken during this outing."
+    }
+
     private var actionSection: some View {
         VStack(spacing: 0) {
             TESectionHeader(title: "ACTIONS")
@@ -871,6 +1057,7 @@ private struct RecordingSessionDetailView: View {
 
             VStack(spacing: 10) {
                 Button {
+                    showPhotoMarkersOnMap = true
                     viewModel.focusMap(on: session)
                     onShowOnMap()
                 } label: {
@@ -971,6 +1158,26 @@ private struct RecordingSessionDetailView: View {
         )
         nameText = storedSession.displayName(defaultName: session.defaultTitle)
         notesText = storedSession.notes ?? ""
+    }
+
+    private func requestPhotoAccessForOuting() {
+        guard !isSyncingPhotos else { return }
+        Task {
+            isSyncingPhotos = true
+            await viewModel.requestPhotoLibraryAccessAndSync(in: session.dateRange)
+            isSyncingPhotos = false
+        }
+    }
+
+    private func syncPhotoMomentsIfAllowed() {
+        guard !isSyncingPhotos else { return }
+        Task {
+            viewModel.refreshPhotoLibraryAuthorizationState()
+            guard viewModel.photoLibraryAccessState.canRead else { return }
+            isSyncingPhotos = true
+            await viewModel.syncPhotoMomentsIfAuthorized(in: session.dateRange)
+            isSyncingPhotos = false
+        }
     }
 
     private func exportOuting() {
@@ -1177,7 +1384,7 @@ private struct OutingStatChip: View {
 #Preview {
     OutingsView(
         viewModel: LocationViewModel(
-            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self).mainContext,
+            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
             locationManager: LocationManager()
         ),
         onShowOnMap: {}

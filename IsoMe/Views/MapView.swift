@@ -8,6 +8,7 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
+    @State private var selectedPhotoMoment: PhotoMoment?
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
@@ -18,6 +19,7 @@ struct LocationMapView: View {
     @State private var showStartEndMarkers = true
     @State private var showSessionPath = false
     @State private var showVisitMarkers = true
+    @AppStorage("showPhotoMarkers") private var showPhotoMarkers = false
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
@@ -59,6 +61,11 @@ struct LocationMapView: View {
     var filteredPoints: [LocationPoint] {
         let points = viewModel.mapLocationPoints
         return showOutliers ? points : points.filter { !$0.isOutlier }
+    }
+
+    var filteredPhotoMoments: [PhotoMoment] {
+        guard showPhotoMarkers, viewModel.photoLibraryAccessState.canRead else { return [] }
+        return viewModel.mapPhotoMoments
     }
 
     var activeSessionPoints: [LocationPoint] {
@@ -288,6 +295,21 @@ struct LocationMapView: View {
                             .tag(visit)
                         }
                     }
+
+                    // Photo markers
+                    ForEach(filteredPhotoMoments) { photo in
+                        Annotation(
+                            "Photo",
+                            coordinate: photo.coordinate,
+                            anchor: .bottom
+                        ) {
+                            PhotoMomentMapMarker(
+                                photo: photo,
+                                isSelected: selectedPhotoMoment?.id == photo.id,
+                                action: { selectedPhotoMoment = photo }
+                            )
+                        }
+                    }
                 }
                 .mapControls {
                     MapUserLocationButton()
@@ -355,6 +377,7 @@ struct LocationMapView: View {
                                 showStartEndMarkers: $showStartEndMarkers,
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
+                                showPhotoMarkers: $showPhotoMarkers,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
                                 showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
@@ -365,6 +388,8 @@ struct LocationMapView: View {
                                     let range = preset.range()
                                     viewModel.mapDateRange = range
                                     viewModel.loadMapLocationPoints(in: range)
+                                    viewModel.loadMapPhotoMoments(in: range)
+                                    syncPhotoMomentsForCurrentRangeIfAuthorized()
                                     validateRouteReplayState()
                                 },
                                 onSelectCustom: {
@@ -409,12 +434,18 @@ struct LocationMapView: View {
                     onApply: {
                         activePreset = nil
                         viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                        viewModel.loadMapPhotoMoments(in: viewModel.mapDateRange)
+                        syncPhotoMomentsForCurrentRangeIfAuthorized()
                         validateRouteReplayState()
                     }
                 )
             }
             .sheet(item: $selectedVisit) { visit in
                 VisitQuickView(visit: visit, viewModel: viewModel)
+                    .presentationDetents([.medium, .large])
+            }
+            .sheet(item: $selectedPhotoMoment) { photo in
+                PhotoMomentQuickView(photo: photo)
                     .presentationDetents([.medium, .large])
             }
             .onAppear {
@@ -424,11 +455,14 @@ struct LocationMapView: View {
                         let range = activePreset.range()
                         viewModel.mapDateRange = range
                         viewModel.loadMapLocationPoints(in: range)
+                        viewModel.loadMapPhotoMoments(in: range)
                     } else {
                         viewModel.loadMapLocationPoints(in: viewModel.mapDateRange)
+                        viewModel.loadMapPhotoMoments(in: viewModel.mapDateRange)
                     }
                 }
 
+                syncPhotoMomentsForCurrentRangeIfAuthorized()
                 validateRouteReplayState()
 
                 if locationManager.isTrackingEnabled {
@@ -441,6 +475,18 @@ struct LocationMapView: View {
             }
             .onReceive(routeReplayTimer) { _ in
                 advanceRouteReplayIfNeeded()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
+                viewModel.refreshPhotoLibraryAuthorizationState()
+                viewModel.loadMapPhotoMoments(in: viewModel.mapDateRange)
+                syncPhotoMomentsForCurrentRangeIfAuthorized()
+            }
+            .onChange(of: showPhotoMarkers) { _, isEnabled in
+                if isEnabled {
+                    requestPhotoMomentsForCurrentRange()
+                } else {
+                    selectedPhotoMoment = nil
+                }
             }
             .onChange(of: filteredPoints.count) { _, _ in
                 validateRouteReplayState()
@@ -476,13 +522,17 @@ struct LocationMapView: View {
         activePreset = nil
         viewModel.mapDateRange = request.range
         viewModel.loadMapLocationPoints(in: request.range)
+        viewModel.loadMapPhotoMoments(in: request.range)
+        syncPhotoMomentsForCurrentRangeIfAuthorized()
         validateRouteReplayState()
         fitMapToContent()
         return true
     }
 
     private func fitMapToContent() {
-        let coordinates = filteredVisits.map { $0.coordinate } + filteredPoints.map { $0.coordinate }
+        let coordinates = filteredVisits.map { $0.coordinate }
+            + filteredPoints.map { $0.coordinate }
+            + filteredPhotoMoments.map { $0.coordinate }
         guard !coordinates.isEmpty else { return }
 
         let region = MKCoordinateRegion(coordinates: coordinates)
@@ -500,6 +550,23 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
+    }
+
+    private func requestPhotoMomentsForCurrentRange() {
+        Task {
+            if viewModel.photoLibraryAccessState == .notDetermined {
+                await viewModel.requestPhotoLibraryAccessAndSync(in: viewModel.mapDateRange)
+            } else {
+                await viewModel.syncPhotoMomentsIfAuthorized(in: viewModel.mapDateRange)
+            }
+        }
+    }
+
+    private func syncPhotoMomentsForCurrentRangeIfAuthorized() {
+        guard showPhotoMarkers else { return }
+        Task {
+            await viewModel.syncPhotoMomentsIfAuthorized(in: viewModel.mapDateRange)
+        }
     }
 
     private func dismissDiscordPromo() {
@@ -648,6 +715,14 @@ struct LocationMapView: View {
             parts.append("Showing \(filteredPoints.count) of \(viewModel.mapLocationPointCount) path points")
         } else {
             parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+        }
+
+        if showPhotoMarkers {
+            if viewModel.mapPhotoMomentCount > filteredPhotoMoments.count {
+                parts.append("Showing \(filteredPhotoMoments.count) of \(viewModel.mapPhotoMomentCount) geotagged photos")
+            } else {
+                parts.append("\(filteredPhotoMoments.count) \(filteredPhotoMoments.count == 1 ? "geotagged photo" : "geotagged photos")")
+            }
         }
 
         if isRouteReplayEnabled, let routeReplaySnapshot {
@@ -1728,6 +1803,7 @@ struct QuickFilterBar: View {
     @Binding var showStartEndMarkers: Bool
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
+    @Binding var showPhotoMarkers: Bool
     @Binding var snapTravelPathToRoads: Bool
     @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
@@ -1789,6 +1865,13 @@ struct QuickFilterBar: View {
                     label: "Visit markers",
                     help: .visitMarkers,
                     isOn: $showVisitMarkers,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "camera.fill",
+                    label: "Photo markers",
+                    help: .photoMarkers,
+                    isOn: $showPhotoMarkers,
                     activeHelp: $activeLayerHelp
                 )
                 LayerToggleButton(
@@ -1937,6 +2020,12 @@ struct LayerToggleHelp: Identifiable, Equatable {
         id: "travel-path",
         title: "Travel path",
         message: "Draws your GPS trail for the selected date range. Turn it off to focus on visits, pins, or the live session."
+    )
+
+    static let photoMarkers = LayerToggleHelp(
+        id: "photo-markers",
+        title: "Photo markers",
+        message: "Shows geotagged photos from your Photos library for the selected date range. Photo files stay in Photos; iso.me keeps only local metadata."
     )
 
     static let roadMatchedPath = LayerToggleHelp(
@@ -2690,7 +2779,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
         locationManager: LocationManager()
     ))
 }

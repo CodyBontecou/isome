@@ -1297,5 +1297,5 @@ private enum ScreenshotFeatureDemoSeeder {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self], inMemory: true)
+        .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self], inMemory: true)
 }
