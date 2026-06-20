@@ -5,6 +5,9 @@ node_modules/
 .wrangler/
 .claude/
 
+# Generated local artifacts (captures, renders, zips, debug screenshots).
+artifacts/
+
 # asc CLI build output (xcarchives, simulator builds) and release scratch.
 .asc/artifacts/
 .asc/release/

@@ -391,15 +391,21 @@ private struct RecordingSessionDetailView: View {
     @Bindable var viewModel: LocationViewModel
     let onShowOnMap: () -> Void
 
+    @StateObject private var exportFolderManager = ExportFolderManager.shared
+    @ObservedObject private var storeManager = StoreManager.shared
     @State private var nameText = ""
     @State private var notesText = ""
     @State private var isRouteReplayEnabled = false
     @State private var isRouteReplayPlaying = false
     @State private var routeReplayProgress: Double = 1.0
     @State private var roadSnappedRoute: RoadSnappedRoute?
+    @State private var showingPaywall = false
     @FocusState private var isNameFieldFocused: Bool
     @FocusState private var isNotesFieldFocused: Bool
 
+    @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
+    @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
+    @AppStorage("outingDetailExportFormat") private var outingDetailExportFormatToken = ExportFormat.markdown.token
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
 
@@ -517,6 +523,9 @@ private struct RecordingSessionDetailView: View {
                     saveEditableDetails()
                 }
             }
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView(storeManager: storeManager)
         }
     }
 
@@ -823,26 +832,114 @@ private struct RecordingSessionDetailView: View {
         VStack(spacing: 0) {
             TESectionHeader(title: "ACTIONS")
 
-            Button {
-                viewModel.focusMap(on: session)
-                onShowOnMap()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "map.fill")
-                        .font(.caption.weight(.bold))
-                    Text("SHOW ON MAP")
-                        .font(TE.mono(.caption, weight: .bold))
-                        .tracking(2)
+            TECard {
+                TERow(showDivider: false) {
+                    HStack(spacing: 12) {
+                        Text("FORMAT")
+                            .font(TE.mono(.caption, weight: .medium))
+                            .tracking(1)
+                            .foregroundStyle(TE.textPrimary)
+
+                        Spacer()
+
+                        Menu {
+                            ForEach(ExportFormat.allCases, id: \.token) { format in
+                                Button {
+                                    outingDetailExportFormatToken = format.token
+                                } label: {
+                                    if outingExportFormat == format {
+                                        Label(format.displayName, systemImage: "checkmark")
+                                    } else {
+                                        Text(format.displayName)
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text(outingExportFormat.displayName.uppercased())
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.caption2.weight(.bold))
+                            }
+                            .font(TE.mono(.caption2, weight: .semibold))
+                            .tracking(1)
+                            .foregroundStyle(TE.accent)
+                        }
+                    }
                 }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(TE.accent)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal, 16)
+
+            VStack(spacing: 10) {
+                Button {
+                    viewModel.focusMap(on: session)
+                    onShowOnMap()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "map.fill")
+                            .font(.caption.weight(.bold))
+                        Text("SHOW ON MAP")
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(2)
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(TE.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    exportOuting()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: exportFolderManager.hasDefaultFolder && useDefaultExportFolder ? "square.and.arrow.down" : "square.and.arrow.up")
+                            .font(.caption.weight(.bold))
+                        Text(exportButtonTitle)
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(2)
+                    }
+                    .foregroundStyle(storeManager.isPurchased ? TE.accent : TE.textMuted)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 46)
+                    .background(storeManager.isPurchased ? TE.accent.opacity(0.08) : TE.textMuted.opacity(0.08))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(storeManager.isPurchased ? TE.accent.opacity(0.5) : TE.textMuted.opacity(0.25), lineWidth: 1)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Exports this outing as a Markdown page with YAML properties.")
+            }
             .padding(.horizontal, 16)
             .padding(.top, 2)
+
+            TESectionFooter(text: outingExportFooterText)
+        }
+    }
+
+    private var outingExportFormat: ExportFormat {
+        ExportFormat(exportKitFormatID: outingDetailExportFormatToken) ?? .markdown
+    }
+
+    private var exportButtonTitle: String {
+        if !storeManager.isPurchased { return "UNLOCK EXPORT" }
+        let formatName = outingExportFormat.displayName.uppercased()
+        if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+            return "EXPORT \(formatName)"
+        }
+        return "SHARE \(formatName)"
+    }
+
+    private var outingExportFooterText: LocalizedStringKey {
+        switch outingExportFormat {
+        case .markdown:
+            return "Markdown exports this outing as a page with YAML front matter, visits, and route points."
+        case .json, .csv:
+            return "This format exports an outing summary with timing, distance, visit count, notes, and coordinates."
+        case .gpx, .kml, .geojson, .owntracks, .overland:
+            return "This route format exports the outing's GPS route points. Notes and visit rows are not represented."
         }
     }
 
@@ -874,6 +971,50 @@ private struct RecordingSessionDetailView: View {
         )
         nameText = storedSession.displayName(defaultName: session.defaultTitle)
         notesText = storedSession.notes ?? ""
+    }
+
+    private func exportOuting() {
+        guard storeManager.isPurchased else {
+            showingPaywall = true
+            return
+        }
+
+        saveEditableDetails()
+
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = outingExportFormat
+        options.splitByDay = true
+
+        do {
+            if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
+                let urls = try ExportService.saveOutingToDefaultFolder(
+                    session,
+                    visits: visits,
+                    options: options,
+                    filenamePattern: filenamePattern
+                )
+                ExportToastCenter.shared.show(.success(savedURLs: urls))
+                AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
+            } else {
+                try ExportService.shareOuting(
+                    session,
+                    visits: visits,
+                    options: options,
+                    filenamePattern: filenamePattern,
+                    completion: { completed in
+                        guard completed else { return }
+                        Task { @MainActor in
+                            AppReviewPromptCoordinator.shared.recordSuccessfulFileExport()
+                        }
+                    }
+                )
+                ExportToastCenter.shared.show(.success(message: "Share sheet opened"))
+            }
+        } catch {
+            viewModel.exportError = error.localizedDescription
+            ExportToastCenter.shared.show(.failure(message: error.localizedDescription))
+        }
     }
 
     private func startRouteReplay() {

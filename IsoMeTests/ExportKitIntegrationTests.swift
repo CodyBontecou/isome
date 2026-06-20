@@ -208,6 +208,127 @@ final class ExportKitIntegrationTests: XCTestCase {
         XCTAssertThrowsError(try writer.write(traversalFile, to: destination, mode: .overwrite))
     }
 
+    func testOutingMarkdownSplitCreatesOneYamlPagePerOuting() throws {
+        let morning = RecordingSession(
+            startedAt: fixtureDate(hour: 9),
+            endedAt: fixtureDate(hour: 10, minute: 30),
+            customName: "Morning Ferry Loop",
+            notes: "Breakfast run\nPicked up receipts"
+        )
+        let afternoon = RecordingSession(
+            startedAt: fixtureDate(hour: 14),
+            endedAt: fixtureDate(hour: 15),
+            customName: "Afternoon Walk",
+            notes: "Checked the route replay"
+        )
+        let points = makePoints() + [
+            LocationPoint(
+                latitude: 37.781,
+                longitude: -122.41,
+                timestamp: fixtureDate(hour: 14, minute: 5),
+                altitude: 12,
+                speed: 1.8,
+                horizontalAccuracy: 4
+            ),
+            LocationPoint(
+                latitude: 37.782,
+                longitude: -122.409,
+                timestamp: fixtureDate(hour: 14, minute: 20),
+                altitude: 14,
+                speed: 2.1,
+                horizontalAccuracy: 5
+            )
+        ]
+
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = .markdown
+        options.splitByDay = true
+
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: makeVisits(),
+            points: points,
+            recordingSessions: [morning, afternoon],
+            options: options,
+            filenamePattern: "Outings/{date}-{title}"
+        )
+
+        XCTAssertEqual(files.count, 2)
+        XCTAssertEqual(files.map(\.relativePath), [
+            "Outings/2026-04-03-Morning Ferry Loop.md",
+            "Outings/2026-04-03-Afternoon Walk.md"
+        ])
+
+        let firstPage = files[0].content
+        XCTAssertTrue(firstPage.hasPrefix("---\n"))
+        XCTAssertTrue(firstPage.contains("type: \"outing\""))
+        XCTAssertTrue(firstPage.contains("title: \"Morning Ferry Loop\""))
+        XCTAssertTrue(firstPage.contains("start: \"2026-04-03T09:00:00.000Z\""))
+        XCTAssertTrue(firstPage.contains("end: \"2026-04-03T10:30:00.000Z\""))
+        XCTAssertTrue(firstPage.contains("notes: |-\n  Breakfast run\n  Picked up receipts"))
+        XCTAssertTrue(firstPage.contains("visit_count: 1"))
+        XCTAssertTrue(firstPage.contains("source: \"recorded\""))
+        XCTAssertTrue(firstPage.contains("## Visits"))
+        XCTAssertTrue(firstPage.contains("## Route Points"))
+    }
+
+    func testOutingTrackingProtocolFormatKeepsOutingsDataKind() throws {
+        let outing = RecordingSession(
+            startedAt: fixtureDate(hour: 9),
+            endedAt: fixtureDate(hour: 10),
+            customName: "Protocol Walk"
+        )
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = .owntracks
+        options.splitByDay = true
+
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: [],
+            points: makePoints(),
+            recordingSessions: [outing],
+            options: options,
+            filenamePattern: "{type}-{format}-{title}"
+        )
+
+        XCTAssertEqual(files.count, 1)
+        XCTAssertEqual(files[0].relativePath, "outings-owntracks-Protocol Walk.json")
+    }
+
+    func testSingleOutingPlannerExportsDetailPageMarkdown() throws {
+        let outing = RecordingSessionSummary(
+            id: "inferred-20260403-0900",
+            storedSession: nil,
+            sequenceNumber: 7,
+            startedAt: fixtureDate(hour: 9),
+            endedAt: fixtureDate(hour: 10, minute: 30),
+            points: makePoints(),
+            isInferred: true,
+            isActive: false,
+            now: fixtureDate(hour: 12)
+        )
+
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = .markdown
+        options.splitByDay = true
+
+        let files = try IsoMeExportKitAdapter.plannedOutingFiles(
+            outings: [outing],
+            visits: makeVisits(),
+            options: options,
+            filenamePattern: "Outings/{title}"
+        )
+
+        XCTAssertEqual(files.count, 1)
+        XCTAssertEqual(files[0].relativePath, "Outings/Outing 7.md")
+        XCTAssertTrue(files[0].content.hasPrefix("---\n"))
+        XCTAssertTrue(files[0].content.contains("title: \"Outing 7\""))
+        XCTAssertTrue(files[0].content.contains("source: \"inferred\""))
+        XCTAssertTrue(files[0].content.contains("## Visits"))
+        XCTAssertTrue(files[0].content.contains("## Route Points"))
+    }
+
     func testPreviewBuilderUsesIsoMeAdapterWithoutWriting() async throws {
         var options = ExportOptions()
         options.dataKind = .all

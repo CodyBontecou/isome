@@ -2,7 +2,7 @@ import Foundation
 
 struct ExportOptions {
     enum DataKind: String, CaseIterable, Identifiable {
-        case visits, points, all
+        case visits, points, outings, all
         var id: String { rawValue }
     }
 
@@ -161,6 +161,15 @@ struct ExportOptions {
         }
     }
 
+    func filterOutings(_ outings: [RecordingSessionSummary]) -> [RecordingSessionSummary] {
+        let range = resolvedDateRange()
+        return outings.filter { outing in
+            if let range = range, !range.contains(outing.startedAt) { return false }
+            if !matchesTimeOfDay(outing.startedAt) { return false }
+            return true
+        }
+    }
+
     // MARK: - Per-day grouping
 
     struct DayGroup {
@@ -180,6 +189,7 @@ struct ExportOptions {
             switch dataKind {
             case .visits: return Set(visitsByDay.keys)
             case .points: return Set(pointsByDay.keys)
+            case .outings: return []
             case .all: return Set(visitsByDay.keys).union(pointsByDay.keys)
             }
         }()

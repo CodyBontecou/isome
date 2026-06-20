@@ -192,6 +192,12 @@ actor NearbyPlaceSearchService {
         radius: CLLocationDistance? = nil,
         limit: Int = 8
     ) async throws -> [NearbyPlaceSuggestion] {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
+            return Array(Self.demoSuggestions(near: coordinate).prefix(limit))
+        }
+        #endif
+
         let searchRadius = min(radius ?? defaultSearchRadius, MKLocalPointsOfInterestRequest.maxRadius)
         let key = cacheKey(for: coordinate, radius: searchRadius)
 
@@ -266,6 +272,31 @@ actor NearbyPlaceSearchService {
         cache.removeAll()
         pendingRequests.removeAll()
     }
+
+    #if DEBUG
+    private static func demoSuggestions(near coordinate: CLLocationCoordinate2D) -> [NearbyPlaceSuggestion] {
+        let origin = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let places: [(name: String, address: String, latitude: Double, longitude: Double)] = [
+            ("Four Barrel Coffee", "375 Valencia St, San Francisco, CA", 37.7670, -122.4219),
+            ("Tartine Bakery", "600 Guerrero St, San Francisco, CA", 37.7614, -122.4240),
+            ("The Grove", "690 Mission St, San Francisco, CA", 37.7867, -122.4027),
+            ("Ferry Building Marketplace", "1 Ferry Building, San Francisco, CA", 37.7955, -122.3937),
+            ("Ritual Coffee Roasters", "1026 Valencia St, San Francisco, CA", 37.7564, -122.4210),
+            ("Dolores Park Café", "501 Dolores St, San Francisco, CA", 37.7601, -122.4268)
+        ]
+
+        return places.map { place in
+            let location = CLLocation(latitude: place.latitude, longitude: place.longitude)
+            return NearbyPlaceSuggestion(
+                id: "demo-\(place.name.lowercased().replacingOccurrences(of: " ", with: "-"))",
+                name: place.name,
+                address: place.address,
+                distanceMeters: origin.distance(from: location)
+            )
+        }
+        .sorted { $0.distanceMeters < $1.distanceMeters }
+    }
+    #endif
 
     private func cacheKey(for coordinate: CLLocationCoordinate2D, radius: CLLocationDistance) -> String {
         // Round to ~11 meter precision to reuse searches for adjacent visits.

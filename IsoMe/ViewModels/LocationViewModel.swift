@@ -619,6 +619,8 @@ final class LocationViewModel {
             try ExportService.share(
                 visits: allVisits,
                 points: pointsToExport,
+                recordingSessions: allRecordingSessions,
+                activeTrackingStart: locationManager.trackingStartTime,
                 options: options,
                 completion: Self.recordSuccessfulShareExportForReviewPrompt
             )

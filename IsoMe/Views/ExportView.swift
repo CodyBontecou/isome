@@ -20,7 +20,10 @@ struct ExportView: View {
     @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
 
     private var effectiveDataKind: ExportOptions.DataKind {
-        options.format.isPointsOnly ? .points : options.dataKind
+        if options.format.isPointsOnly, options.dataKind != .outings {
+            return .points
+        }
+        return options.dataKind
     }
 
     private var effectiveOptions: ExportOptions {
@@ -37,16 +40,24 @@ struct ExportView: View {
         options.filterPoints(viewModel.locationPoints)
     }
 
+    private var filteredOutings: [RecordingSessionSummary] {
+        options.filterOutings(viewModel.recordingSessionSummaries(inferenceConfiguration: .stored()))
+    }
+
     private var totalCount: Int {
         switch effectiveDataKind {
         case .visits: return filteredVisits.count
         case .points: return filteredPoints.count
+        case .outings: return filteredOutings.count
         case .all: return filteredVisits.count + filteredPoints.count
         }
     }
 
     private var splitFileCount: Int {
         guard options.splitByDay else { return totalCount > 0 ? 1 : 0 }
+        if effectiveDataKind == .outings {
+            return filteredOutings.count
+        }
         return effectiveOptions.groupByDay(visits: filteredVisits, points: filteredPoints).count
     }
 
@@ -56,6 +67,10 @@ struct ExportView: View {
 
     private var showsPointFields: Bool {
         effectiveDataKind == .points || effectiveDataKind == .all
+    }
+
+    private var showsOutingExport: Bool {
+        effectiveDataKind == .outings
     }
 
     var body: some View {
@@ -111,6 +126,8 @@ struct ExportView: View {
                 IsoMeExportPreviewView(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
+                    recordingSessions: viewModel.allRecordingSessions,
+                    activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
                     filenamePattern: filenamePattern,
                     destinationLabel: previewDestinationLabel,
@@ -139,9 +156,10 @@ struct ExportView: View {
             outputSection
             dateRangeSection
             timeOfDaySection
-            filtersSection
+            if showsVisitFields || showsPointFields { filtersSection }
             if showsVisitFields { visitFieldsSection }
             if showsPointFields { pointFieldsSection }
+            if showsOutingExport { outingFieldsSection }
         }
     }
 
@@ -249,7 +267,9 @@ struct ExportView: View {
             .padding(.horizontal, 16)
 
             if options.format.isPointsOnly {
-                TESectionFooter(text: "Tracking-protocol formats only carry GPS fixes — visits and notes are dropped.")
+                TESectionFooter(text: options.dataKind == .outings
+                    ? "Tracking-protocol outing exports contain the outing route's GPS fixes. Visit rows and outing notes are not represented in this format."
+                    : "Tracking-protocol formats only carry GPS fixes — visits and notes are dropped.")
             }
         }
     }
@@ -262,18 +282,22 @@ struct ExportView: View {
 
             TECard {
                 if dynamicTypeSize.isAccessibilitySize {
-                    segmentedButton("VISITS", isSelected: options.dataKind == .visits) { options.dataKind = .visits }
+                    segmentedButton("VISITS", isSelected: options.dataKind == .visits) { selectDataKind(.visits) }
                     Rectangle().fill(TE.border).frame(height: 1)
-                    segmentedButton("POINTS", isSelected: options.dataKind == .points) { options.dataKind = .points }
+                    segmentedButton("POINTS", isSelected: options.dataKind == .points) { selectDataKind(.points) }
                     Rectangle().fill(TE.border).frame(height: 1)
-                    segmentedButton("ALL", isSelected: options.dataKind == .all) { options.dataKind = .all }
+                    segmentedButton("OUTINGS", isSelected: options.dataKind == .outings) { selectDataKind(.outings) }
+                    Rectangle().fill(TE.border).frame(height: 1)
+                    segmentedButton("ALL", isSelected: options.dataKind == .all) { selectDataKind(.all) }
                 } else {
                     HStack(spacing: 0) {
-                        segmentedButton("VISITS", isSelected: options.dataKind == .visits) { options.dataKind = .visits }
+                        segmentedButton("VISITS", isSelected: options.dataKind == .visits) { selectDataKind(.visits) }
                         Rectangle().fill(TE.border).frame(width: 1)
-                        segmentedButton("POINTS", isSelected: options.dataKind == .points) { options.dataKind = .points }
+                        segmentedButton("POINTS", isSelected: options.dataKind == .points) { selectDataKind(.points) }
                         Rectangle().fill(TE.border).frame(width: 1)
-                        segmentedButton("ALL", isSelected: options.dataKind == .all) { options.dataKind = .all }
+                        segmentedButton("OUTINGS", isSelected: options.dataKind == .outings) { selectDataKind(.outings) }
+                        Rectangle().fill(TE.border).frame(width: 1)
+                        segmentedButton("ALL", isSelected: options.dataKind == .all) { selectDataKind(.all) }
                     }
                 }
             }
@@ -503,6 +527,7 @@ struct ExportView: View {
                                 )) {
                                     Text("VISITS").tag(ExportOptions.DataKind.visits)
                                     Text("POINTS").tag(ExportOptions.DataKind.points)
+                                    Text("OUTINGS").tag(ExportOptions.DataKind.outings)
                                     Text("ALL").tag(ExportOptions.DataKind.all)
                                 }
                                 .labelsHidden()
@@ -642,10 +667,12 @@ struct ExportView: View {
     }
 
     private var filenamePreview: String {
-        (try? IsoMeExportPathPlanner.plannedRelativePath(
+        let previewTitle = showsOutingExport ? (filteredOutings.first?.title ?? "Outing 1") : nil
+        return (try? IsoMeExportPathPlanner.plannedRelativePath(
             pattern: filenamePattern,
             dataKind: effectiveDataKind,
             format: options.format,
+            title: previewTitle,
             safetyPolicy: .preserveCurrentBehavior
         )) ?? "INVALID PATH"
     }
@@ -689,15 +716,24 @@ struct ExportView: View {
 
             TECard {
                 TERow(showDivider: false) {
-                    toggleRow("ONE FILE PER DAY", isOn: $options.splitByDay)
+                    toggleRow(showsOutingExport ? "ONE FILE PER OUTING" : "ONE FILE PER DAY", isOn: $options.splitByDay)
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: options.splitByDay
-                ? "Each calendar day in the range becomes its own file. Use {date} or {day} in the filename to keep them distinct."
-                : "All filtered data is condensed into a single file.")
+            TESectionFooter(text: outputFooterText)
         }
+    }
+
+    private var outputFooterText: LocalizedStringKey {
+        if showsOutingExport {
+            return options.splitByDay
+                ? "Each outing becomes its own file in the selected format. Use {title}, {date}, or {time} in the file path."
+                : "All filtered outings are condensed into a single file in the selected format."
+        }
+        return options.splitByDay
+            ? "Each calendar day in the range becomes its own file. Use {date} or {day} in the filename to keep them distinct."
+            : "All filtered data is condensed into a single file."
     }
 
     // MARK: - Date Range
@@ -933,6 +969,39 @@ struct ExportView: View {
         }
     }
 
+    // MARK: - Outing Fields
+
+    private var outingFieldsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "OUTING EXPORT")
+
+            TECard {
+                TERow(showDivider: false) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "doc.text.fill")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(TE.accent)
+                            Text("ALL FORMATS")
+                                .font(TE.mono(.caption, weight: .medium))
+                                .tracking(1)
+                                .foregroundStyle(TE.textPrimary)
+                        }
+
+                        Text("JSON and CSV export outing summaries. Markdown adds YAML front matter plus visits and route points. GPX, KML, GeoJSON, OwnTracks, and Overland export the outing route points.")
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                            .lineSpacing(3)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: "Stored outing names and notes are included when the selected format supports them. Inferred outings export with source: inferred.")
+        }
+    }
+
     // MARK: - Footer
 
     private var exportFooter: some View {
@@ -1062,6 +1131,14 @@ struct ExportView: View {
         .toggleStyle(TEToggleStyle())
     }
 
+    private func selectDataKind(_ dataKind: ExportOptions.DataKind) {
+        options.dataKind = dataKind
+        if dataKind == .outings {
+            options.splitByDay = true
+        }
+        ensurePointDataIfNeeded()
+    }
+
     // MARK: - Actions
 
     private func runExport() {
@@ -1077,6 +1154,8 @@ struct ExportView: View {
                 let urls = try ExportService.saveToDefaultFolder(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
+                    recordingSessions: viewModel.allRecordingSessions,
+                    activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
                     filenamePattern: filenamePattern
                 )
@@ -1091,6 +1170,8 @@ struct ExportView: View {
                 try ExportService.share(
                     visits: viewModel.allVisits,
                     points: viewModel.locationPoints,
+                    recordingSessions: viewModel.allRecordingSessions,
+                    activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
                     filenamePattern: filenamePattern,
                     completion: { completed in
@@ -1118,6 +1199,8 @@ struct ExportView: View {
 struct IsoMeExportPreviewView: View {
     let visits: [Visit]
     let points: [LocationPoint]
+    let recordingSessions: [RecordingSession]
+    let activeTrackingStart: Date?
     let options: ExportOptions
     let filenamePattern: String
     let destinationLabel: String
@@ -1320,12 +1403,14 @@ struct IsoMeExportPreviewView: View {
             let preview = try await IsoMeExportKitAdapter.preview(
                 visits: visits,
                 points: points,
+                recordingSessions: recordingSessions,
+                activeTrackingStart: activeTrackingStart,
                 options: options,
                 filenamePattern: filenamePattern
             )
             let rootName = destinationRootName
             records = preview.records.map {
-                IsoMePreviewRecord(record: $0, rootName: rootName, splitByDay: options.splitByDay)
+                IsoMePreviewRecord(record: $0, rootName: rootName, splitByDay: options.splitByDay, dataKind: options.dataKind)
             }
             warnings = preview.warnings
             previewTotalRecordCount = preview.totalRecordCount
@@ -1387,9 +1472,11 @@ private struct IsoMePreviewRecord: Identifiable {
     let folderPath: String
     let files: [IsoMePreviewFile]
 
-    init(record: ExportPreviewRecord, rootName: String, splitByDay: Bool) {
+    init(record: ExportPreviewRecord, rootName: String, splitByDay: Bool, dataKind: ExportOptions.DataKind) {
         id = record.id
-        if splitByDay, let date = record.reference.date {
+        if splitByDay, dataKind == .outings, !record.reference.displayName.isEmpty {
+            title = record.reference.displayName
+        } else if splitByDay, let date = record.reference.date {
             title = IsoMeExportPreviewView.dateLabelFormatter.string(from: date)
         } else {
             title = "Export file"

@@ -17,7 +17,9 @@ struct FilenameTemplate {
         ("{datetime}", "2026-04-30_14-30-15"),
         ("{time}", "14-30-15"),
         ("{day}", "Thursday"),
-        ("{type}", "visits / points / all"),
+        ("{type}", "visits / points / outings / all"),
+        ("{title}", "Outing title when available"),
+        ("{name}", "Outing title when available"),
         ("{format}", "json / csv / md / owntracks / overland / gpx / kml / geojson"),
     ]
 
@@ -25,10 +27,11 @@ struct FilenameTemplate {
         pattern: String,
         dataKind: ExportOptions.DataKind,
         format: ExportFormat,
-        date: Date = Date()
+        date: Date = Date(),
+        title: String? = nil
     ) -> String {
         let rawPath = appendingFormatExtensionIfNeeded(
-            to: stem(pattern: pattern, dataKind: dataKind, format: format, date: date),
+            to: stem(pattern: pattern, dataKind: dataKind, format: format, date: date, title: title),
             format: format
         )
         return sanitizePath(rawPath)
@@ -38,7 +41,8 @@ struct FilenameTemplate {
         pattern: String,
         dataKind: ExportOptions.DataKind,
         format: ExportFormat,
-        date: Date = Date()
+        date: Date = Date(),
+        title: String? = nil
     ) -> String {
         let raw = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
         let pattern = raw.isEmpty ? defaultPattern : raw
@@ -82,9 +86,11 @@ struct FilenameTemplate {
             switch dataKind {
             case .visits: return "visits"
             case .points: return "points"
+            case .outings: return "outings"
             case .all: return "all"
             }
         }()
+        let titleText = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
         var output = pattern
         output = output.replacingOccurrences(of: "{datetime}", with: datetimeFmt.string(from: date))
@@ -98,6 +104,8 @@ struct FilenameTemplate {
         output = output.replacingOccurrences(of: "{time}", with: timeFmt.string(from: date))
         output = output.replacingOccurrences(of: "{day}", with: dayFmt.string(from: date))
         output = output.replacingOccurrences(of: "{type}", with: typeText)
+        output = output.replacingOccurrences(of: "{title}", with: titleText)
+        output = output.replacingOccurrences(of: "{name}", with: titleText)
         output = output.replacingOccurrences(of: "{format}", with: format.token)
         return output
     }

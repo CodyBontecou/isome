@@ -61,6 +61,7 @@
 		A3000003212F000100000003 /* WatchAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3000003212F000000000003 /* WatchAssets.xcassets */; };
 		A3000004212F000100000004 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
 		A3000005212F000100000005 /* IsoMeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A3000000212F000000000000 /* IsoMeWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A3000101212F000100000101 /* WatchLocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3000101212F000000000101 /* WatchLocationTracker.swift */; };
 		A4000001212F000100000001 /* IsoMeWatchWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000001212F000000000001 /* IsoMeWatchWidgetBundle.swift */; };
 		A4000002212F000100000002 /* IsoMeWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4000002212F000000000002 /* IsoMeWatchWidget.swift */; };
 		A4000003212F000100000003 /* SharedLocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C212F00000000001C /* SharedLocationData.swift */; };
@@ -84,6 +85,13 @@
 		B2000007212F000100000007 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000003212F000000000003 /* Localizable.xcstrings */; };
 		B2000008212F000100000008 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000004212F000000000004 /* Localizable.xcstrings */; };
 		B2000009212F000100000009 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B1000005212F000000000005 /* Localizable.xcstrings */; };
+		FEC10001212F000100000001 /* outings-dashboard.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10001212F000000000001 /* outings-dashboard.mp4 */; };
+		FEC10002212F000100000002 /* route-replay.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10002212F000000000002 /* route-replay.mp4 */; };
+		FEC10003212F000100000003 /* map-focus.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10003212F000000000003 /* map-focus.mp4 */; };
+		FEC10005212F000100000005 /* visit-renaming.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10005212F000000000005 /* visit-renaming.mp4 */; };
+		FEC10006212F000100000006 /* inferred-rules.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10006212F000000000006 /* inferred-rules.mp4 */; };
+		FEC10007212F000100000007 /* outings-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10007212F000000000007 /* outings-export.mp4 */; };
+		FEC10008212F000100000008 /* outing-detail-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10008212F000000000008 /* outing-detail-export.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -195,6 +203,13 @@
 		A100000D212F00000000000D /* VisitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitDetailView.swift; sourceTree = "<group>"; };
 		A100000E212F00000000000E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000F212F00000000000F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		FEC10001212F000000000001 /* outings-dashboard.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "outings-dashboard.mp4"; sourceTree = "<group>"; };
+		FEC10002212F000000000002 /* route-replay.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "route-replay.mp4"; sourceTree = "<group>"; };
+		FEC10003212F000000000003 /* map-focus.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "map-focus.mp4"; sourceTree = "<group>"; };
+		FEC10005212F000000000005 /* visit-renaming.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "visit-renaming.mp4"; sourceTree = "<group>"; };
+		FEC10006212F000000000006 /* inferred-rules.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "inferred-rules.mp4"; sourceTree = "<group>"; };
+		FEC10007212F000000000007 /* outings-export.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "outings-export.mp4"; sourceTree = "<group>"; };
+		FEC10008212F000000000008 /* outing-detail-export.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "outing-detail-export.mp4"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000019212F000000000019 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A100001F212F00000000001F /* TEDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEDesign.swift; sourceTree = "<group>"; };
@@ -215,6 +230,7 @@
 		A3000003212F000000000003 /* WatchAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = WatchAssets.xcassets; path = Assets.xcassets; sourceTree = "<group>"; };
 		A3000004212F000000000004 /* WatchInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = WatchInfo.plist; path = Info.plist; sourceTree = "<group>"; };
 		A3000005212F000000000005 /* IsoMeWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IsoMeWatch.entitlements; sourceTree = "<group>"; };
+		A3000101212F000000000101 /* WatchLocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLocationTracker.swift; sourceTree = "<group>"; };
 		A4000000212F000000000000 /* IsoMeWatchWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IsoMeWatchWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4000001212F000000000001 /* IsoMeWatchWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchWidgetBundle.swift; sourceTree = "<group>"; };
 		A4000002212F000000000002 /* IsoMeWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeWatchWidget.swift; sourceTree = "<group>"; };
@@ -327,6 +343,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		FEC10000212F000000000000 /* ReleaseNoteVideos */ = {
+			isa = PBXGroup;
+			children = (
+				FEC10001212F000000000001 /* outings-dashboard.mp4 */,
+				FEC10002212F000000000002 /* route-replay.mp4 */,
+				FEC10003212F000000000003 /* map-focus.mp4 */,
+				FEC10005212F000000000005 /* visit-renaming.mp4 */,
+				FEC10006212F000000000006 /* inferred-rules.mp4 */,
+				FEC10007212F000000000007 /* outings-export.mp4 */,
+				FEC10008212F000000000008 /* outing-detail-export.mp4 */,
+			);
+			path = ReleaseNoteVideos;
+			sourceTree = "<group>";
+		};
 		A1FFFFFA212EFFFFFFFF0001 /* IsoMe */ = {
 			isa = PBXGroup;
 			children = (
@@ -340,6 +370,7 @@
 				A1FFFFFD212EFFFFFFFF0005 /* Views */,
 				A1FFFFFE212EFFFFFFFF0006 /* ViewModels */,
 				A1FFFFFF212EFFFFFFFF0007 /* Utilities */,
+				FEC10000212F000000000000 /* ReleaseNoteVideos */,
 				A100000E212F00000000000E /* Assets.xcassets */,
 				A1000011212F000000000011 /* Preview Content */,
 				B1000001212F000000000001 /* Localizable.xcstrings */,
@@ -436,6 +467,7 @@
 			children = (
 				A3000001212F000000000001 /* IsoMeWatchApp.swift */,
 				A3000002212F000000000002 /* WatchContentView.swift */,
+				A3000101212F000000000101 /* WatchLocationTracker.swift */,
 				A3000003212F000000000003 /* WatchAssets.xcassets */,
 				A3000004212F000000000004 /* WatchInfo.plist */,
 				A3000005212F000000000005 /* IsoMeWatch.entitlements */,
@@ -650,6 +682,13 @@
 			files = (
 				A100000F212F00010000000F /* Preview Assets.xcassets in Resources */,
 				A100000E212F00010000000E /* Assets.xcassets in Resources */,
+				FEC10001212F000100000001 /* outings-dashboard.mp4 in Resources */,
+				FEC10002212F000100000002 /* route-replay.mp4 in Resources */,
+				FEC10003212F000100000003 /* map-focus.mp4 in Resources */,
+				FEC10005212F000100000005 /* visit-renaming.mp4 in Resources */,
+				FEC10006212F000100000006 /* inferred-rules.mp4 in Resources */,
+				FEC10007212F000100000007 /* outings-export.mp4 in Resources */,
+				FEC10008212F000100000008 /* outing-detail-export.mp4 in Resources */,
 				B2000005212F000100000005 /* Localizable.xcstrings in Resources */,
 				B2000006212F000100000006 /* InfoPlist.xcstrings in Resources */,
 			);
@@ -755,6 +794,7 @@
 			files = (
 				A3000001212F000100000001 /* IsoMeWatchApp.swift in Sources */,
 				A3000002212F000100000002 /* WatchContentView.swift in Sources */,
+				A3000101212F000100000101 /* WatchLocationTracker.swift in Sources */,
 				A3000004212F000100000004 /* SharedLocationData.swift in Sources */,
 				A300001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
@@ -980,7 +1020,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -996,7 +1036,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1013,7 +1053,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1029,7 +1069,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1045,7 +1085,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1055,7 +1095,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1072,7 +1112,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1082,7 +1122,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1099,7 +1139,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1109,7 +1149,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1128,7 +1168,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1138,7 +1178,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1157,7 +1197,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1167,7 +1207,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1186,7 +1226,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 23;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1196,7 +1236,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

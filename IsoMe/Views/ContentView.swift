@@ -46,6 +46,15 @@ struct ContentView: View {
                     locationManager: manager
                 )
 
+                #if DEBUG
+                if ScreenshotFeatureDemoSeeder.isEnabled {
+                    ScreenshotFeatureDemoSeeder.seed(in: modelContext)
+                    hasCompletedOnboarding = true
+                    viewModel?.loadData()
+                    return
+                }
+                #endif
+
                 // Migrate existing users: if they already granted permissions or turned
                 // tracking on, skip onboarding automatically the first time this version runs.
                 if UserDefaults.standard.object(forKey: "hasCompletedOnboarding") == nil {
@@ -940,6 +949,250 @@ private extension CLAuthorizationStatus {
         }
     }
 }
+
+#if DEBUG
+@MainActor
+private enum ScreenshotFeatureDemoSeeder {
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data")
+    }
+
+    static func seed(in context: ModelContext) {
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: "hasCompletedOnboarding")
+        defaults.set(false, forKey: "isTrackingEnabled")
+        defaults.set(true, forKey: "usesMetricDistanceUnits")
+        defaults.set(false, forKey: "showOutliers")
+        defaults.set(true, forKey: "snapTravelPathToRoads")
+        defaults.set(true, forKey: "showStraightLinePathSegments")
+        defaults.set(true, forKey: "discordPromoDismissed")
+        defaults.set(true, forKey: RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
+        defaults.set(RecordingSessionGapPreset.thirtyMinutes.rawValue, forKey: RecordingSessionInferenceConfiguration.gapPresetKey)
+        defaults.set(RecordingSessionMinimumDurationPreset.fiveMinutes.rawValue, forKey: RecordingSessionInferenceConfiguration.minimumDurationPresetKey)
+        defaults.set(RecordingSessionMinimumPointCountPreset.two.rawValue, forKey: RecordingSessionInferenceConfiguration.minimumPointCountKey)
+
+        do {
+            try clearExistingData(in: context)
+
+            let today = Calendar.current.startOfDay(for: Date())
+            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today.addingTimeInterval(-86_400)
+            let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: today) ?? today.addingTimeInterval(-172_800)
+
+            let morningStart = date(on: today, hour: 8, minute: 5)
+            let morningEnd = date(on: today, hour: 8, minute: 56)
+            let lunchStart = date(on: today, hour: 12, minute: 10)
+            let lunchEnd = date(on: today, hour: 12, minute: 46)
+            let eveningStart = date(on: today, hour: 17, minute: 20)
+            let eveningEnd = Date()
+
+            let morningSession = RecordingSession(
+                startedAt: morningStart,
+                endedAt: morningEnd,
+                customName: "Morning Commute",
+                notes: "Road-matched demo route from the Mission to the Ferry Building."
+            )
+            let lunchSession = RecordingSession(
+                startedAt: lunchStart,
+                endedAt: lunchEnd,
+                customName: "Client Lunch Walk",
+                notes: "Use this outing to show replay, visit names, and nearby business suggestions."
+            )
+            let liveSession = RecordingSession(
+                startedAt: eveningStart,
+                endedAt: nil,
+                customName: "Evening Errands",
+                notes: "Open session used to show the LIVE outing state."
+            )
+
+            [morningSession, lunchSession, liveSession].forEach { context.insert($0) }
+
+            let pointSets = [
+                routePoints(
+                    coordinates: [
+                        (37.7599, -122.4148),
+                        (37.7653, -122.4194),
+                        (37.7722, -122.4214),
+                        (37.7793, -122.4182),
+                        (37.7892, -122.4010),
+                        (37.7955, -122.3937)
+                    ],
+                    start: morningStart,
+                    end: morningEnd,
+                    speed: 8.4
+                ),
+                routePoints(
+                    coordinates: [
+                        (37.7764, -122.4262),
+                        (37.7788, -122.4240),
+                        (37.7819, -122.4206),
+                        (37.7851, -122.4176),
+                        (37.7877, -122.4077)
+                    ],
+                    start: lunchStart,
+                    end: lunchEnd,
+                    speed: 1.6
+                ),
+                routePoints(
+                    coordinates: [
+                        (37.7858, -122.4064),
+                        (37.7891, -122.4017),
+                        (37.7920, -122.3974),
+                        (37.7951, -122.3938)
+                    ],
+                    start: eveningStart,
+                    end: eveningEnd,
+                    speed: 2.2
+                ),
+                routePoints(
+                    coordinates: [
+                        (37.8024, -122.4058),
+                        (37.8002, -122.4101),
+                        (37.7980, -122.4144),
+                        (37.7950, -122.4185)
+                    ],
+                    start: date(on: yesterday, hour: 9, minute: 20),
+                    end: date(on: yesterday, hour: 10, minute: 5),
+                    speed: 1.9
+                ),
+                routePoints(
+                    coordinates: [
+                        (37.7716, -122.4238),
+                        (37.7685, -122.4291),
+                        (37.7656, -122.4343),
+                        (37.7617, -122.4350)
+                    ],
+                    start: date(on: yesterday, hour: 14, minute: 35),
+                    end: date(on: yesterday, hour: 15, minute: 18),
+                    speed: 2.1
+                ),
+                routePoints(
+                    coordinates: [
+                        (37.7693, -122.4862),
+                        (37.7718, -122.4824),
+                        (37.7749, -122.4780),
+                        (37.7782, -122.4715)
+                    ],
+                    start: date(on: twoDaysAgo, hour: 16, minute: 15),
+                    end: date(on: twoDaysAgo, hour: 17, minute: 0),
+                    speed: 2.4
+                )
+            ]
+
+            pointSets.flatMap { $0 }.forEach { context.insert($0) }
+
+            let visits = [
+                Visit(
+                    latitude: 37.7765,
+                    longitude: -122.4258,
+                    arrivedAt: date(on: today, hour: 11, minute: 54),
+                    departedAt: date(on: today, hour: 12, minute: 18),
+                    customName: nil,
+                    locationName: "Valencia Street Stop",
+                    address: "375 Valencia St, San Francisco, CA",
+                    notes: "Tap a nearby business suggestion to rename this visit.",
+                    geocodingCompleted: true
+                ),
+                Visit(
+                    latitude: 37.7877,
+                    longitude: -122.4077,
+                    arrivedAt: date(on: today, hour: 12, minute: 28),
+                    departedAt: date(on: today, hour: 13, minute: 12),
+                    customName: "Client Lunch — The Grove",
+                    locationName: "Market Street Stop",
+                    address: "690 Mission St, San Francisco, CA",
+                    notes: "Custom visit names are preserved separately from the detected place.",
+                    geocodingCompleted: true
+                ),
+                Visit(
+                    latitude: 37.7951,
+                    longitude: -122.3938,
+                    arrivedAt: date(on: today, hour: 17, minute: 42),
+                    departedAt: nil,
+                    customName: "Ferry Building Errand",
+                    locationName: "Ferry Building",
+                    address: "1 Ferry Building, San Francisco, CA",
+                    notes: "Only one current visit marker should be visible on the map.",
+                    geocodingCompleted: true
+                ),
+                Visit(
+                    latitude: 37.8024,
+                    longitude: -122.4058,
+                    arrivedAt: date(on: yesterday, hour: 9, minute: 35),
+                    departedAt: date(on: yesterday, hour: 10, minute: 20),
+                    locationName: "North Beach",
+                    address: "Columbus Ave, San Francisco, CA",
+                    geocodingCompleted: true
+                ),
+                Visit(
+                    latitude: 37.7617,
+                    longitude: -122.4350,
+                    arrivedAt: date(on: yesterday, hour: 15, minute: 5),
+                    departedAt: date(on: yesterday, hour: 15, minute: 40),
+                    locationName: "Dolores Park",
+                    address: "Dolores St, San Francisco, CA",
+                    geocodingCompleted: true
+                )
+            ]
+
+            visits.forEach { context.insert($0) }
+            try context.save()
+        } catch {
+            assertionFailure("Failed to seed screenshot demo data: \(error)")
+        }
+    }
+
+    private static func clearExistingData(in context: ModelContext) throws {
+        for visit in try context.fetch(FetchDescriptor<Visit>()) {
+            context.delete(visit)
+        }
+        for point in try context.fetch(FetchDescriptor<LocationPoint>()) {
+            context.delete(point)
+        }
+        for session in try context.fetch(FetchDescriptor<RecordingSession>()) {
+            context.delete(session)
+        }
+        try context.save()
+    }
+
+    private static func date(on day: Date, hour: Int, minute: Int) -> Date {
+        Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
+    }
+
+    private static func routePoints(
+        coordinates: [(Double, Double)],
+        start: Date,
+        end: Date,
+        speed: Double
+    ) -> [LocationPoint] {
+        guard coordinates.count >= 2 else { return [] }
+        let segmentCount = coordinates.count - 1
+        let totalSteps = max(segmentCount * 5, coordinates.count)
+        let duration = max(end.timeIntervalSince(start), Double(totalSteps))
+
+        return (0...totalSteps).map { step in
+            let progress = Double(step) / Double(totalSteps)
+            let scaled = progress * Double(segmentCount)
+            let index = min(segmentCount - 1, Int(scaled.rounded(.down)))
+            let localProgress = scaled - Double(index)
+            let from = coordinates[index]
+            let to = coordinates[index + 1]
+            let latitude = from.0 + ((to.0 - from.0) * localProgress)
+            let longitude = from.1 + ((to.1 - from.1) * localProgress)
+            let timestamp = start.addingTimeInterval(duration * progress)
+
+            return LocationPoint(
+                latitude: latitude,
+                longitude: longitude,
+                timestamp: timestamp,
+                altitude: 12,
+                speed: speed,
+                horizontalAccuracy: step % 7 == 0 ? 12 : 6,
+                isOutlier: false
+            )
+        }
+    }
+}
+#endif
 
 #Preview {
     ContentView()

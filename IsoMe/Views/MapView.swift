@@ -11,7 +11,7 @@ struct LocationMapView: View {
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
-    @State private var showFilterBar = false
+    @State private var showFilterBar = Self.initialFilterBarVisibility
     @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
     @State private var showPointMarkers = true
@@ -34,6 +34,14 @@ struct LocationMapView: View {
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
         self.locationManager = viewModel.locationManager
+    }
+
+    private static var initialFilterBarVisibility: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--demo-open-map-filters")
+        #else
+        false
+        #endif
     }
 
     private var isTracking: Bool {
@@ -1735,6 +1743,26 @@ struct QuickFilterBar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
+                    LayerToggleButton(
+                        systemImage: "road.lanes",
+                        label: "Road-matched path",
+                        help: .roadMatchedPath,
+                        isOn: $snapTravelPathToRoads,
+                        activeHelp: $activeLayerHelp
+                    )
+                    LayerToggleButton(
+                        systemImage: "line.diagonal",
+                        label: "Straight-line path gaps",
+                        help: .straightLinePathGaps,
+                        isOn: $showStraightLinePathSegments,
+                        activeHelp: $activeLayerHelp
+                    )
+                    PillSeparator()
+                }
+                #endif
+
                 ForEach(MapDatePreset.allCases, id: \.self) { preset in
                     PresetPill(
                         label: preset.label,
@@ -1840,6 +1868,23 @@ struct QuickFilterBar: View {
                 }
                 .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
         }
+        #if DEBUG
+        .overlay(alignment: .topLeading) {
+            if ProcessInfo.processInfo.arguments.contains("--demo-road-layer-help") {
+                LayerToggleHelpPopover(systemImage: "road.lanes", help: .roadMatchedPath, isOn: snapTravelPathToRoads)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: .black.opacity(0.18), radius: 16, x: 0, y: 8)
+                    .offset(x: 0, y: -190)
+            }
+        }
+        .onAppear {
+            if ProcessInfo.processInfo.arguments.contains("--demo-road-layer-help") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    activeLayerHelp = .roadMatchedPath
+                }
+            }
+        }
+        #endif
     }
 }
 

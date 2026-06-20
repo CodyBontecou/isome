@@ -9,11 +9,20 @@ struct IsoMeExportSnapshot: ExportRecord {
     let exportDate: Date
     let visits: [Visit]
     let points: [LocationPoint]
+    let outings: [RecordingSessionSummary]
     let options: ExportOptions
     let dataKind: ExportOptions.DataKind
     let isSplitByDay: Bool
+    let isSplitOuting: Bool
 
     var exportRecordID: String { id }
+
+    var displayTitle: String {
+        if isSplitOuting, let outing = outings.first {
+            return outing.title
+        }
+        return id
+    }
 }
 
 enum IsoMeExportKitError: LocalizedError, Equatable {
@@ -39,13 +48,15 @@ enum IsoMeExportPathPlanner {
         dataKind: ExportOptions.DataKind,
         format: ExportFormat,
         date: Date = Date(),
+        title: String? = nil,
         safetyPolicy: ExportPathSafetyPolicy = .rejectTraversalAndAbsolutePaths
     ) throws -> String {
         let expandedPath = FilenameTemplate.stem(
             pattern: pattern,
             dataKind: dataKind,
             format: format,
-            date: date
+            date: date,
+            title: title
         )
 
         // Validate the raw user-expanded pattern before applying filename/path
@@ -83,6 +94,7 @@ enum IsoMeExportKitAdapter {
                 let data = try renderData(
                     visits: snapshot.visits,
                     points: snapshot.points,
+                    outings: snapshot.outings,
                     dataKind: snapshot.dataKind,
                     format: format,
                     options: snapshot.options
@@ -98,12 +110,16 @@ enum IsoMeExportKitAdapter {
     static func render(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> (data: Data, fileName: String) {
         guard let file = try plannedFiles(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             filenamePattern: filenamePattern,
             forceSplitByDay: false
@@ -123,12 +139,16 @@ enum IsoMeExportKitAdapter {
     static func renderPerDay(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [(data: Data, fileName: String)] {
         try plannedFiles(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             filenamePattern: filenamePattern,
             forceSplitByDay: true
@@ -138,6 +158,8 @@ enum IsoMeExportKitAdapter {
     static func plannedFiles(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern,
         forceSplitByDay: Bool? = nil
@@ -146,6 +168,8 @@ enum IsoMeExportKitAdapter {
         let snapshots = try exportSnapshots(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             splitByDay: splitByDay
         )
@@ -159,15 +183,12 @@ enum IsoMeExportKitAdapter {
                 formatID: descriptor.id,
                 context: .default
             )
-            var fileName = try IsoMeExportPathPlanner.plannedRelativePath(
-                pattern: filenamePattern,
-                dataKind: snapshot.dataKind,
+            let fileName = try plannedRelativePath(
+                for: snapshot,
+                filenamePattern: filenamePattern,
                 format: options.format,
-                date: snapshot.exportDate
+                usedNames: &usedNames
             )
-            if snapshot.isSplitByDay {
-                fileName = uniqueFilename(fileName, in: &usedNames, day: snapshot.exportDate, format: options.format)
-            }
             return PlannedExportFile(
                 id: "\(snapshot.exportRecordID)-\(descriptor.id)",
                 role: .aggregate(formatID: descriptor.id),
@@ -184,12 +205,16 @@ enum IsoMeExportKitAdapter {
     static func preview(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) async throws -> ExportPreview {
         let snapshots = try exportSnapshots(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             splitByDay: options.splitByDay
         )
@@ -209,23 +234,20 @@ enum IsoMeExportKitAdapter {
                 ExportRecordReference(
                     id: snapshot.exportRecordID,
                     date: snapshot.exportDate,
-                    displayName: snapshot.exportRecordID
+                    displayName: snapshot.displayTitle
                 )
             },
             planAggregateFile: { snapshot, descriptor, rendered in
                 guard let format = ExportFormat(exportKitFormatID: descriptor.id) else {
                     throw IsoMeExportKitError.missingFormat(descriptor.id)
                 }
-                var fileName = try IsoMeExportPathPlanner.plannedRelativePath(
-                    pattern: filenamePattern,
-                    dataKind: snapshot.dataKind,
+                let fileName = try plannedRelativePath(
+                    for: snapshot,
+                    filenamePattern: filenamePattern,
                     format: format,
-                    date: snapshot.exportDate,
+                    usedNames: &usedNames,
                     safetyPolicy: .preserveCurrentBehavior
                 )
-                if snapshot.isSplitByDay {
-                    fileName = uniqueFilename(fileName, in: &usedNames, day: snapshot.exportDate, format: format)
-                }
                 return PlannedExportFile(
                     id: "\(snapshot.exportRecordID)-\(descriptor.id)",
                     role: .aggregate(formatID: descriptor.id),
@@ -254,9 +276,63 @@ enum IsoMeExportKitAdapter {
         return try writer.write(files, to: destination, mode: .overwrite).map(\.url)
     }
 
+    static func plannedOutingFiles(
+        outings: [RecordingSessionSummary],
+        visits: [Visit],
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern
+    ) throws -> [PlannedExportFile] {
+        var outingOptions = options
+        outingOptions.dataKind = .outings
+        outingOptions.datePreset = .allTime
+        outingOptions.timeOfDayEnabled = false
+        outingOptions.splitByDay = false
+
+        let registry = try rendererRegistry()
+        var usedNames = Set<String>()
+
+        return try outings.map { outing in
+            let descriptor = descriptor(for: outingOptions.format)
+            let snapshot = IsoMeExportSnapshot(
+                id: outingIdentifier(for: outing),
+                exportDate: outing.startedAt,
+                visits: visitsForOuting(outing, visits: visits),
+                points: outing.points,
+                outings: [outing],
+                options: outingOptions,
+                dataKind: .outings,
+                isSplitByDay: false,
+                isSplitOuting: true
+            )
+            let rendered = try registry.render(
+                record: snapshot,
+                formatID: descriptor.id,
+                context: .default
+            )
+            let fileName = try plannedRelativePath(
+                for: snapshot,
+                filenamePattern: filenamePattern,
+                format: outingOptions.format,
+                usedNames: &usedNames
+            )
+            return PlannedExportFile(
+                id: "\(snapshot.exportRecordID)-\(descriptor.id)",
+                role: .aggregate(formatID: descriptor.id),
+                relativePath: fileName,
+                content: rendered.content,
+                format: descriptor,
+                contentType: rendered.contentType,
+                displayName: descriptor.displayName,
+                estimatedByteCount: rendered.content.utf8.count
+            )
+        }
+    }
+
     static func run(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern,
         destination: ExportDestination?,
@@ -265,7 +341,14 @@ enum IsoMeExportKitAdapter {
         let splitByDay = options.splitByDay
         let snapshots: [IsoMeExportSnapshot]
         do {
-            snapshots = try exportSnapshots(visits: visits, points: points, options: options, splitByDay: splitByDay)
+            snapshots = try exportSnapshots(
+                visits: visits,
+                points: points,
+                recordingSessions: recordingSessions,
+                activeTrackingStart: activeTrackingStart,
+                options: options,
+                splitByDay: splitByDay
+            )
         } catch {
             return ExportRunResult(
                 successCount: 0,
@@ -295,15 +378,12 @@ enum IsoMeExportKitAdapter {
             let descriptor = descriptor(for: options.format)
             let registry = try rendererRegistry()
             let rendered = try registry.render(record: snapshot, formatID: descriptor.id)
-            var fileName = try IsoMeExportPathPlanner.plannedRelativePath(
-                pattern: filenamePattern,
-                dataKind: snapshot.dataKind,
+            let fileName = try plannedRelativePath(
+                for: snapshot,
+                filenamePattern: filenamePattern,
                 format: options.format,
-                date: snapshot.exportDate
+                usedNames: &usedNames
             )
-            if snapshot.isSplitByDay {
-                fileName = uniqueFilename(fileName, in: &usedNames, day: snapshot.exportDate, format: options.format)
-            }
             let file = PlannedExportFile(
                 id: "\(snapshot.exportRecordID)-\(descriptor.id)",
                 role: .aggregate(formatID: descriptor.id),
@@ -329,7 +409,11 @@ enum IsoMeExportKitAdapter {
             destination: destination,
             writeMode: writeMode,
             recordReference: { snapshot in
-                ExportRecordReference(id: snapshot.exportRecordID, date: snapshot.exportDate)
+                ExportRecordReference(
+                    id: snapshot.exportRecordID,
+                    date: snapshot.exportDate,
+                    displayName: snapshot.displayTitle
+                )
             }
         )
         return await orchestrator.run(request)
@@ -338,12 +422,22 @@ enum IsoMeExportKitAdapter {
     private static func exportSnapshots(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession],
+        activeTrackingStart: Date?,
         options: ExportOptions,
         splitByDay: Bool
     ) throws -> [IsoMeExportSnapshot] {
         let filteredVisits = options.filterVisits(visits)
         let filteredPoints = options.filterPoints(points)
         let effectiveKind = effectiveDataKind(for: options)
+        let outingSummaries = options.filterOutings(
+            RecordingSessionBuilder.summaries(
+                storedSessions: recordingSessions,
+                points: points,
+                activeTrackingStart: activeTrackingStart,
+                inferenceConfiguration: .stored()
+            )
+        )
 
         guard splitByDay else {
             return [IsoMeExportSnapshot(
@@ -351,10 +445,32 @@ enum IsoMeExportKitAdapter {
                 exportDate: Date(),
                 visits: filteredVisits,
                 points: filteredPoints,
+                outings: effectiveKind == .outings ? outingSummaries : [],
                 options: options,
                 dataKind: effectiveKind,
-                isSplitByDay: false
+                isSplitByDay: false,
+                isSplitOuting: false
             )]
+        }
+
+        if effectiveKind == .outings {
+            return outingSummaries.map { outing in
+                var outingOptions = options
+                outingOptions.datePreset = .allTime
+                outingOptions.timeOfDayEnabled = false
+                outingOptions.splitByDay = false
+                return IsoMeExportSnapshot(
+                    id: outingIdentifier(for: outing),
+                    exportDate: outing.startedAt,
+                    visits: visitsForOuting(outing, visits: visits),
+                    points: outing.points,
+                    outings: [outing],
+                    options: outingOptions,
+                    dataKind: effectiveKind,
+                    isSplitByDay: false,
+                    isSplitOuting: true
+                )
+            }
         }
 
         return options.groupByDay(visits: filteredVisits, points: filteredPoints).map { group in
@@ -372,9 +488,11 @@ enum IsoMeExportKitAdapter {
                 exportDate: group.day,
                 visits: group.visits,
                 points: group.points,
+                outings: [],
                 options: dayOptions,
                 dataKind: dayKind,
-                isSplitByDay: true
+                isSplitByDay: true,
+                isSplitOuting: false
             )
         }
     }
@@ -382,6 +500,7 @@ enum IsoMeExportKitAdapter {
     private static func renderData(
         visits: [Visit],
         points: [LocationPoint],
+        outings: [RecordingSessionSummary],
         dataKind: ExportOptions.DataKind,
         format: ExportFormat,
         options: ExportOptions
@@ -408,13 +527,18 @@ enum IsoMeExportKitAdapter {
             case .kml: return ExportService.exportLocationPointsToKML(points: points, options: options)
             case .geojson: return try ExportService.exportLocationPointsToGeoJSON(points: points, options: options)
             }
+        case .outings:
+            return try ExportService.outingsData(outings: outings, visits: visits, format: format, options: options)
         case .all:
             return try ExportService.combinedData(visits: visits, points: points, format: format, options: options)
         }
     }
 
     private static func effectiveDataKind(for options: ExportOptions) -> ExportOptions.DataKind {
-        options.format.isPointsOnly ? .points : options.dataKind
+        if options.format.isPointsOnly, options.dataKind != .outings {
+            return .points
+        }
+        return options.dataKind
     }
 
     private static func failure(for error: Error) -> ExportRunFailure {
@@ -428,6 +552,88 @@ enum IsoMeExportKitAdapter {
             return ExportRunFailure(reason: .accessDenied, errorDescription: error.localizedDescription)
         }
         return ExportRunFailure(reason: .unknown, errorDescription: error.localizedDescription)
+    }
+
+    private static func plannedRelativePath(
+        for snapshot: IsoMeExportSnapshot,
+        filenamePattern: String,
+        format: ExportFormat,
+        usedNames: inout Set<String>,
+        safetyPolicy: ExportPathSafetyPolicy = .rejectTraversalAndAbsolutePaths
+    ) throws -> String {
+        let outing = snapshot.isSplitOuting ? snapshot.outings.first : nil
+        let patternIncludesTitle = filenamePattern.contains("{title}") || filenamePattern.contains("{name}")
+        let patternIncludesTime = filenamePattern.contains("{time}") || filenamePattern.contains("{datetime}")
+        var fileName = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: filenamePattern,
+            dataKind: snapshot.dataKind,
+            format: format,
+            date: snapshot.exportDate,
+            title: outing?.title,
+            safetyPolicy: safetyPolicy
+        )
+
+        if let outing, !patternIncludesTitle {
+            fileName = appendFilenameSuffix(
+                outingFilenameSuffix(for: outing, includesTimeToken: patternIncludesTime),
+                to: fileName,
+                format: format
+            )
+        }
+
+        if snapshot.isSplitByDay || snapshot.isSplitOuting {
+            fileName = uniqueFilename(fileName, in: &usedNames, day: snapshot.exportDate, format: format)
+        }
+
+        return fileName
+    }
+
+    private static func visitsForOuting(_ outing: RecordingSessionSummary, visits: [Visit]) -> [Visit] {
+        visits
+            .filter { outing.dateRange.contains($0.arrivedAt) }
+            .sorted { $0.arrivedAt < $1.arrivedAt }
+    }
+
+    private static func outingIdentifier(for outing: RecordingSessionSummary) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return "iso.me-outing-\(outing.sequenceNumber)-\(formatter.string(from: outing.startedAt))"
+    }
+
+    private static func outingFilenameSuffix(for outing: RecordingSessionSummary, includesTimeToken: Bool) -> String {
+        let title = FilenameTemplate.sanitize(outing.title)
+        if includesTimeToken { return title }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "HH-mm"
+        let time = formatter.string(from: outing.startedAt)
+        return title.isEmpty ? time : "\(time) - \(title)"
+    }
+
+    private static func appendFilenameSuffix(_ suffix: String, to path: String, format: ExportFormat) -> String {
+        let sanitizedSuffix = FilenameTemplate.sanitize(suffix)
+        guard !sanitizedSuffix.isEmpty else { return path }
+
+        let splitIndex = path.lastIndex(of: "/")
+        let directoryPrefix: String
+        let filename: String
+        if let splitIndex {
+            directoryPrefix = String(path[...splitIndex])
+            filename = String(path[path.index(after: splitIndex)...])
+        } else {
+            directoryPrefix = ""
+            filename = path
+        }
+
+        let ext = ".\(format.fileExtension)"
+        if filename.lowercased().hasSuffix(ext.lowercased()) {
+            let stem = String(filename.dropLast(ext.count))
+            return "\(directoryPrefix)\(stem) - \(sanitizedSuffix)\(ext)"
+        }
+
+        return "\(directoryPrefix)\(filename) - \(sanitizedSuffix)"
     }
 
     private static func dayIdentifier(for day: Date, dataKind: ExportOptions.DataKind) -> String {

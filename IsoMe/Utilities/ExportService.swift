@@ -923,6 +923,362 @@ extension ExportService {
     }
 }
 
+// MARK: - Outings Export
+
+extension ExportService {
+    struct ExportableOuting: Codable {
+        let id: String
+        let title: String
+        let sequenceNumber: Int
+        let startedAt: String
+        let endedAt: String?
+        let effectiveEndAt: String
+        let durationSeconds: Double
+        let distanceMeters: Double
+        let averageSpeedMetersPerSecond: Double?
+        let pointCount: Int
+        let outlierCount: Int
+        let visitCount: Int
+        let isInferred: Bool
+        let isActive: Bool
+        let notes: String?
+        let startLatitude: Double?
+        let startLongitude: Double?
+        let endLatitude: Double?
+        let endLongitude: Double?
+    }
+
+    struct OutingsExportData: Codable {
+        let exportDate: String
+        let totalOutings: Int
+        let outings: [ExportableOuting]
+    }
+
+    static func outingsData(
+        outings: [RecordingSessionSummary],
+        visits: [Visit],
+        format: ExportFormat,
+        options: ExportOptions = ExportOptions()
+    ) throws -> Data {
+        switch format {
+        case .json:
+            return try exportOutingsToJSON(outings: outings, visits: visits)
+        case .csv:
+            return exportOutingsToCSV(outings: outings, visits: visits)
+        case .markdown:
+            return exportOutingsToMarkdown(outings: outings, visits: visits, options: options)
+        case .owntracks:
+            return try exportLocationPointsToOwnTracks(points: uniqueOutingPoints(outings), options: options)
+        case .overland:
+            return try exportLocationPointsToOverland(points: uniqueOutingPoints(outings), options: options)
+        case .gpx:
+            return exportLocationPointsToGPX(points: uniqueOutingPoints(outings), options: options)
+        case .kml:
+            return exportLocationPointsToKML(points: uniqueOutingPoints(outings), options: options)
+        case .geojson:
+            return try exportLocationPointsToGeoJSON(points: uniqueOutingPoints(outings), options: options)
+        }
+    }
+
+    static func exportOutingsToJSON(outings: [RecordingSessionSummary], visits: [Visit]) throws -> Data {
+        let exportData = OutingsExportData(
+            exportDate: iso8601Formatter.string(from: Date()),
+            totalOutings: outings.count,
+            outings: outings.sorted { $0.startedAt < $1.startedAt }.map { outing in
+                exportableOuting(outing, visitCount: outingVisits(outing, visits: visits).count)
+            }
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try encoder.encode(exportData)
+    }
+
+    static func exportOutingsToCSV(outings: [RecordingSessionSummary], visits: [Visit]) -> Data {
+        let headers = [
+            "id", "title", "sequence_number", "started_at", "ended_at", "effective_end_at",
+            "duration_seconds", "distance_meters", "average_speed_mps", "point_count", "outlier_count",
+            "visit_count", "is_inferred", "is_active", "notes", "start_latitude", "start_longitude",
+            "end_latitude", "end_longitude"
+        ]
+        var csv = headers.joined(separator: ",") + "\n"
+
+        for outing in outings.sorted(by: { $0.startedAt < $1.startedAt }) {
+            let exportable = exportableOuting(outing, visitCount: outingVisits(outing, visits: visits).count)
+            let fields: [String] = [
+                escapeCSVField(exportable.id),
+                escapeCSVField(exportable.title),
+                String(exportable.sequenceNumber),
+                exportable.startedAt,
+                exportable.endedAt ?? "",
+                exportable.effectiveEndAt,
+                String(format: "%.0f", exportable.durationSeconds),
+                String(format: "%.2f", exportable.distanceMeters),
+                exportable.averageSpeedMetersPerSecond.map { String(format: "%.3f", $0) } ?? "",
+                String(exportable.pointCount),
+                String(exportable.outlierCount),
+                String(exportable.visitCount),
+                exportable.isInferred ? "true" : "false",
+                exportable.isActive ? "true" : "false",
+                escapeCSVField(exportable.notes ?? ""),
+                exportable.startLatitude.map { String($0) } ?? "",
+                exportable.startLongitude.map { String($0) } ?? "",
+                exportable.endLatitude.map { String($0) } ?? "",
+                exportable.endLongitude.map { String($0) } ?? ""
+            ]
+            csv.append(fields.joined(separator: ",") + "\n")
+        }
+
+        return csv.data(using: .utf8) ?? Data()
+    }
+
+    static func exportOutingsToMarkdown(
+        outings: [RecordingSessionSummary],
+        visits: [Visit],
+        options: ExportOptions = ExportOptions()
+    ) -> Data {
+        let sortedOutings = outings.sorted { $0.startedAt < $1.startedAt }
+
+        if sortedOutings.count == 1, let outing = sortedOutings.first {
+            return outingMarkdownPage(
+                outing,
+                visits: outingVisits(outing, visits: visits),
+                options: options
+            ).data(using: .utf8) ?? Data()
+        }
+
+        var md = "# iso.me Outings Export\n\n"
+        md += "**Export Date:** \(formattedDateReadable())\n\n"
+        md += "**Total Outings:** \(sortedOutings.count)\n\n"
+        md += "---\n\n"
+        md += "| Start | End | Title | Duration | Distance | Points | Visits | Notes |\n"
+        md += "|------|-----|-------|----------|----------|--------|--------|-------|\n"
+
+        for outing in sortedOutings {
+            let visitsForOuting = outingVisits(outing, visits: visits)
+            let notes = outingNotes(outing)
+            let cells = [
+                formattedDateTime(outing.startedAt),
+                outing.endedAt.map(formattedDateTime) ?? (outing.isActive ? "now" : formattedDateTime(outing.effectiveEndDate)),
+                escapeMarkdownTableCell(outing.title),
+                RecordingSessionFormatter.duration(outing.duration),
+                String(format: "%.0f m", outing.distanceMeters),
+                String(outing.pointCount),
+                String(visitsForOuting.count),
+                escapeMarkdownTableCell(notes)
+            ]
+            md += "| " + cells.joined(separator: " | ") + " |\n"
+        }
+
+        return md.data(using: .utf8) ?? Data()
+    }
+
+    private static func exportableOuting(_ outing: RecordingSessionSummary, visitCount: Int) -> ExportableOuting {
+        ExportableOuting(
+            id: outing.id,
+            title: outing.title,
+            sequenceNumber: outing.sequenceNumber,
+            startedAt: iso8601Formatter.string(from: outing.startedAt),
+            endedAt: outing.endedAt.map { iso8601Formatter.string(from: $0) },
+            effectiveEndAt: iso8601Formatter.string(from: outing.effectiveEndDate),
+            durationSeconds: outing.duration,
+            distanceMeters: outing.distanceMeters,
+            averageSpeedMetersPerSecond: outing.averageSpeedMetersPerSecond,
+            pointCount: outing.pointCount,
+            outlierCount: outing.outlierCount,
+            visitCount: visitCount,
+            isInferred: outing.isInferred,
+            isActive: outing.isActive,
+            notes: outingNotes(outing),
+            startLatitude: outing.startPoint?.latitude,
+            startLongitude: outing.startPoint?.longitude,
+            endLatitude: outing.endPoint?.latitude,
+            endLongitude: outing.endPoint?.longitude
+        )
+    }
+
+    private static func outingMarkdownPage(
+        _ outing: RecordingSessionSummary,
+        visits: [Visit],
+        options: ExportOptions
+    ) -> String {
+        var md = "---\n"
+        md += yamlString("type", "outing")
+        md += yamlString("app", "iso.me")
+        md += yamlString("id", outing.id)
+        md += yamlString("title", outing.title)
+        md += "sequence: \(outing.sequenceNumber)\n"
+        md += yamlString("start", iso8601Formatter.string(from: outing.startedAt))
+        md += yamlString("end", outing.endedAt.map { iso8601Formatter.string(from: $0) })
+        md += yamlString("effective_end", iso8601Formatter.string(from: outing.effectiveEndDate))
+        md += yamlNumber("duration_seconds", outing.duration, decimals: 0)
+        md += yamlNumber("distance_meters", outing.distanceMeters, decimals: 2)
+        md += yamlOptionalNumber("average_speed_mps", outing.averageSpeedMetersPerSecond, decimals: 3)
+        md += "point_count: \(outing.pointCount)\n"
+        md += "outlier_count: \(outing.outlierCount)\n"
+        md += "visit_count: \(visits.count)\n"
+        md += "is_inferred: \(outing.isInferred ? "true" : "false")\n"
+        md += "is_active: \(outing.isActive ? "true" : "false")\n"
+        md += yamlString("source", outing.isInferred ? "inferred" : "recorded")
+        md += yamlString("notes", outingNotes(outing))
+        md += yamlOptionalNumber("start_latitude", outing.startPoint?.latitude, decimals: 6)
+        md += yamlOptionalNumber("start_longitude", outing.startPoint?.longitude, decimals: 6)
+        md += yamlOptionalNumber("end_latitude", outing.endPoint?.latitude, decimals: 6)
+        md += yamlOptionalNumber("end_longitude", outing.endPoint?.longitude, decimals: 6)
+        md += yamlStringArray("visits", visits.map(\.displayName))
+        md += "---\n\n"
+
+        md += "# \(outing.title)\n\n"
+        md += "## Summary\n\n"
+        md += "| Field | Value |\n"
+        md += "|------|-------|\n"
+        md += "| Start | \(escapeMarkdownTableCell(formattedDateTime(outing.startedAt))) |\n"
+        md += "| End | \(escapeMarkdownTableCell(outing.endedAt.map(formattedDateTime) ?? (outing.isActive ? "Now" : formattedDateTime(outing.effectiveEndDate)))) |\n"
+        md += "| Duration | \(escapeMarkdownTableCell(RecordingSessionFormatter.duration(outing.duration))) |\n"
+        md += "| Distance | \(escapeMarkdownTableCell(String(format: "%.0f m", outing.distanceMeters))) |\n"
+        md += "| GPS points | \(outing.pointCount) |\n"
+        md += "| Visits | \(visits.count) |\n"
+        md += "| Source | \(outing.isInferred ? "Inferred" : "Recorded") |\n\n"
+
+        if let notes = outingNotes(outing) {
+            md += "## Notes\n\n\(notes)\n\n"
+        }
+
+        if !visits.isEmpty {
+            md += outingVisitsMarkdown(visits, options: options)
+        }
+
+        if !outing.points.isEmpty {
+            md += outingPointsMarkdown(outing.points, options: options)
+        }
+
+        return md
+    }
+
+    private static func outingVisits(_ outing: RecordingSessionSummary, visits: [Visit]) -> [Visit] {
+        visits
+            .filter { outing.dateRange.contains($0.arrivedAt) }
+            .sorted { $0.arrivedAt < $1.arrivedAt }
+    }
+
+    private static func outingNotes(_ outing: RecordingSessionSummary) -> String? {
+        guard let notes = outing.storedSession?.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty else {
+            return nil
+        }
+        return notes
+    }
+
+    private static func uniqueOutingPoints(_ outings: [RecordingSessionSummary]) -> [LocationPoint] {
+        var seenIDs = Set<UUID>()
+        return outings
+            .flatMap(\.points)
+            .sorted { $0.timestamp < $1.timestamp }
+            .filter { seenIDs.insert($0.id).inserted }
+    }
+
+    private static func outingVisitsMarkdown(_ visits: [Visit], options: ExportOptions) -> String {
+        var headerCols: [String] = ["Arrived", "Departed"]
+        if options.includeVisitDuration { headerCols.append("Duration") }
+        if options.includeVisitCoordinates {
+            headerCols.append("Lat")
+            headerCols.append("Lon")
+        }
+        if options.includeVisitLocationName { headerCols.append("Location") }
+        if options.includeVisitAddress { headerCols.append("Address") }
+        if options.includeVisitNotes { headerCols.append("Notes") }
+
+        var md = "## Visits\n\n"
+        md += "| " + headerCols.joined(separator: " | ") + " |\n"
+        md += "|" + headerCols.map { _ in "------" }.joined(separator: "|") + "|\n"
+
+        for visit in visits {
+            var cells: [String] = []
+            cells.append(formattedDateTime(visit.arrivedAt))
+            cells.append(visit.departedAt.map(formattedDateTime) ?? "-")
+            if options.includeVisitDuration {
+                cells.append(visit.durationMinutes.map { String(format: "%.1f min", $0) } ?? "-")
+            }
+            if options.includeVisitCoordinates {
+                cells.append(String(format: "%.6f", visit.latitude))
+                cells.append(String(format: "%.6f", visit.longitude))
+            }
+            if options.includeVisitLocationName { cells.append(escapeMarkdownTableCell(visit.exportLocationName)) }
+            if options.includeVisitAddress { cells.append(escapeMarkdownTableCell(visit.address)) }
+            if options.includeVisitNotes { cells.append(escapeMarkdownTableCell(visit.notes)) }
+            md += "| " + cells.joined(separator: " | ") + " |\n"
+        }
+
+        return md + "\n"
+    }
+
+    private static func outingPointsMarkdown(_ points: [LocationPoint], options: ExportOptions) -> String {
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        var headerCols: [String] = ["Time", "Lat", "Lon"]
+        if options.includePointSpeed { headerCols.append("Speed") }
+        if options.includePointAltitude { headerCols.append("Altitude") }
+        if options.includePointAccuracy { headerCols.append("Accuracy") }
+        if options.includePointOutlierFlag { headerCols.append("Outlier") }
+
+        var md = "## Route Points\n\n"
+        md += "| " + headerCols.joined(separator: " | ") + " |\n"
+        md += "|" + headerCols.map { _ in "------" }.joined(separator: "|") + "|\n"
+
+        for point in sortedPoints {
+            var cells: [String] = []
+            cells.append(formattedDateTime(point.timestamp))
+            cells.append(String(format: "%.6f", point.latitude))
+            cells.append(String(format: "%.6f", point.longitude))
+            if options.includePointSpeed { cells.append(point.speed.map { String(format: "%.1f m/s", $0) } ?? "-") }
+            if options.includePointAltitude { cells.append(point.altitude.map { String(format: "%.1f m", $0) } ?? "-") }
+            if options.includePointAccuracy { cells.append(String(format: "%.1f m", point.horizontalAccuracy)) }
+            if options.includePointOutlierFlag { cells.append(point.isOutlier ? "yes" : "-") }
+            md += "| " + cells.joined(separator: " | ") + " |\n"
+        }
+
+        return md + "\n"
+    }
+
+    private static func formattedDateTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
+    private static func yamlString(_ key: String, _ value: String?) -> String {
+        guard let value, !value.isEmpty else { return "\(key): null\n" }
+        let normalized = value
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        if normalized.contains("\n") {
+            let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
+            return "\(key): |-\n" + lines.map { "  \($0)" }.joined(separator: "\n") + "\n"
+        }
+        return "\(key): \(yamlQuoted(normalized))\n"
+    }
+
+    private static func yamlStringArray(_ key: String, _ values: [String]) -> String {
+        guard !values.isEmpty else { return "\(key): []\n" }
+        return "\(key):\n" + values.map { "  - \(yamlQuoted($0))" }.joined(separator: "\n") + "\n"
+    }
+
+    private static func yamlNumber(_ key: String, _ value: Double, decimals: Int) -> String {
+        "\(key): \(String(format: "%.\(decimals)f", value))\n"
+    }
+
+    private static func yamlOptionalNumber(_ key: String, _ value: Double?, decimals: Int) -> String {
+        guard let value else { return "\(key): null\n" }
+        return yamlNumber(key, value, decimals: decimals)
+    }
+
+    private static func yamlQuoted(_ value: String) -> String {
+        let escaped = value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+        return "\"\(escaped)\""
+    }
+}
+
 // MARK: - GPX Export (https://www.topografix.com/GPX/1/1/)
 
 extension ExportService {
@@ -1392,12 +1748,16 @@ extension ExportService {
     static func render(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> (data: Data, fileName: String) {
         try IsoMeExportKitAdapter.render(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             filenamePattern: filenamePattern
         )
@@ -1410,12 +1770,16 @@ extension ExportService {
     static func renderPerDay(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [(data: Data, fileName: String)] {
         try IsoMeExportKitAdapter.renderPerDay(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
             options: options,
             filenamePattern: filenamePattern
         )
@@ -1461,6 +1825,8 @@ extension ExportService {
     static func share(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern,
         from viewController: UIViewController? = nil,
@@ -1470,6 +1836,8 @@ extension ExportService {
             IsoMeExportKitAdapter.plannedFiles(
                 visits: visits,
                 points: points,
+                recordingSessions: recordingSessions,
+                activeTrackingStart: activeTrackingStart,
                 options: options,
                 filenamePattern: filenamePattern
             )
@@ -1505,12 +1873,77 @@ extension ExportService {
     static func saveToDefaultFolder(
         visits: [Visit],
         points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
         options: ExportOptions,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [URL] {
         let files = try IsoMeExportKitAdapter.plannedFiles(
             visits: visits,
             points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
+            options: options,
+            filenamePattern: filenamePattern
+        )
+        guard let urls = try ExportFolderManager.shared.savePlannedFilesToDefaultFolder(files) else {
+            throw ExportFolderError.noDefaultFolder
+        }
+        return urls
+    }
+
+    @MainActor
+    static func shareOuting(
+        _ outing: RecordingSessionSummary,
+        visits: [Visit],
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern,
+        from viewController: UIViewController? = nil,
+        completion: ((Bool) -> Void)? = nil
+    ) throws {
+        let files = try IsoMeExportKitAdapter.plannedOutingFiles(
+            outings: [outing],
+            visits: visits,
+            options: options,
+            filenamePattern: filenamePattern
+        )
+        let fileURLs = try IsoMeExportKitAdapter.writeTemporaryFiles(files)
+        guard !fileURLs.isEmpty else { return }
+
+        let activityVC = UIActivityViewController(
+            activityItems: activityItems(for: fileURLs, format: options.format),
+            applicationActivities: nil
+        )
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            completion?(completed)
+        }
+
+        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController else {
+            return
+        }
+
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        presenter.present(activityVC, animated: true)
+    }
+
+    @MainActor
+    static func saveOutingToDefaultFolder(
+        _ outing: RecordingSessionSummary,
+        visits: [Visit],
+        options: ExportOptions,
+        filenamePattern: String = FilenameTemplate.defaultPattern
+    ) throws -> [URL] {
+        let files = try IsoMeExportKitAdapter.plannedOutingFiles(
+            outings: [outing],
+            visits: visits,
             options: options,
             filenamePattern: filenamePattern
         )

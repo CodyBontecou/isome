@@ -1,28 +1,58 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var locationData: SharedLocationData = .empty
+    @StateObject private var tracker = WatchLocationTracker()
+
+    private var locationData: SharedLocationData {
+        tracker.locationData
+    }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-                // Tracking Status Header
+            VStack(spacing: 14) {
                 trackingStatusView
+
+                permissionView
+
+                Button {
+                    tracker.toggleTracking()
+                } label: {
+                    Label(locationData.isTrackingEnabled ? "Stop" : "Start", systemImage: locationData.isTrackingEnabled ? "stop.fill" : "play.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(locationData.isTrackingEnabled ? .red : .green)
+                .disabled(!tracker.canUseLocation && !tracker.needsLocationPermission)
 
                 Divider()
 
-                // Today's Stats
                 statsView
 
                 if let locationName = locationData.currentLocationName {
                     Divider()
                     currentLocationView(locationName)
                 }
+
+                if let error = tracker.lastErrorMessage {
+                    Text(error)
+                        .font(.caption2)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                }
+
+                if locationData.todayPointsCount > 0 {
+                    Button(role: .destructive) {
+                        tracker.resetToday()
+                    } label: {
+                        Text("Reset Today")
+                    }
+                    .font(.caption)
+                }
             }
             .padding()
         }
         .onAppear {
-            refreshData()
+            tracker.refresh()
         }
     }
 
@@ -35,11 +65,34 @@ struct ContentView: View {
             Text(locationData.trackingStatus)
                 .font(.headline)
 
+            Text("Apple Watch")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
             if locationData.isTrackingEnabled,
                let remaining = locationData.formattedRemainingTime {
                 Text("\(remaining) remaining")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var permissionView: some View {
+        if let message = tracker.authorizationMessage {
+            VStack(spacing: 6) {
+                Text(message)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+
+                if tracker.needsLocationPermission {
+                    Button("Enable Location") {
+                        tracker.requestLocationPermission()
+                    }
+                    .font(.caption)
+                }
             }
         }
     }
@@ -55,9 +108,7 @@ struct ContentView: View {
                 statItem(value: locationData.formattedDistance, label: "Distance", icon: "figure.walk")
             }
 
-            if locationData.todayPointsCount > 0 {
-                statItem(value: "\(locationData.todayPointsCount)", label: "Points", icon: "location.fill")
-            }
+            statItem(value: "\(locationData.todayPointsCount)", label: "Points", icon: "location.fill")
         }
     }
 
@@ -82,6 +133,12 @@ struct ContentView: View {
             Text(name)
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
+
+            if let update = locationData.lastUpdateTime {
+                Text(update, style: .time)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -91,12 +148,6 @@ struct ContentView: View {
 
     private var statusColor: Color {
         locationData.isTrackingEnabled ? .green : .gray
-    }
-
-    private func refreshData() {
-        if let data = SharedLocationData.load() {
-            locationData = data
-        }
     }
 }
 
