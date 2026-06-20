@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import ExportKit
 
-enum ExportFormat: CaseIterable {
+enum ExportFormat: CaseIterable, Hashable {
     case json
     case csv
     case markdown
@@ -281,6 +281,16 @@ struct ExportService {
     private static func activityItems(for fileURLs: [URL], format: ExportFormat) -> [Any] {
         guard format == .kml else { return fileURLs }
         return fileURLs.map { KMLActivityItemSource(fileURL: $0) }
+    }
+
+    private static func activityItems(for plannedFiles: [PlannedExportFile], fileURLs: [URL]) -> [Any] {
+        zip(plannedFiles, fileURLs).map { plannedFile, fileURL in
+            if case .aggregate(let formatID) = plannedFile.role,
+               ExportFormat(exportKitFormatID: formatID) == .kml {
+                return KMLActivityItemSource(fileURL: fileURL) as Any
+            }
+            return fileURL as Any
+        }
     }
 
     @MainActor
@@ -1828,25 +1838,26 @@ extension ExportService {
         recordingSessions: [RecordingSession] = [],
         activeTrackingStart: Date? = nil,
         options: ExportOptions,
+        selectedFormats: [ExportFormat]? = nil,
         filenamePattern: String = FilenameTemplate.defaultPattern,
         from viewController: UIViewController? = nil,
         completion: ((Bool) -> Void)? = nil
     ) throws {
-        let fileURLs = try IsoMeExportKitAdapter.writeTemporaryFiles(
-            IsoMeExportKitAdapter.plannedFiles(
-                visits: visits,
-                points: points,
-                recordingSessions: recordingSessions,
-                activeTrackingStart: activeTrackingStart,
-                options: options,
-                filenamePattern: filenamePattern
-            )
+        let plannedFiles = try IsoMeExportKitAdapter.plannedFiles(
+            visits: visits,
+            points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
+            options: options,
+            selectedFormats: selectedFormats,
+            filenamePattern: filenamePattern
         )
+        let fileURLs = try IsoMeExportKitAdapter.writeTemporaryFiles(plannedFiles)
 
         guard !fileURLs.isEmpty else { return }
 
         let activityVC = UIActivityViewController(
-            activityItems: activityItems(for: fileURLs, format: options.format),
+            activityItems: activityItems(for: plannedFiles, fileURLs: fileURLs),
             applicationActivities: nil
         )
         activityVC.completionWithItemsHandler = { _, completed, _, _ in
@@ -1876,6 +1887,7 @@ extension ExportService {
         recordingSessions: [RecordingSession] = [],
         activeTrackingStart: Date? = nil,
         options: ExportOptions,
+        selectedFormats: [ExportFormat]? = nil,
         filenamePattern: String = FilenameTemplate.defaultPattern
     ) throws -> [URL] {
         let files = try IsoMeExportKitAdapter.plannedFiles(
@@ -1884,6 +1896,7 @@ extension ExportService {
             recordingSessions: recordingSessions,
             activeTrackingStart: activeTrackingStart,
             options: options,
+            selectedFormats: selectedFormats,
             filenamePattern: filenamePattern
         )
         guard let urls = try ExportFolderManager.shared.savePlannedFilesToDefaultFolder(files) else {

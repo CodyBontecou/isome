@@ -10,6 +10,7 @@ struct ExportView: View {
     @ObservedObject private var storeManager = StoreManager.shared
 
     @State private var options = ExportOptions()
+    @State private var selectedFormats: Set<ExportFormat> = [.json]
     @State private var showingPaywall = false
     @State private var showingPreview = false
     @State private var showingFolderPicker = false
@@ -19,16 +20,34 @@ struct ExportView: View {
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
 
-    private var effectiveDataKind: ExportOptions.DataKind {
-        if options.format.isPointsOnly, options.dataKind != .outings {
+    private var selectedFormatsList: [ExportFormat] {
+        let selected = ExportFormat.allCases.filter { selectedFormats.contains($0) }
+        return selected.isEmpty ? [.json] : selected
+    }
+
+    private var primarySelectedFormat: ExportFormat {
+        selectedFormatsList.first ?? .json
+    }
+
+    private var selectedFormatTokensKey: String {
+        selectedFormatsList.map(\.token).joined(separator: ",")
+    }
+
+    private func effectiveDataKind(for format: ExportFormat) -> ExportOptions.DataKind {
+        if format.isPointsOnly, options.dataKind != .outings {
             return .points
         }
         return options.dataKind
     }
 
-    private var effectiveOptions: ExportOptions {
+    private var effectiveDataKinds: Set<ExportOptions.DataKind> {
+        Set(selectedFormatsList.map { effectiveDataKind(for: $0) })
+    }
+
+    private func effectiveOptions(for format: ExportFormat) -> ExportOptions {
         var copy = options
-        copy.dataKind = effectiveDataKind
+        copy.format = format
+        copy.dataKind = effectiveDataKind(for: format)
         return copy
     }
 
@@ -45,32 +64,42 @@ struct ExportView: View {
     }
 
     private var totalCount: Int {
-        switch effectiveDataKind {
-        case .visits: return filteredVisits.count
-        case .points: return filteredPoints.count
-        case .outings: return filteredOutings.count
-        case .all: return filteredVisits.count + filteredPoints.count
+        if effectiveDataKinds.contains(.outings) {
+            return filteredOutings.count
         }
+        if effectiveDataKinds.contains(.all) {
+            return filteredVisits.count + filteredPoints.count
+        }
+
+        var count = 0
+        if effectiveDataKinds.contains(.visits) { count += filteredVisits.count }
+        if effectiveDataKinds.contains(.points) { count += filteredPoints.count }
+        return count
     }
 
     private var splitFileCount: Int {
-        guard options.splitByDay else { return totalCount > 0 ? 1 : 0 }
-        if effectiveDataKind == .outings {
-            return filteredOutings.count
+        guard totalCount > 0 else { return 0 }
+        guard options.splitByDay else { return selectedFormatsList.count }
+        if showsOutingExport {
+            return filteredOutings.count * selectedFormatsList.count
         }
-        return effectiveOptions.groupByDay(visits: filteredVisits, points: filteredPoints).count
+
+        return selectedFormatsList.reduce(0) { partial, format in
+            let formatOptions = effectiveOptions(for: format)
+            return partial + formatOptions.groupByDay(visits: filteredVisits, points: filteredPoints).count
+        }
     }
 
     private var showsVisitFields: Bool {
-        effectiveDataKind == .visits || effectiveDataKind == .all
+        effectiveDataKinds.contains(.visits) || effectiveDataKinds.contains(.all)
     }
 
     private var showsPointFields: Bool {
-        effectiveDataKind == .points || effectiveDataKind == .all
+        effectiveDataKinds.contains(.points) || effectiveDataKinds.contains(.all)
     }
 
     private var showsOutingExport: Bool {
-        effectiveDataKind == .outings
+        effectiveDataKinds.contains(.outings)
     }
 
     var body: some View {
@@ -129,6 +158,7 @@ struct ExportView: View {
                     recordingSessions: viewModel.allRecordingSessions,
                     activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
+                    selectedFormats: selectedFormatsList,
                     filenamePattern: filenamePattern,
                     destinationLabel: previewDestinationLabel,
                     destinationRootName: previewDestinationRootName,
@@ -139,7 +169,7 @@ struct ExportView: View {
             .onAppear { ensurePointDataIfNeeded() }
             .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
             .onChange(of: options.dataKind.rawValue) { _, _ in ensurePointDataIfNeeded() }
-            .onChange(of: options.format.token) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: selectedFormatTokensKey) { _, _ in ensurePointDataIfNeeded() }
         }
     }
 
@@ -215,63 +245,75 @@ struct ExportView: View {
 
     private var formatSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "FORMAT")
+            TESectionHeader(title: "FORMATS")
 
             TECard {
                 VStack(spacing: 0) {
                     if dynamicTypeSize.isAccessibilitySize {
-                        segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
+                        formatSelectionButton("JSON", format: .json)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
+                        formatSelectionButton("CSV", format: .csv)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
+                        formatSelectionButton("MARKDOWN", format: .markdown)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
+                        formatSelectionButton("OWNTRACKS", format: .owntracks)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
+                        formatSelectionButton("OVERLAND", format: .overland)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                        formatSelectionButton("GPX", format: .gpx)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("KML", isSelected: options.format == .kml) { options.format = .kml }
+                        formatSelectionButton("KML", format: .kml)
                         Rectangle().fill(TE.border).frame(height: 1)
-                        segmentedButton("GEOJSON", isSelected: options.format == .geojson) { options.format = .geojson }
+                        formatSelectionButton("GEOJSON", format: .geojson)
                     } else {
                         HStack(spacing: 0) {
-                            segmentedButton("JSON", isSelected: options.format == .json) { options.format = .json }
+                            formatSelectionButton("JSON", format: .json)
                             Rectangle().fill(TE.border).frame(width: 1)
-                            segmentedButton("CSV", isSelected: options.format == .csv) { options.format = .csv }
+                            formatSelectionButton("CSV", format: .csv)
                             Rectangle().fill(TE.border).frame(width: 1)
-                            segmentedButton("MARKDOWN", isSelected: options.format == .markdown) { options.format = .markdown }
+                            formatSelectionButton("MARKDOWN", format: .markdown)
                         }
 
                         Rectangle().fill(TE.border).frame(height: 1)
 
                         HStack(spacing: 0) {
-                            segmentedButton("OWNTRACKS", isSelected: options.format == .owntracks) { options.format = .owntracks }
+                            formatSelectionButton("OWNTRACKS", format: .owntracks)
                             Rectangle().fill(TE.border).frame(width: 1)
-                            segmentedButton("OVERLAND", isSelected: options.format == .overland) { options.format = .overland }
+                            formatSelectionButton("OVERLAND", format: .overland)
                             Rectangle().fill(TE.border).frame(width: 1)
-                            segmentedButton("GPX", isSelected: options.format == .gpx) { options.format = .gpx }
+                            formatSelectionButton("GPX", format: .gpx)
                         }
 
                         Rectangle().fill(TE.border).frame(height: 1)
 
                         HStack(spacing: 0) {
-                            segmentedButton("KML", isSelected: options.format == .kml) { options.format = .kml }
+                            formatSelectionButton("KML", format: .kml)
                             Rectangle().fill(TE.border).frame(width: 1)
-                            segmentedButton("GEOJSON", isSelected: options.format == .geojson) { options.format = .geojson }
+                            formatSelectionButton("GEOJSON", format: .geojson)
                         }
                     }
                 }
             }
             .padding(.horizontal, 16)
 
-            if options.format.isPointsOnly {
-                TESectionFooter(text: options.dataKind == .outings
-                    ? "Tracking-protocol outing exports contain the outing route's GPS fixes. Visit rows and outing notes are not represented in this format."
-                    : "Tracking-protocol formats only carry GPS fixes — visits and notes are dropped.")
-            }
+            TESectionFooter(text: formatFooterText)
         }
+    }
+
+    private var formatFooterText: LocalizedStringKey {
+        let selectedCount = selectedFormatsList.count
+        let hasPointsOnlyFormat = selectedFormatsList.contains { $0.isPointsOnly }
+
+        if hasPointsOnlyFormat {
+            if options.dataKind == .outings {
+                return "Select one or many formats. OwnTracks and Overland outing exports contain the outing route's GPS fixes; visit rows and outing notes are not represented."
+            }
+            return "Select one or many formats. OwnTracks and Overland only carry GPS fixes; other selected formats use the selected data type."
+        }
+
+        return selectedCount == 1
+            ? "Tap more formats to export multiple files at once."
+            : "Export will create one file per selected format. Add {format} to the file path if you want each filename to include its format."
     }
 
     // MARK: - Data Kind
@@ -668,13 +710,18 @@ struct ExportView: View {
 
     private var filenamePreview: String {
         let previewTitle = showsOutingExport ? (filteredOutings.first?.title ?? "Outing 1") : nil
-        return (try? IsoMeExportPathPlanner.plannedRelativePath(
-            pattern: filenamePattern,
-            dataKind: effectiveDataKind,
-            format: options.format,
-            title: previewTitle,
-            safetyPolicy: .preserveCurrentBehavior
-        )) ?? "INVALID PATH"
+        let previews = selectedFormatsList.compactMap { format -> String? in
+            try? IsoMeExportPathPlanner.plannedRelativePath(
+                pattern: filenamePattern,
+                dataKind: effectiveDataKind(for: format),
+                format: format,
+                title: previewTitle,
+                safetyPolicy: .preserveCurrentBehavior
+            )
+        }
+        guard let first = previews.first else { return "INVALID PATH" }
+        guard previews.count > 1 else { return first }
+        return "\(first) + \(previews.count - 1) more"
     }
 
     private var previewDestinationLabel: String {
@@ -728,12 +775,12 @@ struct ExportView: View {
     private var outputFooterText: LocalizedStringKey {
         if showsOutingExport {
             return options.splitByDay
-                ? "Each outing becomes its own file in the selected format. Use {title}, {date}, or {time} in the file path."
-                : "All filtered outings are condensed into a single file in the selected format."
+                ? "Each outing becomes one file per selected format. Use {title}, {date}, {time}, or {format} in the file path."
+                : "Filtered outings are condensed into one file per selected format."
         }
         return options.splitByDay
-            ? "Each calendar day in the range becomes its own file. Use {date} or {day} in the filename to keep them distinct."
-            : "All filtered data is condensed into a single file."
+            ? "Each calendar day becomes one file per selected format. Use {date}, {day}, or {format} in the filename to keep them distinct."
+            : "Filtered data is condensed into one file per selected format."
     }
 
     // MARK: - Date Range
@@ -1080,28 +1127,29 @@ struct ExportView: View {
 
     private var previewButtonLabel: LocalizedStringKey {
         if totalCount == 0 { return "NOTHING TO PREVIEW" }
-        if options.splitByDay {
-            let n = splitFileCount
-            if n == 0 { return "NOTHING TO PREVIEW" }
-            if n == 1 { return "PREVIEW 1 FILE" }
-            return "PREVIEW \(n) FILES"
-        }
-        return "PREVIEW"
+        let n = splitFileCount
+        if n == 0 { return "NOTHING TO PREVIEW" }
+        if n == 1 { return "PREVIEW 1 FILE" }
+        return "PREVIEW \(n) FILES"
     }
 
     private var exportButtonLabel: LocalizedStringKey {
         if totalCount == 0 { return "NOTHING TO EXPORT" }
         if !storeManager.isPurchased { return "UNLOCK EXPORT" }
-        if options.splitByDay {
-            let n = splitFileCount
-            if n == 0 { return "NOTHING TO EXPORT" }
-            if n == 1 { return "EXPORT 1 FILE" }
-            return "EXPORT \(n) FILES"
-        }
-        return "EXPORT"
+        let n = splitFileCount
+        if n == 0 { return "NOTHING TO EXPORT" }
+        if n == 1 { return "EXPORT 1 FILE" }
+        return "EXPORT \(n) FILES"
     }
 
     // MARK: - Reusable bits
+
+    private func formatSelectionButton(_ title: LocalizedStringKey, format: ExportFormat) -> some View {
+        segmentedButton(title, isSelected: selectedFormats.contains(format)) {
+            toggleFormat(format)
+        }
+        .accessibilityValue(selectedFormats.contains(format) ? "Selected" : "Not selected")
+    }
 
     private func segmentedButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -1139,6 +1187,17 @@ struct ExportView: View {
         ensurePointDataIfNeeded()
     }
 
+    private func toggleFormat(_ format: ExportFormat) {
+        if selectedFormats.contains(format) {
+            guard selectedFormats.count > 1 else { return }
+            selectedFormats.remove(format)
+        } else {
+            selectedFormats.insert(format)
+        }
+        options.format = primarySelectedFormat
+        ensurePointDataIfNeeded()
+    }
+
     // MARK: - Actions
 
     private func runExport() {
@@ -1157,6 +1216,7 @@ struct ExportView: View {
                     recordingSessions: viewModel.allRecordingSessions,
                     activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
+                    selectedFormats: selectedFormatsList,
                     filenamePattern: filenamePattern
                 )
                 ExportToastCenter.shared.show(.success(savedURLs: urls))
@@ -1173,6 +1233,7 @@ struct ExportView: View {
                     recordingSessions: viewModel.allRecordingSessions,
                     activeTrackingStart: viewModel.locationManager.trackingStartTime,
                     options: options,
+                    selectedFormats: selectedFormatsList,
                     filenamePattern: filenamePattern,
                     completion: { completed in
                         guard completed else { return }
@@ -1190,7 +1251,7 @@ struct ExportView: View {
     }
 
     private func ensurePointDataIfNeeded() {
-        if effectiveDataKind != .visits {
+        if effectiveDataKinds.contains(.points) || effectiveDataKinds.contains(.all) || effectiveDataKinds.contains(.outings) {
             viewModel.ensureAllLocationPointsLoaded()
         }
     }
@@ -1202,6 +1263,7 @@ struct IsoMeExportPreviewView: View {
     let recordingSessions: [RecordingSession]
     let activeTrackingStart: Date?
     let options: ExportOptions
+    let selectedFormats: [ExportFormat]
     let filenamePattern: String
     let destinationLabel: String
     let destinationRootName: String
@@ -1312,11 +1374,15 @@ struct IsoMeExportPreviewView: View {
         .scrollContentBackground(.hidden)
     }
 
+    private var selectedFormatSummary: String {
+        selectedFormats.map(\.displayName).joined(separator: ", ")
+    }
+
     private var summarySection: some View {
         Section {
             VStack(alignment: .leading, spacing: 8) {
                 summaryRow("Destination", value: destinationLabel)
-                summaryRow("Format", value: options.format.displayName)
+                summaryRow(selectedFormats.count == 1 ? "Format" : "Formats", value: selectedFormatSummary)
                 summaryRow("Items", value: "\(totalItemCount)")
                 summaryRow("Files", value: "\(totalFileCount)")
 
@@ -1406,6 +1472,7 @@ struct IsoMeExportPreviewView: View {
                 recordingSessions: recordingSessions,
                 activeTrackingStart: activeTrackingStart,
                 options: options,
+                selectedFormats: selectedFormats,
                 filenamePattern: filenamePattern
             )
             let rootName = destinationRootName

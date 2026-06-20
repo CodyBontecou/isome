@@ -27,6 +27,32 @@ enum IsoMeReleaseNotes {
             items: [
                 .media(
                     kind: .video,
+                    url: releaseNoteVideoURL("apple-watch-tracking"),
+                    title: "Track from Apple Watch",
+                    description: "Start location tracking from your wrist, watch the live timer, and review today’s visits, distance, points, and current location."
+                ),
+                .list(
+                    title: "New Apple Watch app",
+                    rows: [
+                        .init(
+                            symbolSystemName: "applewatch",
+                            title: "Track from your wrist",
+                            description: "Start or stop iso.me tracking directly on Apple Watch without opening your iPhone."
+                        ),
+                        .init(
+                            symbolSystemName: "figure.walk",
+                            title: "Today’s stats at a glance",
+                            description: "See visits, distance, location points, current location, and remaining session time right on the watch."
+                        ),
+                        .init(
+                            symbolSystemName: "rectangle.on.rectangle",
+                            title: "Watch face complications",
+                            description: "Add iso.me to supported watch faces for quick tracking status and today’s totals."
+                        )
+                    ]
+                ),
+                .media(
+                    kind: .video,
                     url: releaseNoteVideoURL("outings-export"),
                     title: "Export every outing",
                     description: "The Export tab can now write one file per outing, with previews that show the exact format, count, and filenames before you share or save."

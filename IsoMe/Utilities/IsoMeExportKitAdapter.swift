@@ -83,6 +83,7 @@ enum IsoMeExportKitAdapter {
             id: format.exportKitFormatID,
             displayName: format.displayName,
             fileExtension: format.fileExtension,
+            collisionSuffix: format.token,
             contentType: format.mimeType,
             defaultSortKey: format.defaultSortKey
         )
@@ -161,93 +162,42 @@ enum IsoMeExportKitAdapter {
         recordingSessions: [RecordingSession] = [],
         activeTrackingStart: Date? = nil,
         options: ExportOptions,
+        selectedFormats: [ExportFormat]? = nil,
         filenamePattern: String = FilenameTemplate.defaultPattern,
         forceSplitByDay: Bool? = nil
     ) throws -> [PlannedExportFile] {
-        let splitByDay = forceSplitByDay ?? options.splitByDay
-        let snapshots = try exportSnapshots(
-            visits: visits,
-            points: points,
-            recordingSessions: recordingSessions,
-            activeTrackingStart: activeTrackingStart,
-            options: options,
-            splitByDay: splitByDay
-        )
+        let formats = normalizedFormats(selectedFormats ?? [options.format])
         let registry = try rendererRegistry()
-        var usedNames = Set<String>()
+        var globalUsedNames = Set<String>()
 
-        return try snapshots.map { snapshot in
-            let descriptor = descriptor(for: options.format)
-            let rendered = try registry.render(
-                record: snapshot,
-                formatID: descriptor.id,
-                context: .default
+        return try formats.flatMap { format -> [PlannedExportFile] in
+            var formatOptions = options
+            formatOptions.format = format
+            let splitByDay = forceSplitByDay ?? formatOptions.splitByDay
+            let snapshots = try exportSnapshots(
+                visits: visits,
+                points: points,
+                recordingSessions: recordingSessions,
+                activeTrackingStart: activeTrackingStart,
+                options: formatOptions,
+                splitByDay: splitByDay
             )
-            let fileName = try plannedRelativePath(
-                for: snapshot,
-                filenamePattern: filenamePattern,
-                format: options.format,
-                usedNames: &usedNames
-            )
-            return PlannedExportFile(
-                id: "\(snapshot.exportRecordID)-\(descriptor.id)",
-                role: .aggregate(formatID: descriptor.id),
-                relativePath: fileName,
-                content: rendered.content,
-                format: descriptor,
-                contentType: rendered.contentType,
-                displayName: descriptor.displayName,
-                estimatedByteCount: rendered.content.utf8.count
-            )
-        }
-    }
+            var formatUsedNames = Set<String>()
+            let descriptor = descriptor(for: format)
 
-    static func preview(
-        visits: [Visit],
-        points: [LocationPoint],
-        recordingSessions: [RecordingSession] = [],
-        activeTrackingStart: Date? = nil,
-        options: ExportOptions,
-        filenamePattern: String = FilenameTemplate.defaultPattern
-    ) async throws -> ExportPreview {
-        let snapshots = try exportSnapshots(
-            visits: visits,
-            points: points,
-            recordingSessions: recordingSessions,
-            activeTrackingStart: activeTrackingStart,
-            options: options,
-            splitByDay: options.splitByDay
-        )
-        let registry = try rendererRegistry()
-        var usedNames = Set<String>()
-
-        let dataSource = AnyExportRecordDataSource<IsoMeExportSnapshot, IsoMeExportSnapshot> { snapshot in
-            ExportFetchedRecord(record: snapshot)
-        }
-
-        let request = ExportPreviewRequest(
-            recordInputs: snapshots,
-            selectedFormatIDs: [options.format.exportKitFormatID],
-            dataSource: dataSource,
-            rendererRegistry: registry,
-            recordReference: { snapshot in
-                ExportRecordReference(
-                    id: snapshot.exportRecordID,
-                    date: snapshot.exportDate,
-                    displayName: snapshot.displayTitle
+            return try snapshots.map { snapshot in
+                let rendered = try registry.render(
+                    record: snapshot,
+                    formatID: descriptor.id,
+                    context: .default
                 )
-            },
-            planAggregateFile: { snapshot, descriptor, rendered in
-                guard let format = ExportFormat(exportKitFormatID: descriptor.id) else {
-                    throw IsoMeExportKitError.missingFormat(descriptor.id)
-                }
-                let fileName = try plannedRelativePath(
+                let plannedName = try plannedRelativePath(
                     for: snapshot,
                     filenamePattern: filenamePattern,
                     format: format,
-                    usedNames: &usedNames,
-                    safetyPolicy: .preserveCurrentBehavior
+                    usedNames: &formatUsedNames
                 )
+                let fileName = uniqueFilenameAcrossFormats(plannedName, in: &globalUsedNames, format: format)
                 return PlannedExportFile(
                     id: "\(snapshot.exportRecordID)-\(descriptor.id)",
                     role: .aggregate(formatID: descriptor.id),
@@ -259,9 +209,78 @@ enum IsoMeExportKitAdapter {
                     estimatedByteCount: rendered.content.utf8.count
                 )
             }
+        }
+    }
+
+    static func preview(
+        visits: [Visit],
+        points: [LocationPoint],
+        recordingSessions: [RecordingSession] = [],
+        activeTrackingStart: Date? = nil,
+        options: ExportOptions,
+        selectedFormats: [ExportFormat]? = nil,
+        filenamePattern: String = FilenameTemplate.defaultPattern
+    ) async throws -> ExportPreview {
+        let formats = normalizedFormats(selectedFormats ?? [options.format])
+        let entries = try previewEntries(
+            visits: visits,
+            points: points,
+            recordingSessions: recordingSessions,
+            activeTrackingStart: activeTrackingStart,
+            options: options,
+            formats: formats
         )
 
-        return try await ExportPreviewBuilder<IsoMeExportSnapshot, IsoMeExportSnapshot>().buildPreview(request)
+        let grouped = groupedPreviewEntries(entries)
+        let selectedGroups = Array(grouped.prefix(ExportPreviewBuilder<IsoMeExportSnapshot, IsoMeExportSnapshot>.defaultMaxRenderedRecords))
+        let registry = try rendererRegistry()
+        var formatUsedNames: [ExportFormat: Set<String>] = [:]
+        var globalUsedNames = Set<String>()
+        var warnings: [ExportWarning] = []
+
+        let records = try selectedGroups.map { group -> ExportPreviewRecord in
+            let files = try group.entries.map { entry -> PlannedExportFile in
+                let descriptor = descriptor(for: entry.format)
+                let rendered = try registry.render(
+                    record: entry.snapshot,
+                    formatID: descriptor.id,
+                    context: .default
+                )
+                var usedNames = formatUsedNames[entry.format] ?? Set<String>()
+                let plannedName = try plannedRelativePath(
+                    for: entry.snapshot,
+                    filenamePattern: filenamePattern,
+                    format: entry.format,
+                    usedNames: &usedNames,
+                    safetyPolicy: .preserveCurrentBehavior
+                )
+                formatUsedNames[entry.format] = usedNames
+                let fileName = uniqueFilenameAcrossFormats(plannedName, in: &globalUsedNames, format: entry.format)
+                let file = PlannedExportFile(
+                    id: "\(entry.snapshot.exportRecordID)-\(descriptor.id)",
+                    role: .aggregate(formatID: descriptor.id),
+                    relativePath: fileName,
+                    content: rendered.content,
+                    format: descriptor,
+                    contentType: rendered.contentType,
+                    displayName: descriptor.displayName,
+                    estimatedByteCount: rendered.content.utf8.count
+                )
+                warnings.append(contentsOf: file.warnings)
+                return file
+            }
+
+            return ExportPreviewRecord(reference: group.reference, files: files)
+        }
+
+        return ExportPreview(
+            records: records,
+            warnings: warnings,
+            totalRecordCount: grouped.count,
+            fetchAttemptCount: selectedGroups.count,
+            maxRenderedRecords: ExportPreviewBuilder<IsoMeExportSnapshot, IsoMeExportSnapshot>.defaultMaxRenderedRecords,
+            maxFetchAttempts: ExportPreviewBuilder<IsoMeExportSnapshot, IsoMeExportSnapshot>.defaultMaxFetchAttempts
+        )
     }
 
     static func writeTemporaryFiles(_ files: [PlannedExportFile]) throws -> [URL] {
@@ -419,6 +438,71 @@ enum IsoMeExportKitAdapter {
         return await orchestrator.run(request)
     }
 
+    private struct PreviewEntry {
+        let format: ExportFormat
+        let snapshot: IsoMeExportSnapshot
+    }
+
+    private struct PreviewEntryGroup {
+        let reference: ExportRecordReference
+        var entries: [PreviewEntry]
+    }
+
+    private static func previewEntries(
+        visits: [Visit],
+        points: [LocationPoint],
+        recordingSessions: [RecordingSession],
+        activeTrackingStart: Date?,
+        options: ExportOptions,
+        formats: [ExportFormat]
+    ) throws -> [PreviewEntry] {
+        try formats.flatMap { format -> [PreviewEntry] in
+            var formatOptions = options
+            formatOptions.format = format
+            let snapshots = try exportSnapshots(
+                visits: visits,
+                points: points,
+                recordingSessions: recordingSessions,
+                activeTrackingStart: activeTrackingStart,
+                options: formatOptions,
+                splitByDay: formatOptions.splitByDay
+            )
+            return snapshots.map { PreviewEntry(format: format, snapshot: $0) }
+        }
+    }
+
+    private static func groupedPreviewEntries(_ entries: [PreviewEntry]) -> [PreviewEntryGroup] {
+        var groupsByID: [String: PreviewEntryGroup] = [:]
+        var orderedIDs: [String] = []
+
+        for entry in entries {
+            let snapshot = entry.snapshot
+            if groupsByID[snapshot.exportRecordID] == nil {
+                orderedIDs.append(snapshot.exportRecordID)
+                groupsByID[snapshot.exportRecordID] = PreviewEntryGroup(
+                    reference: ExportRecordReference(
+                        id: snapshot.exportRecordID,
+                        date: snapshot.exportDate,
+                        displayName: snapshot.displayTitle
+                    ),
+                    entries: []
+                )
+            }
+            groupsByID[snapshot.exportRecordID]?.entries.append(entry)
+        }
+
+        return orderedIDs
+            .compactMap { groupsByID[$0] }
+            .sorted { lhs, rhs in
+                switch (lhs.reference.date, rhs.reference.date) {
+                case let (left?, right?): return left > right
+                case (_?, nil): return true
+                case (nil, _?): return false
+                case (nil, nil): return lhs.reference.id < rhs.reference.id
+                }
+            }
+    }
+
     private static func exportSnapshots(
         visits: [Visit],
         points: [LocationPoint],
@@ -539,6 +623,51 @@ enum IsoMeExportKitAdapter {
             return .points
         }
         return options.dataKind
+    }
+
+    private static func normalizedFormats(_ formats: [ExportFormat]) -> [ExportFormat] {
+        let selected = Set(formats)
+        let ordered = ExportFormat.allCases.filter { selected.contains($0) }
+        return ordered.isEmpty ? [.json] : ordered
+    }
+
+    private static func uniqueFilenameAcrossFormats(
+        _ baseName: String,
+        in used: inout Set<String>,
+        format: ExportFormat
+    ) -> String {
+        guard used.contains(baseName) else {
+            used.insert(baseName)
+            return baseName
+        }
+
+        let splitIndex = baseName.lastIndex(of: "/")
+        let directoryPrefix: String
+        let filename: String
+        if let splitIndex {
+            directoryPrefix = String(baseName[...splitIndex])
+            filename = String(baseName[baseName.index(after: splitIndex)...])
+        } else {
+            directoryPrefix = ""
+            filename = baseName
+        }
+
+        let ext = ".\(format.fileExtension)"
+        let stem: String
+        if filename.lowercased().hasSuffix(ext.lowercased()) {
+            stem = String(filename.dropLast(ext.count))
+        } else {
+            stem = filename
+        }
+
+        var candidate = "\(directoryPrefix)\(stem)-\(format.token)\(ext)"
+        var counter = 2
+        while used.contains(candidate) {
+            candidate = "\(directoryPrefix)\(stem)-\(format.token)-\(counter)\(ext)"
+            counter += 1
+        }
+        used.insert(candidate)
+        return candidate
     }
 
     private static func failure(for error: Error) -> ExportRunFailure {

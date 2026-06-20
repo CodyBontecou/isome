@@ -348,6 +348,34 @@ final class ExportKitIntegrationTests: XCTestCase {
         XCTAssertTrue(file.displayContent().text.contains("# iso.me Complete Export"))
     }
 
+    func testAdapterPlansMultipleSelectedFormats() async throws {
+        var options = ExportOptions()
+        options.dataKind = .points
+        options.format = .json
+
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: makeVisits(),
+            points: makePoints(),
+            options: options,
+            selectedFormats: [.json, .csv, .owntracks],
+            filenamePattern: "{type}"
+        )
+
+        XCTAssertEqual(files.map { $0.format?.id }, ["json", "csv", "owntracks"])
+        XCTAssertEqual(files.map(\.relativePath), ["points.json", "points.csv", "points-owntracks.json"])
+
+        let preview = try await IsoMeExportKitAdapter.preview(
+            visits: makeVisits(),
+            points: makePoints(),
+            options: options,
+            selectedFormats: [.json, .csv, .owntracks],
+            filenamePattern: "{type}"
+        )
+
+        XCTAssertEqual(preview.records.count, 1)
+        XCTAssertEqual(preview.records.first?.files.map { $0.format?.id }, ["json", "csv", "owntracks"])
+    }
+
     func testIsoMeExportRunOrchestratorReportsSuccessAndNoDestinationFailure() async throws {
         var options = ExportOptions()
         options.dataKind = .points

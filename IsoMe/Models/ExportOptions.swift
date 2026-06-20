@@ -1,7 +1,7 @@
 import Foundation
 
 struct ExportOptions {
-    enum DataKind: String, CaseIterable, Identifiable {
+    enum DataKind: String, CaseIterable, Identifiable, Hashable {
         case visits, points, outings, all
         var id: String { rawValue }
     }
