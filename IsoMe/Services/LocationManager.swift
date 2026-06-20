@@ -4,7 +4,6 @@ import SwiftData
 import Combine
 import ActivityKit
 import WidgetKit
-import UserNotifications
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
@@ -116,16 +115,6 @@ final class LocationManager: NSObject, ObservableObject {
         locationManager.distanceFilter = distanceFilter
 
         authorizationStatus = locationManager.authorizationStatus
-
-        // Request notification permission for any future user-facing alerts.
-        // Skipped in screenshot-seeding mode so the system prompt doesn't cover the UI.
-        #if DEBUG
-        if !ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
-        }
-        #else
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
-        #endif
 
         // Listen for stop notification from Live Activity deep link
         NotificationCenter.default.addObserver(

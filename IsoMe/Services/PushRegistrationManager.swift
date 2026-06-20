@@ -49,23 +49,27 @@ final class PushRegistrationManager: @unchecked Sendable {
 
     // MARK: - Registration
 
-    /// Request visible notification permission for the fallback tap-to-export
-    /// path, then register for APNs so the worker can deliver silent schedule
-    /// nudges near the selected minute. Safe to call repeatedly.
+    /// Register for APNs so the worker can deliver silent schedule nudges near
+    /// the selected minute. The visible notification permission prompt is only
+    /// requested when `requestAuthorizationIfNeeded` is true, which should be the
+    /// explicit scheduled-export setup path.
     @MainActor
-    func registerForRemoteNotificationsIfNeeded() async {
+    func registerForRemoteNotificationsIfNeeded(requestAuthorizationIfNeeded: Bool = false) async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         switch settings.authorizationStatus {
         case .notDetermined:
-            do {
-                _ = try await center.requestAuthorization(options: [.alert, .badge, .sound])
-            } catch {
-                logger.error("Notification authorization request failed: \(error.localizedDescription)")
+            if requestAuthorizationIfNeeded {
+                do {
+                    _ = try await center.requestAuthorization(options: [.alert, .badge, .sound])
+                } catch {
+                    logger.error("Notification authorization request failed: \(error.localizedDescription)")
+                }
+            } else {
+                logger.info("Notification authorization deferred until scheduled-export setup")
             }
         case .denied:
-            logger.info("Notifications denied — skipping APNs registration")
-            return
+            logger.info("Notifications denied — registering APNs for silent schedule nudges only")
         case .authorized, .provisional, .ephemeral:
             break
         @unknown default:

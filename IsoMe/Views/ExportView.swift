@@ -508,7 +508,7 @@ struct ExportView: View {
                     TERow(showDivider: dailyScheduler.isEnabled) {
                         toggleRow("ENABLE", isOn: Binding(
                             get: { dailyScheduler.isEnabled },
-                            set: { dailyScheduler.isEnabled = $0 }
+                            set: { dailyScheduler.setEnabledFromUserSetup($0) }
                         ))
                     }
 

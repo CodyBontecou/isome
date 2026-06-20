@@ -44,11 +44,14 @@ final class DailyExportScheduler: ObservableObject {
     private let lastErrorKey = "dailyExport.lastError"
     private let pendingNotificationIdentifierKey = "dailyExport.pendingNotificationIdentifier"
     private let remoteScheduleHasSyncedKey = "dailyExport.remoteScheduleHasSynced"
+    private var requestNotificationPermissionOnNextSchedule = false
 
     @Published var isEnabled: Bool {
         didSet {
             defaults.set(isEnabled, forKey: enabledKey)
-            scheduleNextBackgroundRun()
+            let shouldRequestNotificationPermission = requestNotificationPermissionOnNextSchedule && isEnabled
+            requestNotificationPermissionOnNextSchedule = false
+            scheduleNextBackgroundRun(requestNotificationPermission: shouldRequestNotificationPermission)
         }
     }
 
@@ -115,9 +118,19 @@ final class DailyExportScheduler: ObservableObject {
 
     // MARK: - Scheduling
 
+    /// Enable or disable daily exports from the user-facing setup control.
+    /// The notification permission prompt is only allowed on this explicit setup path.
+    func setEnabledFromUserSetup(_ enabled: Bool) {
+        requestNotificationPermissionOnNextSchedule = enabled
+        isEnabled = enabled
+    }
+
     /// Submit a `BGAppRefreshTaskRequest` for the next scheduled time and mirror
     /// the same schedule to the APNs worker.
-    func scheduleNextBackgroundRun(cancelPendingFallback: Bool = true) {
+    func scheduleNextBackgroundRun(
+        cancelPendingFallback: Bool = true,
+        requestNotificationPermission: Bool = false
+    ) {
         BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.bgTaskIdentifier)
 
         if cancelPendingFallback {
@@ -143,8 +156,18 @@ final class DailyExportScheduler: ObservableObject {
             print("DailyExportScheduler: failed to submit BG task: \(error)")
         }
 
-        schedulePendingExportFallbackNotification(for: nextRunDate)
-        Task { await PushRegistrationManager.shared.registerForRemoteNotificationsIfNeeded() }
+        if requestNotificationPermission {
+            Task { @MainActor in
+                await PushRegistrationManager.shared.registerForRemoteNotificationsIfNeeded(
+                    requestAuthorizationIfNeeded: true
+                )
+                guard isEnabled else { return }
+                schedulePendingExportFallbackNotification(for: nextRunDate)
+            }
+        } else {
+            schedulePendingExportFallbackNotification(for: nextRunDate)
+            Task { await PushRegistrationManager.shared.registerForRemoteNotificationsIfNeeded() }
+        }
     }
 
     private func handleBackgroundTask(_ task: BGAppRefreshTask?) async {

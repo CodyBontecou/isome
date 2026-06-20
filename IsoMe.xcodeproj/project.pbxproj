@@ -93,6 +93,7 @@
 		FEC10007212F000100000007 /* outings-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10007212F000000000007 /* outings-export.mp4 */; };
 		FEC10008212F000100000008 /* outing-detail-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10008212F000000000008 /* outing-detail-export.mp4 */; };
 		FEC10009212F000100000009 /* apple-watch-tracking.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10009212F000000000009 /* apple-watch-tracking.mp4 */; };
+		FEC1000A212F00010000000A /* multi-format-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC1000A212F00000000000A /* multi-format-export.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -212,6 +213,7 @@
 		FEC10007212F000000000007 /* outings-export.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "outings-export.mp4"; sourceTree = "<group>"; };
 		FEC10008212F000000000008 /* outing-detail-export.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "outing-detail-export.mp4"; sourceTree = "<group>"; };
 		FEC10009212F000000000009 /* apple-watch-tracking.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "apple-watch-tracking.mp4"; sourceTree = "<group>"; };
+		FEC1000A212F00000000000A /* multi-format-export.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "multi-format-export.mp4"; sourceTree = "<group>"; };
 		A1000010212F000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000019212F000000000019 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A100001F212F00000000001F /* TEDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEDesign.swift; sourceTree = "<group>"; };
@@ -354,6 +356,7 @@
 				FEC10005212F000000000005 /* visit-renaming.mp4 */,
 				FEC10006212F000000000006 /* inferred-rules.mp4 */,
 				FEC10009212F000000000009 /* apple-watch-tracking.mp4 */,
+				FEC1000A212F00000000000A /* multi-format-export.mp4 */,
 				FEC10007212F000000000007 /* outings-export.mp4 */,
 				FEC10008212F000000000008 /* outing-detail-export.mp4 */,
 			);
@@ -691,6 +694,7 @@
 				FEC10005212F000100000005 /* visit-renaming.mp4 in Resources */,
 				FEC10006212F000100000006 /* inferred-rules.mp4 in Resources */,
 				FEC10009212F000100000009 /* apple-watch-tracking.mp4 in Resources */,
+				FEC1000A212F00010000000A /* multi-format-export.mp4 in Resources */,
 				FEC10007212F000100000007 /* outings-export.mp4 in Resources */,
 				FEC10008212F000100000008 /* outing-detail-export.mp4 in Resources */,
 				B2000005212F000100000005 /* Localizable.xcstrings in Resources */,

@@ -53,6 +53,12 @@ enum IsoMeReleaseNotes {
                 ),
                 .media(
                     kind: .video,
+                    url: releaseNoteVideoURL("multi-format-export"),
+                    title: "Export multiple formats",
+                    description: "Tap several export formats at once — JSON, CSV, Markdown, GPX, KML, GeoJSON, OwnTracks, and Overland — and iso.me prepares a separate file for each."
+                ),
+                .media(
+                    kind: .video,
                     url: releaseNoteVideoURL("outings-export"),
                     title: "Export every outing",
                     description: "The Export tab can now write one file per outing, with previews that show the exact format, count, and filenames before you share or save."
