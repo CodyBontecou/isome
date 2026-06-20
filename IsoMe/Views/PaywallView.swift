@@ -2,7 +2,11 @@ import SwiftUI
 
 struct PaywallView: View {
     @ObservedObject var storeManager: StoreManager
+    var context: OnboardingAnalyticsPaywallContext = .export
+
     @Environment(\.dismiss) private var dismiss
+    @State private var didTrackPaywallShown = false
+    private let analytics = OnboardingAnalyticsClient.shared
 
     var body: some View {
         VStack(spacing: 28) {
@@ -46,7 +50,14 @@ struct PaywallView: View {
             VStack(spacing: 12) {
                 Button {
                     Task {
+                        analytics.trackPurchaseStarted(context: context)
                         await storeManager.purchase()
+                        let result = purchaseAnalyticsResult()
+                        analytics.trackPurchaseFinished(
+                            outcome: result.outcome,
+                            context: context,
+                            errorCategory: result.errorCategory
+                        )
                     }
                 } label: {
                     Group {
@@ -70,7 +81,14 @@ struct PaywallView: View {
 
                 Button {
                     Task {
+                        analytics.trackRestoreStarted(context: context)
                         await storeManager.restorePurchases()
+                        let result = restoreAnalyticsResult()
+                        analytics.trackRestoreFinished(
+                            outcome: result.outcome,
+                            context: context,
+                            errorCategory: result.errorCategory
+                        )
                     }
                 } label: {
                     Text("Restore Purchase")
@@ -89,6 +107,56 @@ struct PaywallView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
+        .onAppear {
+            trackPaywallShownIfNeeded()
+        }
+    }
+
+    private func trackPaywallShownIfNeeded() {
+        guard !didTrackPaywallShown else { return }
+        didTrackPaywallShown = true
+        analytics.trackPaywallShown(context: context)
+    }
+
+    private func purchaseAnalyticsResult() -> (outcome: OnboardingAnalyticsPurchaseOutcome, errorCategory: OnboardingAnalyticsErrorCategory?) {
+        if storeManager.isPurchased {
+            return (.succeeded, nil)
+        }
+
+        guard let error = storeManager.purchaseError?.lowercased() else {
+            return (.cancelled, .userCancelled)
+        }
+
+        if error.contains("pending") {
+            return (.pending, .paymentPending)
+        }
+        if error.contains("not available") || error.contains("loading") {
+            return (.failed, .productUnavailable)
+        }
+        if error.contains("network") || error.contains("internet") || error.contains("offline") {
+            return (.failed, .networkUnavailable)
+        }
+
+        return (.failed, .unknown)
+    }
+
+    private func restoreAnalyticsResult() -> (outcome: OnboardingAnalyticsPurchaseOutcome, errorCategory: OnboardingAnalyticsErrorCategory?) {
+        if storeManager.isPurchased {
+            return (.restored, nil)
+        }
+
+        guard let error = storeManager.purchaseError?.lowercased() else {
+            return (.failed, .unknown)
+        }
+
+        if error.contains("no previous") {
+            return (.notFound, .notUnlocked)
+        }
+        if error.contains("network") || error.contains("internet") || error.contains("offline") {
+            return (.failed, .networkUnavailable)
+        }
+
+        return (.failed, .unknown)
     }
 
     private func featureRow(icon: String, text: String) -> some View {

@@ -66,8 +66,11 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
             viewModel?.loadData()
+            OnboardingAnalyticsClient.shared.flush()
         }
         .onAppear {
+            OnboardingAnalyticsClient.shared.flush()
+
             if let log = UserDefaults.standard.string(forKey: "lastCrashLog") {
                 crashLog = log
                 UserDefaults.standard.removeObject(forKey: "lastCrashLog")
@@ -155,11 +158,14 @@ private struct OnboardingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let viewModel: LocationViewModel
     let onComplete: (Bool) -> Void
+    private let analytics = OnboardingAnalyticsClient.shared
 
     @ObservedObject private var locationManager: LocationManager
 
     @State private var selectedPage = 0
     @State private var startTrackingWhenDone = false
+    @State private var didTrackOnboardingStarted = false
+    @State private var trackedStepViews: Set<OnboardingAnalyticsStep> = []
 
     private let pageCount = 4
 
@@ -201,7 +207,24 @@ private struct OnboardingView: View {
                     .padding(.bottom, 42)
             }
         }
+        .onAppear {
+            trackOnboardingStartedIfNeeded()
+            trackOnboardingStepViewed(for: selectedPage)
+        }
+        .onChange(of: selectedPage) { _, newPage in
+            trackOnboardingStepViewed(for: newPage)
+        }
+        .onChange(of: startTrackingWhenDone) { _, _ in
+            analytics.trackTrackingIntentChanged(
+                intent: trackingAnalyticsIntent,
+                authorizationStatus: currentAuthorizationAnalyticsStatus
+            )
+        }
         .onChange(of: locationManager.authorizationStatus) { _, newStatus in
+            if selectedPage == 2 {
+                analytics.trackLocationAuthorizationCompleted(status: analyticsStatus(for: newStatus))
+            }
+
             guard selectedPage == 2 else { return }
             if newStatus == .authorizedAlways {
                 withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.85)) {
@@ -320,6 +343,10 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
+                    analytics.trackLocationAuthorizationRequested(
+                        requestKind: .whenInUse,
+                        status: currentAuthorizationAnalyticsStatus
+                    )
                     locationManager.requestWhenInUseAuthorization()
                 } label: {
                     Label("Continue", systemImage: "location.fill")
@@ -343,6 +370,10 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
+                    analytics.trackLocationAuthorizationRequested(
+                        requestKind: .always,
+                        status: currentAuthorizationAnalyticsStatus
+                    )
                     locationManager.requestAlwaysAuthorization()
                 } label: {
                     Label("Continue", systemImage: "arrow.up.forward.app.fill")
@@ -366,6 +397,10 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
+                    analytics.trackLocationAuthorizationRequested(
+                        requestKind: .settings,
+                        status: currentAuthorizationAnalyticsStatus
+                    )
                     openSettings()
                 } label: {
                     Label("Open iPhone Settings", systemImage: "gearshape.fill")
@@ -510,7 +545,73 @@ private struct OnboardingView: View {
 
     private func completeOnboarding() {
         let shouldStartTracking = startTrackingWhenDone && locationManager.hasLocationPermission
+        analytics.trackOnboardingCompleted(
+            authorizationStatus: currentAuthorizationAnalyticsStatus,
+            trackingIntent: trackingAnalyticsIntent
+        )
         onComplete(shouldStartTracking)
+    }
+
+    private func trackOnboardingStartedIfNeeded() {
+        guard !didTrackOnboardingStarted else { return }
+        didTrackOnboardingStarted = true
+        analytics.trackOnboardingStarted(
+            step: .welcome,
+            authorizationStatus: currentAuthorizationAnalyticsStatus
+        )
+    }
+
+    private func trackOnboardingStepViewed(for pageIndex: Int) {
+        guard let step = onboardingStep(for: pageIndex),
+              !trackedStepViews.contains(step) else { return }
+
+        trackedStepViews.insert(step)
+        analytics.trackOnboardingStepViewed(
+            step,
+            authorizationStatus: currentAuthorizationAnalyticsStatus,
+            trackingIntent: step == .ready ? trackingAnalyticsIntent : nil
+        )
+    }
+
+    private func onboardingStep(for pageIndex: Int) -> OnboardingAnalyticsStep? {
+        switch pageIndex {
+        case 0:
+            return .welcome
+        case 1:
+            return .features
+        case 2:
+            return .permissions
+        case 3:
+            return .ready
+        default:
+            return nil
+        }
+    }
+
+    private var currentAuthorizationAnalyticsStatus: OnboardingAnalyticsAuthorizationStatus {
+        analyticsStatus(for: locationManager.authorizationStatus)
+    }
+
+    private var trackingAnalyticsIntent: OnboardingAnalyticsTrackingIntent {
+        guard locationManager.hasLocationPermission else { return .unavailable }
+        return startTrackingWhenDone ? .startImmediately : .later
+    }
+
+    private func analyticsStatus(for status: CLAuthorizationStatus) -> OnboardingAnalyticsAuthorizationStatus {
+        switch status {
+        case .notDetermined:
+            return .notDetermined
+        case .authorizedWhenInUse:
+            return .whenInUse
+        case .authorizedAlways:
+            return .always
+        case .denied:
+            return .denied
+        case .restricted:
+            return .restricted
+        @unknown default:
+            return .unknown
+        }
     }
 
     private func openSettings() {

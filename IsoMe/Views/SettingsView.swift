@@ -95,7 +95,7 @@ struct SettingsView: View {
                 locationManager.refreshDistanceUnitPreference()
             }
             .sheet(isPresented: $showingPaywall) {
-                PaywallView(storeManager: storeManager)
+                PaywallView(storeManager: storeManager, context: .settings)
             }
         }
     }

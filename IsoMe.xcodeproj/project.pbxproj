@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
+		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
+		AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */; };
+		AA110004212F000100000004 /* OnboardingAnalyticsFunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */; };
+		AA110005212F000100000005 /* OnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */; };
 		C0DE0001212F000100000001 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0001212F000000000001 /* RecordingSession.swift */; };
 		C0DE0002212F000100000002 /* OutingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0002212F000000000002 /* OutingsView.swift */; };
 		E9A100000000000000000002 /* IsoMeExportKitAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */; };
@@ -164,6 +169,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
+		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
+		AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
+		AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsFunnel.swift; sourceTree = "<group>"; };
+		AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		C0DE0001212F000000000001 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		C0DE0002212F000000000002 /* OutingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutingsView.swift; sourceTree = "<group>"; };
 		E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeExportKitAdapter.swift; sourceTree = "<group>"; };
@@ -297,6 +307,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AA110000212F000000000000 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */,
+				AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */,
+				AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */,
+				AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */,
+				AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
 		5D13E0A973DE83648CCDCF76 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -401,6 +423,7 @@
 		A1FFFFFC212EFFFFFFFF0004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AA110000212F000000000000 /* Analytics */,
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
@@ -780,6 +803,11 @@
 				5F000002212F000100000001 /* DailyExportScheduler.swift in Sources */,
 				D6000002212F000100000002 /* DailyExportNotificationScheduler.swift in Sources */,
 				D6000001212F000100000001 /* PushRegistrationManager.swift in Sources */,
+				AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */,
+				AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */,
+				AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */,
+				AA110004212F000100000004 /* OnboardingAnalyticsFunnel.swift in Sources */,
+				AA110005212F000100000005 /* OnboardingAnalyticsTransport.swift in Sources */,
 				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
 				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
 			);
