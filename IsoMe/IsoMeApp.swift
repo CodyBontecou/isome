@@ -5,6 +5,7 @@ import StoreKit
 @main
 struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var watchSyncReceiver = WatchLocationSyncReceiver()
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -36,6 +37,7 @@ struct IsoMeApp: App {
                     handleDeepLink(url)
                 }
                 .task {
+                    watchSyncReceiver.configure(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.attach(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.scheduleNextBackgroundRun()
                     await DailyExportScheduler.shared.runIfDue()

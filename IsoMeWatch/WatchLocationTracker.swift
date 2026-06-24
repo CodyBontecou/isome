@@ -10,6 +10,7 @@ final class WatchLocationTracker: NSObject, ObservableObject {
     @Published var lastErrorMessage: String?
 
     private let locationManager = CLLocationManager()
+    private let syncClient = WatchLocationSyncClient.shared
     private let defaults: UserDefaults
     private var persistedState: PersistedWatchTrackingState
 
@@ -28,9 +29,13 @@ final class WatchLocationTracker: NSObject, ObservableObject {
 
         configureLocationManager()
         rollOverIfNeeded()
+        syncClient.activate()
 
         if locationData.isTrackingEnabled, canUseLocation {
+            syncClient.ensureActiveSession(startedAt: locationData.trackingStartTime ?? Date())
             startLocationUpdates()
+        } else {
+            syncClient.syncPending(force: true)
         }
     }
 
@@ -84,6 +89,7 @@ final class WatchLocationTracker: NSObject, ObservableObject {
             locationData.trackingStartTime = Date()
         }
         locationData.isTrackingEnabled = true
+        syncClient.ensureActiveSession(startedAt: locationData.trackingStartTime ?? Date())
         saveLocationData()
         startLocationUpdates()
     }
@@ -92,6 +98,7 @@ final class WatchLocationTracker: NSObject, ObservableObject {
         locationData.isTrackingEnabled = false
         locationData.trackingStartTime = nil
         locationData.stopAfterHours = nil
+        syncClient.endActiveSession(endedAt: Date())
         saveLocationData()
         locationManager.stopUpdatingLocation()
     }
@@ -152,6 +159,7 @@ final class WatchLocationTracker: NSObject, ObservableObject {
             locationData.todayPointsCount += 1
             accumulateDistance(using: location)
             updateVisitCount(using: location)
+            syncClient.recordLocation(location)
         }
 
         persistedState.lastLatitude = location.coordinate.latitude

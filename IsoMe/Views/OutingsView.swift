@@ -410,7 +410,7 @@ private struct RecordingSessionDetailView: View {
     @AppStorage("outingDetailExportFormat") private var outingDetailExportFormatToken = ExportFormat.markdown.token
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
-    @AppStorage("showPhotoMarkers") private var showPhotoMarkersOnMap = false
+    @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkersOnMap = false
 
     private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
 
@@ -924,12 +924,12 @@ private struct RecordingSessionDetailView: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(isSyncingPhotos ? "SYNCING PHOTOS…" : "NO GEOTAGGED PHOTOS")
+                    Text(isSyncingPhotos ? "SYNCING PHOTOS…" : "NO MATCHED PHOTOS")
                         .font(TE.mono(.caption, weight: .bold))
                         .tracking(1.2)
                         .foregroundStyle(TE.textPrimary)
 
-                    Text(isSyncingPhotos ? "Checking your Photos library for pictures taken during this outing." : "No photos with GPS metadata were found during this outing.")
+                    Text(isSyncingPhotos ? "Checking your Photos library for pictures taken during this outing." : "No photos with GPS metadata or a nearby iso.me route/visit match were found during this outing.")
                         .font(TE.mono(.caption2, weight: .medium))
                         .foregroundStyle(TE.textMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -956,7 +956,7 @@ private struct RecordingSessionDetailView: View {
                         .foregroundStyle(TE.accent)
                         .accessibilityHidden(true)
 
-                    Text("\(photoMoments.count) GEOTAGGED \(photoMoments.count == 1 ? "PHOTO" : "PHOTOS")")
+                    Text("\(photoMoments.count) MATCHED \(photoMoments.count == 1 ? "PHOTO" : "PHOTOS")")
                         .font(TE.mono(.caption, weight: .bold))
                         .tracking(1.2)
                         .foregroundStyle(TE.textPrimary)
@@ -1009,9 +1009,9 @@ private struct RecordingSessionDetailView: View {
             return "Limited Photos access is enabled, so only selected photos can appear."
         }
         if viewModel.photoLibraryAccessState.canRead {
-            return "Photos are matched to outings by timestamp and shown at their geotagged location. Photo files stay in Photos."
+            return "Photos are matched by timestamp. iso.me uses photo GPS when available, otherwise the nearest route point or visit. Photo files stay in Photos."
         }
-        return "Connecting Photos lets iso.me show geotagged pictures taken during this outing."
+        return "Connecting Photos lets iso.me show pictures taken during this outing."
     }
 
     private var actionSection: some View {

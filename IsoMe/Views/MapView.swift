@@ -9,6 +9,7 @@ struct LocationMapView: View {
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
     @State private var selectedPhotoMoment: PhotoMoment?
+    @State private var selectedPhotoCluster: PhotoMomentCluster?
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
@@ -19,7 +20,8 @@ struct LocationMapView: View {
     @State private var showStartEndMarkers = true
     @State private var showSessionPath = false
     @State private var showVisitMarkers = true
-    @AppStorage("showPhotoMarkers") private var showPhotoMarkers = false
+    @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
+    @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
@@ -66,6 +68,10 @@ struct LocationMapView: View {
     var filteredPhotoMoments: [PhotoMoment] {
         guard showPhotoMarkers, viewModel.photoLibraryAccessState.canRead else { return [] }
         return viewModel.mapPhotoMoments
+    }
+
+    var photoMomentClusters: [PhotoMomentCluster] {
+        PhotoMomentClusterBuilder.clusters(for: filteredPhotoMoments)
     }
 
     var activeSessionPoints: [LocationPoint] {
@@ -296,18 +302,36 @@ struct LocationMapView: View {
                         }
                     }
 
-                    // Photo markers
-                    ForEach(filteredPhotoMoments) { photo in
-                        Annotation(
-                            "Photo",
-                            coordinate: photo.coordinate,
-                            anchor: .bottom
-                        ) {
-                            PhotoMomentMapMarker(
-                                photo: photo,
-                                isSelected: selectedPhotoMoment?.id == photo.id,
-                                action: { selectedPhotoMoment = photo }
-                            )
+                    // Photo markers. Nearby photos are grouped so stacked shots
+                    // taken at the same place open a navigable picker instead of
+                    // competing for the same tap target.
+                    ForEach(photoMomentClusters) { cluster in
+                        if let photo = cluster.onlyPhoto {
+                            Annotation(
+                                "Photo",
+                                coordinate: photo.coordinate,
+                                anchor: .bottom
+                            ) {
+                                PhotoMomentMapMarker(
+                                    photo: photo,
+                                    isSelected: selectedPhotoMoment?.id == photo.id,
+                                    showsImage: showPhotoMarkerImages,
+                                    action: { selectedPhotoMoment = photo }
+                                )
+                            }
+                        } else {
+                            Annotation(
+                                "Photos",
+                                coordinate: cluster.coordinate,
+                                anchor: .bottom
+                            ) {
+                                PhotoMomentClusterMapMarker(
+                                    cluster: cluster,
+                                    isSelected: selectedPhotoCluster?.id == cluster.id,
+                                    showsImage: showPhotoMarkerImages,
+                                    action: { selectedPhotoCluster = cluster }
+                                )
+                            }
                         }
                     }
                 }
@@ -378,6 +402,7 @@ struct LocationMapView: View {
                                 showSessionPath: $showSessionPath,
                                 showVisitMarkers: $showVisitMarkers,
                                 showPhotoMarkers: $showPhotoMarkers,
+                                showPhotoMarkerImages: $showPhotoMarkerImages,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
                                 showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
@@ -444,9 +469,12 @@ struct LocationMapView: View {
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium, .large])
             }
-            .sheet(item: $selectedPhotoMoment) { photo in
-                PhotoMomentQuickView(photo: photo)
+            .sheet(item: $selectedPhotoCluster) { cluster in
+                PhotoMomentClusterQuickView(cluster: cluster)
                     .presentationDetents([.medium, .large])
+            }
+            .fullScreenCover(item: $selectedPhotoMoment) { photo in
+                PhotoMomentFullScreenView(photo: photo)
             }
             .onAppear {
                 viewModel.loadAllVisits()
@@ -486,6 +514,7 @@ struct LocationMapView: View {
                     requestPhotoMomentsForCurrentRange()
                 } else {
                     selectedPhotoMoment = nil
+                    selectedPhotoCluster = nil
                 }
             }
             .onChange(of: filteredPoints.count) { _, _ in
@@ -719,9 +748,9 @@ struct LocationMapView: View {
 
         if showPhotoMarkers {
             if viewModel.mapPhotoMomentCount > filteredPhotoMoments.count {
-                parts.append("Showing \(filteredPhotoMoments.count) of \(viewModel.mapPhotoMomentCount) geotagged photos")
+                parts.append("Showing \(filteredPhotoMoments.count) of \(viewModel.mapPhotoMomentCount) matched photos")
             } else {
-                parts.append("\(filteredPhotoMoments.count) \(filteredPhotoMoments.count == 1 ? "geotagged photo" : "geotagged photos")")
+                parts.append("\(filteredPhotoMoments.count) \(filteredPhotoMoments.count == 1 ? "matched photo" : "matched photos")")
             }
         }
 
@@ -1804,6 +1833,7 @@ struct QuickFilterBar: View {
     @Binding var showSessionPath: Bool
     @Binding var showVisitMarkers: Bool
     @Binding var showPhotoMarkers: Bool
+    @Binding var showPhotoMarkerImages: Bool
     @Binding var snapTravelPathToRoads: Bool
     @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
@@ -1872,6 +1902,13 @@ struct QuickFilterBar: View {
                     label: "Photo markers",
                     help: .photoMarkers,
                     isOn: $showPhotoMarkers,
+                    activeHelp: $activeLayerHelp
+                )
+                LayerToggleButton(
+                    systemImage: "photo",
+                    label: "Photo images",
+                    help: .photoImages,
+                    isOn: $showPhotoMarkerImages,
                     activeHelp: $activeLayerHelp
                 )
                 LayerToggleButton(
@@ -2025,7 +2062,13 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let photoMarkers = LayerToggleHelp(
         id: "photo-markers",
         title: "Photo markers",
-        message: "Shows geotagged photos from your Photos library for the selected date range. Photo files stay in Photos; iso.me keeps only local metadata."
+        message: "Shows Photos library pictures for the selected date range. iso.me uses photo GPS when available, otherwise the nearest route point or visit; photo files stay in Photos."
+    )
+
+    static let photoImages = LayerToggleHelp(
+        id: "photo-images",
+        title: "Photo images",
+        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map."
     )
 
     static let roadMatchedPath = LayerToggleHelp(

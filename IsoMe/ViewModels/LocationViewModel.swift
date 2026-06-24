@@ -45,11 +45,23 @@ final class LocationViewModel {
     private var todayDistanceTraveledCache: Double = 0
     private var sessionDistanceTraveledCache: Double = 0
     private var cancellables = Set<AnyCancellable>()
+    private var isAutomaticPhotoSyncInProgress = false
+    private var lastAutomaticPhotoSyncAt: Date?
+
+    static let automaticPhotoSyncEnabledKey = "automaticPhotoSyncEnabled"
+    static let showPhotoMarkersKey = "showPhotoMarkers"
 
     private let maximumMapPointCount = 2_500
     private let maximumMapPhotoMomentCount = 500
     private let maximumRawMapPointFetchCount = 10_000
     private let mapFetchBatchSize = 500
+    private let automaticPhotoSyncCooldown: TimeInterval = 10 * 60
+    private let photoRouteInferenceWindow: TimeInterval = 15 * 60
+    private let photoVisitInferenceGracePeriod: TimeInterval = 15 * 60
+
+    static var isAutomaticPhotoSyncEnabled: Bool {
+        UserDefaults.standard.bool(forKey: automaticPhotoSyncEnabledKey)
+    }
 
     init(modelContext: ModelContext, locationManager: LocationManager) {
         self.modelContext = modelContext
@@ -73,7 +85,7 @@ final class LocationViewModel {
             .sink { [weak self] _ in
                 guard let self else { return }
                 Task { @MainActor in
-                    await self.syncPhotoMomentsIfAuthorized(in: self.mapDateRange)
+                    await self.syncPhotosAutomaticallyIfAuthorized(ignoresCooldown: true)
                 }
             }
             .store(in: &cancellables)
@@ -236,6 +248,71 @@ final class LocationViewModel {
         await syncPhotoMoments(in: range ?? mapDateRange)
     }
 
+    func setAutomaticPhotoSyncEnabled(_ isEnabled: Bool) {
+        UserDefaults.standard.set(isEnabled, forKey: Self.automaticPhotoSyncEnabledKey)
+        UserDefaults.standard.set(isEnabled, forKey: Self.showPhotoMarkersKey)
+
+        if !isEnabled {
+            mapPhotoMomentCount = 0
+            mapPhotoMoments = []
+        }
+    }
+
+    func requestPhotoLibraryAccessAndStartAutomaticSync() async {
+        setAutomaticPhotoSyncEnabled(true)
+        await performAutomaticPhotoSync(requestAuthorizationIfNeeded: true, ignoresCooldown: true)
+
+        if !photoLibraryAccessState.canRead {
+            setAutomaticPhotoSyncEnabled(false)
+        }
+    }
+
+    func syncPhotosAutomaticallyIfAuthorized(ignoresCooldown: Bool = false) async {
+        guard Self.isAutomaticPhotoSyncEnabled else { return }
+        await performAutomaticPhotoSync(requestAuthorizationIfNeeded: false, ignoresCooldown: ignoresCooldown)
+    }
+
+    private func performAutomaticPhotoSync(
+        requestAuthorizationIfNeeded: Bool,
+        ignoresCooldown: Bool
+    ) async {
+        guard !isAutomaticPhotoSyncInProgress else { return }
+
+        let now = Date()
+        if !ignoresCooldown,
+           let lastAutomaticPhotoSyncAt,
+           now.timeIntervalSince(lastAutomaticPhotoSyncAt) < automaticPhotoSyncCooldown {
+            loadMapPhotoMoments(in: mapDateRange)
+            return
+        }
+
+        isAutomaticPhotoSyncInProgress = true
+        var didSync = false
+        defer {
+            isAutomaticPhotoSyncInProgress = false
+            if didSync {
+                lastAutomaticPhotoSyncAt = Date()
+            }
+        }
+
+        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        if photoLibraryAccessState == .notDetermined {
+            guard requestAuthorizationIfNeeded else { return }
+            photoLibraryAccessState = await PhotoLibraryManager.shared.requestAuthorization()
+        } else if photoLibraryAccessState.canRead {
+            PhotoLibraryManager.shared.startObservingChangesIfNeeded()
+        }
+
+        guard photoLibraryAccessState.canRead else {
+            mapPhotoMomentCount = 0
+            mapPhotoMoments = []
+            return
+        }
+
+        await syncPhotoMoments(in: automaticPhotoSyncRange(referenceDate: now))
+        didSync = true
+    }
+
     func syncPhotoMoments(in range: ClosedRange<Date>) async {
         photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
         guard photoLibraryAccessState.canRead else {
@@ -244,7 +321,8 @@ final class LocationViewModel {
             return
         }
 
-        let metadata = PhotoLibraryManager.shared.fetchGeotaggedPhotoMetadata(in: range)
+        let libraryMetadata = PhotoLibraryManager.shared.fetchPhotoMetadata(in: range)
+        let metadata = resolvedPhotoMoments(from: libraryMetadata, in: range)
         upsertPhotoMoments(metadata)
 
         if photoLibraryAccessState == .authorized {
@@ -351,6 +429,142 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch photo moments: \(error)")
             return []
+        }
+    }
+
+    private func resolvedPhotoMoments(
+        from libraryMetadata: [PhotoAssetLibraryMetadata],
+        in range: ClosedRange<Date>
+    ) -> [PhotoAssetMetadata] {
+        guard !libraryMetadata.isEmpty else { return [] }
+
+        let pointRange = range.lowerBound.addingTimeInterval(-photoRouteInferenceWindow)...range.upperBound.addingTimeInterval(photoRouteInferenceWindow)
+        let fetchedPoints = fetchLocationPoints(in: pointRange)
+        let nonOutlierPoints = fetchedPoints.filter { !$0.isOutlier }
+        let routePoints = nonOutlierPoints.isEmpty ? fetchedPoints : nonOutlierPoints
+        let visits = allVisits.sorted { $0.arrivedAt < $1.arrivedAt }
+        let referenceDate = Date()
+
+        return libraryMetadata.compactMap { item in
+            if let coordinate = item.photoGPSCoordinate {
+                return PhotoAssetMetadata(
+                    assetLocalIdentifier: item.assetLocalIdentifier,
+                    takenAt: item.takenAt,
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
+                    coordinateSource: .photoGPS
+                )
+            }
+
+            if let point = nearestLocationPoint(to: item.takenAt, in: routePoints),
+               abs(point.timestamp.timeIntervalSince(item.takenAt)) <= photoRouteInferenceWindow {
+                return PhotoAssetMetadata(
+                    assetLocalIdentifier: item.assetLocalIdentifier,
+                    takenAt: item.takenAt,
+                    latitude: point.latitude,
+                    longitude: point.longitude,
+                    coordinateSource: .inferredFromRoute
+                )
+            }
+
+            if let visit = visitContainingPhoto(takenAt: item.takenAt, in: visits, referenceDate: referenceDate) {
+                return PhotoAssetMetadata(
+                    assetLocalIdentifier: item.assetLocalIdentifier,
+                    takenAt: item.takenAt,
+                    latitude: visit.latitude,
+                    longitude: visit.longitude,
+                    coordinateSource: .inferredFromVisit
+                )
+            }
+
+            return nil
+        }
+    }
+
+    private func nearestLocationPoint(to date: Date, in points: [LocationPoint]) -> LocationPoint? {
+        guard !points.isEmpty else { return nil }
+
+        var lowerBound = 0
+        var upperBound = points.count
+        while lowerBound < upperBound {
+            let midpoint = (lowerBound + upperBound) / 2
+            if points[midpoint].timestamp < date {
+                lowerBound = midpoint + 1
+            } else {
+                upperBound = midpoint
+            }
+        }
+
+        let candidateIndices = [lowerBound - 1, lowerBound].filter { points.indices.contains($0) }
+        return candidateIndices
+            .map { points[$0] }
+            .min { lhs, rhs in
+                abs(lhs.timestamp.timeIntervalSince(date)) < abs(rhs.timestamp.timeIntervalSince(date))
+            }
+    }
+
+    private func visitContainingPhoto(
+        takenAt: Date,
+        in visits: [Visit],
+        referenceDate: Date
+    ) -> Visit? {
+        visits.first { visit in
+            let start = visit.arrivedAt.addingTimeInterval(-photoVisitInferenceGracePeriod)
+            let end = (visit.departedAt ?? referenceDate).addingTimeInterval(photoVisitInferenceGracePeriod)
+            return takenAt >= start && takenAt <= end
+        }
+    }
+
+    private func automaticPhotoSyncRange(referenceDate: Date = Date()) -> ClosedRange<Date> {
+        let calendar = Calendar.current
+        var dates: [Date] = [mapDateRange.lowerBound, mapDateRange.upperBound, referenceDate]
+
+        for visit in allVisits {
+            dates.append(visit.arrivedAt)
+            if let departedAt = visit.departedAt {
+                dates.append(departedAt)
+            }
+        }
+
+        for session in allRecordingSessions {
+            dates.append(session.startedAt)
+            if let endedAt = session.endedAt {
+                dates.append(endedAt)
+            }
+        }
+
+        if let pointBounds = locationPointDateBounds() {
+            dates.append(pointBounds.first)
+            dates.append(pointBounds.last)
+        }
+
+        let earliest = dates.min() ?? calendar.startOfDay(for: referenceDate)
+        let latest = max(dates.max() ?? referenceDate, referenceDate)
+        let start = calendar.startOfDay(for: earliest)
+        let endDay = calendar.startOfDay(for: latest)
+        let end = calendar.date(byAdding: .day, value: 1, to: endDay) ?? latest
+        return start...end
+    }
+
+    private func locationPointDateBounds() -> (first: Date, last: Date)? {
+        do {
+            var firstDescriptor = FetchDescriptor<LocationPoint>()
+            firstDescriptor.sortBy = [SortDescriptor(\.timestamp, order: .forward)]
+            firstDescriptor.fetchLimit = 1
+
+            guard let firstPoint = try modelContext.fetch(firstDescriptor).first else {
+                return nil
+            }
+
+            var lastDescriptor = FetchDescriptor<LocationPoint>()
+            lastDescriptor.sortBy = [SortDescriptor(\.timestamp, order: .reverse)]
+            lastDescriptor.fetchLimit = 1
+            let lastPoint = try modelContext.fetch(lastDescriptor).first ?? firstPoint
+
+            return (firstPoint.timestamp, lastPoint.timestamp)
+        } catch {
+            print("Failed to fetch location point date bounds: \(error)")
+            return nil
         }
     }
 

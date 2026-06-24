@@ -72,6 +72,22 @@ final class PhotoMoment {
     }
 }
 
+struct PhotoAssetLibraryMetadata: Identifiable, Equatable {
+    var id: String { assetLocalIdentifier }
+
+    let assetLocalIdentifier: String
+    let takenAt: Date
+    let latitude: Double?
+    let longitude: Double?
+
+    var photoGPSCoordinate: CLLocationCoordinate2D? {
+        guard let latitude, let longitude else { return nil }
+        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        guard CLLocationCoordinate2DIsValid(coordinate) else { return nil }
+        return coordinate
+    }
+}
+
 struct PhotoAssetMetadata: Identifiable, Equatable {
     var id: String { assetLocalIdentifier }
 

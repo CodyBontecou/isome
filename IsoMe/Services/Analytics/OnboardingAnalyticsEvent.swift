@@ -240,6 +240,7 @@ nonisolated enum OnboardingAnalyticsStep: String, CaseIterable, Sendable {
     case welcome
     case features
     case permissions
+    case photos
     case ready
 }
 

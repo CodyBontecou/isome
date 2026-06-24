@@ -66,7 +66,20 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
             viewModel?.loadData()
+            if let viewModel {
+                Task {
+                    await viewModel.syncPhotosAutomaticallyIfAuthorized()
+                }
+            }
             OnboardingAnalyticsClient.shared.flush()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .watchLocationDataImported)) { _ in
+            viewModel?.loadData()
+            if let viewModel {
+                Task {
+                    await viewModel.syncPhotosAutomaticallyIfAuthorized(ignoresCooldown: true)
+                }
+            }
         }
         .onAppear {
             OnboardingAnalyticsClient.shared.flush()
@@ -137,6 +150,9 @@ private struct MainTabView: View {
                     .zIndex(1)
             }
         }
+        .task {
+            await viewModel.syncPhotosAutomaticallyIfAuthorized(ignoresCooldown: true)
+        }
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: exportToastCenter.toast?.id)
         .isoMeReleaseNotesSheet()
     }
@@ -164,10 +180,12 @@ private struct OnboardingView: View {
 
     @State private var selectedPage = 0
     @State private var startTrackingWhenDone = false
+    @State private var isConfiguringAutomaticPhotoSync = false
     @State private var didTrackOnboardingStarted = false
     @State private var trackedStepViews: Set<OnboardingAnalyticsStep> = []
+    @AppStorage(LocationViewModel.automaticPhotoSyncEnabledKey) private var automaticPhotoSyncEnabled = false
 
-    private let pageCount = 4
+    private let pageCount = 5
 
     init(viewModel: LocationViewModel, onComplete: @escaping (Bool) -> Void) {
         self.viewModel = viewModel
@@ -195,8 +213,11 @@ private struct OnboardingView: View {
                     permissionsPage
                         .tag(2)
 
-                    finishPage
+                    photosPage
                         .tag(3)
+
+                    finishPage
+                        .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
@@ -428,6 +449,83 @@ private struct OnboardingView: View {
         }
     }
 
+    private var photosPage: some View {
+        LocationOnboardingPageView(
+            icon: "photo.on.rectangle.angled",
+            eyebrow: "Optional",
+            title: "CONNECT PHOTOS",
+            description: "Let iso.me automatically show iPhone photos on your map and outings. Photos stay in your Photos library."
+        ) {
+            VStack(spacing: 12) {
+                OnboardingStatusRow(
+                    title: "Photos access",
+                    subtitle: viewModel.photoLibraryAccessState.onboardingLabel,
+                    icon: viewModel.photoLibraryAccessState.onboardingIcon,
+                    color: viewModel.photoLibraryAccessState.onboardingColor
+                )
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle(isOn: Binding(
+                        get: { automaticPhotoSyncEnabled },
+                        set: { handleAutomaticPhotoSyncToggle($0) }
+                    )) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Auto-sync photo moments")
+                                .font(.onboardingBody)
+                                .fontWeight(.medium)
+                                .foregroundStyle(OnboardingPalette.textPrimary)
+
+                            Text("Uses photo GPS when available, otherwise matches timestamps to nearby route points or visits.")
+                                .font(.onboardingCaption)
+                                .foregroundStyle(OnboardingPalette.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .tint(OnboardingPalette.accent)
+                    .disabled(isConfiguringAutomaticPhotoSync)
+
+                    if isConfiguringAutomaticPhotoSync {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .controlSize(.mini)
+                                .tint(OnboardingPalette.accent)
+
+                            Text("Syncing photo metadata…")
+                                .font(.onboardingCaption)
+                                .foregroundStyle(OnboardingPalette.textSecondary)
+                        }
+                    } else if automaticPhotoSyncEnabled && viewModel.photoLibraryAccessState.canRead {
+                        Text("Enabled. Photo cards will appear automatically when iso.me can place them on your map.")
+                            .font(.onboardingCaption)
+                            .foregroundStyle(OnboardingPalette.success)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else if viewModel.photoLibraryAccessState == .denied || viewModel.photoLibraryAccessState == .restricted {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Photos access is off. You can enable it later in iPhone Settings.")
+                                .font(.onboardingCaption)
+                                .foregroundStyle(OnboardingPalette.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Button {
+                                openSettings()
+                            } label: {
+                                Label("Open iPhone Settings", systemImage: "gearshape.fill")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(OnboardingSecondaryButtonStyle())
+                        }
+                    } else {
+                        Text("This is optional — skip it if you only want location visits and routes.")
+                            .font(.onboardingCaption)
+                            .foregroundStyle(OnboardingPalette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
+            }
+        }
+    }
+
     private var finishPage: some View {
         LocationOnboardingPageView(
             icon: locationManager.hasAlwaysPermission ? "checkmark.seal.fill" : "sparkles",
@@ -440,6 +538,12 @@ private struct OnboardingView: View {
                     icon: "location.fill",
                     title: "Location permission",
                     value: locationManager.authorizationStatus.onboardingLabel
+                )
+
+                OnboardingSummaryRow(
+                    icon: "photo.on.rectangle",
+                    title: "Photos",
+                    value: automaticPhotoSyncEnabled && viewModel.photoLibraryAccessState.canRead ? "Auto-sync enabled" : "Off"
                 )
 
                 OnboardingSummaryRow(
@@ -582,6 +686,8 @@ private struct OnboardingView: View {
         case 2:
             return .permissions
         case 3:
+            return .photos
+        case 4:
             return .ready
         default:
             return nil
@@ -611,6 +717,22 @@ private struct OnboardingView: View {
             return .restricted
         @unknown default:
             return .unknown
+        }
+    }
+
+    private func handleAutomaticPhotoSyncToggle(_ isEnabled: Bool) {
+        automaticPhotoSyncEnabled = isEnabled
+
+        guard isEnabled else {
+            viewModel.setAutomaticPhotoSyncEnabled(false)
+            return
+        }
+
+        Task { @MainActor in
+            isConfiguringAutomaticPhotoSync = true
+            await viewModel.requestPhotoLibraryAccessAndStartAutomaticSync()
+            automaticPhotoSyncEnabled = LocationViewModel.isAutomaticPhotoSyncEnabled && viewModel.photoLibraryAccessState.canRead
+            isConfiguringAutomaticPhotoSync = false
         }
     }
 
@@ -1046,6 +1168,49 @@ private extension CLAuthorizationStatus {
         case .notDetermined:
             return OnboardingPalette.textMuted
         @unknown default:
+            return OnboardingPalette.textMuted
+        }
+    }
+}
+
+private extension PhotoLibraryAccessState {
+    var onboardingLabel: String {
+        switch self {
+        case .notDetermined:
+            return String(localized: "Not requested")
+        case .authorized:
+            return String(localized: "Allowed")
+        case .limited:
+            return String(localized: "Limited")
+        case .denied:
+            return String(localized: "Denied")
+        case .restricted:
+            return String(localized: "Restricted")
+        case .unavailable:
+            return String(localized: "Unavailable")
+        }
+    }
+
+    var onboardingIcon: String {
+        switch self {
+        case .authorized, .limited:
+            return "checkmark.circle.fill"
+        case .denied, .restricted:
+            return "xmark.octagon.fill"
+        case .notDetermined:
+            return "questionmark.circle.fill"
+        case .unavailable:
+            return "exclamationmark.triangle.fill"
+        }
+    }
+
+    var onboardingColor: Color {
+        switch self {
+        case .authorized, .limited:
+            return OnboardingPalette.success
+        case .denied, .restricted:
+            return OnboardingPalette.danger
+        case .notDetermined, .unavailable:
             return OnboardingPalette.textMuted
         }
     }

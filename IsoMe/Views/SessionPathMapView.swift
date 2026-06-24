@@ -179,7 +179,7 @@ struct SessionPathMapView: View {
 
         var parts = ["\(points.count) \(points.count == 1 ? "point" : "points")"]
         if !photoMoments.isEmpty {
-            parts.append("\(photoMoments.count) \(photoMoments.count == 1 ? "geotagged photo" : "geotagged photos")")
+            parts.append("\(photoMoments.count) \(photoMoments.count == 1 ? "matched photo" : "matched photos")")
         }
         parts.append("Started \(first.accessibilityTimestamp)")
 

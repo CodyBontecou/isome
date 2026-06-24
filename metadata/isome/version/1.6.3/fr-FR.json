@@ -1,0 +1,8 @@
+{
+  "description": "iso.me utilise le GPS pour enregistrer vos visites de lieux et vos trajets — tout est stocké en privé sur votre appareil.\n\nFonctionnalités :\n• Détection automatique des visites avec noms de lieux et adresses\n• Suivi GPS continu haute précision avec enregistrement des trajets\n• Live Activity affichant le suivi en temps réel sur votre écran verrouillé\n• Carte interactive avec marqueurs de visites, trajets et filtres par date\n• Exportez vos données au format JSON, CSV ou Markdown\n• Importez des données précédemment exportées\n• App compagnon pour Apple Watch\n• Gratuit à utiliser ; débloquez l'export de données avec un achat unique\n\nIdéal comme traqueur de localisation pour visites, carte, voyage et mouvement : gardez un itinéraire local, un historique et un journal en toute vie privée.\n\nVos données ne quittent jamais votre appareil. Aucun compte, aucun serveur, aucun pistage.",
+  "keywords": "localisation,traqueur,visites,carte,voyage,vie privée,local,mouvement,itinéraire,historique,journal",
+  "marketingUrl": "https://isome.isolated.tech",
+  "promotionalText": "L'été est là — laissez iso.me capturer vos road trips, journées plage et aventures en privé sur votre appareil. Aucun compte, aucun serveur. Immortalisez votre été.",
+  "supportUrl": "https://isome.isolated.tech",
+  "whatsNew": "Les enregistrements Apple Watch se synchronisent maintenant avec votre iPhone. Enregistrez depuis la montre lorsque votre téléphone n’est pas avec vous, puis iso.me importe les points d’itinéraire et la sortie enregistrée lorsque les appareils se reconnectent. Cette mise à jour améliore aussi la fiabilité de l’état de suivi et de la livraison hors ligne sur la Watch."
+}

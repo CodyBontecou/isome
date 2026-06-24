@@ -39,9 +39,9 @@ enum PhotoLibraryAccessState: String, Equatable {
     var explanation: String {
         switch self {
         case .notDetermined:
-            return "Connect Photos to show geotagged pictures on your map and outings. iso.me stores only local photo metadata."
+            return "Connect Photos to show pictures on your map and outings. iso.me stores only local photo metadata."
         case .authorized:
-            return "Geotagged photos from your library can appear on the map. Photo files stay in Photos."
+            return "Photos from your library can appear on the map using photo GPS or nearby iso.me route/visit matches. Photo files stay in Photos."
         case .limited:
             return "Only photos you selected for iso.me can appear. Add more in iOS Photos privacy settings."
         case .denied:
@@ -108,7 +108,7 @@ final class PhotoLibraryManager: NSObject, PHPhotoLibraryChangeObserver {
         isObservingChanges = true
     }
 
-    func fetchGeotaggedPhotoMetadata(in range: ClosedRange<Date>) -> [PhotoAssetMetadata] {
+    func fetchPhotoMetadata(in range: ClosedRange<Date>) -> [PhotoAssetLibraryMetadata] {
         guard authorizationState.canRead else { return [] }
         startObservingChangesIfNeeded()
 
@@ -121,22 +121,21 @@ final class PhotoLibraryManager: NSObject, PHPhotoLibraryChangeObserver {
         )
 
         let result = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        var moments: [PhotoAssetMetadata] = []
+        var moments: [PhotoAssetLibraryMetadata] = []
         moments.reserveCapacity(result.count)
 
         result.enumerateObjects { asset, _, _ in
-            guard let takenAt = asset.creationDate,
-                  let location = asset.location,
-                  CLLocationCoordinate2DIsValid(location.coordinate) else {
-                return
+            guard let takenAt = asset.creationDate else { return }
+
+            let coordinate = asset.location.flatMap { location in
+                CLLocationCoordinate2DIsValid(location.coordinate) ? location.coordinate : nil
             }
 
-            moments.append(PhotoAssetMetadata(
+            moments.append(PhotoAssetLibraryMetadata(
                 assetLocalIdentifier: asset.localIdentifier,
                 takenAt: takenAt,
-                latitude: location.coordinate.latitude,
-                longitude: location.coordinate.longitude,
-                coordinateSource: .photoGPS
+                latitude: coordinate?.latitude,
+                longitude: coordinate?.longitude
             ))
         }
 
