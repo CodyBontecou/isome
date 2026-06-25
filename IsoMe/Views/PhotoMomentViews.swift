@@ -197,6 +197,7 @@ struct PhotoMomentMapMarker: View {
                 .scaleEffect(isSelected ? 1.06 : 1)
         }
         .buttonStyle(.plain)
+        .zIndex(100)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(photo.accessibilityLabel)
         .accessibilityValue(photo.accessibilityValue)
@@ -292,6 +293,7 @@ struct PhotoMomentClusterMapMarker: View {
                 .scaleEffect(isSelected ? 1.06 : 1)
         }
         .buttonStyle(.plain)
+        .zIndex(100)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cluster.accessibilityLabel)
         .accessibilityValue(cluster.accessibilityValue)

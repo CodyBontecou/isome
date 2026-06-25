@@ -125,7 +125,7 @@ private struct MainTabView: View {
                 selectedTab = 0
             }
             .tabItem {
-                Label("Outings", systemImage: "figure.walk.motion")
+                Label("Timeline", systemImage: "calendar")
             }
             .tag(3)
 

@@ -7,7 +7,7 @@ struct OutingsView: View {
     @Bindable var viewModel: LocationViewModel
     let onShowOnMap: () -> Void
 
-    @State private var sort: RecordingSessionSort = .newest
+    @State private var selectedDate = Date()
     @State private var hasLoadedSessions = false
 
     @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
@@ -19,8 +19,45 @@ struct OutingsView: View {
     @AppStorage(RecordingSessionInferenceConfiguration.minimumPointCountKey)
     private var inferenceMinimumPointCount = RecordingSessionInferenceConfiguration.defaultMinimumPointCountPreset.rawValue
 
+    private var selectedDayRange: ClosedRange<Date> {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: selectedDate)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(24 * 60 * 60)
+        return start...end
+    }
+
+    private var selectedDayTitle: String {
+        if Calendar.current.isDateInToday(selectedDate) {
+            return "Today"
+        }
+
+        return selectedDate.formatted(date: .complete, time: .omitted)
+    }
+
+    private var selectedDaySubtitle: String {
+        selectedDayRange.lowerBound.formatted(.dateTime.weekday(.wide).month(.abbreviated).day().year())
+    }
+
+    private var allSessions: [RecordingSessionSummary] {
+        viewModel.recordingSessionSummaries(inferenceConfiguration: inferenceConfiguration)
+    }
+
     private var sessions: [RecordingSessionSummary] {
-        sort.sorted(viewModel.recordingSessionSummaries(inferenceConfiguration: inferenceConfiguration))
+        allSessions.filter { rangesOverlap($0.dateRange, selectedDayRange) }
+    }
+
+    private var dayVisits: [Visit] {
+        viewModel.visitsOverlappingDateRange(selectedDayRange)
+    }
+
+    private var timelineEvents: [TimelineEvent] {
+        let events = sessions.map(TimelineEvent.session) + dayVisits.map(TimelineEvent.visit)
+        return events.sorted { lhs, rhs in
+            if lhs.startDate == rhs.startDate {
+                return lhs.sortPriority < rhs.sortPriority
+            }
+            return lhs.startDate < rhs.startDate
+        }
     }
 
     private var inferenceConfiguration: RecordingSessionInferenceConfiguration {
@@ -44,8 +81,8 @@ struct OutingsView: View {
         sessions.reduce(0) { $0 + $1.distanceMeters }
     }
 
-    private var totalDuration: TimeInterval {
-        sessions.reduce(0) { $0 + $1.duration }
+    private var hasAnyTimelineData: Bool {
+        viewModel.totalLocationPointCount > 0 || !viewModel.allVisits.isEmpty || !viewModel.allRecordingSessions.isEmpty
     }
 
     var body: some View {
@@ -53,18 +90,18 @@ struct OutingsView: View {
             ZStack {
                 TE.surface.ignoresSafeArea()
 
-                if !hasLoadedSessions && viewModel.totalLocationPointCount > 0 {
-                    ProgressView("Building outings…")
+                if !hasLoadedSessions && hasAnyTimelineData {
+                    ProgressView("Building timeline…")
                         .font(TE.mono(.caption, weight: .medium))
                         .foregroundStyle(TE.textMuted)
-                } else if sessions.isEmpty {
+                } else if timelineEvents.isEmpty {
                     emptyState
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
                             overviewSection
-                            controlsSection
-                            sessionsSection
+                            dayControlsSection
+                            timelineSection
                         }
                         .padding(.bottom, 28)
                     }
@@ -73,33 +110,53 @@ struct OutingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("OUTINGS")
+                    Text("TIMELINE")
                         .font(TE.mono(.caption, weight: .bold))
                         .tracking(3)
                         .foregroundStyle(TE.textMuted)
                 }
             }
             .task {
-                refreshSessions()
+                refreshTimelineData()
             }
             .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
-                refreshSessions()
+                refreshTimelineData()
             }
         }
     }
 
     private var overviewSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "OVERVIEW")
+            TESectionHeader(title: "DAY")
 
             TECard {
                 VStack(spacing: 0) {
                     TERow {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(selectedDayTitle.uppercased())
+                                .font(TE.mono(.headline, weight: .bold))
+                                .tracking(1.6)
+                                .foregroundStyle(TE.textPrimary)
+
+                            Text(selectedDaySubtitle)
+                                .font(TE.mono(.caption2, weight: .medium))
+                                .foregroundStyle(TE.textMuted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    TERow(showDivider: false) {
                         HStack(spacing: 12) {
                             OutingOverviewMetric(
-                                label: "OUTINGS",
+                                label: "MOVES",
                                 value: "\(sessions.count)",
                                 systemImage: "figure.walk.motion"
+                            )
+
+                            OutingOverviewMetric(
+                                label: "VISITS",
+                                value: "\(dayVisits.count)",
+                                systemImage: "mappin.and.ellipse"
                             )
 
                             OutingOverviewMetric(
@@ -107,65 +164,74 @@ struct OutingsView: View {
                                 value: DistanceFormatter.format(meters: totalDistance, usesMetric: usesMetricDistanceUnits),
                                 systemImage: "point.topleft.down.to.point.bottomright.curvepath"
                             )
-
-                            OutingOverviewMetric(
-                                label: "TIME",
-                                value: RecordingSessionFormatter.duration(totalDuration),
-                                systemImage: "clock"
-                            )
                         }
                     }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Each start/stop recording becomes its own outing. Older GPS history can be auto-inferred using your saved inference settings.")
+            TESectionFooter(text: "Timeline combines visits and movement sessions for the selected day. Movement comes from exact recordings plus optional inferred GPS outings.")
         }
     }
 
-    private var controlsSection: some View {
+    private var dayControlsSection: some View {
         VStack(spacing: 0) {
             TESectionHeader(title: "CONTROLS")
 
             TECard {
                 VStack(spacing: 0) {
                     TERow {
-                        HStack(spacing: 12) {
-                            Text("ORDER")
-                                .font(TE.mono(.caption, weight: .medium))
-                                .tracking(1)
-                                .foregroundStyle(TE.textPrimary)
-
-                            Spacer()
-
-                            Menu {
-                                ForEach(RecordingSessionSort.allCases) { option in
-                                    Button {
-                                        sort = option
-                                    } label: {
-                                        if sort == option {
-                                            Label(option.accessibilityLabel, systemImage: "checkmark")
-                                        } else {
-                                            Text(option.accessibilityLabel)
-                                        }
-                                    }
-                                }
+                        HStack(spacing: 10) {
+                            Button {
+                                moveSelectedDay(by: -1)
                             } label: {
-                                HStack(spacing: 6) {
-                                    Text(sort.label.uppercased())
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2.weight(.bold))
-                                }
-                                .font(TE.mono(.caption2, weight: .semibold))
-                                .tracking(1)
-                                .foregroundStyle(TE.accent)
+                                Image(systemName: "chevron.left")
+                                    .font(.caption.weight(.bold))
+                                    .frame(width: 34, height: 34)
+                                    .background(TE.textMuted.opacity(0.10), in: RoundedRectangle(cornerRadius: 4))
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Previous day")
+
+                            Button {
+                                selectedDate = Date()
+                            } label: {
+                                Text("TODAY")
+                                    .font(TE.mono(.caption2, weight: .bold))
+                                    .tracking(1.2)
+                                    .foregroundStyle(TE.accent)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 34)
+                                    .background(TE.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4))
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                moveSelectedDay(by: 1)
+                            } label: {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.bold))
+                                    .frame(width: 34, height: 34)
+                                    .background(TE.textMuted.opacity(0.10), in: RoundedRectangle(cornerRadius: 4))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(isSelectedDayTodayOrFuture)
+                            .opacity(isSelectedDayTodayOrFuture ? 0.35 : 1)
+                            .accessibilityLabel("Next day")
                         }
+                        .foregroundStyle(TE.textPrimary)
+                    }
+
+                    TERow {
+                        DatePicker("DATE", selection: $selectedDate, displayedComponents: .date)
+                            .font(TE.mono(.caption, weight: .medium))
+                            .foregroundStyle(TE.textPrimary)
+                            .tint(TE.accent)
                     }
 
                     TERow(showDivider: includesInferredSessions) {
                         Toggle(isOn: $includesInferredSessions) {
-                            Text("INFERRED")
+                            Text("INFERRED MOVEMENT")
                                 .font(TE.mono(.caption, weight: .medium))
                                 .tracking(1)
                                 .foregroundStyle(TE.textPrimary)
@@ -212,29 +278,40 @@ struct OutingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Inference controls only affect auto-generated outings from older GPS points. Exact start/stop recordings stay unchanged.")
+            TESectionFooter(text: "Use inferred movement to fill older days from GPS points that were saved before exact start/stop sessions existed.")
         }
     }
 
-    private var sessionsSection: some View {
+    private var timelineSection: some View {
         VStack(spacing: 0) {
-            TESectionHeader(title: "SESSIONS")
+            TESectionHeader(title: "EVENTS")
 
             LazyVStack(spacing: 10) {
-                ForEach(sessions) { session in
-                    NavigationLink {
-                        RecordingSessionDetailView(
-                            session: session,
-                            viewModel: viewModel,
-                            onShowOnMap: onShowOnMap
-                        )
-                    } label: {
-                        RecordingSessionCard(
-                            session: session,
-                            usesMetricDistanceUnits: usesMetricDistanceUnits
-                        )
+                ForEach(timelineEvents) { event in
+                    switch event {
+                    case .session(let session):
+                        NavigationLink {
+                            RecordingSessionDetailView(
+                                session: session,
+                                viewModel: viewModel,
+                                onShowOnMap: onShowOnMap
+                            )
+                        } label: {
+                            TimelineMovementCard(
+                                session: session,
+                                usesMetricDistanceUnits: usesMetricDistanceUnits
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                    case .visit(let visit):
+                        NavigationLink {
+                            VisitDetailView(visit: visit, viewModel: viewModel)
+                        } label: {
+                            TimelineVisitCard(visit: visit, isCurrent: viewModel.isCurrentVisit(visit))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 16)
@@ -243,11 +320,11 @@ struct OutingsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 18) {
-            Image(systemName: "figure.walk.motion")
+            Image(systemName: "calendar")
                 .font(.largeTitle.weight(.light))
                 .foregroundStyle(TE.textMuted)
 
-            Text("NO OUTINGS YET")
+            Text("NO TIMELINE EVENTS")
                 .font(TE.mono(.caption, weight: .bold))
                 .tracking(2)
                 .foregroundStyle(TE.textPrimary)
@@ -258,24 +335,30 @@ struct OutingsView: View {
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
                 .padding(.horizontal, 36)
+
+            Button {
+                selectedDate = Date()
+            } label: {
+                Text("JUMP TO TODAY")
+                    .font(TE.mono(.caption2, weight: .bold))
+                    .tracking(1.4)
+                    .foregroundStyle(TE.accent)
+            }
+            .buttonStyle(.plain)
         }
         .padding()
     }
 
     private var emptyStateMessage: String {
-        if viewModel.locationManager.isTrackingEnabled {
-            return "Tracking is active. Your outing will appear after iso.me saves the first location point."
+        if viewModel.locationManager.isTrackingEnabled, Calendar.current.isDateInToday(selectedDate) {
+            return "Tracking is active. New movement will appear here after iso.me saves the first location point."
         }
 
-        if viewModel.totalLocationPointCount > 0 && !includesInferredSessions {
-            return "Auto-inferred outings are turned off. Enable inferred outings to build outings from older GPS points."
+        if hasAnyTimelineData {
+            return "No visits or movement sessions were found for \(selectedDaySubtitle). Pick another day or enable inferred movement for older GPS history."
         }
 
-        if viewModel.totalLocationPointCount > 0 {
-            return "No outings match your current inference settings. Lower the minimum duration or GPS point count in Settings."
-        }
-
-        return "Start tracking from the Map tab or your Shortcuts automation. Each start/stop recording will appear here as its own outing."
+        return "Start tracking from the Map tab or your Shortcuts automation. Visits and movement sessions will appear here by day."
     }
 
     private var usesMetricDistanceUnits: Bool {
@@ -284,10 +367,50 @@ struct OutingsView: View {
         return UserDefaults.standard.bool(forKey: key)
     }
 
-    private func refreshSessions() {
+    private var isSelectedDayTodayOrFuture: Bool {
+        let calendar = Calendar.current
+        return calendar.startOfDay(for: selectedDate) >= calendar.startOfDay(for: Date())
+    }
+
+    private func refreshTimelineData() {
+        viewModel.loadAllVisits()
         viewModel.loadRecordingSessions()
         viewModel.ensureAllLocationPointsLoaded()
         hasLoadedSessions = true
+    }
+
+    private func moveSelectedDay(by value: Int) {
+        selectedDate = Calendar.current.date(byAdding: .day, value: value, to: selectedDate) ?? selectedDate
+    }
+
+    private func rangesOverlap(_ lhs: ClosedRange<Date>, _ rhs: ClosedRange<Date>) -> Bool {
+        lhs.lowerBound <= rhs.upperBound && rhs.lowerBound <= lhs.upperBound
+    }
+}
+
+private enum TimelineEvent: Identifiable {
+    case session(RecordingSessionSummary)
+    case visit(Visit)
+
+    var id: String {
+        switch self {
+        case .session(let session): return "session-\(session.id)"
+        case .visit(let visit): return "visit-\(visit.id.uuidString)"
+        }
+    }
+
+    var startDate: Date {
+        switch self {
+        case .session(let session): return session.startedAt
+        case .visit(let visit): return visit.arrivedAt
+        }
+    }
+
+    var sortPriority: Int {
+        switch self {
+        case .visit: return 0
+        case .session: return 1
+        }
     }
 }
 
@@ -318,6 +441,143 @@ private struct OutingOverviewMetric: View {
                 .monospacedDigit()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct TimelineMovementCard: View {
+    let session: RecordingSessionSummary
+    let usesMetricDistanceUnits: Bool
+
+    var body: some View {
+        TECard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: session.isInferred ? "wand.and.stars" : "figure.walk.motion")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(session.isInferred ? TE.warning : TE.accent)
+                        .frame(width: 28, height: 28)
+                        .background((session.isInferred ? TE.warning : TE.accent).opacity(0.12), in: Circle())
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text("MOVEMENT")
+                                .font(TE.mono(.caption2, weight: .bold))
+                                .tracking(1.4)
+                                .foregroundStyle(TE.textMuted)
+
+                            if session.isActive {
+                                OutingBadge(text: "LIVE", color: TE.success)
+                            } else if session.isInferred {
+                                OutingBadge(text: "INFERRED", color: TE.warning)
+                            }
+                        }
+
+                        Text(session.title.uppercased())
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(1.1)
+                            .foregroundStyle(TE.textPrimary)
+                            .lineLimit(1)
+
+                        Text(session.formattedTimeRange)
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted)
+                            .lineLimit(2)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(TE.textMuted.opacity(0.55))
+                        .padding(.top, 2)
+                }
+
+                HStack(spacing: 8) {
+                    OutingStatChip(
+                        label: "TIME",
+                        value: RecordingSessionFormatter.duration(session.duration),
+                        systemImage: "clock"
+                    )
+                    OutingStatChip(
+                        label: "DISTANCE",
+                        value: DistanceFormatter.format(meters: session.distanceMeters, usesMetric: usesMetricDistanceUnits),
+                        systemImage: "ruler"
+                    )
+                    OutingStatChip(
+                        label: "POINTS",
+                        value: "\(session.pointCount)",
+                        systemImage: "smallcircle.filled.circle"
+                    )
+                }
+            }
+            .padding(14)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Movement, \(session.title)")
+        .accessibilityValue(session.accessibilityValue)
+        .accessibilityHint("Opens movement details.")
+    }
+}
+
+private struct TimelineVisitCard: View {
+    let visit: Visit
+    let isCurrent: Bool
+
+    var body: some View {
+        TECard {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: isCurrent ? "mappin.circle.fill" : "mappin.and.ellipse")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(isCurrent ? TE.accent : TE.danger)
+                    .frame(width: 28, height: 28)
+                    .background((isCurrent ? TE.accent : TE.danger).opacity(0.12), in: Circle())
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
+                        Text("VISIT")
+                            .font(TE.mono(.caption2, weight: .bold))
+                            .tracking(1.4)
+                            .foregroundStyle(TE.textMuted)
+
+                        if isCurrent {
+                            OutingBadge(text: "NOW", color: TE.success)
+                        }
+                    }
+
+                    Text(visit.displayName.uppercased())
+                        .font(TE.mono(.caption, weight: .bold))
+                        .tracking(1.1)
+                        .foregroundStyle(TE.textPrimary)
+                        .lineLimit(1)
+
+                    Text("\(visit.formattedTimeRange) • \(visit.formattedDuration)")
+                        .font(TE.mono(.caption2, weight: .medium))
+                        .foregroundStyle(TE.textMuted)
+                        .lineLimit(2)
+
+                    if let address = visit.address, !address.isEmpty, address != visit.displayName {
+                        Text(address)
+                            .font(TE.mono(.caption2, weight: .medium))
+                            .foregroundStyle(TE.textMuted.opacity(0.82))
+                            .lineLimit(1)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(TE.textMuted.opacity(0.55))
+                    .padding(.top, 2)
+            }
+            .padding(14)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(visit.accessibilityLabel)
+        .accessibilityValue(visit.accessibilityValue)
+        .accessibilityHint("Opens visit details.")
     }
 }
 
@@ -415,7 +675,7 @@ private struct RecordingSessionDetailView: View {
     private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
 
     private var visits: [Visit] {
-        viewModel.visitsInDateRange(session.dateRange)
+        viewModel.visitsOverlappingDateRange(session.dateRange)
     }
 
     private var photoMoments: [PhotoMoment] {

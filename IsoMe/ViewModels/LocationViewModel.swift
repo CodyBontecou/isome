@@ -843,6 +843,15 @@ final class LocationViewModel {
         allVisits.filter { range.contains($0.arrivedAt) }
     }
 
+    func visitsOverlappingDateRange(_ range: ClosedRange<Date>, referenceDate: Date = Date()) -> [Visit] {
+        allVisits
+            .filter { visit in
+                let visitEnd = visit.departedAt ?? referenceDate
+                return visit.arrivedAt <= range.upperBound && visitEnd >= range.lowerBound
+            }
+            .sorted { $0.arrivedAt < $1.arrivedAt }
+    }
+
     func locationPointsInDateRange(_ range: ClosedRange<Date>) -> [LocationPoint] {
         fetchLocationPoints(in: range)
     }
