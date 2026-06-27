@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 import Combine
+import CoreLocation
 
 struct MapSessionFocusRequest: Equatable {
     let id = UUID()
@@ -50,6 +51,7 @@ final class LocationViewModel {
 
     static let automaticPhotoSyncEnabledKey = "automaticPhotoSyncEnabled"
     static let showPhotoMarkersKey = "showPhotoMarkers"
+    static let showVisitSuggestionsKey = "showVisitSuggestions"
 
     private let maximumMapPointCount = 2_500
     private let maximumMapPhotoMomentCount = 500
@@ -900,6 +902,7 @@ final class LocationViewModel {
         } else {
             visit.customName = trimmed
         }
+        visit.updatedAt = Date()
         try? modelContext.save()
         loadTodayVisits()
         loadAllVisits()
@@ -907,6 +910,7 @@ final class LocationViewModel {
 
     func clearVisitName(_ visit: Visit) {
         visit.customName = nil
+        visit.updatedAt = Date()
         try? modelContext.save()
         loadTodayVisits()
         loadAllVisits()
@@ -915,7 +919,118 @@ final class LocationViewModel {
     func updateVisitNotes(_ visit: Visit, notes: String) {
         let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         visit.notes = trimmed.isEmpty ? nil : notes
+        visit.updatedAt = Date()
         try? modelContext.save()
+    }
+
+    func confirmVisit(_ visit: Visit) {
+        let now = Date()
+        visit.confirmationStatus = .confirmed
+        visit.confirmedAt = now
+        visit.updatedAt = now
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+    }
+
+    func correctVisit(
+        _ visit: Visit,
+        name: String,
+        address: String?,
+        coordinate: CLLocationCoordinate2D,
+        placeSource: VisitPlaceSource,
+        distanceMeters: Double? = nil
+    ) {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+
+        let now = Date()
+        visit.preserveOriginalValuesIfNeeded()
+        visit.latitude = coordinate.latitude
+        visit.longitude = coordinate.longitude
+        visit.customName = nil
+        visit.locationName = trimmedName
+        visit.address = address?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        visit.confirmationStatus = .corrected
+        visit.confirmedAt = visit.confirmedAt ?? now
+        visit.updatedAt = now
+        visit.placeSource = placeSource
+        visit.placeDistanceMeters = distanceMeters
+        visit.geocodingCompleted = true
+
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+        loadMapLocationPoints(in: mapDateRange)
+    }
+
+    func undoVisitCorrection(_ visit: Visit) {
+        guard let originalLatitude = visit.originalLatitude,
+              let originalLongitude = visit.originalLongitude else { return }
+
+        let now = Date()
+        visit.latitude = originalLatitude
+        visit.longitude = originalLongitude
+        visit.locationName = visit.originalLocationName
+        visit.address = visit.originalAddress
+        visit.customName = nil
+        visit.confirmationStatus = .unconfirmed
+        visit.confirmedAt = nil
+        visit.updatedAt = now
+        visit.placeSource = nil
+        visit.placeDistanceMeters = nil
+
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+        loadMapLocationPoints(in: mapDateRange)
+    }
+
+    @discardableResult
+    func createManualVisit(
+        name: String,
+        address: String?,
+        coordinate: CLLocationCoordinate2D,
+        arrivedAt: Date,
+        departedAt: Date?
+    ) -> Visit? {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return nil }
+        if let departedAt, departedAt < arrivedAt { return nil }
+
+        let now = Date()
+        let visit = Visit(
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude,
+            arrivedAt: arrivedAt,
+            departedAt: departedAt,
+            locationName: trimmedName,
+            address: address?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
+            geocodingCompleted: true,
+            source: .manual,
+            confirmationStatus: .confirmed,
+            confirmedAt: now,
+            updatedAt: now,
+            placeSource: .userEntered
+        )
+        modelContext.insert(visit)
+        try? modelContext.save()
+        loadData()
+        return visit
+    }
+
+    @discardableResult
+    func updateVisitTimes(_ visit: Visit, arrivedAt: Date, departedAt: Date?) -> Bool {
+        if let departedAt, departedAt < arrivedAt { return false }
+
+        visit.arrivedAt = arrivedAt
+        visit.departedAt = departedAt
+        visit.updatedAt = Date()
+        try? modelContext.save()
+        loadTodayVisits()
+        loadAllVisits()
+        loadMapLocationPoints(in: mapDateRange)
+        return true
     }
 
     // MARK: - Recording Session Management
@@ -1038,15 +1153,33 @@ final class LocationViewModel {
         let result = try ImportService.importFile(data: data, format: format)
 
         for imported in result.visits {
+            let source = imported.sourceRaw.flatMap(VisitSource.init(rawValue:)) ?? .imported
+            let confirmationStatus = imported.confirmationStatusRaw.flatMap(VisitConfirmationStatus.init(rawValue:)) ?? .unconfirmed
+            let placeSource = imported.placeSourceRaw.flatMap(VisitPlaceSource.init(rawValue:)) ?? (source == .imported ? .import : nil)
             let visit = Visit(
                 latitude: imported.latitude,
                 longitude: imported.longitude,
                 arrivedAt: imported.arrivedAt,
                 departedAt: imported.departedAt,
+                customName: imported.customName,
                 locationName: imported.locationName,
                 address: imported.address,
                 notes: imported.notes,
-                geocodingCompleted: imported.locationName != nil || imported.address != nil
+                geocodingCompleted: imported.locationName != nil || imported.address != nil,
+                source: source,
+                confirmationStatus: confirmationStatus,
+                confirmedAt: imported.confirmedAt,
+                updatedAt: imported.updatedAt,
+                originalLatitude: imported.originalLatitude,
+                originalLongitude: imported.originalLongitude,
+                originalLocationName: imported.originalLocationName,
+                originalAddress: imported.originalAddress,
+                detectedLatitude: imported.detectedLatitude,
+                detectedLongitude: imported.detectedLongitude,
+                detectedLocationName: imported.detectedLocationName,
+                detectedAddress: imported.detectedAddress,
+                placeSource: placeSource,
+                placeDistanceMeters: imported.placeDistanceMeters
             )
             modelContext.insert(visit)
         }
@@ -1116,5 +1249,11 @@ final class LocationViewModel {
         locationManager.stopTracking()
         loadRecordingSessions()
         refreshDerivedPointCaches()
+    }
+}
+
+private extension String {
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
     }
 }

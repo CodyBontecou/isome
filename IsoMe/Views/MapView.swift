@@ -13,6 +13,11 @@ struct LocationMapView: View {
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
+    @State private var manualVisitDraft: ManualVisitDraft?
+    @State private var currentPlaceSuggestion: NearbyPlaceSuggestion?
+    @State private var isLoadingCurrentPlace = false
+    @State private var currentPlaceLookupFailed = false
+    @State private var dismissedCurrentPlaceLookupKey: String?
     @State private var showFilterBar = Self.initialFilterBarVisibility
     @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
@@ -21,6 +26,7 @@ struct LocationMapView: View {
     @State private var showSessionPath = false
     @State private var showVisitMarkers = true
     @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
+    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = true
     @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
@@ -86,6 +92,31 @@ struct LocationMapView: View {
 
     var routeReplaySourcePoints: [LocationPoint] {
         filteredPoints
+    }
+
+    private var freshManualLocation: CLLocation? {
+        guard let location = locationManager.currentLocation else { return nil }
+        let age = Date().timeIntervalSince(location.timestamp)
+        guard age <= 5 * 60 else { return nil }
+        guard location.horizontalAccuracy >= 0, location.horizontalAccuracy <= 100 else { return nil }
+        return location
+    }
+
+    private var currentPlaceLookupKey: String {
+        guard showVisitSuggestions else { return "disabled" }
+
+        guard let location = freshManualLocation else {
+            return "unavailable-\(locationManager.authorizationStatus.rawValue)"
+        }
+
+        let latitude = (location.coordinate.latitude * 10000).rounded() / 10000
+        let longitude = (location.coordinate.longitude * 10000).rounded() / 10000
+        let accuracy = Int(location.horizontalAccuracy.rounded())
+        return "\(latitude),\(longitude),\(accuracy)"
+    }
+
+    private var shouldShowCurrentPlacePrompt: Bool {
+        showVisitSuggestions && dismissedCurrentPlaceLookupKey != currentPlaceLookupKey
     }
 
     private var roadSnappingSourceFingerprint: Int {
@@ -376,6 +407,22 @@ struct LocationMapView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
 
+                    if shouldShowCurrentPlacePrompt {
+                        CurrentPlaceCard(
+                            suggestion: currentPlaceSuggestion,
+                            isLoading: isLoadingCurrentPlace,
+                            lookupFailed: currentPlaceLookupFailed,
+                            hasFreshLocation: freshManualLocation != nil,
+                            hasLocationPermission: locationManager.hasLocationPermission,
+                            onSave: openSaveCurrentPlaceSheet,
+                            onNotHere: openBlankManualVisitSheet,
+                            onRequestLocation: locationManager.requestCurrentLocationForManualVisit,
+                            onDismiss: dismissCurrentPlacePrompt
+                        )
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+
                     MapTrackingControlPill(
                         viewModel: viewModel,
                         locationManager: locationManager,
@@ -432,6 +479,12 @@ struct LocationMapView: View {
                             Spacer(minLength: 0)
                         }
 
+                        MapAddPlaceMenu(
+                            onSaveCurrentPlace: openSaveCurrentPlaceSheet,
+                            onAddPastVisit: openPastVisitSheet,
+                            onDropPin: openBlankManualVisitSheet
+                        )
+
                         FilterBarToggle(isOpen: showFilterBar) {
                             withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
                                 showFilterBar.toggle()
@@ -452,6 +505,19 @@ struct LocationMapView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(item: $manualVisitDraft) { draft in
+                ManualVisitSheet(
+                    viewModel: viewModel,
+                    locationManager: locationManager,
+                    draft: draft,
+                    onSaved: {
+                        if draft.hidesCurrentPlacePromptAfterSave {
+                            dismissedCurrentPlaceLookupKey = currentPlaceLookupKey
+                        }
+                    }
+                )
+                .presentationDetents([.medium, .large])
+            }
             .sheet(isPresented: $showingFilters) {
                 DateRangeFilterSheet(
                     dateRange: $viewModel.mapDateRange,
@@ -501,6 +567,9 @@ struct LocationMapView: View {
             .task(id: roadSnappingTaskKey) {
                 await refreshRoadSnappedRoute()
             }
+            .task(id: currentPlaceLookupKey) {
+                await refreshCurrentPlaceSuggestion()
+            }
             .onReceive(routeReplayTimer) { _ in
                 advanceRouteReplayIfNeeded()
             }
@@ -538,6 +607,81 @@ struct LocationMapView: View {
                 }
             }
         }
+    }
+
+    private func dismissCurrentPlacePrompt() {
+        withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
+            dismissedCurrentPlaceLookupKey = currentPlaceLookupKey
+        }
+    }
+
+    private func openSaveCurrentPlaceSheet() {
+        locationManager.requestCurrentLocationForManualVisit()
+
+        if let suggestion = currentPlaceSuggestion {
+            manualVisitDraft = ManualVisitDraft(
+                name: suggestion.name,
+                address: suggestion.address ?? "",
+                coordinate: suggestion.coordinate,
+                title: "Save Place"
+            )
+        } else {
+            manualVisitDraft = ManualVisitDraft(title: "Save Place")
+        }
+    }
+
+    private func openBlankManualVisitSheet() {
+        locationManager.requestCurrentLocationForManualVisit()
+        manualVisitDraft = ManualVisitDraft(title: "Add Place")
+    }
+
+    private func openPastVisitSheet() {
+        locationManager.requestCurrentLocationForManualVisit()
+        let departedAt = Date()
+        let arrivedAt = Calendar.current.date(byAdding: .hour, value: -1, to: departedAt) ?? departedAt
+        manualVisitDraft = ManualVisitDraft(
+            arrivedAt: arrivedAt,
+            departedAt: departedAt,
+            isStillHere: false,
+            title: "Add Past Visit",
+            hidesCurrentPlacePromptAfterSave: false
+        )
+    }
+
+    private func refreshCurrentPlaceSuggestion() async {
+        guard showVisitSuggestions else {
+            currentPlaceSuggestion = nil
+            isLoadingCurrentPlace = false
+            currentPlaceLookupFailed = false
+            return
+        }
+
+        guard let location = freshManualLocation else {
+            currentPlaceSuggestion = nil
+            isLoadingCurrentPlace = false
+            currentPlaceLookupFailed = false
+            return
+        }
+
+        isLoadingCurrentPlace = true
+        currentPlaceLookupFailed = false
+
+        do {
+            let suggestions = try await NearbyPlaceSearchService.shared.suggestions(
+                near: location.coordinate,
+                radius: 500,
+                limit: 1
+            )
+            guard !Task.isCancelled else { return }
+            currentPlaceSuggestion = suggestions.first
+            currentPlaceLookupFailed = false
+        } catch {
+            guard !Task.isCancelled else { return }
+            currentPlaceSuggestion = nil
+            currentPlaceLookupFailed = true
+        }
+
+        isLoadingCurrentPlace = false
     }
 
     @discardableResult
@@ -1503,6 +1647,364 @@ struct DateRangeChip: View {
     }
 }
 
+struct ManualVisitDraft: Identifiable {
+    let id = UUID()
+    var name: String = ""
+    var address: String = ""
+    var coordinate: CLLocationCoordinate2D?
+    var arrivedAt: Date = Date()
+    var departedAt: Date = Date()
+    var isStillHere: Bool = true
+    var title: String = "Save Place"
+    var hidesCurrentPlacePromptAfterSave: Bool = true
+}
+
+private struct CurrentPlaceCard: View {
+    let suggestion: NearbyPlaceSuggestion?
+    let isLoading: Bool
+    let lookupFailed: Bool
+    let hasFreshLocation: Bool
+    let hasLocationPermission: Bool
+    let onSave: () -> Void
+    let onNotHere: () -> Void
+    let onRequestLocation: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 8) {
+            iconView
+            Text(title)
+                .font(TE.mono(.caption2, weight: .bold))
+                .tracking(0.8)
+                .foregroundStyle(TE.textPrimary)
+                .lineLimit(1)
+                .frame(maxWidth: 145, alignment: .leading)
+
+            actionView
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .padding(.trailing, suggestion == nil ? 0 : 12)
+        .background(cardBackground)
+        .overlay(alignment: .topTrailing) {
+            if suggestion != nil {
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, .red)
+                        .background(.red, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Close visit suggestion")
+                .accessibilityHint("Hides this suggested place from the map.")
+                .offset(x: 5, y: -5)
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var iconView: some View {
+        ZStack {
+            Circle()
+                .fill(iconTint.opacity(0.14))
+            Image(systemName: iconName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(iconTint)
+        }
+        .frame(width: 32, height: 32)
+    }
+
+    @ViewBuilder
+    private var actionView: some View {
+        if canSave {
+            Button("Save") { onSave() }
+                .font(TE.mono(.caption2, weight: .bold))
+                .tracking(0.7)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.mini)
+                .accessibilityHint("Opens visit details prefilled with this place.")
+
+            Button { onNotHere() } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 14, weight: .bold))
+            }
+            .buttonStyle(.borderless)
+            .controlSize(.mini)
+            .accessibilityLabel("Not here")
+            .accessibilityHint("Opens manual place entry.")
+        } else {
+            Button(hasLocationPermission ? "Find" : "Allow") { onRequestLocation() }
+                .font(TE.mono(.caption2, weight: .bold))
+                .tracking(0.7)
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
+                .accessibilityHint("Requests a fresh current location.")
+        }
+    }
+
+    private var cardBackground: some View {
+        Capsule()
+            .fill(.ultraThinMaterial)
+            .overlay {
+                Capsule()
+                    .strokeBorder(.white.opacity(0.28), lineWidth: 0.6)
+            }
+            .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+    }
+
+    private var canSave: Bool {
+        suggestion != nil || hasFreshLocation
+    }
+
+    private var iconName: String {
+        if isLoading { return "location.viewfinder" }
+        if suggestion != nil { return "mappin.and.ellipse" }
+        if !hasLocationPermission { return "location.slash" }
+        if lookupFailed { return "exclamationmark.triangle" }
+        return "location"
+    }
+
+    private var iconTint: Color {
+        if !hasLocationPermission || lookupFailed { return .orange }
+        if canSave { return .blue }
+        return .secondary
+    }
+
+    private var title: String {
+        if let suggestion { return suggestion.name }
+        if isLoading { return "Finding place…" }
+        if !hasLocationPermission { return "Use location" }
+        if lookupFailed { return "Add this place" }
+        return "Save place"
+    }
+
+    private var subtitle: String {
+        if let suggestion {
+            if let address = suggestion.address, !address.isEmpty {
+                return address
+            }
+            return suggestion.distanceLabel
+        }
+        if isLoading { return "Checking nearby Apple Maps places" }
+        if !hasLocationPermission { return "Allow location to save a visit" }
+        if lookupFailed { return "You can still add details manually" }
+        if hasFreshLocation { return "Add a visit at your current location" }
+        return "Waiting for fresh GPS accuracy"
+    }
+
+}
+
+private struct MapAddPlaceMenu: View {
+    let onSaveCurrentPlace: () -> Void
+    let onAddPastVisit: () -> Void
+    let onDropPin: () -> Void
+
+    var body: some View {
+        Menu {
+            Button("Save current place", systemImage: "location.fill", action: onSaveCurrentPlace)
+            Button("Add past visit", systemImage: "calendar.badge.plus", action: onAddPastVisit)
+            Button("Add place manually", systemImage: "mappin.and.ellipse", action: onDropPin)
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(TE.textPrimary)
+                .frame(width: 44, height: 44)
+                .background {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .overlay {
+                            Circle()
+                                .strokeBorder(.white.opacity(0.28), lineWidth: 0.6)
+                        }
+                        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+                }
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .accessibilityLabel("Add place")
+        .accessibilityHint("Opens options to save your current place or add a past visit.")
+    }
+}
+
+struct ManualVisitSheet: View {
+    @Bindable var viewModel: LocationViewModel
+    @ObservedObject var locationManager: LocationManager
+    @Environment(\.dismiss) private var dismiss
+
+    private let draftCoordinate: CLLocationCoordinate2D?
+    private let draftTitle: String
+    private let onSaved: (() -> Void)?
+
+    @State private var name: String
+    @State private var address: String
+    @State private var arrivedAt: Date
+    @State private var departedAt: Date
+    @State private var isStillHere: Bool
+    @State private var errorMessage: String?
+
+    init(
+        viewModel: LocationViewModel,
+        locationManager: LocationManager,
+        draft: ManualVisitDraft = ManualVisitDraft(),
+        onSaved: (() -> Void)? = nil
+    ) {
+        self.viewModel = viewModel
+        self.locationManager = locationManager
+        self.draftCoordinate = draft.coordinate
+        self.draftTitle = draft.title
+        self.onSaved = onSaved
+        _name = State(initialValue: draft.name)
+        _address = State(initialValue: draft.address)
+        _arrivedAt = State(initialValue: draft.arrivedAt)
+        _departedAt = State(initialValue: draft.departedAt)
+        _isStillHere = State(initialValue: draft.isStillHere)
+    }
+
+    private var manualLocation: CLLocation? {
+        guard let location = locationManager.currentLocation else { return nil }
+        let age = Date().timeIntervalSince(location.timestamp)
+        guard age <= 5 * 60 else { return nil }
+        guard location.horizontalAccuracy >= 0, location.horizontalAccuracy <= 100 else { return nil }
+        return location
+    }
+
+    private var coordinate: CLLocationCoordinate2D? {
+        draftCoordinate ?? manualLocation?.coordinate
+    }
+
+    private var isSaveDisabled: Bool {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || coordinate == nil || validationMessage != nil
+    }
+
+    private var validationMessage: String? {
+        if !isStillHere, departedAt < arrivedAt {
+            return "Departure must be after arrival."
+        }
+        return nil
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Place") {
+                    TextField("Place name", text: $name)
+                        .textInputAutocapitalization(.words)
+                    TextField("Address or note", text: $address)
+                        .textInputAutocapitalization(.words)
+                }
+
+                Section("Time") {
+                    DatePicker("Arrived", selection: $arrivedAt, displayedComponents: [.date, .hourAndMinute])
+                    Toggle("Still here", isOn: $isStillHere)
+                    if !isStillHere {
+                        DatePicker("Departed", selection: $departedAt, displayedComponents: [.date, .hourAndMinute])
+                    }
+
+                    if let validationMessage {
+                        Text(validationMessage)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+
+                Section("Location") {
+                    if let draftCoordinate {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Selected place ready", systemImage: "mappin.and.ellipse")
+                                .foregroundStyle(.green)
+                            Text(String(
+                                format: "%.6f, %.6f",
+                                draftCoordinate.latitude,
+                                draftCoordinate.longitude
+                            ))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .monospaced()
+                        }
+                    } else if let manualLocation {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Current location ready", systemImage: "location.fill")
+                                .foregroundStyle(.green)
+                            Text(String(
+                                format: "%.6f, %.6f • ±%.0fm",
+                                manualLocation.coordinate.latitude,
+                                manualLocation.coordinate.longitude,
+                                manualLocation.horizontalAccuracy
+                            ))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .monospaced()
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Waiting for a fresh accurate location", systemImage: "location")
+                                .foregroundStyle(.secondary)
+                            Text("Manual visits require a location from the last 5 minutes with accuracy under 100 meters.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Button("Request Location") {
+                                locationManager.requestCurrentLocationForManualVisit()
+                            }
+                        }
+                    }
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle(draftTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                if draftCoordinate == nil {
+                    locationManager.requestCurrentLocationForManualVisit()
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { save() }
+                        .disabled(isSaveDisabled)
+                }
+            }
+        }
+    }
+
+    private func save() {
+        guard let coordinate else {
+            errorMessage = "A fresh accurate current location is not available yet."
+            locationManager.requestCurrentLocationForManualVisit()
+            return
+        }
+
+        guard validationMessage == nil else {
+            errorMessage = validationMessage
+            return
+        }
+
+        let visit = viewModel.createManualVisit(
+            name: name,
+            address: address,
+            coordinate: coordinate,
+            arrivedAt: arrivedAt,
+            departedAt: isStillHere ? nil : departedAt
+        )
+
+        if visit == nil {
+            errorMessage = "Enter a place name and valid times."
+        } else {
+            onSaved?()
+            dismiss()
+        }
+    }
+}
+
 struct DateRangeFilterSheet: View {
     @Binding var dateRange: ClosedRange<Date>
     @Binding var isPresented: Bool
@@ -1650,8 +2152,19 @@ struct VisitQuickView: View {
                                 .foregroundStyle(.secondary)
                         }
 
+                        HStack(spacing: 8) {
+                            MapVisitStatusBadge(
+                                text: visit.confirmationStatus.displayName,
+                                color: statusColor
+                            )
+                            MapVisitStatusBadge(
+                                text: visit.source.displayName,
+                                color: .gray
+                            )
+                        }
+
                         NearbyVisitNameSuggestionSection(visit: visit) { suggestion in
-                            applyNameSuggestion(suggestion)
+                            correctVisit(with: suggestion)
                         }
                     }
 
@@ -1701,6 +2214,17 @@ struct VisitQuickView: View {
                         }
                     }
 
+                    if visit.confirmationStatus == .unconfirmed {
+                        Button {
+                            saveName()
+                            viewModel.confirmVisit(visit)
+                        } label: {
+                            Label("Confirm Place", systemImage: "checkmark.seal")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
                     NavigationLink {
                         VisitDetailView(visit: visit, viewModel: viewModel)
                     } label: {
@@ -1737,10 +2261,39 @@ struct VisitQuickView: View {
         nameText = visit.displayName
     }
 
-    private func applyNameSuggestion(_ suggestion: NearbyPlaceSuggestion) {
+    private var statusColor: Color {
+        switch visit.confirmationStatus {
+        case .unconfirmed: return .orange
+        case .confirmed: return .green
+        case .corrected: return .blue
+        }
+    }
+
+    private func correctVisit(with suggestion: NearbyPlaceSuggestion) {
         isNameFieldFocused = false
-        nameText = suggestion.name
-        saveName()
+        viewModel.correctVisit(
+            visit,
+            name: suggestion.name,
+            address: suggestion.address,
+            coordinate: suggestion.coordinate,
+            placeSource: .appleMaps,
+            distanceMeters: suggestion.distanceMeters
+        )
+        nameText = visit.displayName
+    }
+}
+
+private struct MapVisitStatusBadge: View {
+    let text: String
+    let color: Color
+
+    var body: some View {
+        Text(text.uppercased())
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .foregroundStyle(color)
+            .background(color.opacity(0.12), in: Capsule())
     }
 }
 

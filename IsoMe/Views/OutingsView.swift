@@ -544,6 +544,12 @@ private struct TimelineVisitCard: View {
                         if isCurrent {
                             OutingBadge(text: "NOW", color: TE.success)
                         }
+
+                        OutingBadge(text: visit.confirmationStatus.displayName.uppercased(), color: statusColor)
+
+                        if visit.source == .manual {
+                            OutingBadge(text: "MANUAL", color: TE.accent)
+                        }
                     }
 
                     Text(visit.displayName.uppercased())
@@ -576,8 +582,16 @@ private struct TimelineVisitCard: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(visit.accessibilityLabel)
-        .accessibilityValue(visit.accessibilityValue)
+        .accessibilityValue("\(visit.accessibilityValue). Status \(visit.confirmationStatus.displayName). Source \(visit.source.displayName).")
         .accessibilityHint("Opens visit details.")
+    }
+
+    private var statusColor: Color {
+        switch visit.confirmationStatus {
+        case .unconfirmed: return TE.warning
+        case .confirmed: return TE.success
+        case .corrected: return TE.accent
+        }
     }
 }
 

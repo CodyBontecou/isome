@@ -24,6 +24,46 @@ final class ExportServiceRoundTripTests: XCTestCase {
         assertLocationPoints(importedPoints, match: points)
     }
 
+    func testJSONRoundTripsVisitCorrectionMetadata() throws {
+        let visit = Visit(
+            latitude: 37.7749,
+            longitude: -122.4194,
+            arrivedAt: fixtureDate(hour: 9, minute: 0),
+            departedAt: fixtureDate(hour: 10, minute: 0),
+            locationName: "Detected Block",
+            address: "Market St",
+            notes: "Reviewed"
+        )
+        visit.preserveOriginalValuesIfNeeded()
+        visit.latitude = 37.7755
+        visit.longitude = -122.4188
+        visit.locationName = "Correct Cafe"
+        visit.address = "1 Correct Way"
+        visit.confirmationStatus = VisitConfirmationStatus.corrected
+        visit.confirmedAt = fixtureDate(hour: 9, minute: 30)
+        visit.updatedAt = fixtureDate(hour: 9, minute: 45)
+        visit.placeSource = VisitPlaceSource.appleMaps
+        visit.placeDistanceMeters = 42
+
+        let imported = try XCTUnwrap(try ImportService.importFile(
+            data: ExportService.exportToJSON(visits: [visit]),
+            format: .json
+        ).visits.first)
+
+        XCTAssertEqual(imported.sourceRaw, VisitSource.automatic.rawValue)
+        XCTAssertEqual(imported.confirmationStatusRaw, VisitConfirmationStatus.corrected.rawValue)
+        XCTAssertEqual(try XCTUnwrap(imported.confirmedAt?.timeIntervalSince1970), try XCTUnwrap(visit.confirmedAt?.timeIntervalSince1970), accuracy: dateAccuracy)
+        XCTAssertEqual(try XCTUnwrap(imported.updatedAt?.timeIntervalSince1970), try XCTUnwrap(visit.updatedAt?.timeIntervalSince1970), accuracy: dateAccuracy)
+        XCTAssertEqual(try XCTUnwrap(imported.originalLatitude), 37.7749, accuracy: coordinateAccuracy)
+        XCTAssertEqual(try XCTUnwrap(imported.originalLongitude), -122.4194, accuracy: coordinateAccuracy)
+        XCTAssertEqual(imported.locationName, "Correct Cafe")
+        XCTAssertEqual(imported.address, "1 Correct Way")
+        XCTAssertEqual(imported.originalLocationName, "Detected Block")
+        XCTAssertEqual(imported.originalAddress, "Market St")
+        XCTAssertEqual(imported.placeSourceRaw, VisitPlaceSource.appleMaps.rawValue)
+        XCTAssertEqual(imported.placeDistanceMeters, 42)
+    }
+
     func testCSVRoundTripsVisitsAndLocationPoints() throws {
         let visits = makeVisits()
         let points = makeLocationPoints()

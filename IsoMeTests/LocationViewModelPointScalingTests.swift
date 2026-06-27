@@ -107,6 +107,96 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         assertSortedByTimestamp(viewModel.mapLocationPoints)
     }
 
+    func testManualVisitCreationAndTimeEditing() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrivedAt = fixtureDate(dayOffset: 19)
+        let departedAt = arrivedAt.addingTimeInterval(45 * 60)
+        let coordinate = CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4)
+
+        let visit = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Manual Cafe",
+            address: "1 Manual Way",
+            coordinate: coordinate,
+            arrivedAt: arrivedAt,
+            departedAt: departedAt
+        ))
+
+        XCTAssertEqual(visit.source, .manual)
+        XCTAssertEqual(visit.confirmationStatus, .confirmed)
+        XCTAssertEqual(visit.placeSource, .userEntered)
+        XCTAssertEqual(visit.locationName, "Manual Cafe")
+        XCTAssertEqual(visit.address, "1 Manual Way")
+        assertCoordinate(visit.coordinate, equals: coordinate)
+        XCTAssertEqual(viewModel.allVisits.count, 1)
+
+        let invalidResult = viewModel.updateVisitTimes(
+            visit,
+            arrivedAt: departedAt,
+            departedAt: arrivedAt
+        )
+        XCTAssertFalse(invalidResult)
+        XCTAssertEqual(visit.arrivedAt, arrivedAt)
+        XCTAssertEqual(visit.departedAt, departedAt)
+
+        let newArrival = arrivedAt.addingTimeInterval(-30 * 60)
+        XCTAssertTrue(viewModel.updateVisitTimes(visit, arrivedAt: newArrival, departedAt: nil))
+        XCTAssertEqual(visit.arrivedAt, newArrival)
+        XCTAssertNil(visit.departedAt)
+    }
+
+    func testVisitConfirmCorrectAndUndoPreservesOriginalMetadata() throws {
+        let container = try makeInMemoryContainer()
+        let originalCoordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+        let correctedCoordinate = CLLocationCoordinate2D(latitude: 37.7755, longitude: -122.4188)
+        let visit = Visit(
+            latitude: originalCoordinate.latitude,
+            longitude: originalCoordinate.longitude,
+            arrivedAt: fixtureDate(dayOffset: 20),
+            locationName: "Detected Block",
+            address: "Market St",
+            geocodingCompleted: true
+        )
+        container.mainContext.insert(visit)
+        try container.mainContext.save()
+
+        let viewModel = makeViewModel(container: container)
+        XCTAssertEqual(visit.confirmationStatus, .unconfirmed)
+        XCTAssertEqual(visit.source, .automatic)
+
+        viewModel.confirmVisit(visit)
+        XCTAssertEqual(visit.confirmationStatus, .confirmed)
+        XCTAssertNotNil(visit.confirmedAt)
+
+        viewModel.correctVisit(
+            visit,
+            name: "Correct Cafe",
+            address: "1 Correct Way",
+            coordinate: correctedCoordinate,
+            placeSource: .appleMaps,
+            distanceMeters: 42
+        )
+
+        XCTAssertEqual(visit.confirmationStatus, .corrected)
+        XCTAssertEqual(visit.displayName, "Correct Cafe")
+        XCTAssertEqual(visit.address, "1 Correct Way")
+        XCTAssertEqual(visit.placeSource, .appleMaps)
+        XCTAssertEqual(visit.placeDistanceMeters, 42)
+        assertCoordinate(visit.originalCoordinate, equals: originalCoordinate)
+        XCTAssertEqual(visit.originalLocationName, "Detected Block")
+        XCTAssertEqual(visit.originalAddress, "Market St")
+        XCTAssertEqual(visit.latitude, correctedCoordinate.latitude, accuracy: 0.000001)
+        XCTAssertEqual(visit.longitude, correctedCoordinate.longitude, accuracy: 0.000001)
+
+        viewModel.undoVisitCorrection(visit)
+
+        XCTAssertEqual(visit.confirmationStatus, .unconfirmed)
+        XCTAssertNil(visit.confirmedAt)
+        XCTAssertEqual(visit.locationName, "Detected Block")
+        XCTAssertEqual(visit.address, "Market St")
+        assertCoordinate(visit.coordinate, equals: originalCoordinate)
+    }
+
     func testLiveBatchAppendAddsEveryPointToMapAndSessionCaches() async throws {
         UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
         let container = try makeInMemoryContainer()

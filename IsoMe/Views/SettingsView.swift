@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
+    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = true
     @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
     private var includesInferredSessions = RecordingSessionInferenceConfiguration.defaultIncludesInferredSessions
     @AppStorage(RecordingSessionInferenceConfiguration.gapPresetKey)
@@ -422,13 +423,19 @@ struct SettingsView: View {
             TESectionHeader(title: "MAP DISPLAY")
 
             TECard {
-                TERow(showDivider: false) {
-                    settingsToggle("SHOW GPS GLITCHES", isOn: $showOutliers)
+                VStack(spacing: 0) {
+                    TERow {
+                        settingsToggle("VISIT SUGGESTIONS", isOn: $showVisitSuggestions)
+                    }
+
+                    TERow(showDivider: false) {
+                        settingsToggle("SHOW GPS GLITCHES", isOn: $showOutliers)
+                    }
                 }
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Points flagged as GPS glitches (sudden jumps that return to your path) are hidden by default. Turn on to inspect the raw data.")
+            TESectionFooter(text: "Visit suggestions show a compact Save Place prompt on the map when iso.me finds a nearby place. GPS glitches are hidden by default; turn on to inspect raw data.")
         }
     }
 

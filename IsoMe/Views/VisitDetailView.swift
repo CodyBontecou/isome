@@ -9,6 +9,10 @@ struct VisitDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var nameText: String = ""
     @State private var notesText: String = ""
+    @State private var arrivedAt: Date = Date()
+    @State private var departedAt: Date = Date()
+    @State private var isStillHere = false
+    @State private var timeValidationMessage: String?
     @FocusState private var focusedField: FocusedField?
 
     private enum FocusedField: Hashable {
@@ -39,8 +43,7 @@ struct VisitDetailView: View {
         .navigationTitle("Visit Details")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            nameText = visit.displayName
-            notesText = visit.notes ?? ""
+            syncEditableStateFromVisit()
         }
         .alert("Delete Visit?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -133,8 +136,18 @@ struct VisitDetailView: View {
                     .foregroundStyle(.secondary)
             }
 
+            visitStatusBadges
+
+            if let originalName = visit.originalLocationName,
+               visit.confirmationStatus == .corrected,
+               originalName != visit.displayName {
+                Text("Originally detected as \(originalName)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
             NearbyVisitNameSuggestionSection(visit: visit) { suggestion in
-                applyNameSuggestion(suggestion)
+                correctVisit(with: suggestion)
             }
 
             // Coordinates (for debugging/reference)
@@ -150,38 +163,23 @@ struct VisitDetailView: View {
 
     private var timeInfoSection: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Arrived")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(visit.arrivedAt.formatted(date: .abbreviated, time: .shortened))
-                        .font(.body)
-                }
+            DatePicker("Arrived", selection: $arrivedAt, displayedComponents: [.date, .hourAndMinute])
+                .padding()
+                .onChange(of: arrivedAt) { _, _ in validateEditedTimes() }
 
-                Spacer()
+            Divider()
 
-                Image(systemName: "arrow.right")
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
+            Toggle("Still here", isOn: $isStillHere)
+                .padding()
+                .onChange(of: isStillHere) { _, _ in validateEditedTimes() }
 
-                Spacer()
+            if !isStillHere {
+                Divider()
 
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("Departed")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if let departed = visit.departedAt {
-                        Text(departed.formatted(date: .abbreviated, time: .shortened))
-                            .font(.body)
-                    } else {
-                        Text("Still here")
-                            .font(.body)
-                            .foregroundStyle(.blue)
-                    }
-                }
+                DatePicker("Departed", selection: $departedAt, displayedComponents: [.date, .hourAndMinute])
+                    .padding()
+                    .onChange(of: departedAt) { _, _ in validateEditedTimes() }
             }
-            .padding()
 
             Divider()
 
@@ -190,11 +188,33 @@ struct VisitDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(visit.formattedDuration)
+                Text(editedDurationText)
                     .font(.title3)
                     .fontWeight(.medium)
             }
             .padding()
+
+            if let timeValidationMessage {
+                Divider()
+                Text(timeValidationMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+            }
+
+            if hasUnsavedTimeChanges {
+                Divider()
+                Button {
+                    saveTimes()
+                } label: {
+                    Label("Save Time Changes", systemImage: "clock.badge.checkmark")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(timeValidationMessage != nil)
+                .padding()
+            }
         }
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -223,6 +243,37 @@ struct VisitDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 12) {
+            if visit.confirmationStatus == .unconfirmed {
+                Button {
+                    confirmVisit()
+                } label: {
+                    HStack {
+                        Image(systemName: "checkmark.seal")
+                            .accessibilityHidden(true)
+                        Text("Confirm Place")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityHint("Marks this visit as reviewed and correct.")
+            }
+
+            if visit.confirmationStatus == .corrected,
+               visit.originalCoordinate != nil {
+                Button {
+                    undoCorrection()
+                } label: {
+                    HStack {
+                        Image(systemName: "arrow.uturn.backward")
+                            .accessibilityHidden(true)
+                        Text("Undo Correction")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityHint("Restores the originally detected visit location.")
+            }
+
             // Open in Maps
             Button {
                 openInMaps()
@@ -258,6 +309,55 @@ struct VisitDetailView: View {
 
     // MARK: - Actions
 
+    private var editedDeparture: Date? {
+        isStillHere ? nil : departedAt
+    }
+
+    private var hasUnsavedTimeChanges: Bool {
+        abs(arrivedAt.timeIntervalSince(visit.arrivedAt)) > 0.5 || editedDepartureChanged
+    }
+
+    private var editedDepartureChanged: Bool {
+        switch (editedDeparture, visit.departedAt) {
+        case (nil, nil): return false
+        case let (lhs?, rhs?): return abs(lhs.timeIntervalSince(rhs)) > 0.5
+        default: return true
+        }
+    }
+
+    private var editedDurationText: String {
+        let end = editedDeparture ?? Date()
+        let seconds = max(0, end.timeIntervalSince(arrivedAt))
+        return VisitDetailDurationFormatter.format(seconds)
+    }
+
+    private func syncEditableStateFromVisit() {
+        nameText = visit.displayName
+        notesText = visit.notes ?? ""
+        arrivedAt = visit.arrivedAt
+        departedAt = visit.departedAt ?? Date()
+        isStillHere = visit.departedAt == nil
+        validateEditedTimes()
+    }
+
+    private func validateEditedTimes() {
+        if !isStillHere, departedAt < arrivedAt {
+            timeValidationMessage = "Departure must be after arrival."
+        } else {
+            timeValidationMessage = nil
+        }
+    }
+
+    private func saveTimes() {
+        validateEditedTimes()
+        guard timeValidationMessage == nil else { return }
+        guard viewModel.updateVisitTimes(visit, arrivedAt: arrivedAt, departedAt: editedDeparture) else {
+            timeValidationMessage = "Departure must be after arrival."
+            return
+        }
+        syncEditableStateFromVisit()
+    }
+
     private func saveName() {
         viewModel.updateVisitName(visit, customName: nameText)
         nameText = visit.displayName
@@ -268,10 +368,73 @@ struct VisitDetailView: View {
         nameText = visit.displayName
     }
 
-    private func applyNameSuggestion(_ suggestion: NearbyPlaceSuggestion) {
+    private var visitStatusBadges: some View {
+        HStack(spacing: 8) {
+            VisitMetadataBadge(
+                text: visit.confirmationStatus.displayName,
+                systemImage: statusSystemImage,
+                tint: statusTint
+            )
+
+            VisitMetadataBadge(
+                text: visit.source.displayName,
+                systemImage: sourceSystemImage,
+                tint: .gray
+            )
+        }
+        .padding(.top, 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Visit status: \(visit.confirmationStatus.displayName), source: \(visit.source.displayName)")
+    }
+
+    private var statusSystemImage: String {
+        switch visit.confirmationStatus {
+        case .unconfirmed: return "questionmark.circle"
+        case .confirmed: return "checkmark.seal"
+        case .corrected: return "mappin.and.ellipse.circle"
+        }
+    }
+
+    private var sourceSystemImage: String {
+        switch visit.source {
+        case .automatic: return "location"
+        case .manual: return "hand.tap"
+        case .imported: return "square.and.arrow.down"
+        }
+    }
+
+    private var statusTint: Color {
+        switch visit.confirmationStatus {
+        case .unconfirmed: return .orange
+        case .confirmed: return .green
+        case .corrected: return .blue
+        }
+    }
+
+    private func correctVisit(with suggestion: NearbyPlaceSuggestion) {
         focusedField = nil
-        nameText = suggestion.name
+        viewModel.correctVisit(
+            visit,
+            name: suggestion.name,
+            address: suggestion.address,
+            coordinate: suggestion.coordinate,
+            placeSource: .appleMaps,
+            distanceMeters: suggestion.distanceMeters
+        )
+        nameText = visit.displayName
+    }
+
+    private func confirmVisit() {
+        focusedField = nil
         saveName()
+        saveNotes()
+        viewModel.confirmVisit(visit)
+    }
+
+    private func undoCorrection() {
+        focusedField = nil
+        viewModel.undoVisitCorrection(visit)
+        nameText = visit.displayName
     }
 
     private func saveNotes() {
@@ -283,6 +446,33 @@ struct VisitDetailView: View {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = visit.displayName
         mapItem.openInMaps(launchOptions: nil)
+    }
+}
+
+private enum VisitDetailDurationFormatter {
+    static func format(_ seconds: TimeInterval) -> String {
+        let minutes = max(0, Int(seconds / 60))
+        if minutes < 60 { return "\(minutes) min" }
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        return remainingMinutes == 0 ? "\(hours)h" : "\(hours)h \(remainingMinutes)m"
+    }
+}
+
+private struct VisitMetadataBadge: View {
+    let text: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        Label(text, systemImage: systemImage)
+            .font(.caption2.weight(.semibold))
+            .textCase(.uppercase)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .foregroundStyle(tint)
+            .background(tint.opacity(0.12))
+            .clipShape(Capsule())
     }
 }
 
@@ -308,6 +498,10 @@ struct NearbyVisitNameSuggestionSection: View {
             suggestion.name.localizedCaseInsensitiveContains(searchText) ||
             (suggestion.address?.localizedCaseInsensitiveContains(searchText) ?? false)
         }
+    }
+
+    private var suggestionTaskKey: String {
+        String(format: "%@-%.5f-%.5f", visit.id.uuidString, visit.latitude, visit.longitude)
     }
 
     var body: some View {
@@ -339,8 +533,8 @@ struct NearbyVisitNameSuggestionSection: View {
             }
         }
         .padding(.top, 6)
-        .task(id: visit.id) {
-            await loadSuggestions()
+        .task(id: suggestionTaskKey) {
+            await loadSuggestions(force: true)
         }
     }
 
@@ -385,7 +579,7 @@ struct NearbyVisitNameSuggestionSection: View {
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             } else {
-                Text("No nearby businesses found. Try again, or use More Details to inspect the map.")
+                Text("No nearby businesses found. Try again, or edit the visit name manually.")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -454,7 +648,7 @@ struct NearbyVisitNameSuggestionSection: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Use \(suggestion.name) as visit name")
+                .accessibilityLabel("Correct visit to \(suggestion.name)")
                 .accessibilityValue(suggestion.distanceLabel)
             }
         }
@@ -465,6 +659,11 @@ struct NearbyVisitNameSuggestionSection: View {
         guard force || (!isLoading && !hasSearched) else { return }
 
         let coordinate = visit.coordinate
+        if force {
+            suggestions = []
+            businessSearchText = ""
+            hasSearched = false
+        }
         isLoading = true
         loadFailed = false
         defer {

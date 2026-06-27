@@ -27,9 +27,72 @@ struct ImportedVisit {
     let longitude: Double
     let arrivedAt: Date
     let departedAt: Date?
+    let customName: String?
     let locationName: String?
     let address: String?
     let notes: String?
+    let sourceRaw: String?
+    let confirmationStatusRaw: String?
+    let confirmedAt: Date?
+    let updatedAt: Date?
+    let originalLatitude: Double?
+    let originalLongitude: Double?
+    let originalLocationName: String?
+    let originalAddress: String?
+    let detectedLatitude: Double?
+    let detectedLongitude: Double?
+    let detectedLocationName: String?
+    let detectedAddress: String?
+    let placeSourceRaw: String?
+    let placeDistanceMeters: Double?
+
+    init(
+        latitude: Double,
+        longitude: Double,
+        arrivedAt: Date,
+        departedAt: Date?,
+        customName: String? = nil,
+        locationName: String?,
+        address: String?,
+        notes: String?,
+        sourceRaw: String? = nil,
+        confirmationStatusRaw: String? = nil,
+        confirmedAt: Date? = nil,
+        updatedAt: Date? = nil,
+        originalLatitude: Double? = nil,
+        originalLongitude: Double? = nil,
+        originalLocationName: String? = nil,
+        originalAddress: String? = nil,
+        detectedLatitude: Double? = nil,
+        detectedLongitude: Double? = nil,
+        detectedLocationName: String? = nil,
+        detectedAddress: String? = nil,
+        placeSourceRaw: String? = nil,
+        placeDistanceMeters: Double? = nil
+    ) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.arrivedAt = arrivedAt
+        self.departedAt = departedAt
+        self.customName = customName
+        self.locationName = locationName
+        self.address = address
+        self.notes = notes
+        self.sourceRaw = sourceRaw
+        self.confirmationStatusRaw = confirmationStatusRaw
+        self.confirmedAt = confirmedAt
+        self.updatedAt = updatedAt
+        self.originalLatitude = originalLatitude
+        self.originalLongitude = originalLongitude
+        self.originalLocationName = originalLocationName
+        self.originalAddress = originalAddress
+        self.detectedLatitude = detectedLatitude
+        self.detectedLongitude = detectedLongitude
+        self.detectedLocationName = detectedLocationName
+        self.detectedAddress = detectedAddress
+        self.placeSourceRaw = placeSourceRaw
+        self.placeDistanceMeters = placeDistanceMeters
+    }
 }
 
 struct ImportedLocationPoint {
@@ -190,9 +253,24 @@ struct ImportService {
                 longitude: longitude,
                 arrivedAt: arrivedAt,
                 departedAt: departedAt,
+                customName: dict["customName"] as? String,
                 locationName: dict["locationName"] as? String,
                 address: dict["address"] as? String,
-                notes: dict["notes"] as? String
+                notes: dict["notes"] as? String,
+                sourceRaw: dict["source"] as? String,
+                confirmationStatusRaw: dict["confirmationStatus"] as? String,
+                confirmedAt: (dict["confirmedAt"] as? String).flatMap { parseISO8601Date($0) },
+                updatedAt: (dict["updatedAt"] as? String).flatMap { parseISO8601Date($0) },
+                originalLatitude: dict["originalLatitude"] as? Double,
+                originalLongitude: dict["originalLongitude"] as? Double,
+                originalLocationName: dict["originalLocationName"] as? String,
+                originalAddress: dict["originalAddress"] as? String,
+                detectedLatitude: dict["detectedLatitude"] as? Double,
+                detectedLongitude: dict["detectedLongitude"] as? Double,
+                detectedLocationName: dict["detectedLocationName"] as? String,
+                detectedAddress: dict["detectedAddress"] as? String,
+                placeSourceRaw: dict["placeSource"] as? String,
+                placeDistanceMeters: dict["placeDistanceMeters"] as? Double
             )
         }
     }
@@ -304,6 +382,11 @@ struct ImportService {
                 return val.isEmpty ? nil : val
             }
 
+            let sourceRaw = colIndex["source"].flatMap { optionalCSVField(fields[$0]) }
+            let confirmationStatusRaw = colIndex["confirmation_status"].flatMap { optionalCSVField(fields[$0]) }
+            let originalLocationName = colIndex["original_location_name"].flatMap { optionalCSVField(fields[$0]) }
+            let originalAddress = colIndex["original_address"].flatMap { optionalCSVField(fields[$0]) }
+
             return ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
@@ -311,7 +394,11 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: locationName,
                 address: address,
-                notes: notes
+                notes: notes,
+                sourceRaw: sourceRaw,
+                confirmationStatusRaw: confirmationStatusRaw,
+                originalLocationName: originalLocationName,
+                originalAddress: originalAddress
             )
         }
     }
@@ -566,7 +653,9 @@ struct ImportService {
                 departedAt: departedAt,
                 locationName: optionalMarkdownCell(colIndex["Location"].map { cells[$0] }),
                 address: optionalMarkdownCell(colIndex["Address"].map { cells[$0] }),
-                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] })
+                notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] }),
+                sourceRaw: optionalMarkdownCell(colIndex["Source"].map { cells[$0] })?.lowercased(),
+                confirmationStatusRaw: optionalMarkdownCell(colIndex["Status"].map { cells[$0] })?.lowercased()
             ))
         }
 
@@ -691,6 +780,10 @@ struct ImportService {
                     .replacingOccurrences(of: "<br>", with: "\n")
                     .replacingOccurrences(of: "\\\\", with: "\\")
             }
+    }
+
+    private static func optionalCSVField(_ value: String) -> String? {
+        value.isEmpty ? nil : value
     }
 
     private static func optionalMarkdownCell(_ value: String?) -> String? {

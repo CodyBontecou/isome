@@ -17,6 +17,24 @@ final class Visit {
     // Tracking if geocoding has been attempted
     var geocodingCompleted: Bool
 
+    // Confirmation/correction metadata. These are optional for lightweight
+    // migration: existing visits default to automatic + unconfirmed via computed
+    // properties below.
+    var sourceRaw: String?
+    var confirmationStatusRaw: String?
+    var confirmedAt: Date?
+    var updatedAt: Date?
+    var originalLatitude: Double?
+    var originalLongitude: Double?
+    var originalLocationName: String?
+    var originalAddress: String?
+    var detectedLatitude: Double?
+    var detectedLongitude: Double?
+    var detectedLocationName: String?
+    var detectedAddress: String?
+    var placeSourceRaw: String?
+    var placeDistanceMeters: Double?
+
     init(
         id: UUID = UUID(),
         latitude: Double,
@@ -27,7 +45,21 @@ final class Visit {
         locationName: String? = nil,
         address: String? = nil,
         notes: String? = nil,
-        geocodingCompleted: Bool = false
+        geocodingCompleted: Bool = false,
+        source: VisitSource = .automatic,
+        confirmationStatus: VisitConfirmationStatus = .unconfirmed,
+        confirmedAt: Date? = nil,
+        updatedAt: Date? = nil,
+        originalLatitude: Double? = nil,
+        originalLongitude: Double? = nil,
+        originalLocationName: String? = nil,
+        originalAddress: String? = nil,
+        detectedLatitude: Double? = nil,
+        detectedLongitude: Double? = nil,
+        detectedLocationName: String? = nil,
+        detectedAddress: String? = nil,
+        placeSource: VisitPlaceSource? = nil,
+        placeDistanceMeters: Double? = nil
     ) {
         self.id = id
         self.latitude = latitude
@@ -39,10 +71,64 @@ final class Visit {
         self.address = address
         self.notes = notes
         self.geocodingCompleted = geocodingCompleted
+        self.sourceRaw = source.rawValue
+        self.confirmationStatusRaw = confirmationStatus.rawValue
+        self.confirmedAt = confirmedAt
+        self.updatedAt = updatedAt
+        self.originalLatitude = originalLatitude
+        self.originalLongitude = originalLongitude
+        self.originalLocationName = originalLocationName
+        self.originalAddress = originalAddress
+        self.detectedLatitude = detectedLatitude ?? (source == .automatic ? latitude : nil)
+        self.detectedLongitude = detectedLongitude ?? (source == .automatic ? longitude : nil)
+        self.detectedLocationName = detectedLocationName ?? (source == .automatic ? locationName : nil)
+        self.detectedAddress = detectedAddress ?? (source == .automatic ? address : nil)
+        self.placeSourceRaw = placeSource?.rawValue
+        self.placeDistanceMeters = placeDistanceMeters
     }
 
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var source: VisitSource {
+        get { VisitSource(rawValue: sourceRaw ?? "") ?? .automatic }
+        set { sourceRaw = newValue.rawValue }
+    }
+
+    var confirmationStatus: VisitConfirmationStatus {
+        get { VisitConfirmationStatus(rawValue: confirmationStatusRaw ?? "") ?? .unconfirmed }
+        set { confirmationStatusRaw = newValue.rawValue }
+    }
+
+    var placeSource: VisitPlaceSource? {
+        get { placeSourceRaw.flatMap(VisitPlaceSource.init(rawValue:)) }
+        set { placeSourceRaw = newValue?.rawValue }
+    }
+
+    var isConfirmed: Bool {
+        confirmationStatus == .confirmed || confirmationStatus == .corrected
+    }
+
+    var canReceiveAutomaticGeocodeUpdates: Bool {
+        source == .automatic && confirmationStatus == .unconfirmed
+    }
+
+    var originalCoordinate: CLLocationCoordinate2D? {
+        guard let originalLatitude, let originalLongitude else { return nil }
+        return CLLocationCoordinate2D(latitude: originalLatitude, longitude: originalLongitude)
+    }
+
+    var detectedCoordinate: CLLocationCoordinate2D? {
+        guard let detectedLatitude, let detectedLongitude else { return nil }
+        return CLLocationCoordinate2D(latitude: detectedLatitude, longitude: detectedLongitude)
+    }
+
+    func preserveOriginalValuesIfNeeded() {
+        if originalLatitude == nil { originalLatitude = latitude }
+        if originalLongitude == nil { originalLongitude = longitude }
+        if originalLocationName == nil { originalLocationName = exportLocationName }
+        if originalAddress == nil { originalAddress = address }
     }
 
     var durationMinutes: Double? {
@@ -126,6 +212,50 @@ final class Visit {
 
     var accessibilityHint: String {
         "Opens visit details."
+    }
+}
+
+enum VisitSource: String, Codable, CaseIterable {
+    case automatic
+    case manual
+    case imported
+
+    var displayName: String {
+        switch self {
+        case .automatic: return "Automatic"
+        case .manual: return "Manual"
+        case .imported: return "Imported"
+        }
+    }
+}
+
+enum VisitConfirmationStatus: String, Codable, CaseIterable {
+    case unconfirmed
+    case confirmed
+    case corrected
+
+    var displayName: String {
+        switch self {
+        case .unconfirmed: return "Unconfirmed"
+        case .confirmed: return "Confirmed"
+        case .corrected: return "Corrected"
+        }
+    }
+}
+
+enum VisitPlaceSource: String, Codable, CaseIterable {
+    case coreLocationGeocode
+    case appleMaps
+    case userEntered
+    case `import`
+
+    var displayName: String {
+        switch self {
+        case .coreLocationGeocode: return "Core Location"
+        case .appleMaps: return "Apple Maps"
+        case .userEntered: return "User entered"
+        case .import: return "Import"
+        }
     }
 }
 

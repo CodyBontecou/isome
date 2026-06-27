@@ -87,6 +87,20 @@ struct ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let source: String?
+        let confirmationStatus: String?
+        let confirmedAt: String?
+        let updatedAt: String?
+        let originalLatitude: Double?
+        let originalLongitude: Double?
+        let originalLocationName: String?
+        let originalAddress: String?
+        let detectedLatitude: Double?
+        let detectedLongitude: Double?
+        let detectedLocationName: String?
+        let detectedAddress: String?
+        let placeSource: String?
+        let placeDistanceMeters: Double?
     }
 
     struct ExportData: Codable {
@@ -94,19 +108,35 @@ struct ExportService {
         let visits: [ExportableVisit]
     }
 
+    private static func exportableVisit(_ visit: Visit, options: ExportOptions) -> ExportableVisit {
+        ExportableVisit(
+            latitude: options.includeVisitCoordinates ? visit.latitude : nil,
+            longitude: options.includeVisitCoordinates ? visit.longitude : nil,
+            arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
+            departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
+            durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
+            locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
+            address: options.includeVisitAddress ? visit.address : nil,
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            source: visit.source.rawValue,
+            confirmationStatus: visit.confirmationStatus.rawValue,
+            confirmedAt: visit.confirmedAt.map { iso8601Formatter.string(from: $0) },
+            updatedAt: visit.updatedAt.map { iso8601Formatter.string(from: $0) },
+            originalLatitude: options.includeVisitCoordinates ? visit.originalLatitude : nil,
+            originalLongitude: options.includeVisitCoordinates ? visit.originalLongitude : nil,
+            originalLocationName: options.includeVisitLocationName ? visit.originalLocationName : nil,
+            originalAddress: options.includeVisitAddress ? visit.originalAddress : nil,
+            detectedLatitude: options.includeVisitCoordinates ? visit.detectedLatitude : nil,
+            detectedLongitude: options.includeVisitCoordinates ? visit.detectedLongitude : nil,
+            detectedLocationName: options.includeVisitLocationName ? visit.detectedLocationName : nil,
+            detectedAddress: options.includeVisitAddress ? visit.detectedAddress : nil,
+            placeSource: visit.placeSource?.rawValue,
+            placeDistanceMeters: visit.placeDistanceMeters
+        )
+    }
+
     static func exportToJSON(visits: [Visit], options: ExportOptions = ExportOptions()) throws -> Data {
-        let exportableVisits = visits.map { visit in
-            ExportableVisit(
-                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
-                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
-                arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
-                departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
-                address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
-            )
-        }
+        let exportableVisits = visits.map { exportableVisit($0, options: options) }
 
         let exportData = ExportData(
             exportDate: iso8601Formatter.string(from: Date()),
@@ -131,6 +161,10 @@ struct ExportService {
         if options.includeVisitLocationName { headers.append("location_name") }
         if options.includeVisitAddress { headers.append("address") }
         if options.includeVisitNotes { headers.append("notes") }
+        headers.append("source")
+        headers.append("confirmation_status")
+        if options.includeVisitLocationName { headers.append("original_location_name") }
+        if options.includeVisitAddress { headers.append("original_address") }
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -153,6 +187,14 @@ struct ExportService {
             }
             if options.includeVisitNotes {
                 fields.append(escapeCSVField(visit.notes ?? ""))
+            }
+            fields.append(visit.source.rawValue)
+            fields.append(visit.confirmationStatus.rawValue)
+            if options.includeVisitLocationName {
+                fields.append(escapeCSVField(visit.originalLocationName ?? ""))
+            }
+            if options.includeVisitAddress {
+                fields.append(escapeCSVField(visit.originalAddress ?? ""))
             }
             csvString.append(fields.joined(separator: ",") + "\n")
         }
@@ -200,6 +242,7 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
+        headerCols.append(contentsOf: ["Source", "Status"])
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -236,6 +279,8 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
+                cells.append(visit.source.displayName)
+                cells.append(visit.confirmationStatus.displayName)
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -783,18 +828,7 @@ extension ExportService {
     }
 
     static func exportCombinedToJSON(visits: [Visit], points: [LocationPoint], options: ExportOptions = ExportOptions()) throws -> Data {
-        let exportableVisits = visits.map { visit in
-            ExportableVisit(
-                latitude: options.includeVisitCoordinates ? visit.latitude : nil,
-                longitude: options.includeVisitCoordinates ? visit.longitude : nil,
-                arrivedAt: iso8601Formatter.string(from: visit.arrivedAt),
-                departedAt: visit.departedAt.map { iso8601Formatter.string(from: $0) },
-                durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
-                locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
-                address: options.includeVisitAddress ? visit.address : nil,
-                notes: options.includeVisitNotes ? visit.notes : nil
-            )
-        }
+        let exportableVisits = visits.map { exportableVisit($0, options: options) }
 
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
         let exportablePoints = sortedPoints.map { point in

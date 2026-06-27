@@ -288,7 +288,20 @@ final class ExportRoundTripTests: XCTestCase {
 
         let visitHeaders = rows[visitHeaderIndex]
         let pointHeaders = rows[pointsHeaderIndex]
-        XCTAssertEqual(visitHeaders, ["arrived_at", "departed_at", "duration_minutes", "latitude", "longitude", "location_name", "address", "notes"])
+        XCTAssertEqual(visitHeaders, [
+            "arrived_at",
+            "departed_at",
+            "duration_minutes",
+            "latitude",
+            "longitude",
+            "location_name",
+            "address",
+            "notes",
+            "source",
+            "confirmation_status",
+            "original_location_name",
+            "original_address"
+        ])
         XCTAssertEqual(pointHeaders, ["timestamp", "timestamp_unix", "latitude", "longitude", "altitude", "speed", "horizontal_accuracy", "is_outlier"])
 
         let visitRows = rows[(visitHeaderIndex + 1)..<pointsHeaderIndex]
@@ -333,7 +346,7 @@ final class ExportRoundTripTests: XCTestCase {
         let visitRows = markdownTableRows(in: visitSection)
         let pointRows = markdownTableRows(in: pointSection)
 
-        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes |")
+        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes | Source | Status |")
         XCTAssertEqual(pointRows.first, "| Time | Lat | Lon | Speed | Altitude | Accuracy | Outlier |")
 
         return (
@@ -392,7 +405,24 @@ final class ExportRoundTripTests: XCTestCase {
     }
 
     private func parseJSONVisit(_ dict: [String: Any]) -> NormalizedVisit {
-        XCTAssertEqual(Set(dict.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "latitude", "locationName", "longitude", "notes"])
+        XCTAssertEqual(Set(dict.keys), [
+            "address",
+            "arrivedAt",
+            "confirmationStatus",
+            "departedAt",
+            "detectedAddress",
+            "detectedLatitude",
+            "detectedLocationName",
+            "detectedLongitude",
+            "durationMinutes",
+            "latitude",
+            "locationName",
+            "longitude",
+            "notes",
+            "source"
+        ])
+        XCTAssertEqual(dict["source"] as? String, "automatic")
+        XCTAssertEqual(dict["confirmationStatus"] as? String, "unconfirmed")
         return NormalizedVisit(
             latitude: dict["latitude"] as! Double,
             longitude: dict["longitude"] as! Double,

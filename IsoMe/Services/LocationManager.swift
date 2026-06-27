@@ -45,6 +45,7 @@ final class LocationManager: NSObject, ObservableObject {
     private var currentLocationName: String?
     private var currentAddress: String?
     private var lastGeocodedLocation: CLLocation?
+    private var pendingManualLocationRequest = false
 
     // Sliding window of recently saved points for outlier detection
     private var pointBeforeLast: LocationPoint?
@@ -159,6 +160,17 @@ final class LocationManager: NSObject, ObservableObject {
 
     var hasAlwaysPermission: Bool {
         authorizationStatus == .authorizedAlways
+    }
+
+    func requestCurrentLocationForManualVisit() {
+        guard hasLocationPermission else {
+            pendingManualLocationRequest = true
+            requestWhenInUseAuthorization()
+            return
+        }
+
+        pendingManualLocationRequest = false
+        locationManager.requestLocation()
     }
 
     // MARK: - Tracking Control
@@ -568,8 +580,15 @@ final class LocationManager: NSObject, ObservableObject {
         clVisit: CLVisit,
         clVisitLocation: CLLocation
     ) -> Double? {
-        let visitLocation = CLLocation(latitude: visit.latitude, longitude: visit.longitude)
-        let distance = visitLocation.distance(from: clVisitLocation)
+        let candidateLocations = [
+            CLLocation(latitude: visit.latitude, longitude: visit.longitude),
+            visit.detectedCoordinate.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) },
+            visit.originalCoordinate.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
+        ].compactMap { $0 }
+
+        let distance = candidateLocations
+            .map { $0.distance(from: clVisitLocation) }
+            .min() ?? .greatestFiniteMagnitude
         let isNearby = distance <= visitCoordinateMatchThresholdMeters
 
         let hasArrival = clVisit.arrivalDate != Date.distantPast
@@ -807,8 +826,13 @@ final class LocationManager: NSObject, ObservableObject {
 
         do {
             let result = try await geocodingService.reverseGeocode(location: location)
-            visit.locationName = result.name
-            visit.address = result.address
+            if visit.canReceiveAutomaticGeocodeUpdates {
+                visit.locationName = result.name
+                visit.address = result.address
+                visit.detectedLocationName = result.name
+                visit.detectedAddress = result.address
+                visit.placeSource = .coreLocationGeocode
+            }
             visit.geocodingCompleted = true
 
             try modelContext?.save()
@@ -902,6 +926,10 @@ extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor in
             authorizationStatus = manager.authorizationStatus
+            if hasLocationPermission && pendingManualLocationRequest {
+                requestCurrentLocationForManualVisit()
+            }
+
             if hasLocationPermission && isTrackingEnabled {
                 // Reattach the CL APIs once permission lands
                 startTracking()

@@ -139,6 +139,7 @@ struct NearbyPlaceSuggestion: Identifiable {
     let id: String
     let name: String
     let address: String?
+    let coordinate: CLLocationCoordinate2D
     let distanceMeters: CLLocationDistance
 
     var distanceLabel: String {
@@ -291,6 +292,7 @@ actor NearbyPlaceSearchService {
                 id: "demo-\(place.name.lowercased().replacingOccurrences(of: " ", with: "-"))",
                 name: place.name,
                 address: place.address,
+                coordinate: location.coordinate,
                 distanceMeters: origin.distance(from: location)
             )
         }
@@ -347,6 +349,11 @@ actor NearbyPlaceSearchService {
             }
 
             let normalizedName = name.lowercased()
+            guard normalizedName != "none",
+                  normalizedName != "unknown",
+                  normalizedName != "current location" else {
+                return nil
+            }
             guard !seenNames.contains(normalizedName) else {
                 return nil
             }
@@ -366,6 +373,7 @@ actor NearbyPlaceSearchService {
                 id: suggestionID(for: name, coordinate: mapItem.placemark.coordinate),
                 name: name,
                 address: formattedAddress(for: mapItem),
+                coordinate: mapItem.placemark.coordinate,
                 distanceMeters: distance
             )
         }
