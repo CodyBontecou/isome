@@ -18,6 +18,7 @@ struct LocationMapView: View {
     @State private var isLoadingCurrentPlace = false
     @State private var currentPlaceLookupFailed = false
     @State private var dismissedCurrentPlaceLookupKey: String?
+    @State private var dismissedCurrentPlaceArea: CurrentPlacePromptSuppression?
     @State private var showFilterBar = Self.initialFilterBarVisibility
     @State private var trackingPillExpanded = false
     @State private var showTravelPath = true
@@ -116,7 +117,18 @@ struct LocationMapView: View {
     }
 
     private var shouldShowCurrentPlacePrompt: Bool {
-        showVisitSuggestions && dismissedCurrentPlaceLookupKey != currentPlaceLookupKey
+        showVisitSuggestions &&
+        dismissedCurrentPlaceLookupKey != currentPlaceLookupKey &&
+        !isCurrentPlacePromptSuppressedInCurrentArea
+    }
+
+    private var isCurrentPlacePromptSuppressedInCurrentArea: Bool {
+        guard let dismissedCurrentPlaceArea,
+              let location = freshManualLocation else {
+            return false
+        }
+
+        return dismissedCurrentPlaceArea.contains(location.coordinate)
     }
 
     private var roadSnappingSourceFingerprint: Int {
@@ -512,7 +524,7 @@ struct LocationMapView: View {
                     draft: draft,
                     onSaved: {
                         if draft.hidesCurrentPlacePromptAfterSave {
-                            dismissedCurrentPlaceLookupKey = currentPlaceLookupKey
+                            suppressCurrentPlacePromptForCurrentArea()
                         }
                     }
                 )
@@ -611,7 +623,15 @@ struct LocationMapView: View {
 
     private func dismissCurrentPlacePrompt() {
         withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.82)) {
-            dismissedCurrentPlaceLookupKey = currentPlaceLookupKey
+            suppressCurrentPlacePromptForCurrentArea()
+        }
+    }
+
+    private func suppressCurrentPlacePromptForCurrentArea() {
+        dismissedCurrentPlaceLookupKey = currentPlaceLookupKey
+
+        if let location = freshManualLocation {
+            dismissedCurrentPlaceArea = CurrentPlacePromptSuppression(center: location.coordinate)
         }
     }
 
@@ -663,6 +683,13 @@ struct LocationMapView: View {
             return
         }
 
+        guard !isCurrentPlacePromptSuppressedInCurrentArea else {
+            currentPlaceSuggestion = nil
+            isLoadingCurrentPlace = false
+            currentPlaceLookupFailed = false
+            return
+        }
+
         isLoadingCurrentPlace = true
         currentPlaceLookupFailed = false
 
@@ -673,6 +700,12 @@ struct LocationMapView: View {
                 limit: 1
             )
             guard !Task.isCancelled else { return }
+            guard !isCurrentPlacePromptSuppressedInCurrentArea else {
+                currentPlaceSuggestion = nil
+                currentPlaceLookupFailed = false
+                isLoadingCurrentPlace = false
+                return
+            }
             currentPlaceSuggestion = suggestions.first
             currentPlaceLookupFailed = false
         } catch {
@@ -1657,6 +1690,24 @@ struct ManualVisitDraft: Identifiable {
     var isStillHere: Bool = true
     var title: String = "Save Place"
     var hidesCurrentPlacePromptAfterSave: Bool = true
+}
+
+private struct CurrentPlacePromptSuppression {
+    static let radiusMeters: CLLocationDistance = 500
+
+    let center: CLLocationCoordinate2D
+    let radiusMeters: CLLocationDistance
+
+    init(center: CLLocationCoordinate2D, radiusMeters: CLLocationDistance = Self.radiusMeters) {
+        self.center = center
+        self.radiusMeters = radiusMeters
+    }
+
+    func contains(_ coordinate: CLLocationCoordinate2D) -> Bool {
+        let dismissedLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+        let currentLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        return currentLocation.distance(from: dismissedLocation) <= radiusMeters
+    }
 }
 
 private struct CurrentPlaceCard: View {
