@@ -272,6 +272,60 @@ final class ExportKitIntegrationTests: XCTestCase {
         XCTAssertTrue(firstPage.contains("## Route Points"))
     }
 
+    func testOutingAutomaticFilenameSuffixUsesTitleWithoutStartTime() throws {
+        let outing = RecordingSession(
+            startedAt: fixtureDate(hour: 11, minute: 7),
+            endedAt: fixtureDate(hour: 12),
+            customName: "LAX to MSP"
+        )
+
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = .markdown
+        options.splitByDay = true
+
+        let files = try IsoMeExportKitAdapter.plannedFiles(
+            visits: [],
+            points: makePoints(),
+            recordingSessions: [outing],
+            options: options,
+            filenamePattern: "{date}"
+        )
+
+        XCTAssertEqual(files.map(\.relativePath), ["2026-04-03 - LAX to MSP.md"])
+    }
+
+    func testOutingNameTokenMatchesTitleToken() throws {
+        let outing = RecordingSession(
+            startedAt: fixtureDate(hour: 9),
+            endedAt: fixtureDate(hour: 10),
+            customName: "Morning Ferry Loop"
+        )
+
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = .markdown
+        options.splitByDay = true
+
+        let titleFile = try IsoMeExportKitAdapter.plannedFiles(
+            visits: [],
+            points: makePoints(),
+            recordingSessions: [outing],
+            options: options,
+            filenamePattern: "{date}-{title}"
+        ).first
+        let nameFile = try IsoMeExportKitAdapter.plannedFiles(
+            visits: [],
+            points: makePoints(),
+            recordingSessions: [outing],
+            options: options,
+            filenamePattern: "{date}-{name}"
+        ).first
+
+        XCTAssertEqual(titleFile?.relativePath, "2026-04-03-Morning Ferry Loop.md")
+        XCTAssertEqual(nameFile?.relativePath, titleFile?.relativePath)
+    }
+
     func testOutingTrackingProtocolFormatKeepsOutingsDataKind() throws {
         let outing = RecordingSession(
             startedAt: fixtureDate(hour: 9),

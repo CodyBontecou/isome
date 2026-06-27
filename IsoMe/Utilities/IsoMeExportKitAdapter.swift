@@ -283,6 +283,37 @@ enum IsoMeExportKitAdapter {
         )
     }
 
+    static func plannedOutingPreviewRelativePath(
+        for outing: RecordingSessionSummary,
+        filenamePattern: String,
+        format: ExportFormat,
+        safetyPolicy: ExportPathSafetyPolicy = .preserveCurrentBehavior
+    ) throws -> String {
+        var options = ExportOptions()
+        options.dataKind = .outings
+        options.format = format
+        options.splitByDay = true
+        let snapshot = IsoMeExportSnapshot(
+            id: outingIdentifier(for: outing),
+            exportDate: outing.startedAt,
+            visits: [],
+            points: outing.points,
+            outings: [outing],
+            options: options,
+            dataKind: .outings,
+            isSplitByDay: false,
+            isSplitOuting: true
+        )
+        var usedNames = Set<String>()
+        return try plannedRelativePath(
+            for: snapshot,
+            filenamePattern: filenamePattern,
+            format: format,
+            usedNames: &usedNames,
+            safetyPolicy: safetyPolicy
+        )
+    }
+
     static func writeTemporaryFiles(_ files: [PlannedExportFile]) throws -> [URL] {
         let destination = ExportDestination(
             rootURL: FileManager.default.temporaryDirectory,
@@ -511,17 +542,30 @@ enum IsoMeExportKitAdapter {
         options: ExportOptions,
         splitByDay: Bool
     ) throws -> [IsoMeExportSnapshot] {
-        let filteredVisits = options.filterVisits(visits)
-        let filteredPoints = options.filterPoints(points)
         let effectiveKind = effectiveDataKind(for: options)
-        let outingSummaries = options.filterOutings(
-            RecordingSessionBuilder.summaries(
-                storedSessions: recordingSessions,
-                points: points,
-                activeTrackingStart: activeTrackingStart,
-                inferenceConfiguration: .stored()
+        let filteredVisits: [Visit] = {
+            switch effectiveKind {
+            case .visits, .outings, .all: return options.filterVisits(visits)
+            case .points: return []
+            }
+        }()
+        let filteredPoints: [LocationPoint] = {
+            switch effectiveKind {
+            case .points, .all: return options.filterPoints(points)
+            case .visits, .outings: return []
+            }
+        }()
+        let outingSummaries: [RecordingSessionSummary] = {
+            guard effectiveKind == .outings else { return [] }
+            return options.filterOutings(
+                RecordingSessionBuilder.summaries(
+                    storedSessions: recordingSessions,
+                    points: points,
+                    activeTrackingStart: activeTrackingStart,
+                    inferenceConfiguration: .stored()
+                )
             )
-        )
+        }()
 
         guard splitByDay else {
             return [IsoMeExportSnapshot(
@@ -732,13 +776,13 @@ enum IsoMeExportKitAdapter {
 
     private static func outingFilenameSuffix(for outing: RecordingSessionSummary, includesTimeToken: Bool) -> String {
         let title = FilenameTemplate.sanitize(outing.title)
-        if includesTimeToken { return title }
+        if !title.isEmpty { return title }
+        if includesTimeToken { return "" }
 
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "HH-mm"
-        let time = formatter.string(from: outing.startedAt)
-        return title.isEmpty ? time : "\(time) - \(title)"
+        return formatter.string(from: outing.startedAt)
     }
 
     private static func appendFilenameSuffix(_ suffix: String, to path: String, format: ExportFormat) -> String {

@@ -431,9 +431,9 @@ enum RecordingSessionBuilder {
 
         for storedSession in orderedStoredSessions {
             let endDate = storedSession.endedAt ?? now
-            let sessionPoints = orderedPoints.filter { point in
-                point.timestamp >= storedSession.startedAt && point.timestamp <= endDate
-            }
+            let startIndex = firstPointIndex(in: orderedPoints, notBefore: storedSession.startedAt)
+            let endIndex = firstPointIndex(in: orderedPoints, after: endDate)
+            let sessionPoints = startIndex < endIndex ? Array(orderedPoints[startIndex..<endIndex]) : []
             sessionPoints.forEach { consumedPointIDs.insert($0.id) }
 
             pending.append(PendingSessionSummary(
@@ -447,8 +447,10 @@ enum RecordingSessionBuilder {
             ))
         }
 
-        let remainingPoints = orderedPoints.filter { !consumedPointIDs.contains($0.id) }
         if resolvedInferenceConfiguration.includesInferredSessions {
+            let remainingPoints = consumedPointIDs.isEmpty
+                ? orderedPoints
+                : orderedPoints.filter { !consumedPointIDs.contains($0.id) }
             let inferredChunks = inferredPointChunks(
                 from: remainingPoints,
                 activeTrackingStart: activeTrackingStart,
@@ -553,6 +555,34 @@ enum RecordingSessionBuilder {
         }
 
         return current.timestamp.timeIntervalSince(previous.timestamp) > gapThreshold
+    }
+
+    private static func firstPointIndex(in points: [LocationPoint], notBefore date: Date) -> Int {
+        var lowerBound = 0
+        var upperBound = points.count
+        while lowerBound < upperBound {
+            let midpoint = (lowerBound + upperBound) / 2
+            if points[midpoint].timestamp < date {
+                lowerBound = midpoint + 1
+            } else {
+                upperBound = midpoint
+            }
+        }
+        return lowerBound
+    }
+
+    private static func firstPointIndex(in points: [LocationPoint], after date: Date) -> Int {
+        var lowerBound = 0
+        var upperBound = points.count
+        while lowerBound < upperBound {
+            let midpoint = (lowerBound + upperBound) / 2
+            if points[midpoint].timestamp <= date {
+                lowerBound = midpoint + 1
+            } else {
+                upperBound = midpoint
+            }
+        }
+        return lowerBound
     }
 
     private struct PendingSessionSummary {

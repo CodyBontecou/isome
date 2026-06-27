@@ -16,6 +16,7 @@ struct ExportView: View {
     @State private var showingFolderPicker = false
     @State private var showingClearFolderConfirmation = false
     @State private var dailyTimeBinding = Date()
+    @State private var cachedOutingSummaries: [RecordingSessionSummary] = []
 
     @AppStorage("useDefaultExportFolder") private var useDefaultExportFolder = true
     @AppStorage("exportFilenamePattern") private var filenamePattern = FilenameTemplate.defaultPattern
@@ -60,7 +61,7 @@ struct ExportView: View {
     }
 
     private var filteredOutings: [RecordingSessionSummary] {
-        options.filterOutings(viewModel.recordingSessionSummaries(inferenceConfiguration: .stored()))
+        options.filterOutings(cachedOutingSummaries)
     }
 
     private var totalCount: Int {
@@ -170,6 +171,8 @@ struct ExportView: View {
             .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
             .onChange(of: options.dataKind.rawValue) { _, _ in ensurePointDataIfNeeded() }
             .onChange(of: selectedFormatTokensKey) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: viewModel.allRecordingSessions.count) { _, _ in refreshOutingSummariesIfNeeded() }
+            .onChange(of: viewModel.totalLocationPointCount) { _, _ in refreshOutingSummariesIfNeeded() }
         }
     }
 
@@ -709,12 +712,22 @@ struct ExportView: View {
     }
 
     private var filenamePreview: String {
-        let previewTitle = showsOutingExport ? (filteredOutings.first?.title ?? "Outing 1") : nil
+        let previewOuting = showsOutingExport ? filteredOutings.first : nil
+        let previewTitle = showsOutingExport ? (previewOuting?.title ?? "Outing 1") : nil
+        let previewDate = previewOuting?.startedAt ?? Date()
         let previews = selectedFormatsList.compactMap { format -> String? in
-            try? IsoMeExportPathPlanner.plannedRelativePath(
+            if let previewOuting {
+                return try? IsoMeExportKitAdapter.plannedOutingPreviewRelativePath(
+                    for: previewOuting,
+                    filenamePattern: filenamePattern,
+                    format: format
+                )
+            }
+            return try? IsoMeExportPathPlanner.plannedRelativePath(
                 pattern: filenamePattern,
                 dataKind: effectiveDataKind(for: format),
                 format: format,
+                date: previewDate,
                 title: previewTitle,
                 safetyPolicy: .preserveCurrentBehavior
             )
@@ -1254,6 +1267,12 @@ struct ExportView: View {
         if effectiveDataKinds.contains(.points) || effectiveDataKinds.contains(.all) || effectiveDataKinds.contains(.outings) {
             viewModel.ensureAllLocationPointsLoaded()
         }
+        refreshOutingSummariesIfNeeded()
+    }
+
+    private func refreshOutingSummariesIfNeeded() {
+        guard effectiveDataKinds.contains(.outings) else { return }
+        cachedOutingSummaries = viewModel.recordingSessionSummaries(inferenceConfiguration: .stored())
     }
 }
 
