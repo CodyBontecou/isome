@@ -491,11 +491,14 @@ struct LocationMapView: View {
                             Spacer(minLength: 0)
                         }
 
-                        MapAddPlaceMenu(
-                            onSaveCurrentPlace: openSaveCurrentPlaceSheet,
-                            onAddPastVisit: openPastVisitSheet,
-                            onDropPin: openBlankManualVisitSheet
-                        )
+                        if !showFilterBar {
+                            MapAddPlaceMenu(
+                                onSaveCurrentPlace: openSaveCurrentPlaceSheet,
+                                onAddPastVisit: openPastVisitSheet,
+                                onDropPin: openBlankManualVisitSheet
+                            )
+                            .transition(.scale(scale: 0.9).combined(with: .opacity))
+                        }
 
                         FilterBarToggle(isOpen: showFilterBar) {
                             withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82)) {
