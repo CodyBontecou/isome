@@ -19,7 +19,7 @@ struct SettingsView: View {
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
-    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = true
+    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = false
     @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
     private var includesInferredSessions = RecordingSessionInferenceConfiguration.defaultIncludesInferredSessions
     @AppStorage(RecordingSessionInferenceConfiguration.gapPresetKey)

@@ -339,6 +339,58 @@ struct ExportService {
     }
 
     @MainActor
+    private static func presenter(from viewController: UIViewController?) -> UIViewController? {
+        if let viewController {
+            return topMostViewController(startingAt: viewController)
+        }
+
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)
+            .flatMap { $0.rootViewController }
+            .map { topMostViewController(startingAt: $0) }
+    }
+
+    @MainActor
+    private static func topMostViewController(startingAt viewController: UIViewController) -> UIViewController {
+        if let presented = viewController.presentedViewController {
+            return topMostViewController(startingAt: presented)
+        }
+
+        if let navigationController = viewController as? UINavigationController,
+           let visibleViewController = navigationController.visibleViewController {
+            return topMostViewController(startingAt: visibleViewController)
+        }
+
+        if let tabBarController = viewController as? UITabBarController,
+           let selectedViewController = tabBarController.selectedViewController {
+            return topMostViewController(startingAt: selectedViewController)
+        }
+
+        return viewController
+    }
+
+    @MainActor
+    private static func presentShareSheet(
+        _ activityVC: UIActivityViewController,
+        from viewController: UIViewController?
+    ) {
+        guard let presenter = presenter(from: viewController), presenter.presentedViewController == nil else {
+            return
+        }
+
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        presenter.present(activityVC, animated: true)
+    }
+
+    @MainActor
     static func share(
         visits: [Visit],
         format: ExportFormat,
@@ -374,22 +426,7 @@ struct ExportService {
             completion?(completed)
         }
 
-        // Get the presenting view controller
-        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController else {
-            return
-        }
-
-        // For iPad
-        if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = presenter.view
-            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
-            popover.permittedArrowDirections = []
-        }
-
-        presenter.present(activityVC, animated: true)
+        presentShareSheet(activityVC, from: viewController)
     }
     
     // MARK: - Direct Export to Default Folder
@@ -672,21 +709,8 @@ extension ExportService {
         activityVC.completionWithItemsHandler = { _, completed, _, _ in
             completion?(completed)
         }
-        
-        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController else {
-            return
-        }
-        
-        if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = presenter.view
-            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
-            popover.permittedArrowDirections = []
-        }
-        
-        presenter.present(activityVC, animated: true)
+
+        presentShareSheet(activityVC, from: viewController)
     }
     
     // MARK: - OwnTracks (https://owntracks.org/booklet/tech/json/)
@@ -925,20 +949,7 @@ extension ExportService {
             completion?(completed)
         }
 
-        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController else {
-            return
-        }
-
-        if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = presenter.view
-            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
-            popover.permittedArrowDirections = []
-        }
-
-        presenter.present(activityVC, animated: true)
+        presentShareSheet(activityVC, from: viewController)
     }
 
     @MainActor
@@ -1898,20 +1909,7 @@ extension ExportService {
             completion?(completed)
         }
 
-        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController else {
-            return
-        }
-
-        if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = presenter.view
-            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
-            popover.permittedArrowDirections = []
-        }
-
-        presenter.present(activityVC, animated: true)
+        presentShareSheet(activityVC, from: viewController)
     }
 
     @MainActor
@@ -1965,20 +1963,7 @@ extension ExportService {
             completion?(completed)
         }
 
-        guard let presenter = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController else {
-            return
-        }
-
-        if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = presenter.view
-            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
-            popover.permittedArrowDirections = []
-        }
-
-        presenter.present(activityVC, animated: true)
+        presentShareSheet(activityVC, from: viewController)
     }
 
     @MainActor

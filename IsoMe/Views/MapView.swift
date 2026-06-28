@@ -27,7 +27,7 @@ struct LocationMapView: View {
     @State private var showSessionPath = false
     @State private var showVisitMarkers = true
     @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
-    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = true
+    @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = false
     @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false

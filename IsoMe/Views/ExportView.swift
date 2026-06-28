@@ -247,76 +247,12 @@ struct ExportView: View {
     // MARK: - Format
 
     private var formatSection: some View {
-        VStack(spacing: 0) {
-            TESectionHeader(title: "FORMATS")
-
-            TECard {
-                VStack(spacing: 0) {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        formatSelectionButton("JSON", format: .json)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("CSV", format: .csv)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("MARKDOWN", format: .markdown)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("OWNTRACKS", format: .owntracks)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("OVERLAND", format: .overland)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("GPX", format: .gpx)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("KML", format: .kml)
-                        Rectangle().fill(TE.border).frame(height: 1)
-                        formatSelectionButton("GEOJSON", format: .geojson)
-                    } else {
-                        HStack(spacing: 0) {
-                            formatSelectionButton("JSON", format: .json)
-                            Rectangle().fill(TE.border).frame(width: 1)
-                            formatSelectionButton("CSV", format: .csv)
-                            Rectangle().fill(TE.border).frame(width: 1)
-                            formatSelectionButton("MARKDOWN", format: .markdown)
-                        }
-
-                        Rectangle().fill(TE.border).frame(height: 1)
-
-                        HStack(spacing: 0) {
-                            formatSelectionButton("OWNTRACKS", format: .owntracks)
-                            Rectangle().fill(TE.border).frame(width: 1)
-                            formatSelectionButton("OVERLAND", format: .overland)
-                            Rectangle().fill(TE.border).frame(width: 1)
-                            formatSelectionButton("GPX", format: .gpx)
-                        }
-
-                        Rectangle().fill(TE.border).frame(height: 1)
-
-                        HStack(spacing: 0) {
-                            formatSelectionButton("KML", format: .kml)
-                            Rectangle().fill(TE.border).frame(width: 1)
-                            formatSelectionButton("GEOJSON", format: .geojson)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-
-            TESectionFooter(text: formatFooterText)
-        }
-    }
-
-    private var formatFooterText: LocalizedStringKey {
-        let selectedCount = selectedFormatsList.count
-        let hasPointsOnlyFormat = selectedFormatsList.contains { $0.isPointsOnly }
-
-        if hasPointsOnlyFormat {
-            if options.dataKind == .outings {
-                return "Select one or many formats. OwnTracks and Overland outing exports contain the outing route's GPS fixes; visit rows and outing notes are not represented."
-            }
-            return "Select one or many formats. OwnTracks and Overland only carry GPS fixes; other selected formats use the selected data type."
-        }
-
-        return selectedCount == 1
-            ? "Tap more formats to export multiple files at once."
-            : "Export will create one file per selected format. Add {format} to the file path if you want each filename to include its format."
+        ExportFormatSection(
+            selectedFormats: selectedFormats,
+            selectedFormatsList: selectedFormatsList,
+            dataKind: options.dataKind,
+            toggleFormat: toggleFormat
+        )
     }
 
     // MARK: - Data Kind
@@ -1157,13 +1093,6 @@ struct ExportView: View {
 
     // MARK: - Reusable bits
 
-    private func formatSelectionButton(_ title: LocalizedStringKey, format: ExportFormat) -> some View {
-        segmentedButton(title, isSelected: selectedFormats.contains(format)) {
-            toggleFormat(format)
-        }
-        .accessibilityValue(selectedFormats.contains(format) ? "Selected" : "Not selected")
-    }
-
     private func segmentedButton(_ title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
@@ -1273,6 +1202,122 @@ struct ExportView: View {
     private func refreshOutingSummariesIfNeeded() {
         guard effectiveDataKinds.contains(.outings) else { return }
         cachedOutingSummaries = viewModel.recordingSessionSummaries(inferenceConfiguration: .stored())
+    }
+}
+
+private struct ExportFormatSection: View {
+    let selectedFormats: Set<ExportFormat>
+    let selectedFormatsList: [ExportFormat]
+    let dataKind: ExportOptions.DataKind
+    let toggleFormat: (ExportFormat) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "FORMATS")
+
+            TECard {
+                ExportFormatGrid(
+                    selectedFormats: selectedFormats,
+                    toggleFormat: toggleFormat
+                )
+            }
+            .padding(.horizontal, 16)
+
+            TESectionFooter(text: footerText)
+        }
+    }
+
+    private var footerText: LocalizedStringKey {
+        let selectedCount = selectedFormatsList.count
+        let hasPointsOnlyFormat = selectedFormatsList.contains { $0.isPointsOnly }
+
+        if hasPointsOnlyFormat {
+            if dataKind == .outings {
+                return "Select one or many formats. OwnTracks and Overland outing exports contain the outing route's GPS fixes; visit rows and outing notes are not represented."
+            }
+            return "Select one or many formats. OwnTracks and Overland only carry GPS fixes; other selected formats use the selected data type."
+        }
+
+        return selectedCount == 1
+            ? "Tap more formats to export multiple files at once."
+            : "Export will create one file per selected format. Add {format} to the file path if you want each filename to include its format."
+    }
+}
+
+private struct ExportFormatGrid: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    let selectedFormats: Set<ExportFormat>
+    let toggleFormat: (ExportFormat) -> Void
+
+    private static let accessibilityChoices: [ExportFormatChoice] = [
+        ExportFormatChoice("JSON", .json),
+        ExportFormatChoice("CSV", .csv),
+        ExportFormatChoice("MARKDOWN", .markdown),
+        ExportFormatChoice("OWNTRACKS", .owntracks),
+        ExportFormatChoice("OVERLAND", .overland),
+        ExportFormatChoice("GPX", .gpx),
+        ExportFormatChoice("KML", .kml),
+        ExportFormatChoice("GEOJSON", .geojson)
+    ]
+
+    private static let compactRows: [[ExportFormatChoice]] = [
+        [ExportFormatChoice("JSON", .json), ExportFormatChoice("CSV", .csv), ExportFormatChoice("MARKDOWN", .markdown)],
+        [ExportFormatChoice("OWNTRACKS", .owntracks), ExportFormatChoice("OVERLAND", .overland), ExportFormatChoice("GPX", .gpx)],
+        [ExportFormatChoice("KML", .kml), ExportFormatChoice("GEOJSON", .geojson)]
+    ]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if dynamicTypeSize.isAccessibilitySize {
+                ForEach(Array(Self.accessibilityChoices.enumerated()), id: \.element.id) { index, choice in
+                    if index > 0 { Rectangle().fill(TE.border).frame(height: 1) }
+                    formatButton(choice)
+                }
+            } else {
+                ForEach(Array(Self.compactRows.enumerated()), id: \.offset) { rowIndex, row in
+                    if rowIndex > 0 { Rectangle().fill(TE.border).frame(height: 1) }
+                    HStack(spacing: 0) {
+                        ForEach(Array(row.enumerated()), id: \.element.id) { columnIndex, choice in
+                            if columnIndex > 0 { Rectangle().fill(TE.border).frame(width: 1) }
+                            formatButton(choice)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func formatButton(_ choice: ExportFormatChoice) -> some View {
+        let isSelected = selectedFormats.contains(choice.format)
+        return Button {
+            toggleFormat(choice.format)
+        } label: {
+            Text(LocalizedStringKey(choice.title))
+                .font(TE.mono(.caption2, weight: isSelected ? .bold : .medium))
+                .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 1.5)
+                .foregroundStyle(isSelected ? TE.accent : TE.textMuted)
+                .multilineTextAlignment(.center)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 8)
+                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(isSelected ? TE.accent.opacity(0.08) : Color.clear)
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+    }
+}
+
+private struct ExportFormatChoice: Identifiable {
+    let title: String
+    let format: ExportFormat
+    var id: String { format.token }
+
+    init(_ title: String, _ format: ExportFormat) {
+        self.title = title
+        self.format = format
     }
 }
 
@@ -1483,6 +1528,7 @@ struct IsoMeExportPreviewView: View {
         .padding(.vertical, 4)
     }
 
+    @MainActor
     private func buildPreview() async {
         do {
             let preview = try await IsoMeExportKitAdapter.preview(
