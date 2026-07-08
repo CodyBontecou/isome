@@ -647,7 +647,7 @@ struct ExportView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Use / for folders. Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " ")). The format extension is added if omitted.")
+            TESectionFooter(text: "Use / for folders. Tokens: \(FilenameTemplate.allTokens.map { $0.token }.joined(separator: " ")). {title}/{name} use the outing title when available, otherwise the data type. The format extension is added if omitted.")
         }
     }
 

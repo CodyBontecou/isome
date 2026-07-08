@@ -42,6 +42,11 @@ enum IsoMeReleaseNotes {
                             symbolSystemName: "pencil",
                             title: "Rename outings from Shortcuts",
                             description: "While a route is recording, use the new Rename Current Outing action in Shortcuts or Siri to name the trip without opening iso.me."
+                        ),
+                        .init(
+                            symbolSystemName: "doc.text.magnifyingglass",
+                            title: "Clearer export path previews",
+                            description: "File paths using {title} or {name} now show a sensible data-type fallback for Visits, Points, and All exports when no outing title exists."
                         )
                     ]
                 )

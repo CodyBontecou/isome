@@ -18,8 +18,8 @@ struct FilenameTemplate {
         ("{time}", "14-30-15"),
         ("{day}", "Thursday"),
         ("{type}", "visits / points / outings / all"),
-        ("{title}", "Outing title when available"),
-        ("{name}", "Outing title when available"),
+        ("{title}", "Outing title, or data type when unavailable"),
+        ("{name}", "Outing title, or data type when unavailable"),
         ("{format}", "json / csv / md / owntracks / overland / gpx / kml / geojson"),
     ]
 
@@ -32,7 +32,8 @@ struct FilenameTemplate {
     ) -> String {
         let rawPath = appendingFormatExtensionIfNeeded(
             to: stem(pattern: pattern, dataKind: dataKind, format: format, date: date, title: title),
-            format: format
+            format: format,
+            fallbackBasename: dataKind.rawValue
         )
         return sanitizePath(rawPath)
     }
@@ -82,15 +83,13 @@ struct FilenameTemplate {
         let monthNumber = Calendar.current.component(.month, from: date)
         let quarterText = "Q\((monthNumber - 1) / 3 + 1)"
 
-        let typeText: String = {
-            switch dataKind {
-            case .visits: return "visits"
-            case .points: return "points"
-            case .outings: return "outings"
-            case .all: return "all"
-            }
-        }()
-        let titleText = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let typeText = dataKind.rawValue
+        let titleText: String
+        if let trimmedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmedTitle.isEmpty {
+            titleText = trimmedTitle
+        } else {
+            titleText = typeText
+        }
 
         var output = pattern
         output = output.replacingOccurrences(of: "{datetime}", with: datetimeFmt.string(from: date))
@@ -110,17 +109,41 @@ struct FilenameTemplate {
         return output
     }
 
-    static func appendingFormatExtensionIfNeeded(to rawPath: String, format: ExportFormat) -> String {
+    static func appendingFormatExtensionIfNeeded(
+        to rawPath: String,
+        format: ExportFormat,
+        fallbackBasename: String = "iso.me-export"
+    ) -> String {
         let trimmedPath = rawPath.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedExtension = format.fileExtension.trimmingCharacters(in: CharacterSet(charactersIn: "."))
         guard !normalizedExtension.isEmpty else { return trimmedPath }
 
         let normalizedPath = trimmedPath.replacingOccurrences(of: "\\", with: "/")
-        let lastComponent = normalizedPath.split(separator: "/").last.map(String.init) ?? normalizedPath
-        if lastComponent.lowercased().hasSuffix(".\(normalizedExtension.lowercased())") {
-            return trimmedPath
+        let fallbackFilename = "\(sanitize(fallbackBasename)).\(normalizedExtension)"
+        guard !normalizedPath.isEmpty else { return fallbackFilename }
+
+        if normalizedPath.hasSuffix("/") {
+            return "\(normalizedPath)\(fallbackFilename)"
         }
-        return "\(trimmedPath).\(normalizedExtension)"
+
+        let directoryPrefix: String
+        let lastComponent: String
+        if let splitIndex = normalizedPath.lastIndex(of: "/") {
+            directoryPrefix = String(normalizedPath[...splitIndex])
+            lastComponent = String(normalizedPath[normalizedPath.index(after: splitIndex)...])
+        } else {
+            directoryPrefix = ""
+            lastComponent = normalizedPath
+        }
+
+        let extensionSuffix = ".\(normalizedExtension)"
+        if lastComponent.lowercased() == extensionSuffix.lowercased() {
+            return "\(directoryPrefix)\(fallbackFilename)"
+        }
+        if lastComponent.lowercased().hasSuffix(extensionSuffix.lowercased()) {
+            return normalizedPath
+        }
+        return "\(normalizedPath).\(normalizedExtension)"
     }
 
     static func sanitizePath(_ rawPath: String) -> String {

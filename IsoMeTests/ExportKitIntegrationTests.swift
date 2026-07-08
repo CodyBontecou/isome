@@ -105,6 +105,63 @@ final class ExportKitIntegrationTests: XCTestCase {
         XCTAssertEqual(calendarPath, "2026/Q2/April/03-Friday-points.csv")
     }
 
+    func testTitleTokenFallsBackToDataKindWhenNoOutingTitleExists() throws {
+        let date = fixtureDate(hour: 12)
+        let pattern = "{date}/{format}/{title}"
+
+        let visitsPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: pattern,
+            dataKind: .visits,
+            format: .markdown,
+            date: date
+        )
+        XCTAssertEqual(visitsPath, "2026-04-03/md/visits.md")
+
+        let pointsPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: pattern,
+            dataKind: .points,
+            format: .markdown,
+            date: date
+        )
+        XCTAssertEqual(pointsPath, "2026-04-03/md/points.md")
+
+        let allPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: pattern,
+            dataKind: .all,
+            format: .markdown,
+            date: date
+        )
+        XCTAssertEqual(allPath, "2026-04-03/md/all.md")
+
+        let outingPath = try IsoMeExportPathPlanner.plannedRelativePath(
+            pattern: pattern,
+            dataKind: .outings,
+            format: .markdown,
+            date: date,
+            title: "Morning Ferry Loop"
+        )
+        XCTAssertEqual(outingPath, "2026-04-03/md/Morning Ferry Loop.md")
+    }
+
+    func testExtensionAppenderUsesFallbackBasenameForEmptyFilenameComponent() throws {
+        XCTAssertEqual(
+            FilenameTemplate.appendingFormatExtensionIfNeeded(
+                to: "2026-04-03/md/",
+                format: .markdown,
+                fallbackBasename: "visits"
+            ),
+            "2026-04-03/md/visits.md"
+        )
+        XCTAssertEqual(
+            FilenameTemplate.appendingFormatExtensionIfNeeded(
+                to: "2026-04-03/md/.md",
+                format: .markdown,
+                fallbackBasename: "visits"
+            ),
+            "2026-04-03/md/visits.md"
+        )
+    }
+
     func testSplitByDayFilenameCollisionsStayInSameFolder() throws {
         var options = ExportOptions()
         options.dataKind = .visits

@@ -65,7 +65,8 @@ enum IsoMeExportPathPlanner {
         // slashes are intentionally preserved as folder separators.
         let rawPath = FilenameTemplate.appendingFormatExtensionIfNeeded(
             to: expandedPath,
-            format: format
+            format: format,
+            fallbackBasename: dataKind.rawValue
         )
         .replacingOccurrences(of: "\\", with: "/")
         _ = try ExportPathSafetyPolicy.rejectTraversalAndAbsolutePaths.pathSegments(from: rawPath)
