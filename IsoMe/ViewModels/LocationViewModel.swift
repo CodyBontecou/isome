@@ -21,6 +21,7 @@ final class LocationViewModel {
     var todayVisits: [Visit] = []
     var allVisits: [Visit] = []
     var allRecordingSessions: [RecordingSession] = []
+    var savedPlaces: [SavedPlace] = []
     var photoLibraryAccessState: PhotoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
     /// Full point history. Loaded lazily for export so the map does not hydrate
     /// tens of thousands of SwiftData models on launch.
@@ -99,6 +100,7 @@ final class LocationViewModel {
         loadTodayVisits()
         loadAllVisits()
         loadRecordingSessions()
+        loadSavedPlaces()
         refreshLocationPointCount()
         refreshPhotoLibraryAuthorizationState()
         if locationManager.isTrackingEnabled {
@@ -152,6 +154,18 @@ final class LocationViewModel {
         } catch {
             print("Failed to fetch recording sessions: \(error)")
             allRecordingSessions = []
+        }
+    }
+
+    func loadSavedPlaces() {
+        var descriptor = FetchDescriptor<SavedPlace>()
+        descriptor.sortBy = [SortDescriptor(\.name, order: .forward)]
+
+        do {
+            savedPlaces = try modelContext.fetch(descriptor)
+        } catch {
+            print("Failed to fetch saved places: \(error)")
+            savedPlaces = []
         }
     }
 
@@ -887,6 +901,57 @@ final class LocationViewModel {
         )
     }
 
+    // MARK: - Saved Places
+
+    @discardableResult
+    func createSavedPlace(
+        name: String,
+        address: String?,
+        coordinate: CLLocationCoordinate2D,
+        radiusMeters: Double = 150
+    ) -> SavedPlace? {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return nil }
+
+        let now = Date()
+        let trimmedAddress = address?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        let normalizedRadius = max(25, radiusMeters)
+
+        if let existingPlace = savedPlaces.first(where: { place in
+            place.normalizedName.localizedCaseInsensitiveCompare(trimmedName) == .orderedSame
+                && place.distanceMeters(to: coordinate) <= max(place.radiusMeters, normalizedRadius)
+        }) {
+            existingPlace.latitude = coordinate.latitude
+            existingPlace.longitude = coordinate.longitude
+            existingPlace.address = trimmedAddress
+            existingPlace.radiusMeters = normalizedRadius
+            existingPlace.updatedAt = now
+            try? modelContext.save()
+            loadSavedPlaces()
+            return existingPlace
+        }
+
+        let place = SavedPlace(
+            name: trimmedName,
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude,
+            address: trimmedAddress,
+            radiusMeters: normalizedRadius,
+            createdAt: now,
+            updatedAt: now
+        )
+        modelContext.insert(place)
+        try? modelContext.save()
+        loadSavedPlaces()
+        return place
+    }
+
+    func deleteSavedPlace(_ place: SavedPlace) {
+        modelContext.delete(place)
+        try? modelContext.save()
+        loadSavedPlaces()
+    }
+
     // MARK: - Visit Management
 
     func deleteVisit(_ visit: Visit) {
@@ -1216,12 +1281,14 @@ final class LocationViewModel {
             try modelContext.delete(model: LocationPoint.self)
             try modelContext.delete(model: RecordingSession.self)
             try modelContext.delete(model: PhotoMoment.self)
+            try modelContext.delete(model: SavedPlace.self)
             try modelContext.save()
             allRecordingSessions = []
             locationPoints = []
             todayLocationPoints = []
             mapLocationPoints = []
             mapPhotoMoments = []
+            savedPlaces = []
             sessionLocationPointsCache = []
             mapLocationPointCount = 0
             mapPhotoMomentCount = 0

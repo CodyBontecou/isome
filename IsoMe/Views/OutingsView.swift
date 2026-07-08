@@ -9,6 +9,7 @@ struct OutingsView: View {
 
     @State private var selectedDate = Date()
     @State private var hasLoadedSessions = false
+    @State private var hasAutoSelectedInitialTimelineDate = false
 
     @AppStorage(RecordingSessionInferenceConfiguration.includesInferredSessionsKey)
     private var includesInferredSessions = RecordingSessionInferenceConfiguration.defaultIncludesInferredSessions
@@ -81,6 +82,19 @@ struct OutingsView: View {
         sessions.reduce(0) { $0 + $1.distanceMeters }
     }
 
+    private var latestActivityDate: Date? {
+        let sessionDates = viewModel.allRecordingSessions.flatMap { session -> [Date] in
+            var dates = [session.startedAt]
+            if let endedAt = session.endedAt {
+                dates.append(endedAt)
+            }
+            return dates
+        }
+        let visitDates = viewModel.allVisits.map(\.arrivedAt)
+        let pointDates = viewModel.locationPoints.last.map { [$0.timestamp] } ?? []
+        return (sessionDates + visitDates + pointDates).max()
+    }
+
     private var hasAnyTimelineData: Bool {
         viewModel.totalLocationPointCount > 0 || !viewModel.allVisits.isEmpty || !viewModel.allRecordingSessions.isEmpty
     }
@@ -94,14 +108,17 @@ struct OutingsView: View {
                     ProgressView("Building timeline…")
                         .font(TE.mono(.caption, weight: .medium))
                         .foregroundStyle(TE.textMuted)
-                } else if timelineEvents.isEmpty {
-                    emptyState
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
                             overviewSection
                             dayControlsSection
-                            timelineSection
+
+                            if timelineEvents.isEmpty {
+                                emptyTimelineSection
+                            } else {
+                                timelineSection
+                            }
                         }
                         .padding(.bottom, 28)
                     }
@@ -118,9 +135,11 @@ struct OutingsView: View {
             }
             .task {
                 refreshTimelineData()
+                selectInitialTimelineDateIfNeeded()
             }
             .onReceive(NotificationCenter.default.publisher(for: .appDidBecomeActive)) { _ in
                 refreshTimelineData()
+                selectInitialTimelineDateIfNeeded()
             }
         }
     }
@@ -318,6 +337,18 @@ struct OutingsView: View {
         }
     }
 
+    private var emptyTimelineSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "EVENTS")
+
+            TECard {
+                emptyState
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
     private var emptyState: some View {
         VStack(spacing: 18) {
             Image(systemName: "calendar")
@@ -334,19 +365,45 @@ struct OutingsView: View {
                 .foregroundStyle(TE.textMuted)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
-                .padding(.horizontal, 36)
+                .padding(.horizontal, 24)
 
-            Button {
-                selectedDate = Date()
-            } label: {
-                Text("JUMP TO TODAY")
-                    .font(TE.mono(.caption2, weight: .bold))
-                    .tracking(1.4)
-                    .foregroundStyle(TE.accent)
+            if let emptyStateActionLabel {
+                Button {
+                    performEmptyStateAction()
+                } label: {
+                    Text(emptyStateActionLabel)
+                        .font(TE.mono(.caption2, weight: .bold))
+                        .tracking(1.4)
+                        .foregroundStyle(TE.accent)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
-        .padding()
+        .padding(.horizontal, 18)
+        .padding(.vertical, 34)
+    }
+
+    private var emptyStateActionLabel: String? {
+        if let latestActivityDate,
+           !Calendar.current.isDate(latestActivityDate, inSameDayAs: selectedDate) {
+            return "JUMP TO LATEST DATA"
+        }
+
+        if !Calendar.current.isDateInToday(selectedDate) {
+            return "JUMP TO TODAY"
+        }
+
+        return nil
+    }
+
+    private func performEmptyStateAction() {
+        if let latestActivityDate,
+           !Calendar.current.isDate(latestActivityDate, inSameDayAs: selectedDate) {
+            selectedDate = latestActivityDate
+            return
+        }
+
+        selectedDate = Date()
     }
 
     private var emptyStateMessage: String {
@@ -377,6 +434,19 @@ struct OutingsView: View {
         viewModel.loadRecordingSessions()
         viewModel.ensureAllLocationPointsLoaded()
         hasLoadedSessions = true
+    }
+
+    private func selectInitialTimelineDateIfNeeded() {
+        guard !hasAutoSelectedInitialTimelineDate else { return }
+        hasAutoSelectedInitialTimelineDate = true
+
+        guard timelineEvents.isEmpty,
+              let latestActivityDate,
+              !Calendar.current.isDate(latestActivityDate, inSameDayAs: selectedDate) else {
+            return
+        }
+
+        selectedDate = latestActivityDate
     }
 
     private func moveSelectedDay(by value: Int) {
@@ -1658,7 +1728,7 @@ private struct OutingStatChip: View {
 #Preview {
     OutingsView(
         viewModel: LocationViewModel(
-            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
+            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
             locationManager: LocationManager()
         ),
         onShowOnMap: {}

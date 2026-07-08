@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 private enum IntentSupport {
     /// A dedicated container for intent-side reads. Uses the same on-disk store as the app.
     static let modelContainer: ModelContainer = {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
         do {
             return try ModelContainer(for: schema, configurations: [config])
@@ -65,11 +65,17 @@ private enum IntentSupport {
 
 enum IsoMeIntentError: Swift.Error, CustomLocalizedStringResourceConvertible {
     case noLocationPermission
+    case emptyOutingName
+    case noActiveOuting
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .noLocationPermission:
             return "IsoMe needs location permission. Open the app to enable it."
+        case .emptyOutingName:
+            return "Enter a name for the current outing."
+        case .noActiveOuting:
+            return "IsoMe is not currently recording an outing."
         }
     }
 }
@@ -109,6 +115,38 @@ struct StopTrackingIntent: AppIntent {
             UserDefaults.standard.set(false, forKey: "isTrackingEnabled")
         }
         return .result(dialog: "Tracking stopped.")
+    }
+}
+
+struct RenameCurrentOutingIntent: AppIntent {
+    static var title: LocalizedStringResource = "Rename Current Outing"
+    static var description = IntentDescription("Set the name of the IsoMe outing currently being recorded.")
+    static var openAppWhenRun: Bool = false
+
+    @Parameter(title: "Name")
+    var name: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { throw IsoMeIntentError.emptyOutingName }
+
+        let context = IntentSupport.makeContext()
+        var descriptor = FetchDescriptor<RecordingSession>(
+            predicate: #Predicate { session in
+                session.endedAt == nil
+            }
+        )
+        descriptor.sortBy = [SortDescriptor(\.startedAt, order: .reverse)]
+        descriptor.fetchLimit = 1
+
+        guard let activeSession = try context.fetch(descriptor).first else {
+            throw IsoMeIntentError.noActiveOuting
+        }
+
+        activeSession.customName = trimmedName
+        try context.save()
+        return .result(dialog: "Current outing renamed to \(trimmedName).")
     }
 }
 
@@ -373,6 +411,15 @@ struct IsoMeAppShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Stop Tracking",
             systemImageName: "stop.circle"
+        )
+        AppShortcut(
+            intent: RenameCurrentOutingIntent(),
+            phrases: [
+                "Rename current outing in \(.applicationName)",
+                "Name my \(.applicationName) outing",
+            ],
+            shortTitle: "Rename Outing",
+            systemImageName: "pencil"
         )
         AppShortcut(
             intent: TodayDistanceIntent(),

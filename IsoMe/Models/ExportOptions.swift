@@ -1,12 +1,12 @@
 import Foundation
 
-struct ExportOptions {
-    enum DataKind: String, CaseIterable, Identifiable, Hashable {
+struct ExportOptions: Codable, Equatable {
+    enum DataKind: String, CaseIterable, Identifiable, Hashable, Codable {
         case visits, points, outings, all
         var id: String { rawValue }
     }
 
-    enum DateRangePreset: String, CaseIterable, Identifiable {
+    enum DateRangePreset: String, CaseIterable, Identifiable, Codable {
         case allTime
         case today
         case yesterday
@@ -201,5 +201,59 @@ struct ExportOptions {
                 points: pointsByDay[day] ?? []
             )
         }
+    }
+}
+
+/// Persists the interactive Export tab settings so users don't lose their
+/// preferred formats, filters, and output shape when they leave the page.
+enum ExportPreferencesStore {
+    private struct Snapshot: Codable {
+        var options: ExportOptions
+        var selectedFormatTokens: [String]
+    }
+
+    private static let key = "exportView.preferences.v1"
+
+    static func load(defaults: UserDefaults = .standard) -> (options: ExportOptions, selectedFormats: Set<ExportFormat>) {
+        guard let data = defaults.data(forKey: key),
+              let snapshot = try? JSONDecoder().decode(Snapshot.self, from: data) else {
+            let options = ExportOptions()
+            return (options, [options.format])
+        }
+
+        var options = snapshot.options
+        let selectedFormats = normalizedFormats(snapshot.selectedFormatTokens, fallback: options.format)
+        options.format = selectedFormatsList(from: selectedFormats).first ?? options.format
+        return (options, selectedFormats)
+    }
+
+    static func save(
+        options: ExportOptions,
+        selectedFormats: Set<ExportFormat>,
+        defaults: UserDefaults = .standard
+    ) {
+        let formats = selectedFormatsList(from: selectedFormats)
+        let selectedFormatTokens = formats.map(\.token)
+        var normalizedOptions = options
+        if let primaryFormat = formats.first {
+            normalizedOptions.format = primaryFormat
+        }
+
+        let snapshot = Snapshot(options: normalizedOptions, selectedFormatTokens: selectedFormatTokens)
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        defaults.set(data, forKey: key)
+    }
+
+    private static func normalizedFormats(_ tokens: [String], fallback: ExportFormat) -> Set<ExportFormat> {
+        let formats = tokens.compactMap { token in
+            ExportFormat.allCases.first { $0.token == token }
+        }
+        if formats.isEmpty { return [fallback] }
+        return Set(formats)
+    }
+
+    private static func selectedFormatsList(from selectedFormats: Set<ExportFormat>) -> [ExportFormat] {
+        let selected = ExportFormat.allCases.filter { selectedFormats.contains($0) }
+        return selected.isEmpty ? [.json] : selected
     }
 }

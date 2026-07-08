@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import ExportKit
 
-enum ExportFormat: CaseIterable, Hashable {
+enum ExportFormat: CaseIterable, Hashable, Codable {
     case json
     case csv
     case markdown

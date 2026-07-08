@@ -23,6 +23,86 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.2",
+            items: [
+                .list(
+                    title: "More control over familiar places",
+                    rows: [
+                        .init(
+                            symbolSystemName: "house",
+                            title: "Save reusable locations",
+                            description: "Save places like Home, Work, or a favorite café once, then reuse them when adding visits on future days. Nearby automatic visits can use the saved name before network geocoding."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.up",
+                            title: "Export settings stick",
+                            description: "The Export tab now remembers your selected formats, data type, filters, dates, and one-file-per-day choice the next time you return."
+                        ),
+                        .init(
+                            symbolSystemName: "pencil",
+                            title: "Rename outings from Shortcuts",
+                            description: "While a route is recording, use the new Rename Current Outing action in Shortcuts or Siri to name the trip without opening iso.me."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
+            version: "1.7.1",
+            items: [
+                .list(
+                    title: "Timeline fixes",
+                    rows: [
+                        .init(
+                            symbolSystemName: "calendar.badge.clock",
+                            title: "Find past days faster",
+                            description: "When today has no timeline events, iso.me now opens the most recent day with saved visits or movement so your history is easier to review."
+                        ),
+                        .init(
+                            symbolSystemName: "calendar",
+                            title: "Date controls stay visible",
+                            description: "Empty days now keep the overview and date picker on screen, with a quick jump back to your latest data."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
+            version: "1.7",
+            items: [
+                .list(
+                    title: "A clearer view of your days",
+                    rows: [
+                        .init(
+                            symbolSystemName: "calendar",
+                            title: "Daily timeline",
+                            description: "Review visits and movement sessions together by day, with quick controls for today, yesterday, and any date you choose."
+                        ),
+                        .init(
+                            symbolSystemName: "mappin.and.ellipse",
+                            title: "Save and confirm places",
+                            description: "Add current or past visits from the map, confirm detected places, or correct them with nearby place suggestions."
+                        ),
+                        .init(
+                            symbolSystemName: "clock.badge.checkmark",
+                            title: "Edit visit times",
+                            description: "Adjust arrival and departure times, mark a visit as still in progress, and keep the visit history accurate."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.up",
+                            title: "Smoother exports",
+                            description: "Outing exports now plan filenames more accurately, preserve visit correction details, and present sharing more reliably."
+                        ),
+                        .init(
+                            symbolSystemName: "slider.horizontal.3",
+                            title: "Map polish",
+                            description: "Place prompts stay dismissed around the same area, and add-place controls step out of the way while filters are open."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.6.2",
             items: [
                 .media(

@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mykolaharmash/notelet",
       "state" : {
-        "revision" : "f01e68239a3e711895462e202b7cf1eac6f6bec3",
-        "version" : "1.1.0"
+        "branch" : "main",
+        "revision" : "02986909abddf547b0b3cd0e2170544acd0aaa01"
       }
     }
   ],

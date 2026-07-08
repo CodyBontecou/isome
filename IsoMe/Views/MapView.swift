@@ -1886,7 +1886,6 @@ struct ManualVisitSheet: View {
     @ObservedObject var locationManager: LocationManager
     @Environment(\.dismiss) private var dismiss
 
-    private let draftCoordinate: CLLocationCoordinate2D?
     private let draftTitle: String
     private let onSaved: (() -> Void)?
 
@@ -1895,6 +1894,10 @@ struct ManualVisitSheet: View {
     @State private var arrivedAt: Date
     @State private var departedAt: Date
     @State private var isStillHere: Bool
+    @State private var selectedCoordinate: CLLocationCoordinate2D?
+    @State private var selectedSavedPlaceID: UUID?
+    @State private var saveAsReusableLocation = false
+    @State private var reusableRadiusMeters = 150.0
     @State private var errorMessage: String?
 
     init(
@@ -1905,7 +1908,6 @@ struct ManualVisitSheet: View {
     ) {
         self.viewModel = viewModel
         self.locationManager = locationManager
-        self.draftCoordinate = draft.coordinate
         self.draftTitle = draft.title
         self.onSaved = onSaved
         _name = State(initialValue: draft.name)
@@ -1913,6 +1915,7 @@ struct ManualVisitSheet: View {
         _arrivedAt = State(initialValue: draft.arrivedAt)
         _departedAt = State(initialValue: draft.departedAt)
         _isStillHere = State(initialValue: draft.isStillHere)
+        _selectedCoordinate = State(initialValue: draft.coordinate)
     }
 
     private var manualLocation: CLLocation? {
@@ -1923,8 +1926,13 @@ struct ManualVisitSheet: View {
         return location
     }
 
+    private var selectedSavedPlace: SavedPlace? {
+        guard let selectedSavedPlaceID else { return nil }
+        return viewModel.savedPlaces.first { $0.id == selectedSavedPlaceID }
+    }
+
     private var coordinate: CLLocationCoordinate2D? {
-        draftCoordinate ?? manualLocation?.coordinate
+        selectedCoordinate ?? manualLocation?.coordinate
     }
 
     private var isSaveDisabled: Bool {
@@ -1948,6 +1956,41 @@ struct ManualVisitSheet: View {
                         .textInputAutocapitalization(.words)
                 }
 
+                if !viewModel.savedPlaces.isEmpty {
+                    Section("Saved Locations") {
+                        ForEach(viewModel.savedPlaces) { place in
+                            Button {
+                                applySavedPlace(place)
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(place.name)
+                                        if let address = place.address, !address.isEmpty {
+                                            Text(address)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    if selectedSavedPlaceID == place.id {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.blue)
+                                    }
+                                }
+                            }
+                        }
+                        .onDelete(perform: deleteSavedPlaces)
+
+                        if selectedSavedPlaceID != nil {
+                            Button("Use current location instead") {
+                                selectedSavedPlaceID = nil
+                                selectedCoordinate = nil
+                                locationManager.requestCurrentLocationForManualVisit()
+                            }
+                        }
+                    }
+                }
+
                 Section("Time") {
                     DatePicker("Arrived", selection: $arrivedAt, displayedComponents: [.date, .hourAndMinute])
                     Toggle("Still here", isOn: $isStillHere)
@@ -1963,14 +2006,14 @@ struct ManualVisitSheet: View {
                 }
 
                 Section("Location") {
-                    if let draftCoordinate {
+                    if let coordinate = selectedCoordinate {
                         VStack(alignment: .leading, spacing: 4) {
-                            Label("Selected place ready", systemImage: "mappin.and.ellipse")
+                            Label(selectedSavedPlace == nil ? "Selected place ready" : "Saved location ready", systemImage: "mappin.and.ellipse")
                                 .foregroundStyle(.green)
                             Text(String(
                                 format: "%.6f, %.6f",
-                                draftCoordinate.latitude,
-                                draftCoordinate.longitude
+                                coordinate.latitude,
+                                coordinate.longitude
                             ))
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -1994,12 +2037,44 @@ struct ManualVisitSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Waiting for a fresh accurate location", systemImage: "location")
                                 .foregroundStyle(.secondary)
-                            Text("Manual visits require a location from the last 5 minutes with accuracy under 100 meters.")
+                            Text("Manual visits require a saved location or a current location from the last 5 minutes with accuracy under 100 meters.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Button("Request Location") {
                                 locationManager.requestCurrentLocationForManualVisit()
                             }
+                        }
+                    }
+                }
+
+                Section("Reuse") {
+                    if let selectedSavedPlace {
+                        Label("Using saved location: \(selectedSavedPlace.name)", systemImage: "bookmark.fill")
+                    } else {
+                        Button {
+                            saveAsReusableLocation.toggle()
+                        } label: {
+                            HStack {
+                                Text("Save as reusable location")
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                Image(systemName: saveAsReusableLocation ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(saveAsReusableLocation ? .green : .secondary)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+
+                        if saveAsReusableLocation {
+                            Picker("Match radius", selection: $reusableRadiusMeters) {
+                                Text("50 m").tag(50.0)
+                                Text("100 m").tag(100.0)
+                                Text("150 m").tag(150.0)
+                                Text("250 m").tag(250.0)
+                            }
+                            Text("Future automatic visits within this radius will use this name before network geocoding.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -2014,7 +2089,8 @@ struct ManualVisitSheet: View {
             .navigationTitle(draftTitle)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                if draftCoordinate == nil {
+                viewModel.loadSavedPlaces()
+                if selectedCoordinate == nil {
                     locationManager.requestCurrentLocationForManualVisit()
                 }
             }
@@ -2030,9 +2106,31 @@ struct ManualVisitSheet: View {
         }
     }
 
+    private func applySavedPlace(_ place: SavedPlace) {
+        selectedSavedPlaceID = place.id
+        selectedCoordinate = place.coordinate
+        name = place.name
+        address = place.address ?? ""
+        saveAsReusableLocation = false
+        errorMessage = nil
+    }
+
+    private func deleteSavedPlaces(at offsets: IndexSet) {
+        let placesToDelete = offsets.compactMap { index in
+            viewModel.savedPlaces.indices.contains(index) ? viewModel.savedPlaces[index] : nil
+        }
+        for place in placesToDelete {
+            if selectedSavedPlaceID == place.id {
+                selectedSavedPlaceID = nil
+                selectedCoordinate = nil
+            }
+            viewModel.deleteSavedPlace(place)
+        }
+    }
+
     private func save() {
         guard let coordinate else {
-            errorMessage = "A fresh accurate current location is not available yet."
+            errorMessage = "Choose a saved location or request a fresh accurate current location."
             locationManager.requestCurrentLocationForManualVisit()
             return
         }
@@ -2053,6 +2151,14 @@ struct ManualVisitSheet: View {
         if visit == nil {
             errorMessage = "Enter a place name and valid times."
         } else {
+            if saveAsReusableLocation && selectedSavedPlaceID == nil {
+                _ = viewModel.createSavedPlace(
+                    name: name,
+                    address: address,
+                    coordinate: coordinate,
+                    radiusMeters: reusableRadiusMeters
+                )
+            }
             onSaved?()
             dismiss()
         }
@@ -3429,7 +3535,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
         locationManager: LocationManager()
     ))
 }

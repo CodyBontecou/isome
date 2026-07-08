@@ -693,7 +693,7 @@ struct NearbyVisitNameSuggestionSection: View {
         VisitDetailView(
             visit: Visit.preview,
             viewModel: LocationViewModel(
-                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
+                modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
                 locationManager: LocationManager()
             )
         )

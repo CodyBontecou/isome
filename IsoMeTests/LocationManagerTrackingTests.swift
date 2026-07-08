@@ -286,7 +286,7 @@ final class LocationManagerTrackingTests: XCTestCase {
     }
 
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self])
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: true,

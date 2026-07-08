@@ -259,6 +259,56 @@ enum VisitPlaceSource: String, Codable, CaseIterable {
     }
 }
 
+@Model
+final class SavedPlace {
+    var id: UUID
+    var name: String
+    var latitude: Double
+    var longitude: Double
+    var address: String?
+    var radiusMeters: Double
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        address: String? = nil,
+        radiusMeters: Double = 150,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
+    ) {
+        self.id = id
+        self.name = name
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = address
+        self.radiusMeters = radiusMeters
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var normalizedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func distanceMeters(to coordinate: CLLocationCoordinate2D) -> CLLocationDistance {
+        let savedLocation = CLLocation(latitude: latitude, longitude: longitude)
+        let candidate = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        return savedLocation.distance(from: candidate)
+    }
+
+    func contains(_ coordinate: CLLocationCoordinate2D) -> Bool {
+        distanceMeters(to: coordinate) <= radiusMeters
+    }
+}
+
 extension Visit {
     static var preview: Visit {
         Visit(

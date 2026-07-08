@@ -9,8 +9,8 @@ struct ExportView: View {
     @StateObject private var dailyScheduler = DailyExportScheduler.shared
     @ObservedObject private var storeManager = StoreManager.shared
 
-    @State private var options = ExportOptions()
-    @State private var selectedFormats: Set<ExportFormat> = [.json]
+    @State private var options = ExportPreferencesStore.load().options
+    @State private var selectedFormats: Set<ExportFormat> = ExportPreferencesStore.load().selectedFormats
     @State private var showingPaywall = false
     @State private var showingPreview = false
     @State private var showingFolderPicker = false
@@ -169,8 +169,12 @@ struct ExportView: View {
             }
             .onAppear { ensurePointDataIfNeeded() }
             .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: options) { _, _ in persistExportPreferences() }
             .onChange(of: options.dataKind.rawValue) { _, _ in ensurePointDataIfNeeded() }
-            .onChange(of: selectedFormatTokensKey) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: selectedFormatTokensKey) { _, _ in
+                persistExportPreferences()
+                ensurePointDataIfNeeded()
+            }
             .onChange(of: viewModel.allRecordingSessions.count) { _, _ in refreshOutingSummariesIfNeeded() }
             .onChange(of: viewModel.totalLocationPointCount) { _, _ in refreshOutingSummariesIfNeeded() }
         }
@@ -1203,6 +1207,10 @@ struct ExportView: View {
         guard effectiveDataKinds.contains(.outings) else { return }
         cachedOutingSummaries = viewModel.recordingSessionSummaries(inferenceConfiguration: .stored())
     }
+
+    private func persistExportPreferences() {
+        ExportPreferencesStore.save(options: options, selectedFormats: selectedFormats)
+    }
 }
 
 private struct ExportFormatSection: View {
@@ -1801,7 +1809,7 @@ struct ExportToastBanner: View {
 
 #Preview {
     ExportView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
         locationManager: LocationManager()
     ))
 }

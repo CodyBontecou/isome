@@ -504,6 +504,7 @@ final class LocationManager: NSObject, ObservableObject {
                let existingVisit = try matchingOpenVisit(for: clVisit, in: context) {
                 // Departure update for an existing open visit.
                 existingVisit.departedAt = max(existingVisit.arrivedAt, departureDate)
+                try applySavedPlaceNameIfNeeded(to: existingVisit, in: context)
             } else if hasArrival {
                 // A new arrival means any previous open visit is no longer current,
                 // even if iOS never delivered a matching departure callback.
@@ -525,8 +526,10 @@ final class LocationManager: NSObject, ObservableObject {
                     referenceDate: Date()
                 ) {
                     mergeVisit(visit, into: duplicateVisit)
+                    try applySavedPlaceNameIfNeeded(to: duplicateVisit, in: context)
                     visitToGeocodeID = duplicateVisit.id
                 } else {
+                    try applySavedPlaceNameIfNeeded(to: visit, in: context)
                     context.insert(visit)
                     visitToGeocodeID = visit.id
                 }
@@ -814,6 +817,33 @@ final class LocationManager: NSObject, ObservableObject {
             lastError = "Failed to save location points: \(error.localizedDescription)"
             return []
         }
+    }
+
+    private func applySavedPlaceNameIfNeeded(to visit: Visit, in context: ModelContext) throws {
+        guard visit.canReceiveAutomaticGeocodeUpdates else { return }
+
+        let coordinate = visit.coordinate
+        var descriptor = FetchDescriptor<SavedPlace>()
+        descriptor.sortBy = [SortDescriptor(\.updatedAt, order: .reverse)]
+        let savedPlaces = try context.fetch(descriptor)
+
+        guard let match = savedPlaces
+            .compactMap({ place -> (place: SavedPlace, distance: CLLocationDistance)? in
+                let distance = place.distanceMeters(to: coordinate)
+                guard distance <= place.radiusMeters else { return nil }
+                return (place, distance)
+            })
+            .min(by: { $0.distance < $1.distance }) else {
+            return
+        }
+
+        visit.locationName = match.place.name
+        visit.address = match.place.address
+        visit.detectedLocationName = match.place.name
+        visit.detectedAddress = match.place.address
+        visit.placeSource = .userEntered
+        visit.placeDistanceMeters = match.distance
+        visit.geocodingCompleted = true
     }
 
     // MARK: - Geocoding
