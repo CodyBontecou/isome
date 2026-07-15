@@ -1100,6 +1100,48 @@ final class LocationViewModel {
 
     // MARK: - Recording Session Management
 
+    func deleteRecordingSession(_ session: RecordingSessionSummary) {
+        let isCurrentlyRecordingSession = locationManager.isTrackingEnabled
+            && session.isActive
+            && (session.storedSession?.endedAt == nil)
+        if isCurrentlyRecordingSession {
+            locationManager.stopTracking()
+        }
+
+        let start = session.startedAt
+        let end = max(start, session.storedSession?.endedAt ?? session.effectiveEndDate)
+        let predicate = #Predicate<LocationPoint> { point in
+            point.timestamp >= start && point.timestamp <= end
+        }
+
+        do {
+            let points = try modelContext.fetch(FetchDescriptor<LocationPoint>(predicate: predicate))
+            for point in points {
+                modelContext.delete(point)
+            }
+
+            if let storedSession = session.storedSession {
+                modelContext.delete(storedSession)
+            }
+
+            try modelContext.save()
+
+            if mapFocusRequest?.sessionID == session.id {
+                mapFocusRequest = nil
+            }
+
+            // Outing summaries are built from the full point cache. Invalidate it
+            // so an inferred outing cannot be rebuilt from deleted model objects.
+            locationPoints = []
+            hasLoadedAllLocationPoints = false
+            loadData()
+            ensureAllLocationPointsLoaded()
+            locationManager.syncDataToWatch()
+        } catch {
+            print("Failed to delete recording session: \(error)")
+        }
+    }
+
     func updateRecordingSession(_ session: RecordingSession, customName: String, notes: String) {
         let trimmedName = customName.trimmingCharacters(in: .whitespacesAndNewlines)
         session.customName = trimmedName.isEmpty ? nil : trimmedName

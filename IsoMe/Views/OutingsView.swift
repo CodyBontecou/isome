@@ -731,6 +731,7 @@ private struct RecordingSessionCard: View {
 
 private struct RecordingSessionDetailView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dismiss) private var dismiss
     let session: RecordingSessionSummary
     @Bindable var viewModel: LocationViewModel
     let onShowOnMap: () -> Void
@@ -744,6 +745,7 @@ private struct RecordingSessionDetailView: View {
     @State private var routeReplayProgress: Double = 1.0
     @State private var roadSnappedRoute: RoadSnappedRoute?
     @State private var showingPaywall = false
+    @State private var showingDeleteConfirmation = false
     @State private var isSyncingPhotos = false
     @State private var selectedPhotoMoment: PhotoMoment?
     @FocusState private var isNameFieldFocused: Bool
@@ -884,6 +886,15 @@ private struct RecordingSessionDetailView: View {
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(storeManager: storeManager, context: .export)
+        }
+        .alert("Delete Outing?", isPresented: $showingDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                viewModel.deleteRecordingSession(session)
+                dismiss()
+            }
+        } message: {
+            Text(deleteConfirmationMessage)
         }
         .sheet(item: $selectedPhotoMoment) { photo in
             PhotoMomentQuickView(photo: photo)
@@ -1441,13 +1452,44 @@ private struct RecordingSessionDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("Exports this outing as a Markdown page with YAML properties.")
+                .accessibilityHint("Exports this outing in the selected format.")
+
+                Button(role: .destructive) {
+                    showingDeleteConfirmation = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "trash")
+                            .font(.caption.weight(.bold))
+                        Text("DELETE OUTING")
+                            .font(TE.mono(.caption, weight: .bold))
+                            .tracking(2)
+                    }
+                    .foregroundStyle(TE.danger)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 46)
+                    .background(TE.danger.opacity(0.08))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(TE.danger.opacity(0.5), lineWidth: 1)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Deletes this outing and its GPS points after confirmation. Visits are kept.")
             }
             .padding(.horizontal, 16)
             .padding(.top, 2)
 
             TESectionFooter(text: outingExportFooterText)
         }
+    }
+
+    private var deleteConfirmationMessage: String {
+        let deletionMessage = "This outing and its GPS points will be permanently deleted. Visits during this time will be kept."
+        if session.isActive {
+            return "Tracking will stop. \(deletionMessage)"
+        }
+        return deletionMessage
     }
 
     private var outingExportFormat: ExportFormat {

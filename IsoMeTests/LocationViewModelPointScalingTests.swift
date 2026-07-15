@@ -285,6 +285,132 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertEqual(session.points.count, 3)
     }
 
+    func testDeletingStoredOutingRemovesSessionPointsAndKeepsVisits() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let start = fixtureDate(dayOffset: 6)
+        let end = start.addingTimeInterval(30 * 60)
+        let storedSession = RecordingSession(startedAt: start, endedAt: end, customName: "Errand Run")
+        let beforePoint = LocationPoint(
+            latitude: 37.0,
+            longitude: -122.0,
+            timestamp: start.addingTimeInterval(-60 * 60),
+            horizontalAccuracy: 5
+        )
+        let outingPoint = LocationPoint(
+            latitude: 37.1,
+            longitude: -122.1,
+            timestamp: start.addingTimeInterval(10 * 60),
+            horizontalAccuracy: 5
+        )
+        let afterPoint = LocationPoint(
+            latitude: 37.2,
+            longitude: -122.2,
+            timestamp: end.addingTimeInterval(60 * 60),
+            horizontalAccuracy: 5
+        )
+        let visit = Visit(
+            latitude: 37.1,
+            longitude: -122.1,
+            arrivedAt: start.addingTimeInterval(5 * 60),
+            departedAt: start.addingTimeInterval(15 * 60)
+        )
+
+        context.insert(storedSession)
+        context.insert(beforePoint)
+        context.insert(outingPoint)
+        context.insert(afterPoint)
+        context.insert(visit)
+        try context.save()
+
+        let viewModel = makeViewModel(container: container)
+        viewModel.ensureAllLocationPointsLoaded()
+        let summary = try XCTUnwrap(
+            viewModel.recordingSessionSummaries().first { $0.storedSession?.id == storedSession.id }
+        )
+
+        viewModel.deleteRecordingSession(summary)
+
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<RecordingSession>()), 0)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<LocationPoint>()), 2)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Visit>()), 1)
+        XCTAssertEqual(Set(viewModel.locationPoints.map(\.id)), Set([beforePoint.id, afterPoint.id]))
+        XCTAssertEqual(viewModel.totalLocationPointCount, 2)
+        XCTAssertEqual(viewModel.allVisits.map(\.id), [visit.id])
+    }
+
+    func testDeletingActiveOutingStopsTrackingAndIncludesNewPoints() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let manager = LocationManager()
+        let start = Date().addingTimeInterval(-5 * 60)
+        manager.isTrackingEnabled = true
+        manager.isLiveActivityEnabled = false
+        manager.trackingStartTime = start
+
+        let viewModel = LocationViewModel(modelContext: context, locationManager: manager)
+        context.insert(LocationPoint(
+            latitude: 37.0,
+            longitude: -122.0,
+            timestamp: start.addingTimeInterval(30),
+            horizontalAccuracy: 5
+        ))
+        try context.save()
+        viewModel.loadLocationPoints()
+
+        let summary = try XCTUnwrap(
+            viewModel.recordingSessionSummaries().first { !$0.isInferred && $0.isActive }
+        )
+
+        // Simulate a fix saved while the detail screen still holds its original summary.
+        context.insert(LocationPoint(
+            latitude: 37.001,
+            longitude: -122.001,
+            timestamp: Date().addingTimeInterval(-1),
+            horizontalAccuracy: 5
+        ))
+        try context.save()
+
+        viewModel.deleteRecordingSession(summary)
+
+        XCTAssertFalse(manager.isTrackingEnabled)
+        XCTAssertNil(manager.trackingStartTime)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<RecordingSession>()), 0)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<LocationPoint>()), 0)
+        XCTAssertTrue(viewModel.recordingSessionSummaries().isEmpty)
+    }
+
+    func testDeletingInferredOutingRemovesItsPointsSoItDoesNotReappear() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let start = fixtureDate(dayOffset: 7)
+        context.insert(LocationPoint(
+            latitude: 37.0,
+            longitude: -122.0,
+            timestamp: start,
+            horizontalAccuracy: 5
+        ))
+        context.insert(LocationPoint(
+            latitude: 37.001,
+            longitude: -122.001,
+            timestamp: start.addingTimeInterval(60),
+            horizontalAccuracy: 5
+        ))
+        try context.save()
+
+        let viewModel = makeViewModel(container: container)
+        viewModel.ensureAllLocationPointsLoaded()
+        let summary = try XCTUnwrap(viewModel.recordingSessionSummaries().first)
+        XCTAssertTrue(summary.isInferred)
+
+        viewModel.deleteRecordingSession(summary)
+
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<LocationPoint>()), 0)
+        XCTAssertEqual(viewModel.totalLocationPointCount, 0)
+        XCTAssertTrue(viewModel.locationPoints.isEmpty)
+        XCTAssertTrue(viewModel.recordingSessionSummaries().isEmpty)
+    }
+
     func testRecordingSessionBuilderCanDisableInferredOutings() throws {
         let start = fixtureDate(dayOffset: 6)
         let points = [

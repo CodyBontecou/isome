@@ -23,6 +23,21 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.3",
+            items: [
+                .list(
+                    title: "More control over movement history",
+                    rows: [
+                        .init(
+                            symbolSystemName: "trash",
+                            title: "Delete outings",
+                            description: "Open any recorded or inferred outing and delete it from the details screen. Its GPS route points are removed, visits from the same time stay in your history, and deleting a live outing stops tracking first."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.2",
             items: [
                 .list(
