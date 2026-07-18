@@ -145,6 +145,45 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertNil(visit.departedAt)
     }
 
+    func testRemoteManualVisitPersistsAppleMapsSelection() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrivedAt = fixtureDate(dayOffset: 21)
+        let departedAt = arrivedAt.addingTimeInterval(90 * 60)
+        let coordinate = CLLocationCoordinate2D(latitude: 48.8584, longitude: 2.2945)
+
+        let visit = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Eiffel Tower",
+            address: "5 Avenue Anatole France, Paris",
+            coordinate: coordinate,
+            arrivedAt: arrivedAt,
+            departedAt: departedAt,
+            placeSource: .appleMaps
+        ))
+
+        XCTAssertEqual(visit.source, .manual)
+        XCTAssertEqual(visit.confirmationStatus, .confirmed)
+        XCTAssertEqual(visit.placeSource, .appleMaps)
+        assertCoordinate(visit.coordinate, equals: coordinate)
+    }
+
+    func testManualVisitRejectsInvalidRemoteCoordinate() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrivedAt = fixtureDate(dayOffset: 22)
+
+        let visit = viewModel.createManualVisit(
+            name: "Invalid Place",
+            address: nil,
+            coordinate: CLLocationCoordinate2D(latitude: 200, longitude: -122.4),
+            arrivedAt: arrivedAt,
+            departedAt: arrivedAt.addingTimeInterval(60)
+        )
+
+        XCTAssertNil(visit)
+        XCTAssertTrue(viewModel.allVisits.isEmpty)
+    }
+
     func testVisitConfirmCorrectAndUndoPreservesOriginalMetadata() throws {
         let container = try makeInMemoryContainer()
         let originalCoordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)

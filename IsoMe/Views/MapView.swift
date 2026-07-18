@@ -36,6 +36,7 @@ struct LocationMapView: View {
     @State private var isRouteReplayPlaying = false
     @State private var routeReplayProgress: Double = 1.0
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var visibleMapRegion: MKCoordinateRegion?
     @State private var pendingSessionAutoFocus = false
     @State private var appliedMapFocusRequestID: UUID?
     @State private var activePreset: MapDatePreset? = .today
@@ -383,6 +384,9 @@ struct LocationMapView: View {
                     MapCompass()
                     MapScaleView()
                 }
+                .onMapCameraChange(frequency: .onEnd) { context in
+                    visibleMapRegion = context.region
+                }
                 .simultaneousGesture(
                     TapGesture().onEnded(handleMapTap)
                 )
@@ -525,10 +529,11 @@ struct LocationMapView: View {
                     viewModel: viewModel,
                     locationManager: locationManager,
                     draft: draft,
-                    onSaved: {
+                    onSaved: { visit in
                         if draft.hidesCurrentPlacePromptAfterSave {
                             suppressCurrentPlacePromptForCurrentArea()
                         }
+                        handleManualVisitSaved(visit, mode: draft.mode)
                     }
                 )
                 .presentationDetents([.medium, .large])
@@ -643,32 +648,61 @@ struct LocationMapView: View {
 
         if let suggestion = currentPlaceSuggestion {
             manualVisitDraft = ManualVisitDraft(
+                mode: .saveCurrentPlace,
                 name: suggestion.name,
                 address: suggestion.address ?? "",
-                coordinate: suggestion.coordinate,
+                locationSelection: ManualLocationSelection(
+                    name: suggestion.name,
+                    address: suggestion.address,
+                    coordinate: suggestion.coordinate,
+                    source: .appleMaps
+                ),
                 title: "Save Place"
             )
         } else {
-            manualVisitDraft = ManualVisitDraft(title: "Save Place")
+            manualVisitDraft = ManualVisitDraft(mode: .saveCurrentPlace, title: "Save Place")
         }
     }
 
     private func openBlankManualVisitSheet() {
         locationManager.requestCurrentLocationForManualVisit()
-        manualVisitDraft = ManualVisitDraft(title: "Add Place")
+        manualVisitDraft = ManualVisitDraft(mode: .addPlaceManually, title: "Add Place")
     }
 
     private func openPastVisitSheet() {
-        locationManager.requestCurrentLocationForManualVisit()
         let departedAt = Date()
         let arrivedAt = Calendar.current.date(byAdding: .hour, value: -1, to: departedAt) ?? departedAt
         manualVisitDraft = ManualVisitDraft(
+            mode: .addPastVisit,
             arrivedAt: arrivedAt,
             departedAt: departedAt,
             isStillHere: false,
             title: "Add Past Visit",
-            hidesCurrentPlacePromptAfterSave: false
+            hidesCurrentPlacePromptAfterSave: false,
+            initialSearchRegion: visibleMapRegion
         )
+    }
+
+    private func handleManualVisitSaved(_ visit: Visit, mode: ManualVisitMode) {
+        guard mode == .addPastVisit else { return }
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: visit.arrivedAt)
+        let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? visit.arrivedAt
+        let endOfDay = Date(timeIntervalSinceReferenceDate: startOfNextDay.timeIntervalSinceReferenceDate.nextDown)
+        let range = startOfDay...endOfDay
+
+        activePreset = nil
+        showVisitMarkers = true
+        viewModel.mapDateRange = range
+        viewModel.loadMapLocationPoints(in: range)
+        viewModel.loadMapPhotoMoments(in: range)
+        syncPhotoMomentsForCurrentRangeIfAuthorized()
+        cameraPosition = .region(MKCoordinateRegion(
+            center: visit.coordinate,
+            latitudinalMeters: 1_000,
+            longitudinalMeters: 1_000
+        ))
     }
 
     private func refreshCurrentPlaceSuggestion() async {
@@ -1685,14 +1719,16 @@ struct DateRangeChip: View {
 
 struct ManualVisitDraft: Identifiable {
     let id = UUID()
+    var mode: ManualVisitMode = .saveCurrentPlace
     var name: String = ""
     var address: String = ""
-    var coordinate: CLLocationCoordinate2D?
+    var locationSelection: ManualLocationSelection?
     var arrivedAt: Date = Date()
     var departedAt: Date = Date()
     var isStillHere: Bool = true
-    var title: String = "Save Place"
+    var title: LocalizedStringResource = "Save Place"
     var hidesCurrentPlacePromptAfterSave: Bool = true
+    var initialSearchRegion: MKCoordinateRegion?
 }
 
 private struct CurrentPlacePromptSuppression {
@@ -1886,36 +1922,43 @@ struct ManualVisitSheet: View {
     @ObservedObject var locationManager: LocationManager
     @Environment(\.dismiss) private var dismiss
 
-    private let draftTitle: String
-    private let onSaved: (() -> Void)?
+    private let mode: ManualVisitMode
+    private let draftTitle: LocalizedStringResource
+    private let initialSearchRegion: MKCoordinateRegion?
+    private let onSaved: ((Visit) -> Void)?
 
     @State private var name: String
     @State private var address: String
     @State private var arrivedAt: Date
     @State private var departedAt: Date
     @State private var isStillHere: Bool
-    @State private var selectedCoordinate: CLLocationCoordinate2D?
+    @State private var locationSelection: ManualLocationSelection?
     @State private var selectedSavedPlaceID: UUID?
     @State private var saveAsReusableLocation = false
     @State private var reusableRadiusMeters = 150.0
     @State private var errorMessage: String?
+    @State private var showingLocationPicker = false
+    @State private var isSaving = false
 
     init(
         viewModel: LocationViewModel,
         locationManager: LocationManager,
         draft: ManualVisitDraft = ManualVisitDraft(),
-        onSaved: (() -> Void)? = nil
+        onSaved: ((Visit) -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.locationManager = locationManager
+        self.mode = draft.mode
         self.draftTitle = draft.title
+        self.initialSearchRegion = draft.initialSearchRegion
         self.onSaved = onSaved
         _name = State(initialValue: draft.name)
         _address = State(initialValue: draft.address)
         _arrivedAt = State(initialValue: draft.arrivedAt)
         _departedAt = State(initialValue: draft.departedAt)
         _isStillHere = State(initialValue: draft.isStillHere)
-        _selectedCoordinate = State(initialValue: draft.coordinate)
+        _locationSelection = State(initialValue: draft.locationSelection)
+        _selectedSavedPlaceID = State(initialValue: draft.locationSelection?.savedPlaceID)
     }
 
     private var manualLocation: CLLocation? {
@@ -1932,27 +1975,66 @@ struct ManualVisitSheet: View {
     }
 
     private var coordinate: CLLocationCoordinate2D? {
-        selectedCoordinate ?? manualLocation?.coordinate
+        mode.resolvedCoordinate(
+            selection: locationSelection,
+            currentLocation: manualLocation
+        )
     }
 
     private var isSaveDisabled: Bool {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || coordinate == nil || validationMessage != nil
+        isSaving ||
+        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        coordinate == nil ||
+        validationMessage != nil
     }
 
     private var validationMessage: String? {
-        if !isStillHere, departedAt < arrivedAt {
-            return "Departure must be after arrival."
+        if mode.requiresDeparture && isStillHere {
+            return String(localized: "Past visits need a departure time.")
+        }
+        if (!isStillHere || mode.requiresDeparture), departedAt < arrivedAt {
+            return String(localized: "Departure can’t be before arrival.")
         }
         return nil
+    }
+
+    private var nameBinding: Binding<String> {
+        Binding(
+            get: { name },
+            set: { newName in
+                name = newName
+                guard var selection = locationSelection else { return }
+                selection.updateUserEnteredMetadata(
+                    name: newName,
+                    address: address.isEmpty ? nil : address
+                )
+                locationSelection = selection
+            }
+        )
+    }
+
+    private var addressBinding: Binding<String> {
+        Binding(
+            get: { address },
+            set: { newAddress in
+                address = newAddress
+                guard var selection = locationSelection else { return }
+                selection.updateUserEnteredMetadata(
+                    name: name,
+                    address: newAddress.isEmpty ? nil : newAddress
+                )
+                locationSelection = selection
+            }
+        )
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Place") {
-                    TextField("Place name", text: $name)
+                    TextField("Place name", text: nameBinding)
                         .textInputAutocapitalization(.words)
-                    TextField("Address or note", text: $address)
+                    TextField("Address or note", text: addressBinding)
                         .textInputAutocapitalization(.words)
                 }
 
@@ -1977,25 +2059,52 @@ struct ManualVisitSheet: View {
                                             .foregroundStyle(.blue)
                                     }
                                 }
+                                .frame(minHeight: 44)
                             }
                         }
                         .onDelete(perform: deleteSavedPlaces)
 
                         if selectedSavedPlaceID != nil {
-                            Button("Use current location instead") {
-                                selectedSavedPlaceID = nil
-                                selectedCoordinate = nil
-                                locationManager.requestCurrentLocationForManualVisit()
+                            if mode == .addPastVisit {
+                                Button("Choose another location") {
+                                    showingLocationPicker = true
+                                }
+                            } else {
+                                Button("Use current location instead") {
+                                    selectedSavedPlaceID = nil
+                                    locationSelection = nil
+                                    locationManager.requestCurrentLocationForManualVisit()
+                                }
                             }
                         }
                     }
                 }
 
                 Section("Time") {
-                    DatePicker("Arrived", selection: $arrivedAt, displayedComponents: [.date, .hourAndMinute])
-                    Toggle("Still here", isOn: $isStillHere)
-                    if !isStillHere {
-                        DatePicker("Departed", selection: $departedAt, displayedComponents: [.date, .hourAndMinute])
+                    DatePicker(
+                        "Arrived",
+                        selection: $arrivedAt,
+                        in: Date.distantPast...Date(),
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+
+                    if mode.requiresDeparture {
+                        DatePicker(
+                            "Departed",
+                            selection: $departedAt,
+                            in: Date.distantPast...Date(),
+                            displayedComponents: [.date, .hourAndMinute]
+                        )
+                    } else {
+                        Toggle("Still here", isOn: $isStillHere)
+                        if !isStillHere {
+                            DatePicker(
+                                "Departed",
+                                selection: $departedAt,
+                                in: Date.distantPast...Date(),
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
+                        }
                     }
 
                     if let validationMessage {
@@ -2006,19 +2115,48 @@ struct ManualVisitSheet: View {
                 }
 
                 Section("Location") {
-                    if let coordinate = selectedCoordinate {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Label(selectedSavedPlace == nil ? "Selected place ready" : "Saved location ready", systemImage: "mappin.and.ellipse")
-                                .foregroundStyle(.green)
+                    if let selection = locationSelection {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Label(
+                                selectedSavedPlace == nil ? "Selected location ready" : "Saved location ready",
+                                systemImage: selectedSavedPlace == nil ? "mappin.and.ellipse" : "bookmark.fill"
+                            )
+                            .foregroundStyle(.green)
+
+                            if !selection.name.isEmpty {
+                                Text(selection.name)
+                                    .font(.subheadline.weight(.semibold))
+                            }
+                            if let selectedAddress = selection.address, !selectedAddress.isEmpty {
+                                Text(selectedAddress)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                             Text(String(
                                 format: "%.6f, %.6f",
-                                coordinate.latitude,
-                                coordinate.longitude
+                                selection.coordinate.latitude,
+                                selection.coordinate.longitude
                             ))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .monospaced()
                         }
+
+                        if mode == .addPastVisit {
+                            Button("Change Location") {
+                                showingLocationPicker = true
+                            }
+                        }
+                    } else if mode == .addPastVisit {
+                        Button {
+                            showingLocationPicker = true
+                        } label: {
+                            Label("Search Apple Maps or choose on map", systemImage: "map")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
+                        Text("Choose where the visit happened. Your current GPS location will not be used.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     } else if let manualLocation {
                         VStack(alignment: .leading, spacing: 4) {
                             Label("Current location ready", systemImage: "location.fill")
@@ -2086,11 +2224,11 @@ struct ManualVisitSheet: View {
                     }
                 }
             }
-            .navigationTitle(draftTitle)
+            .navigationTitle(Text(draftTitle))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 viewModel.loadSavedPlaces()
-                if selectedCoordinate == nil {
+                if mode.requestsCurrentLocation && locationSelection == nil {
                     locationManager.requestCurrentLocationForManualVisit()
                 }
             }
@@ -2103,14 +2241,47 @@ struct ManualVisitSheet: View {
                         .disabled(isSaveDisabled)
                 }
             }
+            .sheet(isPresented: $showingLocationPicker) {
+                PlaceSelectionView(
+                    initialSelection: locationSelection,
+                    initialRegion: initialSearchRegion,
+                    onSelect: applyLocationSelection
+                )
+                .presentationDetents([.large])
+            }
         }
     }
 
     private func applySavedPlace(_ place: SavedPlace) {
-        selectedSavedPlaceID = place.id
-        selectedCoordinate = place.coordinate
-        name = place.name
-        address = place.address ?? ""
+        applyLocationSelection(.savedPlace(place))
+    }
+
+    private func applyLocationSelection(_ newSelection: ManualLocationSelection) {
+        var selection = newSelection
+
+        // When the form started without a coordinate, keep details the user typed
+        // before opening the map if the pin lookup did not find replacements. When
+        // changing an existing coordinate, never carry its metadata to the new pin.
+        if locationSelection == nil {
+            let selectedName = selection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let selectedAddress = selection.address?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let fallbackName = selectedName.isEmpty ? name : selection.name
+            let fallbackAddress = selectedAddress?.isEmpty == false
+                ? selection.address
+                : (address.isEmpty ? nil : address)
+
+            if fallbackName != selection.name || fallbackAddress != selection.address {
+                selection.updateUserEnteredMetadata(
+                    name: fallbackName,
+                    address: fallbackAddress
+                )
+            }
+        }
+
+        locationSelection = selection
+        selectedSavedPlaceID = selection.savedPlaceID
+        name = selection.name
+        address = selection.address ?? ""
         saveAsReusableLocation = false
         errorMessage = nil
     }
@@ -2122,7 +2293,7 @@ struct ManualVisitSheet: View {
         for place in placesToDelete {
             if selectedSavedPlaceID == place.id {
                 selectedSavedPlaceID = nil
-                selectedCoordinate = nil
+                locationSelection = nil
             }
             viewModel.deleteSavedPlace(place)
         }
@@ -2130,8 +2301,12 @@ struct ManualVisitSheet: View {
 
     private func save() {
         guard let coordinate else {
-            errorMessage = "Choose a saved location or request a fresh accurate current location."
-            locationManager.requestCurrentLocationForManualVisit()
+            if mode == .addPastVisit {
+                errorMessage = String(localized: "Search for the place, choose it on the map, or select a saved location.")
+            } else {
+                errorMessage = "Choose a saved location or request a fresh accurate current location."
+                locationManager.requestCurrentLocationForManualVisit()
+            }
             return
         }
 
@@ -2140,28 +2315,32 @@ struct ManualVisitSheet: View {
             return
         }
 
+        isSaving = true
         let visit = viewModel.createManualVisit(
             name: name,
             address: address,
             coordinate: coordinate,
             arrivedAt: arrivedAt,
-            departedAt: isStillHere ? nil : departedAt
+            departedAt: mode.requiresDeparture ? departedAt : (isStillHere ? nil : departedAt),
+            placeSource: locationSelection?.visitPlaceSource ?? .userEntered
         )
 
-        if visit == nil {
-            errorMessage = "Enter a place name and valid times."
-        } else {
-            if saveAsReusableLocation && selectedSavedPlaceID == nil {
-                _ = viewModel.createSavedPlace(
-                    name: name,
-                    address: address,
-                    coordinate: coordinate,
-                    radiusMeters: reusableRadiusMeters
-                )
-            }
-            onSaved?()
-            dismiss()
+        guard let visit else {
+            isSaving = false
+            errorMessage = String(localized: "Enter a place name, location, and valid times.")
+            return
         }
+
+        if saveAsReusableLocation && selectedSavedPlaceID == nil {
+            _ = viewModel.createSavedPlace(
+                name: name,
+                address: address,
+                coordinate: coordinate,
+                radiusMeters: reusableRadiusMeters
+            )
+        }
+        onSaved?(visit)
+        dismiss()
     }
 }
 

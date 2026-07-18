@@ -23,6 +23,42 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.4",
+            items: [
+                .media(
+                    kind: .video,
+                    url: releaseNoteVideoURL("remote-past-visits"),
+                    title: "Add past visits from anywhere",
+                    description: "Search Apple Maps for a place or address, confirm it on the map, and save the visit without using your current GPS location."
+                ),
+                .list(
+                    title: "Pick the right place",
+                    rows: [
+                        .init(
+                            symbolSystemName: "map",
+                            title: "Search or drop a pin",
+                            description: "Find a business, landmark, or street address, or place a pin at the exact coordinate."
+                        ),
+                        .init(
+                            symbolSystemName: "bookmark",
+                            title: "Reuse saved locations",
+                            description: "Choose a saved location for a past visit, or save a newly selected place so it is ready next time."
+                        ),
+                        .init(
+                            symbolSystemName: "location.slash",
+                            title: "No current location required",
+                            description: "Past visits work without Location permission and never fall back to your current GPS position."
+                        ),
+                        .init(
+                            symbolSystemName: "clock.badge.checkmark",
+                            title: "Keep the visit in context",
+                            description: "Set arrival and departure times. After you save, the map jumps to the visit and its date range."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.3",
             items: [
                 .list(

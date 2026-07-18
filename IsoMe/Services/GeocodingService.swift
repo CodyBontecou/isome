@@ -372,7 +372,7 @@ actor NearbyPlaceSearchService {
             return NearbyPlaceSuggestion(
                 id: suggestionID(for: name, coordinate: mapItem.placemark.coordinate),
                 name: name,
-                address: formattedAddress(for: mapItem),
+                address: MapItemPlaceFormatter.formattedAddress(for: mapItem),
                 coordinate: mapItem.placemark.coordinate,
                 distanceMeters: distance
             )
@@ -391,41 +391,4 @@ actor NearbyPlaceSearchService {
         return "\(name.lowercased())-\(lat)-\(lon)"
     }
 
-    private static func formattedAddress(for mapItem: MKMapItem) -> String? {
-        let placemark = mapItem.placemark
-        var components: [String] = []
-
-        if let subThoroughfare = placemark.subThoroughfare,
-           let thoroughfare = placemark.thoroughfare {
-            components.append("\(subThoroughfare) \(thoroughfare)")
-        } else if let thoroughfare = placemark.thoroughfare {
-            components.append(thoroughfare)
-        }
-
-        var cityState: [String] = []
-        if let city = placemark.locality {
-            cityState.append(city)
-        }
-        if let state = placemark.administrativeArea {
-            cityState.append(state)
-        }
-        if !cityState.isEmpty {
-            components.append(cityState.joined(separator: ", "))
-        }
-
-        if let postalCode = placemark.postalCode {
-            components.append(postalCode)
-        }
-
-        if !components.isEmpty {
-            return components.joined(separator: ", ")
-        }
-
-        let name = mapItem.name ?? ""
-        let fallback = placemark.title?.replacingOccurrences(of: "\(name), ", with: "")
-        guard let fallback, !fallback.isEmpty, fallback != name else {
-            return nil
-        }
-        return fallback
-    }
 }

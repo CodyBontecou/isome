@@ -1057,10 +1057,16 @@ final class LocationViewModel {
         address: String?,
         coordinate: CLLocationCoordinate2D,
         arrivedAt: Date,
-        departedAt: Date?
+        departedAt: Date?,
+        placeSource: VisitPlaceSource = .userEntered
     ) -> Visit? {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedName.isEmpty else { return nil }
+        guard !trimmedName.isEmpty,
+              CLLocationCoordinate2DIsValid(coordinate),
+              coordinate.latitude.isFinite,
+              coordinate.longitude.isFinite else {
+            return nil
+        }
         if let departedAt, departedAt < arrivedAt { return nil }
 
         let now = Date()
@@ -1076,7 +1082,7 @@ final class LocationViewModel {
             confirmationStatus: .confirmed,
             confirmedAt: now,
             updatedAt: now,
-            placeSource: .userEntered
+            placeSource: placeSource
         )
         modelContext.insert(visit)
         try? modelContext.save()
