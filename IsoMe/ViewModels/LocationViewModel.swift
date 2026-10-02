@@ -29,7 +29,13 @@ final class LocationViewModel {
     var todayLocationPoints: [LocationPoint] = []
     /// Downsampled points used by the map for the currently selected date range.
     var mapLocationPoints: [LocationPoint] = []
-    var mapPhotoMoments: [PhotoMoment] = []
+    /// Complete metadata membership; only annotations and thumbnail views are bounded.
+    var mapPhotoMoments: [PhotoMoment] = [] {
+        didSet {
+            mapPhotoMomentClusters = PhotoMomentClusterBuilder.clusters(for: mapPhotoMoments)
+        }
+    }
+    private(set) var mapPhotoMomentClusters: [PhotoMomentCluster] = []
     /// Raw count for the current map date range, before downsampling.
     var mapLocationPointCount: Int = 0
     var mapPhotoMomentCount: Int = 0
@@ -56,7 +62,6 @@ final class LocationViewModel {
     static let defaultSavedPlaceRadiusMeters = 150.0
 
     private let maximumMapPointCount = 2_500
-    private let maximumMapPhotoMomentCount = 500
     private let maximumRawMapPointFetchCount = 10_000
     private let mapFetchBatchSize = 500
     private let automaticPhotoSyncCooldown: TimeInterval = 10 * 60
@@ -67,9 +72,18 @@ final class LocationViewModel {
         UserDefaults.standard.bool(forKey: automaticPhotoSyncEnabledKey)
     }
 
-    init(modelContext: ModelContext, locationManager: LocationManager) {
+    private let photoAuthorizationProvider: @MainActor () -> PhotoLibraryAccessState
+
+    init(
+        modelContext: ModelContext,
+        locationManager: LocationManager,
+        photoAuthorizationProvider: @escaping @MainActor () -> PhotoLibraryAccessState = {
+            PhotoLibraryManager.shared.authorizationState
+        }
+    ) {
         self.modelContext = modelContext
         self.locationManager = locationManager
+        self.photoAuthorizationProvider = photoAuthorizationProvider
         locationManager.setModelContext(modelContext)
 
         loadData()
@@ -230,7 +244,7 @@ final class LocationViewModel {
     }
 
     func refreshPhotoLibraryAuthorizationState() {
-        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        photoLibraryAccessState = photoAuthorizationProvider()
         if photoLibraryAccessState.canRead {
             PhotoLibraryManager.shared.startObservingChangesIfNeeded()
         } else {
@@ -245,7 +259,7 @@ final class LocationViewModel {
 
         let moments = fetchPhotoMoments(in: range ?? mapDateRange)
         mapPhotoMomentCount = moments.count
-        mapPhotoMoments = downsample(photoMoments: moments, maxCount: maximumMapPhotoMomentCount)
+        mapPhotoMoments = moments
     }
 
     func requestPhotoLibraryAccessAndSync(in range: ClosedRange<Date>? = nil) async {
@@ -719,23 +733,6 @@ final class LocationViewModel {
         for outputIndex in 0..<maxCount {
             let sourceIndex = Int((Double(outputIndex) * Double(lastIndex) / denominator).rounded())
             sampled.append(points[sourceIndex])
-        }
-
-        return sampled
-    }
-
-    private func downsample(photoMoments: [PhotoMoment], maxCount: Int) -> [PhotoMoment] {
-        guard photoMoments.count > maxCount else { return photoMoments }
-        guard maxCount > 1 else { return Array(photoMoments.prefix(max(0, maxCount))) }
-
-        let lastIndex = photoMoments.count - 1
-        let denominator = Double(maxCount - 1)
-        var sampled: [PhotoMoment] = []
-        sampled.reserveCapacity(maxCount)
-
-        for outputIndex in 0..<maxCount {
-            let sourceIndex = Int((Double(outputIndex) * Double(lastIndex) / denominator).rounded())
-            sampled.append(photoMoments[sourceIndex])
         }
 
         return sampled

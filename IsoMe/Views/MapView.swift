@@ -79,7 +79,8 @@ struct LocationMapView: View {
     }
 
     var photoMomentClusters: [PhotoMomentCluster] {
-        PhotoMomentClusterBuilder.clusters(for: filteredPhotoMoments)
+        guard showPhotoMarkers, viewModel.photoLibraryAccessState.canRead else { return [] }
+        return viewModel.mapPhotoMomentClusters
     }
 
     var activeSessionPoints: [LocationPoint] {
@@ -609,6 +610,16 @@ struct LocationMapView: View {
                 if isEnabled {
                     requestPhotoMomentsForCurrentRange()
                 } else {
+                    selectedPhotoMoment = nil
+                    selectedPhotoCluster = nil
+                }
+            }
+            .onChange(of: viewModel.mapDateRange) { _, _ in
+                selectedPhotoMoment = nil
+                selectedPhotoCluster = nil
+            }
+            .onChange(of: viewModel.photoLibraryAccessState) { _, state in
+                if !state.canRead {
                     selectedPhotoMoment = nil
                     selectedPhotoCluster = nil
                 }

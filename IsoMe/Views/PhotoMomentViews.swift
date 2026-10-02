@@ -66,13 +66,21 @@ struct PhotoMomentCluster: Identifiable {
     let id: String
     let coordinate: CLLocationCoordinate2D
     let photos: [PhotoMoment]
+    let isArea: Bool
+
+    init(id: String, coordinate: CLLocationCoordinate2D, photos: [PhotoMoment], isArea: Bool = false) {
+        self.id = id
+        self.coordinate = coordinate
+        self.photos = PhotoMomentClusterBuilder.sorted(photos)
+        self.isArea = isArea
+    }
 
     var count: Int { photos.count }
     var onlyPhoto: PhotoMoment? { photos.count == 1 ? photos[0] : nil }
     var representativePhoto: PhotoMoment? { photos.last }
 
     var sortedPhotos: [PhotoMoment] {
-        PhotoMomentClusterBuilder.sorted(photos)
+        photos
     }
 
     var coordinateText: String {
@@ -89,7 +97,7 @@ struct PhotoMomentCluster: Identifiable {
     }
 
     var accessibilityLabel: String {
-        "\(count) photos taken here"
+        isArea ? "\(count) photos in this area" : "\(count) photos taken here"
     }
 
     var accessibilityValue: String {
@@ -101,6 +109,7 @@ struct PhotoMomentCluster: Identifiable {
 
 enum PhotoMomentClusterBuilder {
     static let defaultThresholdMeters: CLLocationDistance = 35
+    static let maximumAnnotationCount = 500
 
     static func sorted(_ photos: [PhotoMoment]) -> [PhotoMoment] {
         photos.sorted { lhs, rhs in
@@ -113,13 +122,16 @@ enum PhotoMomentClusterBuilder {
 
     static func clusters(
         for photos: [PhotoMoment],
-        thresholdMeters: CLLocationDistance = defaultThresholdMeters
+        thresholdMeters: CLLocationDistance = defaultThresholdMeters,
+        maximumCount: Int = maximumAnnotationCount
     ) -> [PhotoMomentCluster] {
+        precondition(maximumCount > 0)
         guard !photos.isEmpty else { return [] }
 
+        let sortedPhotos = sorted(photos)
         var workingClusters: [WorkingCluster] = []
 
-        for photo in sorted(photos) {
+        for photo in sortedPhotos {
             let photoLocation = CLLocation(latitude: photo.latitude, longitude: photo.longitude)
             let nearestCluster = workingClusters.indices
                 .map { index -> (index: Int, distance: CLLocationDistance) in
@@ -136,6 +148,10 @@ enum PhotoMomentClusterBuilder {
                 workingClusters[nearestCluster.index].append(photo)
             } else {
                 workingClusters.append(WorkingCluster(photo: photo))
+                if workingClusters.count > maximumCount {
+                    // Coarsen the spatial presentation, never sample away members.
+                    return areaClusters(for: sortedPhotos, maximumCount: maximumCount)
+                }
             }
         }
 
@@ -143,7 +159,7 @@ enum PhotoMomentClusterBuilder {
             .map { cluster in
                 let photos = sorted(cluster.photos)
                 return PhotoMomentCluster(
-                    id: photos.map { $0.id.uuidString }.joined(separator: ","),
+                    id: "\(photos[0].id.uuidString):\(photos.count)",
                     coordinate: cluster.coordinate,
                     photos: photos
                 )
@@ -156,6 +172,46 @@ enum PhotoMomentClusterBuilder {
                 if lhsDate == rhsDate { return lhs.id < rhs.id }
                 return lhsDate < rhsDate
             }
+    }
+
+    /// Overflow groups are explicitly areas, not a claim that distant photos share
+    /// one place. Doubling geographic cells bounds annotation count and retains
+    /// every member, including places that the old temporal sample never selected.
+    private static func areaClusters(for photos: [PhotoMoment], maximumCount: Int) -> [PhotoMomentCluster] {
+        var cellWidth = 1.0 / 1_024
+        while true {
+            var cells: [Cell: WorkingCluster] = [:]
+            for photo in photos {
+                let cell = cellWidth >= 360 ? Cell(row: 0, column: 0) : Cell(
+                    row: Int(floor((photo.latitude + 90) / cellWidth)),
+                    column: Int(floor((photo.longitude + 180) / cellWidth))
+                )
+                if cells[cell] != nil {
+                    cells[cell]!.append(photo)
+                } else {
+                    cells[cell] = WorkingCluster(photo: photo)
+                }
+            }
+            if cells.count <= maximumCount {
+                return cells.values.map { cluster in
+                    PhotoMomentCluster(
+                        id: "\(cluster.photos[0].id.uuidString):\(cluster.photos.count)",
+                        coordinate: cluster.coordinate,
+                        photos: cluster.photos,
+                        isArea: true
+                    )
+                }.sorted {
+                    if $0.photos[0].takenAt == $1.photos[0].takenAt { return $0.id < $1.id }
+                    return $0.photos[0].takenAt < $1.photos[0].takenAt
+                }
+            }
+            cellWidth *= 2
+        }
+    }
+
+    private struct Cell: Hashable {
+        let row: Int
+        let column: Int
     }
 
     private struct WorkingCluster {
@@ -297,7 +353,7 @@ struct PhotoMomentClusterMapMarker: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cluster.accessibilityLabel)
         .accessibilityValue(cluster.accessibilityValue)
-        .accessibilityHint("Opens all photos taken at this place.")
+        .accessibilityHint(cluster.isArea ? "Opens all photos in this area." : "Opens all photos taken at this place.")
     }
 
     private var previewPhotos: [PhotoMoment] {
@@ -535,11 +591,37 @@ struct PhotoMomentQuickView: View {
     }
 }
 
+/// Bounded metadata slice supplied to the lazy thumbnail grid. The full collection
+/// remains available to the single-image full-screen browser.
+struct PhotoMomentDetailPage {
+    static let size = 60
+    let photos: [PhotoMoment]
+    let index: Int
+    let count: Int
+
+    init(photos: [PhotoMoment], index: Int) {
+        count = max(1, (photos.count + Self.size - 1) / Self.size)
+        self.index = min(max(index, 0), count - 1)
+        let start = self.index * Self.size
+        self.photos = Array(photos.dropFirst(start).prefix(Self.size))
+    }
+
+    static func nextPhotoIndex(from index: Int, by delta: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        return ((index + delta) % count + count) % count
+    }
+}
+
 struct PhotoMomentClusterQuickView: View {
     let cluster: PhotoMomentCluster
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPhoto: PhotoMoment?
+    @State private var pageIndex = 0
+
+    private var page: PhotoMomentDetailPage {
+        PhotoMomentDetailPage(photos: cluster.sortedPhotos, index: pageIndex)
+    }
 
     private var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 96), spacing: 12)]
@@ -549,7 +631,7 @@ struct PhotoMomentClusterQuickView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    TESectionHeader(title: "PHOTOS HERE")
+                    TESectionHeader(title: cluster.isArea ? "PHOTOS IN THIS AREA" : "PHOTOS HERE")
 
                     TECard {
                         VStack(spacing: 0) {
@@ -561,7 +643,7 @@ struct PhotoMomentClusterQuickView: View {
                     .padding(.horizontal, 16)
 
                     LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(cluster.sortedPhotos) { photo in
+                        ForEach(page.photos) { photo in
                             Button {
                                 selectedPhoto = photo
                             } label: {
@@ -602,12 +684,27 @@ struct PhotoMomentClusterQuickView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 14)
 
-                    TESectionFooter(text: "Tap any thumbnail to view it full screen, then use the arrows to move through the photos from this place.")
+                    if page.count > 1 {
+                        HStack {
+                            Button("Previous page") { pageIndex = page.index - 1 }
+                                .disabled(page.index == 0)
+                            Spacer()
+                            Text("\(page.index + 1) of \(page.count)")
+                                .monospacedDigit()
+                            Spacer()
+                            Button("Next page") { pageIndex = page.index + 1 }
+                                .disabled(page.index == page.count - 1)
+                        }
+                        .font(TE.mono(.caption, weight: .semibold))
+                        .padding(16)
+                    }
+
+                    TESectionFooter(text: "Tap any thumbnail to view it full screen, then use the arrows to move through all photos in this group.")
                 }
                 .padding(.bottom, 28)
             }
             .background(TE.surface.ignoresSafeArea())
-            .navigationTitle("Photos Here")
+            .navigationTitle(cluster.isArea ? "Photos in This Area" : "Photos Here")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -813,7 +910,7 @@ struct PhotoMomentFullScreenView: View {
 
     private func moveSelection(by delta: Int) {
         guard canNavigate else { return }
-        selectedIndex = (activeIndex + delta + photos.count) % photos.count
+        selectedIndex = PhotoMomentDetailPage.nextPhotoIndex(from: activeIndex, by: delta, count: photos.count)
     }
 
     private func imageTaskID(for size: CGSize) -> String {
