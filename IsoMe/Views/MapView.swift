@@ -8,8 +8,6 @@ struct LocationMapView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @State private var selectedVisit: Visit?
-    @State private var selectedPhotoMoment: PhotoMoment?
-    @State private var selectedPhotoCluster: PhotoMomentCluster?
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
     @State private var showingFilters = false
@@ -75,7 +73,7 @@ struct LocationMapView: View {
 
     var filteredPhotoMoments: [PhotoMoment] {
         guard showPhotoMarkers, viewModel.photoLibraryAccessState.canRead else { return [] }
-        return viewModel.mapPhotoMoments
+        return viewModel.mapAccessiblePhotoMoments
     }
 
     var photoMomentClusters: [PhotoMomentCluster] {
@@ -211,6 +209,7 @@ struct LocationMapView: View {
     }
 
     var body: some View {
+        @Bindable var photoDetails = viewModel.photoDetails
         NavigationStack {
             ZStack {
                 Map(position: $cameraPosition, selection: $selectedVisit) {
@@ -366,22 +365,22 @@ struct LocationMapView: View {
                             ) {
                                 PhotoMomentMapMarker(
                                     photo: photo,
-                                    isSelected: selectedPhotoMoment?.id == photo.id,
+                                    isSelected: photoDetails.photo?.id == photo.id,
                                     showsImage: showPhotoMarkerImages,
-                                    action: { selectedPhotoMoment = photo }
+                                    action: { photoDetails.photo = photo }
                                 )
                             }
                         } else {
                             Annotation(
-                                "Photos",
+                                cluster.isArea ? "Photo Area" : "Photos",
                                 coordinate: cluster.coordinate,
                                 anchor: .bottom
                             ) {
                                 PhotoMomentClusterMapMarker(
                                     cluster: cluster,
-                                    isSelected: selectedPhotoCluster?.id == cluster.id,
+                                    isSelected: photoDetails.cluster?.id == cluster.id,
                                     showsImage: showPhotoMarkerImages,
-                                    action: { selectedPhotoCluster = cluster }
+                                    action: { photoDetails.cluster = cluster }
                                 )
                             }
                         }
@@ -414,6 +413,20 @@ struct LocationMapView: View {
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
                     Spacer()
+
+                    if showPhotoMarkers, !viewModel.mapPhotoPlaces.isEmpty {
+                        Button {
+                            photoDetails.showsPlaces = true
+                        } label: {
+                            Label("Browse \(viewModel.mapPhotoPlaces.count) photo places", systemImage: "photo.stack")
+                                .font(TE.mono(.caption, weight: .semibold))
+                                .padding(12)
+                                .background(TE.card, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Lists every matched place, including places outside the visible map area.")
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
 
                     if isRouteReplayEnabled, let routeReplaySnapshot {
                         RouteReplayControl(
@@ -563,11 +576,18 @@ struct LocationMapView: View {
                 VisitQuickView(visit: visit, viewModel: viewModel)
                     .presentationDetents([.medium, .large])
             }
-            .sheet(item: $selectedPhotoCluster) { cluster in
-                PhotoMomentClusterQuickView(cluster: cluster)
-                    .presentationDetents([.medium, .large])
+            .sheet(item: $photoDetails.cluster) { cluster in
+                if cluster.isArea {
+                    PhotoMomentPlacesView(places: cluster.places, title: "Photos in This Area", selection: photoDetails)
+                } else {
+                    PhotoMomentClusterQuickView(cluster: cluster, selection: photoDetails)
+                        .presentationDetents([.medium, .large])
+                }
             }
-            .fullScreenCover(item: $selectedPhotoMoment) { photo in
+            .sheet(isPresented: $photoDetails.showsPlaces) {
+                PhotoMomentPlacesView(places: viewModel.mapPhotoPlaces, title: "All Photo Places", selection: photoDetails)
+            }
+            .fullScreenCover(item: $photoDetails.photo) { photo in
                 PhotoMomentFullScreenView(photo: photo)
             }
             .onAppear {
@@ -610,18 +630,7 @@ struct LocationMapView: View {
                 if isEnabled {
                     requestPhotoMomentsForCurrentRange()
                 } else {
-                    selectedPhotoMoment = nil
-                    selectedPhotoCluster = nil
-                }
-            }
-            .onChange(of: viewModel.mapDateRange) { _, _ in
-                selectedPhotoMoment = nil
-                selectedPhotoCluster = nil
-            }
-            .onChange(of: viewModel.photoLibraryAccessState) { _, state in
-                if !state.canRead {
-                    selectedPhotoMoment = nil
-                    selectedPhotoCluster = nil
+                    photoDetails.dismissAll()
                 }
             }
             .onChange(of: filteredPoints.count) { _, _ in

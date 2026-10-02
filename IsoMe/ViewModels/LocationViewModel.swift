@@ -29,20 +29,28 @@ final class LocationViewModel {
     var todayLocationPoints: [LocationPoint] = []
     /// Downsampled points used by the map for the currently selected date range.
     var mapLocationPoints: [LocationPoint] = []
-    /// Complete metadata membership; only annotations and thumbnail views are bounded.
+    /// Complete cached range metadata, including temporarily inaccessible assets.
     var mapPhotoMoments: [PhotoMoment] = [] {
-        didSet {
-            mapPhotoMomentClusters = PhotoMomentClusterBuilder.clusters(for: mapPhotoMoments)
-        }
+        didSet { rebuildPhotoPresentation() }
     }
+    private(set) var mapAccessiblePhotoMoments: [PhotoMoment] = []
+    private(set) var mapPhotoPlaces: [PhotoMomentCluster] = []
     private(set) var mapPhotoMomentClusters: [PhotoMomentCluster] = []
+    private(set) var photoPresentationRevision = 0
+    let photoDetails = PhotoMomentDetailSelection()
+    private var photoPresentationSnapshot: [PhotoPresentationMember] = []
+    private var presentedPhotoAccess: PhotoLibraryAccessState?
     /// Raw count for the current map date range, before downsampling.
     var mapLocationPointCount: Int = 0
     var mapPhotoMomentCount: Int = 0
     var totalLocationPointCount: Int = 0
 
     // UI State
-    var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date()
+    var mapDateRange: ClosedRange<Date> = Calendar.current.startOfDay(for: Date())...Date() {
+        didSet {
+            if oldValue != mapDateRange { photoDetails.dismissAll() }
+        }
+    }
     var mapFocusRequest: MapSessionFocusRequest?
     var showingExportSheet = false
     var showingClearConfirmation = false
@@ -73,17 +81,22 @@ final class LocationViewModel {
     }
 
     private let photoAuthorizationProvider: @MainActor () -> PhotoLibraryAccessState
+    private let accessiblePhotoIdentifiersProvider: @MainActor ([String]) -> Set<String>
 
     init(
         modelContext: ModelContext,
         locationManager: LocationManager,
         photoAuthorizationProvider: @escaping @MainActor () -> PhotoLibraryAccessState = {
             PhotoLibraryManager.shared.authorizationState
+        },
+        accessiblePhotoIdentifiersProvider: @escaping @MainActor ([String]) -> Set<String> = {
+            PhotoLibraryManager.shared.accessibleAssetIdentifiers(in: $0)
         }
     ) {
         self.modelContext = modelContext
         self.locationManager = locationManager
         self.photoAuthorizationProvider = photoAuthorizationProvider
+        self.accessiblePhotoIdentifiersProvider = accessiblePhotoIdentifiersProvider
         locationManager.setModelContext(modelContext)
 
         loadData()
@@ -102,6 +115,9 @@ final class LocationViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
+                // Limited selection can change without changing authorization.
+                // Refresh accessibility even when automatic metadata sync is off.
+                self.loadMapPhotoMoments(in: self.mapDateRange)
                 Task { @MainActor in
                     await self.syncPhotosAutomaticallyIfAuthorized(ignoresCooldown: true)
                 }
@@ -244,12 +260,53 @@ final class LocationViewModel {
     }
 
     func refreshPhotoLibraryAuthorizationState() {
+        let previous = photoLibraryAccessState
         photoLibraryAccessState = photoAuthorizationProvider()
         if photoLibraryAccessState.canRead {
             PhotoLibraryManager.shared.startObservingChangesIfNeeded()
+            if previous != photoLibraryAccessState { rebuildPhotoPresentation() }
         } else {
-            mapPhotoMomentCount = 0
             mapPhotoMoments = []
+        }
+    }
+
+    private func accessiblePhotos(_ photos: [PhotoMoment]) -> [PhotoMoment] {
+        guard photoLibraryAccessState.canRead else { return [] }
+        let identifiers = accessiblePhotoIdentifiersProvider(photos.map(\.assetLocalIdentifier))
+        return PhotoMomentClusterBuilder.sorted(photos.filter { identifiers.contains($0.assetLocalIdentifier) })
+    }
+
+    private func rebuildPhotoPresentation() {
+        let photos = accessiblePhotos(mapPhotoMoments)
+        let snapshot = photos.map(PhotoPresentationMember.init)
+        guard snapshot != photoPresentationSnapshot || presentedPhotoAccess != photoLibraryAccessState else { return }
+        photoPresentationSnapshot = snapshot
+        presentedPhotoAccess = photoLibraryAccessState
+        // This synchronously clears directory, place and nested browser state.
+        photoDetails.dismissAll()
+        photoPresentationRevision += 1
+        mapAccessiblePhotoMoments = photos
+        mapPhotoMomentCount = photos.count
+        mapPhotoPlaces = PhotoMomentClusterBuilder.placeClusters(for: photos)
+        mapPhotoMomentClusters = PhotoMomentClusterBuilder.annotations(for: mapPhotoPlaces)
+    }
+
+    /// Value snapshots detect edits even when SwiftData returns the same objects.
+    private struct PhotoPresentationMember: Equatable {
+        let id: UUID
+        let assetIdentifier: String
+        let takenAt: Date
+        let latitude: Double
+        let longitude: Double
+        let source: String
+
+        init(_ photo: PhotoMoment) {
+            id = photo.id
+            assetIdentifier = photo.assetLocalIdentifier
+            takenAt = photo.takenAt
+            latitude = photo.latitude
+            longitude = photo.longitude
+            source = photo.coordinateSourceRawValue
         }
     }
 
@@ -257,9 +314,7 @@ final class LocationViewModel {
         refreshPhotoLibraryAuthorizationState()
         guard photoLibraryAccessState.canRead else { return }
 
-        let moments = fetchPhotoMoments(in: range ?? mapDateRange)
-        mapPhotoMomentCount = moments.count
-        mapPhotoMoments = moments
+        mapPhotoMoments = fetchPhotoMoments(in: range ?? mapDateRange)
     }
 
     func requestPhotoLibraryAccessAndSync(in range: ClosedRange<Date>? = nil) async {
@@ -872,7 +927,7 @@ final class LocationViewModel {
 
     func photosInDateRange(_ range: ClosedRange<Date>) -> [PhotoMoment] {
         guard photoLibraryAccessState.canRead else { return [] }
-        return fetchPhotoMoments(in: range)
+        return accessiblePhotos(fetchPhotoMoments(in: range))
     }
 
     func recordingSessionSummaries(
