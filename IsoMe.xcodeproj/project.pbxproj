@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* PhotoMapMarkerTests.swift */; };
 		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
 		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
 		AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */; };
@@ -198,6 +199,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A06500000000000000000001 /* PhotoMapMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapMarkerTests.swift; sourceTree = "<group>"; };
 		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
 		AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
@@ -607,6 +609,7 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				A06500000000000000000001 /* PhotoMapMarkerTests.swift */,
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				E9A100000000000000000003 /* ExportKitIntegrationTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
@@ -958,6 +961,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */,
 				D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */,
 				E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */,
 				5F000007212F000100000001 /* IntervalScheduledExportTests.swift in Sources */,

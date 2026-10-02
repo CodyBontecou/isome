@@ -28,7 +28,8 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
     @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = false
-    @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.imagesKey) private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.dotsKey) private var showPhotoMarkerDots = false
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
@@ -361,12 +362,13 @@ struct LocationMapView: View {
                             Annotation(
                                 "Photo",
                                 coordinate: photo.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentMapMarker(
                                     photo: photo,
                                     isSelected: selectedPhotoMoment?.id == photo.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
                                     action: { selectedPhotoMoment = photo }
                                 )
                             }
@@ -374,12 +376,13 @@ struct LocationMapView: View {
                             Annotation(
                                 "Photos",
                                 coordinate: cluster.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentClusterMapMarker(
                                     cluster: cluster,
                                     isSelected: selectedPhotoCluster?.id == cluster.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
                                     action: { selectedPhotoCluster = cluster }
                                 )
                             }
@@ -473,6 +476,7 @@ struct LocationMapView: View {
                                 showVisitMarkers: $showVisitMarkers,
                                 showPhotoMarkers: $showPhotoMarkers,
                                 showPhotoMarkerImages: $showPhotoMarkerImages,
+                                showPhotoMarkerDots: $showPhotoMarkerDots,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
                                 showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
@@ -2765,6 +2769,7 @@ struct QuickFilterBar: View {
     @Binding var showVisitMarkers: Bool
     @Binding var showPhotoMarkers: Bool
     @Binding var showPhotoMarkerImages: Bool
+    @Binding var showPhotoMarkerDots: Bool
     @Binding var snapTravelPathToRoads: Bool
     @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
@@ -2840,6 +2845,14 @@ struct QuickFilterBar: View {
                     label: "Photo images",
                     help: .photoImages,
                     isOn: $showPhotoMarkerImages,
+                    activeHelp: $activeLayerHelp
+                )
+                .disabled(showPhotoMarkerDots)
+                LayerToggleButton(
+                    systemImage: "circle.fill",
+                    label: "Photo dots",
+                    help: .photoDots,
+                    isOn: $showPhotoMarkerDots,
                     activeHelp: $activeLayerHelp
                 )
                 LayerToggleButton(
@@ -2999,7 +3012,13 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let photoImages = LayerToggleHelp(
         id: "photo-images",
         title: "Photo images",
-        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map."
+        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map. Photo dots override this setting without changing it."
+    )
+
+    static let photoDots = LayerToggleHelp(
+        id: "photo-dots",
+        title: "Photo dots",
+        message: "Uses small dots instead of photo images or camera pins. Larger dots represent grouped photos. Tap a dot to browse; previews load only when you open the photos. Turn this off to restore your image or pin preference."
     )
 
     static let roadMatchedPath = LayerToggleHelp(
