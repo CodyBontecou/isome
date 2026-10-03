@@ -209,7 +209,10 @@ final class PhotoMomentMembershipTests: XCTestCase {
     }
 
     func testSameRangeMembershipAndMetadataRevisionsDismissNestedDetailsButUnchangedReloadDoesNot() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        // SwiftData's context must not outlive its container during this fixture.
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let photos = fixture(count: 501)
         for photo in photos { context.insert(photo) }
         try context.save()
@@ -256,7 +259,9 @@ final class PhotoMomentMembershipTests: XCTestCase {
             if let previous { UserDefaults.standard.set(previous, forKey: key) }
             else { UserDefaults.standard.removeObject(forKey: key) }
         }
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let photos = fixture(count: 501)
         for photo in photos { context.insert(photo) }
         try context.save()
@@ -381,10 +386,9 @@ final class PhotoMomentMembershipTests: XCTestCase {
         XCTAssertEqual(grid.photos.map(\.id), photos.map(\.id))
     }
 
-    private func makeContext() throws -> ModelContext {
+    private func makeContainer() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self])
-        let container = try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)])
-        return container.mainContext
+        return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)])
     }
 
     private func makeViewModel(
