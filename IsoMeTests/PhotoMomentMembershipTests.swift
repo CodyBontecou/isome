@@ -63,13 +63,12 @@ final class PhotoMomentMembershipTests: XCTestCase {
     }
 
     func testMoreThan500DistinctPlacesCoarsensAnnotationsWithoutDroppingMembers() {
-        let photos = (0..<1_001).map { index in
-            PhotoMoment(
-                assetLocalIdentifier: "place-\(index)",
-                takenAt: start.addingTimeInterval(Double(index)),
-                latitude: 37 + Double(index / 100) * 0.01,
-                longitude: -122 + Double(index % 100) * 0.01
-            )
+        let photos: [PhotoMoment] = (0..<1_001).map { (index: Int) -> PhotoMoment in
+            let identifier = "place-\(index)"
+            let takenAt = start.addingTimeInterval(Double(index))
+            let latitude: Double = 37.0 + Double(index / 100) * 0.01
+            let longitude: Double = -122.0 + Double(index % 100) * 0.01
+            return PhotoMoment(assetLocalIdentifier: identifier, takenAt: takenAt, latitude: latitude, longitude: longitude)
         }
         let clusters = PhotoMomentClusterBuilder.clusters(for: photos)
         XCTAssertLessThanOrEqual(clusters.count, 500)
@@ -151,27 +150,27 @@ final class PhotoMomentMembershipTests: XCTestCase {
         // latitude boundaries, while its two sides are only about two metres apart.
         let dense = fixture(count: 501, latitude: 38 - 0.00001)
         for photo in dense.suffix(250) { photo.latitude = 38 + 0.00001 }
-        let distinct = (0..<601).map { index in
-            PhotoMoment(
-                assetLocalIdentifier: "distinct-\(index)",
-                takenAt: start.addingTimeInterval(1_000 + Double(index)),
-                latitude: -60 + Double(index / 100) * 10,
-                longitude: -170 + Double(index % 100) * 3
-            )
+        let distinct: [PhotoMoment] = (0..<601).map { (index: Int) -> PhotoMoment in
+            let identifier = "distinct-\(index)"
+            let takenAt = start.addingTimeInterval(1_000.0 + Double(index))
+            let latitude: Double = -60.0 + Double(index / 100) * 10.0
+            let longitude: Double = -170.0 + Double(index % 100) * 3.0
+            return PhotoMoment(assetLocalIdentifier: identifier, takenAt: takenAt, latitude: latitude, longitude: longitude)
         }
-        let photos = dense + distinct
-        let places = PhotoMomentClusterBuilder.placeClusters(for: Array(photos.reversed()))
+        let photos: [PhotoMoment] = dense + distinct
+        let places: [PhotoMomentCluster] = PhotoMomentClusterBuilder.placeClusters(for: Array(photos.reversed()))
         XCTAssertEqual(places.count, 602)
-        let densePlace = try XCTUnwrap(places.first { $0.count == 501 })
+        let densePlace: PhotoMomentCluster = try XCTUnwrap(places.first { $0.count == 501 })
         XCTAssertEqual(densePlace.photos.map(\.id), dense.map(\.id))
-        let areas = PhotoMomentClusterBuilder.annotations(for: places)
+        let areas: [PhotoMomentCluster] = PhotoMomentClusterBuilder.annotations(for: places)
         XCTAssertLessThanOrEqual(areas.count, 500)
         XCTAssertTrue(areas.allSatisfy(\.isArea))
         assertCompleteMembership(areas, photos: photos)
         let retainedPlaces = areas.flatMap(\.places)
         XCTAssertEqual(Set(retainedPlaces.map(\.id)), Set(places.map(\.id)))
         XCTAssertEqual(retainedPlaces.filter { $0.id == densePlace.id }.count, 1)
-        XCTAssertEqual(retainedPlaces.first { $0.id == densePlace.id }?.photos.map(\.id), dense.map(\.id))
+        let retainedDensePlace = try XCTUnwrap(retainedPlaces.first { $0.id == densePlace.id })
+        XCTAssertEqual(retainedDensePlace.photos.map(\.id), dense.map(\.id))
         XCTAssertTrue(areas.allSatisfy { $0.accessibilityLabel.contains("in this area") })
         XCTAssertTrue(areas.allSatisfy { area in
             area.places.contains { $0.coordinate.latitude == area.coordinate.latitude && $0.coordinate.longitude == area.coordinate.longitude }
