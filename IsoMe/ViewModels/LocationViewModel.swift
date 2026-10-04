@@ -22,7 +22,8 @@ final class LocationViewModel {
     var allVisits: [Visit] = []
     var allRecordingSessions: [RecordingSession] = []
     var savedPlaces: [SavedPlace] = []
-    var photoLibraryAccessState: PhotoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+    // Initialize through the supplied provider before loading or reconciling data.
+    var photoLibraryAccessState: PhotoLibraryAccessState = .notDetermined
     /// Full point history. Loaded lazily for export so the map does not hydrate
     /// tens of thousands of SwiftData models on launch.
     var locationPoints: [LocationPoint] = []
@@ -82,6 +83,9 @@ final class LocationViewModel {
 
     private let photoAuthorizationProvider: @MainActor () -> PhotoLibraryAccessState
     private let accessiblePhotoIdentifiersProvider: @MainActor ([String]) -> Set<String>
+    private let photoAuthorizationRequester: @MainActor () async -> PhotoLibraryAccessState
+    private let photoMetadataProvider: @MainActor (ClosedRange<Date>) -> [PhotoAssetLibraryMetadata]
+    private let photoChangeObservationStarter: @MainActor () -> Void
 
     init(
         modelContext: ModelContext,
@@ -91,12 +95,25 @@ final class LocationViewModel {
         },
         accessiblePhotoIdentifiersProvider: @escaping @MainActor ([String]) -> Set<String> = {
             PhotoLibraryManager.shared.accessibleAssetIdentifiers(in: $0)
+        },
+        photoAuthorizationRequester: @escaping @MainActor () async -> PhotoLibraryAccessState = {
+            await PhotoLibraryManager.shared.requestAuthorization()
+        },
+        photoMetadataProvider: @escaping @MainActor (ClosedRange<Date>) -> [PhotoAssetLibraryMetadata] = {
+            PhotoLibraryManager.shared.fetchPhotoMetadata(in: $0)
+        },
+        photoChangeObservationStarter: @escaping @MainActor () -> Void = {
+            PhotoLibraryManager.shared.startObservingChangesIfNeeded()
         }
     ) {
         self.modelContext = modelContext
         self.locationManager = locationManager
         self.photoAuthorizationProvider = photoAuthorizationProvider
         self.accessiblePhotoIdentifiersProvider = accessiblePhotoIdentifiersProvider
+        self.photoAuthorizationRequester = photoAuthorizationRequester
+        self.photoMetadataProvider = photoMetadataProvider
+        self.photoChangeObservationStarter = photoChangeObservationStarter
+        self.photoLibraryAccessState = photoAuthorizationProvider()
         locationManager.setModelContext(modelContext)
 
         loadData()
@@ -263,7 +280,7 @@ final class LocationViewModel {
         let previous = photoLibraryAccessState
         photoLibraryAccessState = photoAuthorizationProvider()
         if photoLibraryAccessState.canRead {
-            PhotoLibraryManager.shared.startObservingChangesIfNeeded()
+            photoChangeObservationStarter()
             if previous != photoLibraryAccessState { rebuildPhotoPresentation() }
         } else {
             mapPhotoMoments = []
@@ -318,7 +335,7 @@ final class LocationViewModel {
     }
 
     func requestPhotoLibraryAccessAndSync(in range: ClosedRange<Date>? = nil) async {
-        photoLibraryAccessState = await PhotoLibraryManager.shared.requestAuthorization()
+        photoLibraryAccessState = await photoAuthorizationRequester()
         guard photoLibraryAccessState.canRead else {
             mapPhotoMomentCount = 0
             mapPhotoMoments = []
@@ -381,12 +398,12 @@ final class LocationViewModel {
             }
         }
 
-        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        photoLibraryAccessState = photoAuthorizationProvider()
         if photoLibraryAccessState == .notDetermined {
             guard requestAuthorizationIfNeeded else { return }
-            photoLibraryAccessState = await PhotoLibraryManager.shared.requestAuthorization()
+            photoLibraryAccessState = await photoAuthorizationRequester()
         } else if photoLibraryAccessState.canRead {
-            PhotoLibraryManager.shared.startObservingChangesIfNeeded()
+            photoChangeObservationStarter()
         }
 
         guard photoLibraryAccessState.canRead else {
@@ -400,14 +417,14 @@ final class LocationViewModel {
     }
 
     func syncPhotoMoments(in range: ClosedRange<Date>) async {
-        photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
+        photoLibraryAccessState = photoAuthorizationProvider()
         guard photoLibraryAccessState.canRead else {
             mapPhotoMomentCount = 0
             mapPhotoMoments = []
             return
         }
 
-        let libraryMetadata = PhotoLibraryManager.shared.fetchPhotoMetadata(in: range)
+        let libraryMetadata = photoMetadataProvider(range)
         let metadata = resolvedPhotoMoments(from: libraryMetadata, in: range)
         upsertPhotoMoments(metadata)
 

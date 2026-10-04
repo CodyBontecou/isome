@@ -1,0 +1,110 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 77;
+	objects = {
+/* Begin PBXBuildFile section */
+		E6500001000000000000000D = {isa = PBXBuildFile; fileRef = E65000010000000000000008; };
+		E6500001000000000000000E = {isa = PBXBuildFile; fileRef = E65000010000000000000009; };
+		E65000010000000000000022 = {isa = PBXBuildFile; productRef = E6500001000000000000001F; };
+		E65000010000000000000023 = {isa = PBXBuildFile; productRef = E65000010000000000000020; };
+		E65000010000000000000024 = {isa = PBXBuildFile; productRef = E65000010000000000000021; };
+/* End PBXBuildFile section */
+/* Begin PBXContainerItemProxy section */
+		E65000010000000000000015 = {isa = PBXContainerItemProxy; containerPortal = E65000010000000000000003; proxyType = 1; remoteGlobalIDString = E65000010000000000000001; remoteInfo = IsoMePhotoMapHost; };
+/* End PBXContainerItemProxy section */
+/* Begin PBXFileReference section */
+		E65000010000000000000008 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapIntegrationHostApp.swift; sourceTree = "<group>"; };
+		E65000010000000000000009 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapIntegrationUITests.swift; sourceTree = "<group>"; };
+		E6500001000000000000000A = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMePhotoMapHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6500001000000000000000B = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoMapIntegrationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6500001000000000000000C = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PhotoMapIntegrationHost-Info.plist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E65000010000000000000007 = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (IsoMeApp.swift, Info.plist, IsoMe.entitlements);
+			target = E65000010000000000000001;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E65000010000000000000006 = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (E65000010000000000000007);
+			explicitFileTypes = {};
+			explicitFolders = ();
+			path = ../../IsoMe;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXFrameworksBuildPhase section */
+		E65000010000000000000011 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (E65000010000000000000022, E65000010000000000000023, E65000010000000000000024); runOnlyForDeploymentPostprocessing = 0; };
+		E65000010000000000000012 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+/* Begin PBXGroup section */
+		E65000010000000000000004 = {isa = PBXGroup; children = (E65000010000000000000006, E65000010000000000000008, E65000010000000000000009, E6500001000000000000000C, E65000010000000000000005); sourceTree = "<group>"; };
+		E65000010000000000000005 = {isa = PBXGroup; children = (E6500001000000000000000A, E6500001000000000000000B); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+/* Begin PBXNativeTarget section */
+		E65000010000000000000001 = {
+			isa = PBXNativeTarget; buildConfigurationList = E6500001000000000000001B;
+			buildPhases = (E6500001000000000000000F, E65000010000000000000011, E65000010000000000000013);
+			buildRules = (); dependencies = (); fileSystemSynchronizedGroups = (E65000010000000000000006);
+			name = IsoMePhotoMapHost; productName = IsoMePhotoMapHost; productReference = E6500001000000000000000A;
+			packageProductDependencies = (E6500001000000000000001F, E65000010000000000000020, E65000010000000000000021);
+			productType = "com.apple.product-type.application";
+		};
+		E65000010000000000000002 = {
+			isa = PBXNativeTarget; buildConfigurationList = E6500001000000000000001C;
+			buildPhases = (E65000010000000000000010, E65000010000000000000012, E65000010000000000000014);
+			buildRules = (); dependencies = (E65000010000000000000016);
+			name = PhotoMapIntegrationUITests; productName = PhotoMapIntegrationUITests; productReference = E6500001000000000000000B;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+/* Begin PBXProject section */
+		E65000010000000000000003 = {
+			isa = PBXProject;
+			attributes = {BuildIndependentTargetsInParallel = 0; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; TargetAttributes = {E65000010000000000000001 = {CreatedOnToolsVersion = 16.0; }; E65000010000000000000002 = {CreatedOnToolsVersion = 16.0; TestTargetID = E65000010000000000000001; }; }; };
+			buildConfigurationList = E6500001000000000000001A;
+			compatibilityVersion = "Xcode 16.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base);
+			mainGroup = E65000010000000000000004; productRefGroup = E65000010000000000000005; projectDirPath = ""; projectRoot = "";
+			preferredProjectObjectVersion = 77;
+			packageReferences = (E6500001000000000000001D, E6500001000000000000001E);
+			targets = (E65000010000000000000001, E65000010000000000000002);
+		};
+/* End PBXProject section */
+/* Begin PBXResourcesBuildPhase section */
+		E65000010000000000000013 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		E65000010000000000000014 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+/* Begin PBXSourcesBuildPhase section */
+		E6500001000000000000000F = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6500001000000000000000D); runOnlyForDeploymentPostprocessing = 0; };
+		E65000010000000000000010 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6500001000000000000000E); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+/* Begin PBXTargetDependency section */
+		E65000010000000000000016 = {isa = PBXTargetDependency; target = E65000010000000000000001; targetProxy = E65000010000000000000015; };
+/* End PBXTargetDependency section */
+/* Begin XCBuildConfiguration section */
+		E65000010000000000000017 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {CLANG_ENABLE_MODULES = YES; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; };
+		E65000010000000000000018 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = "PhotoMapIntegrationHost-Info.plist"; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); PRODUCT_BUNDLE_IDENTIFIER = tech.isolated.synthetic.IsoMePhotoMapHost; PRODUCT_MODULE_NAME = IsoMePhotoMapHost; PRODUCT_NAME = IsoMePhotoMapHost; }; };
+		E65000010000000000000019 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {GENERATE_INFOPLIST_FILE = YES; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"); PRODUCT_BUNDLE_IDENTIFIER = tech.isolated.synthetic.PhotoMapIntegrationUITests; PRODUCT_NAME = PhotoMapIntegrationUITests; TEST_TARGET_NAME = IsoMePhotoMapHost; }; };
+/* End XCBuildConfiguration section */
+/* Begin XCConfigurationList section */
+		E6500001000000000000001A = {isa = XCConfigurationList; buildConfigurations = (E65000010000000000000017); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		E6500001000000000000001B = {isa = XCConfigurationList; buildConfigurations = (E65000010000000000000018); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		E6500001000000000000001C = {isa = XCConfigurationList; buildConfigurations = (E65000010000000000000019); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+/* End XCConfigurationList section */
+/* Begin XCRemoteSwiftPackageReference section */
+		E6500001000000000000001D = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/CodyBontecou/ExportKit"; requirement = {kind = revision; revision = 17993dc0361c41145dc6429738ed369d9976e550; }; };
+		E6500001000000000000001E = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/mykolaharmash/notelet"; requirement = {kind = revision; revision = 02986909abddf547b0b3cd0e2170544acd0aaa01; }; };
+/* End XCRemoteSwiftPackageReference section */
+/* Begin XCSwiftPackageProductDependency section */
+		E6500001000000000000001F = {isa = XCSwiftPackageProductDependency; package = E6500001000000000000001D; productName = ExportKit; };
+		E65000010000000000000020 = {isa = XCSwiftPackageProductDependency; package = E6500001000000000000001D; productName = ExportAutomationKit; };
+		E65000010000000000000021 = {isa = XCSwiftPackageProductDependency; package = E6500001000000000000001E; productName = Notelet; };
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E65000010000000000000003;
+}

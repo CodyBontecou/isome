@@ -1,0 +1,162 @@
+name: Photo map integration qualification
+
+on:
+  push:
+    branches: [prep/iso-65-66-integration]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: photo-map-integration-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    if: github.event.repository.private == false
+    runs-on: macos-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        lane: [units, native]
+    env:
+      LANE: ${{ matrix.lane }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Exact tree and installed SDK provenance
+        id: provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rev-parse HEAD HEAD^{tree}
+          sw_vers
+          xcodebuild -version
+          xcrun swift --version
+          shasum -a 256 IsoMe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          shasum -a 256 IsoMeTests/PhotoMapIntegrationHost/PhotoMapIntegration.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          if [[ "$LANE" == native ]]; then
+            echo 'PROJECT=IsoMeTests/PhotoMapIntegrationHost/PhotoMapIntegration.xcodeproj' >> "$GITHUB_ENV"
+            echo 'SCHEME=PhotoMapIntegration' >> "$GITHUB_ENV"
+            echo 'TEST_TARGET=PhotoMapIntegrationUITests' >> "$GITHUB_ENV"
+          else
+            echo 'PROJECT=IsoMe.xcodeproj' >> "$GITHUB_ENV"
+            echo 'SCHEME=IsoMe' >> "$GITHUB_ENV"
+            echo 'TEST_TARGET=IsoMeTests' >> "$GITHUB_ENV"
+          fi
+          UDID=$(xcrun simctl list devices available -j | jq -r '[.devices|to_entries[]|select(.key|contains("iOS"))|.value[]|select(.isAvailable and (.name|startswith("iPhone")))][0].udid // empty')
+          test -n "$UDID"
+          echo "DESTINATION=platform=iOS Simulator,id=$UDID" >> "$GITHUB_ENV"
+          echo "DERIVED=$RUNNER_TEMP/photo-map-$LANE-derived" >> "$GITHUB_ENV"
+          echo "Simulator=$UDID ImageOS=${ImageOS:-unknown} ImageVersion=${ImageVersion:-unknown} WorkflowSHA=${GITHUB_WORKFLOW_SHA:-unknown}"
+
+      - name: Parse project using hosted Xcode only
+        id: parse
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -list -project "$PROJECT" -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile
+
+      - name: Compile exact tree for testing
+        id: build
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild build-for-testing -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
+            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2 \
+            -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Run actual registered tests once
+        id: tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          LIMITS=()
+          if [[ "$LANE" == native ]]; then
+            LIMITS=(-test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 300)
+          fi
+          xcodebuild test-without-building -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
+            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2 \
+            -only-testing:"$TEST_TARGET" -parallel-testing-enabled NO "${LIMITS[@]}" \
+            -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1 | tee "$RUNNER_TEMP/photo-map-$LANE-tests.log"
+
+      - name: Collect individually named ordinary outcomes
+        if: always()
+        id: outcomes
+        env:
+          PARSE_OUTCOME: ${{ steps.parse.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re, json, subprocess
+          lane = os.environ['LANE']
+          native = [
+            'testCombinedPreferenceReopenPreservesMembershipAndLegacyChoice',
+            'testCombinedDotButtonsRouteSingletonPlaceAndAreaWithoutMarkerRequests',
+            'testCombinedBrowseAllReachesOverflowPlaceAnd501PhotoBoundedPages',
+            'testCombinedRootAndNestedSelectionInvalidatesOnRangeAccessAndSameCountReplacement',
+            'testCombinedLimitedPHChangePreservesCachedMetadataInEveryMarkerMode']
+          if lane == 'native':
+              expected = {'PhotoMapIntegrationUITests.' + name for name in native}
+          else:
+              expected = set()
+              for file in ['PhotoMapMarkerTests.swift', 'PhotoMomentMembershipTests.swift']:
+                  text = pathlib.Path('IsoMeTests', file).read_text()
+                  cls = re.search(r'class\s+(\w+)\s*:\s*XCTestCase', text).group(1)
+                  expected.update(cls + '.' + name for name in re.findall(r'func\s+(test\w+)\s*\(', text))
+              assert expected, 'No focused unit source registrations found'
+          starts, ordinary = {}, {}
+          log = pathlib.Path(os.environ['RUNNER_TEMP'], 'photo-map-' + lane + '-tests.log')
+          if log.exists():
+              with log.open(errors='replace') as stream:
+                  for line in stream:
+                      match = re.search(r"Test Case '-\[([^ ]+) (test\w+)\]' (started|passed|failed)(?: \(([0-9.]+) seconds\))?", line)
+                      if not match: continue
+                      cls, method, status, duration = match.groups()
+                      key = cls.rsplit('.', 1)[-1] + '.' + method
+                      if status == 'started': starts[key] = starts.get(key, 0) + 1
+                      else: ordinary.setdefault(key, []).append({'outcome': status.upper(), 'seconds': float(duration) if duration else None})
+          records = []
+          for key in sorted(expected | set(starts) | set(ordinary)):
+              values = ordinary.get(key, [])
+              status = values[0]['outcome'] if starts.get(key) == 1 and len(values) == 1 else ('NOTRUN' if not values and not starts.get(key) else 'UNVERIFIED')
+              records.append({'test': key, 'required_focused': key in expected, 'starts': starts.get(key, 0), 'ordinary': values, 'status': status})
+          gates = {key: os.environ.get(key, 'missing') for key in ['PARSE_OUTCOME', 'BUILD_OUTCOME', 'TEST_OUTCOME']}
+          ok = all(value == 'success' for value in gates.values()) and all(next(record for record in records if record['test'] == key)['status'] == 'PASSED' for key in expected)
+          if lane == 'native': ok = ok and set(starts) == expected and set(ordinary) == expected
+          else: ok = ok and all(record['status'] == 'PASSED' for record in records)
+          receipt = {'lane': lane, 'head': subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(), 'tree': subprocess.check_output(['git','rev-parse','HEAD^{tree}'], text=True).strip(), 'github_sha': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ.get('GITHUB_WORKFLOW_SHA'), 'step_outcomes': gates, 'required_focused': sorted(expected), 'ordinary_records': records, 'named_gate_passed': ok, 'limits': 'Source/registration/build/status alone are not device/security/default-adapter or full goal acceptance. Missing/duplicate/cancelled/deadline outcomes are not PASS.'}
+          data = json.dumps(receipt, indent=2).encode()
+          assert len(data) <= 256 * 1024, 'Named receipt exceeds bounded text budget'
+          pathlib.Path('photo-map-' + lane + '-qualification.json').write_bytes(data + b'\n')
+          print(data.decode())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output: output.write('named_gate=' + ('true' if ok else 'false') + '\n')
+          PY
+
+      - name: Upload small text receipt only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: photo-map-${{ matrix.lane }}-named-receipt
+          path: photo-map-${{ matrix.lane }}-qualification.json
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Require real named outcomes
+        if: always()
+        env:
+          NAMED_GATE: ${{ steps.outcomes.outputs.named_gate }}
+        run: test "$NAMED_GATE" = true

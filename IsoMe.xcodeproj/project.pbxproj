@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* PhotoMapMarkerTests.swift */; };
 		A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */; };
 		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
 		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
@@ -199,6 +200,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A06500000000000000000001 /* PhotoMapMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapMarkerTests.swift; sourceTree = "<group>"; };
 		A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMomentMembershipTests.swift; sourceTree = "<group>"; };
 		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
@@ -609,6 +611,7 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				A06500000000000000000001 /* PhotoMapMarkerTests.swift */,
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				E9A100000000000000000003 /* ExportKitIntegrationTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
@@ -977,6 +980,7 @@
 				AB000001212F0BB100000B2 /* RenameIntentsTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
 				D2A10003212F000100000003 /* RemotePastVisitTests.swift in Sources */,
+				A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */,
 				A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

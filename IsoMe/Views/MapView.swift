@@ -7,6 +7,7 @@ struct LocationMapView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
+    private let photoThumbnailLoader: PhotoThumbnailLoader
     @State private var selectedVisit: Visit?
     @State private var selectedPointID: UUID?
     @State private var lastPointMarkerTap = Date.distantPast
@@ -26,7 +27,8 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
     @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = false
-    @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.imagesKey) private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.dotsKey) private var showPhotoMarkerDots = false
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
@@ -41,9 +43,13 @@ struct LocationMapView: View {
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
 
-    init(viewModel: LocationViewModel) {
+    init(
+        viewModel: LocationViewModel,
+        photoThumbnailLoader: @escaping PhotoThumbnailLoader = PhotoThumbnailView.productionLoader
+    ) {
         self.viewModel = viewModel
         self.locationManager = viewModel.locationManager
+        self.photoThumbnailLoader = photoThumbnailLoader
     }
 
     private static var initialFilterBarVisibility: Bool {
@@ -361,12 +367,14 @@ struct LocationMapView: View {
                             Annotation(
                                 "Photo",
                                 coordinate: photo.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentMapMarker(
                                     photo: photo,
                                     isSelected: photoDetails.photo?.id == photo.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
+                                    thumbnailLoader: photoThumbnailLoader,
                                     action: { photoDetails.photo = photo }
                                 )
                             }
@@ -374,12 +382,14 @@ struct LocationMapView: View {
                             Annotation(
                                 cluster.isArea ? "Photo Area" : "Photos",
                                 coordinate: cluster.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentClusterMapMarker(
                                     cluster: cluster,
                                     isSelected: photoDetails.cluster?.id == cluster.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
+                                    thumbnailLoader: photoThumbnailLoader,
                                     action: { photoDetails.cluster = cluster }
                                 )
                             }
@@ -487,6 +497,7 @@ struct LocationMapView: View {
                                 showVisitMarkers: $showVisitMarkers,
                                 showPhotoMarkers: $showPhotoMarkers,
                                 showPhotoMarkerImages: $showPhotoMarkerImages,
+                                showPhotoMarkerDots: $showPhotoMarkerDots,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
                                 showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
@@ -578,17 +589,17 @@ struct LocationMapView: View {
             }
             .sheet(item: $photoDetails.cluster) { cluster in
                 if cluster.isArea {
-                    PhotoMomentPlacesView(places: cluster.places, title: "Photos in This Area", selection: photoDetails)
+                    PhotoMomentPlacesView(places: cluster.places, title: "Photos in This Area", selection: photoDetails, thumbnailLoader: photoThumbnailLoader)
                 } else {
-                    PhotoMomentClusterQuickView(cluster: cluster, selection: photoDetails)
+                    PhotoMomentClusterQuickView(cluster: cluster, selection: photoDetails, thumbnailLoader: photoThumbnailLoader)
                         .presentationDetents([.medium, .large])
                 }
             }
             .sheet(isPresented: $photoDetails.showsPlaces) {
-                PhotoMomentPlacesView(places: viewModel.mapPhotoPlaces, title: "All Photo Places", selection: photoDetails)
+                PhotoMomentPlacesView(places: viewModel.mapPhotoPlaces, title: "All Photo Places", selection: photoDetails, thumbnailLoader: photoThumbnailLoader)
             }
             .fullScreenCover(item: $photoDetails.photo) { photo in
-                PhotoMomentFullScreenView(photo: photo)
+                PhotoMomentFullScreenView(photo: photo, loader: photoThumbnailLoader)
             }
             .onAppear {
                 viewModel.loadAllVisits()
@@ -2785,6 +2796,7 @@ struct QuickFilterBar: View {
     @Binding var showVisitMarkers: Bool
     @Binding var showPhotoMarkers: Bool
     @Binding var showPhotoMarkerImages: Bool
+    @Binding var showPhotoMarkerDots: Bool
     @Binding var snapTravelPathToRoads: Bool
     @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
@@ -2860,6 +2872,14 @@ struct QuickFilterBar: View {
                     label: "Photo images",
                     help: .photoImages,
                     isOn: $showPhotoMarkerImages,
+                    activeHelp: $activeLayerHelp
+                )
+                .disabled(showPhotoMarkerDots)
+                LayerToggleButton(
+                    systemImage: "circle.fill",
+                    label: "Photo dots",
+                    help: .photoDots,
+                    isOn: $showPhotoMarkerDots,
                     activeHelp: $activeLayerHelp
                 )
                 LayerToggleButton(
@@ -3019,7 +3039,13 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let photoImages = LayerToggleHelp(
         id: "photo-images",
         title: "Photo images",
-        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map."
+        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map. Photo dots override this setting without changing it."
+    )
+
+    static let photoDots = LayerToggleHelp(
+        id: "photo-dots",
+        title: "Photo dots",
+        message: "Uses small dots instead of photo images or camera pins. Larger dots represent grouped photos. Tap a dot to browse; previews load only when you open the photos. Turn this off to restore your image or pin preference."
     )
 
     static let roadMatchedPath = LayerToggleHelp(
