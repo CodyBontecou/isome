@@ -80,15 +80,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          LIMITS=()
+          TEST_ARGUMENTS=(-project "$PROJECT" -scheme "$SCHEME" -configuration Debug
+            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2
+            -only-testing:"$TEST_TARGET" -parallel-testing-enabled NO)
           if [[ "$LANE" == native ]]; then
-            LIMITS=(-test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 300)
+            TEST_ARGUMENTS+=(-test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 300)
           fi
-          xcodebuild test-without-building -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
-            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2 \
-            -only-testing:"$TEST_TARGET" -parallel-testing-enabled NO "${LIMITS[@]}" \
-            -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1 | tee "$RUNNER_TEMP/photo-map-$LANE-tests.log"
+          TEST_ARGUMENTS+=(-disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO)
+          xcodebuild test-without-building "${TEST_ARGUMENTS[@]}" 2>&1 | tee "$RUNNER_TEMP/photo-map-$LANE-tests.log"
 
       - name: Collect individually named ordinary outcomes
         if: always()
