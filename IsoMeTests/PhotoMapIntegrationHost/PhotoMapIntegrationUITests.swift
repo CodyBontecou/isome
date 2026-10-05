@@ -297,9 +297,22 @@ final class PhotoMapIntegrationUITests: XCTestCase {
     }
     private func layer(_ label: String) throws {
         let button = app.buttons[label]
+        let surface = app.scrollViews.firstMatch
         for _ in 0..<8 {
             if button.exists && button.isHittable { try tap(button); return }
-            app.scrollViews.firstMatch.swipeLeft()
+            guard surface.exists else { break }
+            let viewport = surface.frame
+            guard [viewport.minX, viewport.midX, viewport.midY, viewport.width, viewport.height]
+                .allSatisfy({ $0.isFinite }), viewport.width > 0, viewport.height > 0 else { break }
+            // Geometry chooses scroll direction only; native hittability still gates activation.
+            var startX: CGFloat = 0.75
+            if button.exists {
+                let target = button.frame
+                guard target.midX.isFinite, target.width.isFinite, target.width > 0 else { break }
+                if target.midX < viewport.midX { startX = 0.25 }
+            }
+            surface.coordinate(withNormalizedOffset: CGVector(dx: startX, dy: 0.5))
+                .press(forDuration: 0.05, thenDragTo: surface.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)))
         }
         recordNativeSnapshot("missing-map-layer")
         throw Failure.missingNativeElement
