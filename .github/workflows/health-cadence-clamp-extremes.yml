@@ -14,12 +14,12 @@ jobs:
     timeout-minutes: 5
     env:
       GITHUB_WORKFLOW_SHA: ${{ github.workflow_sha }}
-      CLAMP_ROOT: ${{ runner.temp }}/health-cadence-clamp-qualification
     steps:
       - name: Materialize pinned source excerpts, no checkout or installation
         shell: bash
         run: |
           set -euo pipefail
+          export CLAMP_ROOT="$RUNNER_TEMP/health-cadence-clamp-qualification"
           df -h /
           python3 - <<'PYTHON'
           import base64,hashlib,os,pathlib,shutil
@@ -51,5 +51,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export CLAMP_ROOT="$RUNNER_TEMP/health-cadence-clamp-qualification"
           python3 "$CLAMP_ROOT/controller.py"
           echo 'CLAMP_LIMITS standalone function arithmetic only; not full Apple model/decoder/cadence/SDK-native-provider or product-ref/PR adoption'
