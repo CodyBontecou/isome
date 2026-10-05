@@ -1,0 +1,331 @@
+name: Photo map cleanup state no-boot qualification
+on:
+  push:
+    branches: [prep/iso-65-66-cleanup-state-qualification-20261005]
+    paths: [.github/workflows/photo-map-cleanup-state-qualification.yml]
+permissions:
+  contents: read
+concurrency:
+  group: photo-map-cleanup-state-qualification-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-cleanup-controls:
+    if: github.event.repository.private == false
+    runs-on: macos-latest
+    timeout-minutes: 8
+    steps:
+      - name: Seventeen real child cleanup controls without SDK operations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, json, os, re, subprocess
+
+          total = 0
+          def run(argv, label, timeout=12, cap=24*1024, print_text=True):
+              global total
+              process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              try:
+                  stdout, stderr = process.communicate(timeout=timeout)
+              except subprocess.TimeoutExpired as error:
+                  out, err = error.stdout or b'', error.stderr or b''
+                  record = json.dumps({
+                      'label': label, 'argv': argv, 'timeout_seconds': timeout,
+                      'owned_root_pid': process.pid,
+                      'root_returncode_before_cleanup': process.poll(),
+                      'partial_stdout_bytes': len(out), 'partial_stderr_bytes': len(err),
+                      'partial_stdout_b64': base64.b64encode(out[:12*1024]).decode('ascii'),
+                      'partial_stderr_b64': base64.b64encode(err[:12*1024]).decode('ascii'),
+                      'partial_truncated': len(out) > 12*1024 or len(err) > 12*1024,
+                      'head': os.environ['GITHUB_SHA'],
+                      'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                      'limits': 'Partial streams and root poll only; no complete help, cause or process-absence proof'
+                  })
+                  try:
+                      assert len(record.encode()) <= 48*1024, 'Timeout metadata limit exceeded'
+                      print('LOG_DECLARATION_TIMEOUT ' + record, flush=True)
+                  finally:
+                      try:
+                          if process.poll() is None: process.kill()
+                          code = process.wait(timeout=2)
+                          print('LOG_DECLARATION_ROOT_CLEANUP ' + json.dumps({
+                              'owned_root_pid': process.pid, 'reaped_returncode': code,
+                              'head': os.environ['GITHUB_SHA'],
+                              'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                              'limits': 'Owned root only; descendants and SDK service absence unverified'
+                          }), flush=True)
+                      except Exception as cleanup_error:
+                          print('LOG_DECLARATION_ROOT_CLEANUP_UNVERIFIED ' + json.dumps({
+                              'owned_root_pid': process.pid,
+                              'error': str(cleanup_error)[:240]
+                          }), flush=True)
+                          raise
+                      finally:
+                          process.stdout.close()
+                          process.stderr.close()
+                  raise
+              size = len(stdout) + len(stderr)
+              assert size <= cap, 'Per-command output limit exceeded'
+              total += size
+              assert total <= 512*1024, 'Cumulative output limit exceeded'
+              text = (stdout + stderr).decode('utf-8', errors='strict')
+              print('LOG_DECLARATION_COMMAND ' + json.dumps({
+                  'label': label, 'argv': argv, 'exit_code': process.returncode,
+                  'bytes': size, 'head': os.environ['GITHUB_SHA'],
+                  'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+              }), flush=True)
+              if print_text: print(text, flush=True)
+              assert process.returncode == 0, 'Command failed; no retry or alternate'
+              return stdout, text
+
+          import array, contextlib, hashlib, io, pathlib, platform, signal, socket
+          import sys, tempfile, threading
+
+          guard_source = (
+              "import sys\n"
+              "if not __debug__ or sys.flags.optimize != 0:\n"
+              "    raise RuntimeError('Checks disabled by optimization')\n")
+          exec(guard_source)
+          assert sys.platform == 'darwin', 'Public macOS lane required'
+          assert sys.version_info[:3] == (3, 14, 7), 'Unreviewed Python version; no fallback'
+          assert signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'Unexpected child wait policy'
+          module = pathlib.Path(subprocess.__file__)
+          assert module.is_file() and module.stat().st_size <= 128*1024
+          print('OWNED_CONTROL_PROVENANCE ' + json.dumps({
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+              'python': sys.version, 'platform': platform.platform(), 'cpu_count': os.cpu_count(),
+              'debug_checks': __debug__, 'optimize': sys.flags.optimize,
+              'sigchld_policy': int(signal.getsignal(signal.SIGCHLD)),
+              'guard_sha256': hashlib.sha256(guard_source.encode()).hexdigest(),
+              'image_os': os.environ.get('ImageOS'), 'image_version': os.environ.get('ImageVersion'),
+              'subprocess_path': str(module), 'subprocess_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+              'limits': 'Actual module pin, not upstream equality; no SDK/device/service absence or allfailure qualification'
+          }), flush=True)
+
+
+          orchestration_source = '''def cleanup_sequence(primary, shutdown, observe, attempted):
+              try:
+                  primary()
+              finally:
+                  if attempted['value']:
+                      try:
+                          shutdown()
+                      finally:
+                          observe()
+          '''
+          state_source = '''def selected_shutdown_state(data, runtime, udid):
+              def unique(pairs):
+                  result = {}
+                  for key, value in pairs:
+                      if key in result: raise ValueError('Duplicate JSON key')
+                      result[key] = value
+                  return result
+              root = json.loads(data.decode('utf-8', errors='strict'), object_pairs_hook=unique)
+              if type(root) is not dict or type(root.get('devices')) is not dict:
+                  raise ValueError('Device map schema')
+              matches = []
+              for actual_runtime, rows in root['devices'].items():
+                  if type(actual_runtime) is not str or type(rows) is not list:
+                      raise ValueError('Runtime rows schema')
+                  for device in rows:
+                      if type(device) is not dict: raise ValueError('Device record schema')
+                      identifier = device.get('udid')
+                      if (type(identifier) is not str or not re.fullmatch(
+                          r'[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}', identifier)
+                          or type(device.get('state')) is not str
+                          or type(device.get('isAvailable')) is not bool):
+                          raise ValueError('Device fields schema')
+                      if identifier.lower() == udid.lower(): matches.append((actual_runtime, device))
+              if len(matches) != 1: raise ValueError('Selected device cardinality')
+              actual_runtime, device = matches[0]
+              if actual_runtime != runtime: raise ValueError('Selected runtime mismatch')
+              if device['isAvailable'] is not True: raise ValueError('Selected device unavailable')
+              if device['state'] != 'Shutdown': raise ValueError('Selected state not Shutdown')
+              return device['state']
+          '''
+          exec(orchestration_source)
+          exec(state_source)
+          H = os.environ['GITHUB_SHA']
+          WF = os.environ['GITHUB_WORKFLOW_SHA']
+          def emit(kind, value):
+              value = dict(value, head=H, workflow_sha=WF)
+              data = json.dumps(value)
+              assert len(data.encode()) <= 8*1024, 'Control receipt limit exceeded'
+              print(kind + ' ' + data, flush=True)
+          emit('CLEANUP_CONTROL_SOURCE', {
+              'orchestration_sha256': hashlib.sha256(orchestration_source.encode()).hexdigest(),
+              'state_sha256': hashlib.sha256(state_source.encode()).hexdigest(),
+              'limits': 'Source literals shared with future separately approved SDK candidate; no SDK adoption'})
+          runtime = 'com.apple.CoreSimulator.SimRuntime.iOS-99-0'
+          udid = 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE'
+          record = {'udid': udid, 'state': 'Shutdown', 'isAvailable': True}
+          good = {'devices': {runtime: [record]}}
+          fixture = '''import base64, os, sys
+          mode = sys.argv[1]
+          if mode == 'ok': sys.exit(0)
+          if mode == 'fail': os.write(2, b'SYNTHETIC_FAILURE'); sys.exit(7)
+          if mode == 'json': os.write(1, base64.b64decode(sys.argv[2])); sys.exit(0)
+          if mode == 'cap':
+              sys.stdout.buffer.write(b'C'*(256*1024+1)); sys.stdout.buffer.flush(); sys.exit(0)
+          if mode == 'utf8': os.write(1, b'\\xff'); sys.exit(0)
+          r, w = os.pipe()
+          os.read(r, 1)
+          '''
+          labels = [
+              'cleanup_all_commands_complete',
+              'cleanup_primary_failure_state_observed',
+              'cleanup_shutdown_failure_state_observed',
+              'cleanup_both_failures_state_observed',
+              'cleanup_two_timeouts_state_observed',
+              'cleanup_missing_selected_state_rejected',
+              'cleanup_duplicate_selected_state_rejected',
+              'cleanup_wrong_runtime_rejected',
+              'cleanup_nonshutdown_state_rejected',
+              'cleanup_invalid_json_rejected',
+              'cleanup_duplicate_object_key_rejected',
+              'cleanup_wrong_schema_type_rejected',
+              'cleanup_state_command_failure_retained',
+              'cleanup_state_timeout_retained',
+              'cleanup_state_cap_rejected',
+              'cleanup_state_utf8_rejected',
+              'cleanup_before_boot_attempt_does_not_control_device']
+          # Each variant is a separate actual sequence with its own call/chain receipt.
+          variants = {
+              labels[5]: [('missing', {'devices': {runtime: []}}, 'Selected device cardinality')],
+              labels[6]: [('same_runtime', {'devices': {runtime: [record, record]}}, 'Selected device cardinality'),
+                          ('cross_runtime', {'devices': {runtime: [record], 'other': [record]}}, 'Selected device cardinality'),
+                          ('uuid_case', {'devices': {runtime: [record, dict(record, udid=udid.lower())]}}, 'Selected device cardinality')],
+              labels[7]: [('wrong_runtime', {'devices': {'other': [record]}}, 'Selected runtime mismatch')],
+              labels[8]: [('booted', {'devices': {runtime: [dict(record, state='Booted')]}}, 'Selected state not Shutdown'),
+                          ('unavailable', {'devices': {runtime: [dict(record, isAvailable=False)]}}, 'Selected device unavailable')],
+              labels[9]: [('invalid_json', b'{', None)],
+              labels[10]: [('root_key', b'{"devices":{},"devices":{}}', 'Duplicate JSON key'),
+                           ('record_key', ('{"devices":{"' + runtime + '":[{"udid":"' + udid + '","state":"Shutdown","state":"Booted","isAvailable":true}]}}').encode(), 'Duplicate JSON key')],
+              labels[11]: [('root', [], 'Device map schema'),
+                           ('device_map', {'devices': []}, 'Device map schema'),
+                           ('rows', {'devices': {runtime: {}}}, 'Runtime rows schema'),
+                           ('record', {'devices': {runtime: [None]}}, 'Device record schema'),
+                           ('identifier', {'devices': {runtime: [dict(record, udid=1)]}}, 'Device fields schema'),
+                           ('state', {'devices': {runtime: [dict(record, state=1)]}}, 'Device fields schema'),
+                           ('availability', {'devices': {runtime: [dict(record, isAvailable=1)]}}, 'Device fields schema')]
+          }
+          outcomes = []
+          invoked_variants = []
+          def qualify(case, variant, payload, expected_query_message):
+              index = labels.index(case)
+              counts = {'primary': 0, 'shutdown': 0, 'query': 0}
+              failures, receipts, observations = {}, [], []
+              attempted = {'value': False}
+              def stage(phase, mode, timeout, data=None):
+                  counts[phase] += 1
+                  emit('CLEANUP_CONTROL_CALL', {'case': case, 'variant': variant, 'phase': phase, 'call': counts[phase]})
+                  argv = [sys.executable, '-c', fixture, mode]
+                  if mode == 'json': argv.append(base64.b64encode(data).decode('ascii'))
+                  sink = io.StringIO()
+                  try:
+                      with contextlib.redirect_stdout(sink):
+                          value = run(argv, 'cleanup-' + phase, timeout=timeout,
+                                      cap=256*1024 if phase == 'query' else 24*1024, print_text=False)
+                      if phase == 'query':
+                          state = selected_shutdown_state(value[0], runtime, udid)
+                          observations.append(state)
+                          emit('CLEANUP_CONTROL_STATE', {'case': case, 'variant': variant,
+                              'udid': udid, 'runtime': runtime, 'observed_state': state,
+                              'query_label': 'cleanup-query',
+                              'limits': 'OBSERVED_SHUTDOWN_STATE_ONLY; SDK device/service/process absence UNVERIFIED'})
+                  except Exception as error:
+                      failures[phase] = error
+                      emit('CLEANUP_CONTROL_EXCEPTION', {'case': case, 'variant': variant,
+                          'phase': phase, 'type': type(error).__name__, 'message': str(error)[:240]})
+                      raise
+                  finally:
+                      text = sink.getvalue()
+                      assert len(text.encode()) <= 64*1024
+                      for line in text.splitlines():
+                          kind, raw = line.split(' ', 1)
+                          assert kind in ('LOG_DECLARATION_COMMAND', 'LOG_DECLARATION_TIMEOUT', 'LOG_DECLARATION_ROOT_CLEANUP')
+                          value = json.loads(raw)
+                          assert value['head'] == H and value['workflow_sha'] == WF
+                          receipts.append((phase, kind, value))
+                      print(text, end='', flush=True)
+              def primary():
+                  if index != 16: attempted['value'] = True
+                  mode = 'ok' if index in (0, 2) else ('block' if index == 4 else 'fail')
+                  stage('primary', mode, 12)
+              def shutdown():
+                  mode = 'ok' if index in (0, 1) else ('block' if index == 4 else 'fail')
+                  stage('shutdown', mode, 30)
+              def observe():
+                  mode = {12: 'fail', 13: 'block', 14: 'cap', 15: 'utf8'}.get(index, 'json')
+                  data = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
+                  stage('query', mode, 12, data)
+              caught = None
+              try:
+                  cleanup_sequence(primary, shutdown, observe, attempted)
+              except Exception as error:
+                  caught = error
+              assert counts == ({'primary': 1, 'shutdown': 0, 'query': 0} if index == 16 else
+                                {'primary': 1, 'shutdown': 1, 'query': 1})
+              expected_phases = ([] if index == 0 else ['primary'] if index in (1, 16) else
+                                 ['shutdown'] if index == 2 else ['primary', 'shutdown'] if index in (3, 4) else
+                                 ['primary', 'shutdown', 'query'])
+              assert list(failures) == expected_phases
+              chain, current = [], caught
+              while current is not None:
+                  assert len(chain) < 4 and current.__traceback__ is not None
+                  assert current.__cause__ is None and not current.__suppress_context__
+                  chain.append(current)
+                  current = current.__context__
+              assert len(chain) == len(expected_phases)
+              assert all(error is failures[phase] for error, phase in zip(chain, reversed(expected_phases)))
+              for phase in expected_phases:
+                  error = failures[phase]
+                  expected_type = (subprocess.TimeoutExpired if index == 4 or (index == 13 and phase == 'query') else
+                                   json.JSONDecodeError if index == 9 and phase == 'query' else
+                                   UnicodeDecodeError if index == 15 and phase == 'query' else
+                                   ValueError if 5 <= index <= 11 and phase == 'query' else AssertionError)
+                  assert type(error) is expected_type
+                  if phase == 'query' and expected_query_message is not None:
+                      assert str(error) == expected_query_message
+                  if expected_type is AssertionError:
+                      assert str(error) == ('Per-command output limit exceeded' if index == 14 and phase == 'query' else
+                                            'Command failed; no retry or alternate')
+              assert observations == (['Shutdown'] if index <= 4 else [])
+              for phase in ('primary', 'shutdown', 'query'):
+                  rows = [(kind, value) for p, kind, value in receipts if p == phase]
+                  if counts[phase] == 0: assert rows == []; continue
+                  is_timeout = index == 4 and phase != 'query' or index == 13 and phase == 'query'
+                  if is_timeout:
+                      assert [k for k, _ in rows] == ['LOG_DECLARATION_TIMEOUT', 'LOG_DECLARATION_ROOT_CLEANUP']
+                      first, last = [v for _, v in rows]
+                      assert first['timeout_seconds'] == (30 if phase == 'shutdown' else 12)
+                      assert first['owned_root_pid'] == last['owned_root_pid'] > 0
+                      assert first['root_returncode_before_cleanup'] is None and last['reaped_returncode'] == -9
+                      assert first['partial_stdout_bytes'] == first['partial_stderr_bytes'] == 0
+                  elif index in (14, 15) and phase == 'query': assert rows == []
+                  else:
+                      assert len(rows) == 1 and rows[0][0] == 'LOG_DECLARATION_COMMAND'
+                      assert rows[0][1]['exit_code'] == (7 if phase in failures and phase != 'query' or index == 12 and phase == 'query' else 0)
+              emit('CLEANUP_CONTROL_CHAIN', {'case': case, 'variant': variant,
+                  'ordered_original_stages': list(reversed(expected_phases)), 'call_counts': counts,
+                  'original_object_identities_verified': True, 'tracebacks_preserved': True,
+                  'state_observations': len(observations), 'path_outcome': 'FAIL' if caught else 'SUCCESS',
+                  'limits': 'Actual caught exception identities and counts; expected fixture failure is not SDK success'})
+              invoked_variants.append((case, variant))
+          for case in labels:
+              emit('CLEANUP_CONTROL_STARTED', {'case': case})
+              try:
+                  cases = variants.get(case, [('default', good, None)])
+                  for variant, payload, message in cases: qualify(case, variant, payload, message)
+                  outcomes.append(case)
+                  emit('CLEANUP_CONTROL_FINISHED', {'case': case, 'outcome': 'PASS', 'variants': [x[0] for x in cases]})
+              except Exception as error:
+                  emit('CLEANUP_CONTROL_FINISHED', {'case': case, 'outcome': 'FAIL',
+                      'error_type': type(error).__name__, 'error': str(error)[:240]})
+                  raise
+          assert outcomes == labels and len(set(outcomes)) == 17
+          expected_variants = [(case, v[0]) for case in labels for v in variants.get(case, [('default', good, None)])]
+          assert invoked_variants == expected_variants and len(invoked_variants) == 27
+          emit('CLEANUP_CONTROL_ONLY', {'cases': outcomes, 'invoked_variants': invoked_variants,
+              'limits': 'Seventeen finite controls/27 actual variants only; not SDK boot, device cleanup, allfailure, private data, native or goal acceptance'})
+          PY
