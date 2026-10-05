@@ -130,6 +130,7 @@
 		FEC10009212F000100000009 /* apple-watch-tracking.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10009212F000000000009 /* apple-watch-tracking.mp4 */; };
 		FEC1000A212F00010000000A /* multi-format-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC1000A212F00000000000A /* multi-format-export.mp4 */; };
 		FEC1000B212F00010000000B /* remote-past-visits.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC1000B212F00000000000B /* remote-past-visits.mp4 */; };
+		E6500001000000000000002C /* AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6500001000000000000002D /* AppSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -322,6 +323,7 @@
 		B1000007212F000000000007 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		B1000008212F000000000008 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000009212F000000000009 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		E6500001000000000000002D /* AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -551,6 +553,7 @@
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 				5F000006212F000000000001 /* ScheduledExportMergeStrategies.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
+				E6500001000000000000002D /* AppSupport.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -864,6 +867,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000001212F000100000001 /* IsoMeApp.swift in Sources */,
+				E6500001000000000000002C /* AppSupport.swift in Sources */,
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
 				A1000002212F000100000002 /* ContentView.swift in Sources */,

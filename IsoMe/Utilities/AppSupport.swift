@@ -1,0 +1,125 @@
+import SwiftUI
+import SwiftData
+import StoreKit
+
+// MARK: - App Store Review Prompt
+
+@MainActor
+final class AppReviewPromptCoordinator {
+    static let shared = AppReviewPromptCoordinator()
+
+    private enum DefaultsKey {
+        static let usedDayIDs = "reviewPrompt.usedDayIDs"
+        static let completedFileExport = "reviewPrompt.completedFileExport"
+        static let requestedSecondDayExportReview = "reviewPrompt.requestedSecondDayExportReview"
+    }
+
+    private let defaults: UserDefaults
+    private let calendar: Calendar
+    private let reviewRequestDelay: TimeInterval
+    private let requestReview: @MainActor () -> Bool
+    private var isReviewRequestScheduled = false
+
+    init(
+        defaults: UserDefaults = .standard,
+        calendar: Calendar = .current,
+        reviewRequestDelay: TimeInterval = 1,
+        requestReview: @escaping @MainActor () -> Bool = AppReviewPromptCoordinator.requestStoreKitReview
+    ) {
+        self.defaults = defaults
+        self.calendar = calendar
+        self.reviewRequestDelay = reviewRequestDelay
+        self.requestReview = requestReview
+    }
+
+    func recordAppUse(on date: Date = Date()) {
+        recordUseDay(on: date)
+        requestReviewIfEligible()
+    }
+
+    func recordSuccessfulFileExport(on date: Date = Date()) {
+        defaults.set(true, forKey: DefaultsKey.completedFileExport)
+        recordUseDay(on: date)
+        requestReviewIfEligible()
+    }
+
+    var recordedUseDayCount: Int {
+        usedDayIDs.count
+    }
+
+    var hasCompletedFileExport: Bool {
+        defaults.bool(forKey: DefaultsKey.completedFileExport)
+    }
+
+    var hasRequestedMilestoneReview: Bool {
+        defaults.bool(forKey: DefaultsKey.requestedSecondDayExportReview)
+    }
+
+    private var isEligibleForReviewRequest: Bool {
+        !hasRequestedMilestoneReview && hasCompletedFileExport && recordedUseDayCount >= 2
+    }
+
+    private var usedDayIDs: [String] {
+        get { defaults.stringArray(forKey: DefaultsKey.usedDayIDs) ?? [] }
+        set { defaults.set(newValue.sorted(), forKey: DefaultsKey.usedDayIDs) }
+    }
+
+    private func recordUseDay(on date: Date) {
+        var ids = Set(usedDayIDs)
+        if ids.insert(dayIdentifier(for: date)).inserted {
+            usedDayIDs = Array(ids)
+        }
+    }
+
+    private func dayIdentifier(for date: Date) -> String {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        return String(
+            format: "%04d-%02d-%02d",
+            components.year ?? 0,
+            components.month ?? 0,
+            components.day ?? 0
+        )
+    }
+
+    private func requestReviewIfEligible() {
+        guard isEligibleForReviewRequest, !isReviewRequestScheduled else { return }
+
+        isReviewRequestScheduled = true
+        if reviewRequestDelay <= 0 {
+            performScheduledReviewRequest()
+        } else {
+            let delay = UInt64(reviewRequestDelay * 1_000_000_000)
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: delay)
+                self?.performScheduledReviewRequest()
+            }
+        }
+    }
+
+    private func performScheduledReviewRequest() {
+        isReviewRequestScheduled = false
+        guard isEligibleForReviewRequest else { return }
+
+        if requestReview() {
+            defaults.set(true, forKey: DefaultsKey.requestedSecondDayExportReview)
+        }
+    }
+
+    private static func requestStoreKitReview() -> Bool {
+        guard let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else {
+            return false
+        }
+
+        AppStore.requestReview(in: scene)
+        return true
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
+    static let appDidEnterBackground = Notification.Name("appDidEnterBackground")
+    static let stopTracking = Notification.Name("stopTracking")
+}
