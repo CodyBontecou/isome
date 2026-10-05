@@ -1,0 +1,267 @@
+name: Photo map owned command no-boot qualification
+
+on:
+  push:
+    branches: [prep/iso-65-66-owned-command-qualification-20261005]
+    paths: [.github/workflows/photo-map-owned-command-qualification.yml]
+permissions:
+  contents: read
+concurrency:
+  group: photo-map-owned-command-qualification-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-process-controls:
+    if: github.event.repository.private == false
+    runs-on: macos-latest
+    timeout-minutes: 8
+    steps:
+      - name: Eight real child controls without simulator or SDK operations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          # Exact current SDK command helper, not a replacement implementation.
+          import base64, json, os, re, subprocess
+
+          total = 0
+          def run(argv, label, timeout=12, cap=24*1024, print_text=True):
+              global total
+              process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              try:
+                  stdout, stderr = process.communicate(timeout=timeout)
+              except subprocess.TimeoutExpired as error:
+                  out, err = error.stdout or b'', error.stderr or b''
+                  record = json.dumps({
+                      'label': label, 'argv': argv, 'timeout_seconds': timeout,
+                      'owned_root_pid': process.pid,
+                      'root_returncode_before_cleanup': process.poll(),
+                      'partial_stdout_bytes': len(out), 'partial_stderr_bytes': len(err),
+                      'partial_stdout_b64': base64.b64encode(out[:12*1024]).decode('ascii'),
+                      'partial_stderr_b64': base64.b64encode(err[:12*1024]).decode('ascii'),
+                      'partial_truncated': len(out) > 12*1024 or len(err) > 12*1024,
+                      'head': os.environ['GITHUB_SHA'],
+                      'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                      'limits': 'Partial streams and root poll only; no complete help, cause or process-absence proof'
+                  })
+                  try:
+                      assert len(record.encode()) <= 48*1024, 'Timeout metadata limit exceeded'
+                      print('LOG_DECLARATION_TIMEOUT ' + record, flush=True)
+                  finally:
+                      try:
+                          if process.poll() is None: process.kill()
+                          code = process.wait(timeout=2)
+                          print('LOG_DECLARATION_ROOT_CLEANUP ' + json.dumps({
+                              'owned_root_pid': process.pid, 'reaped_returncode': code,
+                              'head': os.environ['GITHUB_SHA'],
+                              'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                              'limits': 'Owned root only; descendants and SDK service absence unverified'
+                          }), flush=True)
+                      except Exception as cleanup_error:
+                          print('LOG_DECLARATION_ROOT_CLEANUP_UNVERIFIED ' + json.dumps({
+                              'owned_root_pid': process.pid,
+                              'error': str(cleanup_error)[:240]
+                          }), flush=True)
+                          raise
+                      finally:
+                          process.stdout.close()
+                          process.stderr.close()
+                  raise
+              size = len(stdout) + len(stderr)
+              assert size <= cap, 'Per-command output limit exceeded'
+              total += size
+              assert total <= 512*1024, 'Cumulative output limit exceeded'
+              text = (stdout + stderr).decode('utf-8', errors='strict')
+              print('LOG_DECLARATION_COMMAND ' + json.dumps({
+                  'label': label, 'argv': argv, 'exit_code': process.returncode,
+                  'bytes': size, 'head': os.environ['GITHUB_SHA'],
+                  'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+              }), flush=True)
+              if print_text: print(text, flush=True)
+              assert process.returncode == 0, 'Command failed; no retry or alternate'
+              return stdout, text
+
+          import array, contextlib, hashlib, io, pathlib, platform, signal, socket
+          import sys, tempfile, threading
+
+          assert sys.platform == 'darwin', 'Public macOS lane required'
+          assert sys.version_info[:3] == (3, 14, 7), 'Unreviewed Python version; no fallback'
+          assert signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'Unexpected child wait policy'
+          module = pathlib.Path(subprocess.__file__)
+          assert module.is_file() and module.stat().st_size <= 128*1024
+          print('OWNED_CONTROL_PROVENANCE ' + json.dumps({
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+              'python': sys.version, 'platform': platform.platform(), 'cpu_count': os.cpu_count(),
+              'image_os': os.environ.get('ImageOS'), 'image_version': os.environ.get('ImageVersion'),
+              'subprocess_path': str(module), 'subprocess_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+              'limits': 'Actual module pin, not upstream equality; no SDK/device/service absence or allfailure qualification'
+          }), flush=True)
+
+          fixture = """import os, sys
+          mode = sys.argv[1]
+          if mode == 'ok':
+              os.write(1, b'OUT'); os.write(2, b'ERR'); sys.exit(0)
+          if mode == 'fail':
+              os.write(2, b'FAILED'); sys.exit(7)
+          if mode == 'cap':
+              sys.stdout.buffer.write(b'C'*(24*1024+1)); sys.stdout.buffer.flush(); sys.exit(0)
+          if mode == 'utf8':
+              os.write(1, b'\\xff'); sys.exit(0)
+          if mode in ('partial', 'truncated'):
+              size = 16*1024 if mode == 'truncated' else 3
+              sys.stdout.buffer.write(b'O'*size); sys.stdout.buffer.flush()
+              sys.stderr.buffer.write(b'E'*size); sys.stderr.buffer.flush()
+          r, w = os.pipe()
+          os.read(r, 1)
+          """
+          transfer = """import array, socket, sys
+          s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          s.settimeout(2)
+          s.connect(sys.argv[1])
+          s.sendmsg([b'F'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array('i', [1]).tobytes())])
+          assert s.recv(1) == b'A'
+          s.close()
+          """
+          labels = ['exit_zero_and_eof', 'nonzero_exit_is_not_success', 'timeout_without_output',
+                    'timeout_with_partial_streams', 'timeout_with_truncated_partials',
+                    'root_exit_with_other_owned_writer_holding_pipe',
+                    'complete_output_limit_rejected', 'invalid_utf8_rejected']
+          outcomes = []
+
+          def invoke(argv, label, timeout=12):
+              sink = io.StringIO()
+              value, error = None, None
+              with contextlib.redirect_stdout(sink):
+                  try:
+                      value = run(argv, label, timeout=timeout, print_text=False)
+                  except Exception as caught:
+                      error = caught
+              text = sink.getvalue()
+              assert len(text.encode()) <= 64*1024, 'Controlled diagnostic sink exceeded'
+              records = []
+              for line in text.splitlines():
+                  kind, raw = line.split(' ', 1)
+                  assert kind in ('LOG_DECLARATION_COMMAND', 'LOG_DECLARATION_TIMEOUT', 'LOG_DECLARATION_ROOT_CLEANUP')
+                  record = json.loads(raw)
+                  assert record['head'] == os.environ['GITHUB_SHA']
+                  assert record['workflow_sha'] == os.environ['GITHUB_WORKFLOW_SHA']
+                  records.append((kind, record))
+              # Emit actual captured helper records; never source echo or expected records.
+              print(text, end='', flush=True)
+              return value, error, records
+
+          def timeout_check(result, label, out, err, code):
+              value, error, records = result
+              assert value is None and isinstance(error, subprocess.TimeoutExpired)
+              assert [k for k, _ in records] == ['LOG_DECLARATION_TIMEOUT', 'LOG_DECLARATION_ROOT_CLEANUP']
+              first, last = [v for _, v in records]
+              assert first['label'] == label and first['owned_root_pid'] > 0
+              assert first['owned_root_pid'] == last['owned_root_pid']
+              assert first['root_returncode_before_cleanup'] == (None if code == -9 else code)
+              assert last['reaped_returncode'] == code
+              assert first['partial_stdout_bytes'] == len(out) and first['partial_stderr_bytes'] == len(err)
+              assert base64.b64decode(first['partial_stdout_b64'], validate=True) == out[:12*1024]
+              assert base64.b64decode(first['partial_stderr_b64'], validate=True) == err[:12*1024]
+              assert first['partial_truncated'] == (len(out) > 12*1024 or len(err) > 12*1024)
+              assert len(json.dumps(first).encode()) <= 48*1024
+
+          def held_writer(label):
+              holder, received_fd, thread = None, None, None
+              result = {}
+              with tempfile.TemporaryDirectory(prefix='owned-control-') as directory:
+                  with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as server:
+                      server.settimeout(2)
+                      address = directory + '/s'
+                      server.bind(address)
+                      server.listen(1)
+                      def work():
+                          try:
+                              result['value'] = invoke([sys.executable, '-c', transfer, address], label, timeout=4)
+                          except Exception as error:
+                              result['error'] = error
+                      thread = threading.Thread(target=work)
+                      thread.start()
+                      try:
+                          connection, _ = server.accept()
+                          with connection:
+                              connection.settimeout(2)
+                              size = array.array('i').itemsize
+                              data, ancillary, flags, _ = connection.recvmsg(1, socket.CMSG_SPACE(size))
+                              assert data == b'F' and flags == 0 and len(ancillary) == 1
+                              level, kind, payload = ancillary[0]
+                              assert (level, kind) == (socket.SOL_SOCKET, socket.SCM_RIGHTS)
+                              descriptors = array.array('i')
+                              descriptors.frombytes(payload)
+                              assert len(descriptors) == 1
+                              received_fd = descriptors[0]
+                              holder = subprocess.Popen([sys.executable, '-c', 'import sys; sys.stdin.buffer.read(1)'],
+                                                        stdin=subprocess.PIPE, stdout=received_fd, stderr=subprocess.PIPE)
+                              os.close(received_fd)
+                              received_fd = None
+                              connection.sendall(b'A')
+                          thread.join(timeout=7)
+                          assert not thread.is_alive(), 'Runner thread cleanup unverified'
+                          if 'error' in result: raise result['error']
+                          timeout_check(result['value'], label, b'', b'', 0)
+                          _, stderr = holder.communicate(input=b'R', timeout=2)
+                          assert holder.returncode == 0 and stderr == b''
+                          print('OWNED_CONTROL_HOLDER_REAPED ' + json.dumps({
+                              'label': label, 'owned_pid': holder.pid, 'returncode': holder.returncode,
+                              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+                          }), flush=True)
+                      finally:
+                          if received_fd is not None: os.close(received_fd)
+                          if holder is not None:
+                              try:
+                                  if holder.poll() is None: holder.kill()
+                                  holder.wait(timeout=2)
+                              finally:
+                                  for pipe in (holder.stdin, holder.stdout, holder.stderr):
+                                      if pipe is not None: pipe.close()
+                          if thread is not None:
+                              thread.join(timeout=7)
+                              assert not thread.is_alive(), 'Owned runner thread unreconciled'
+
+          for label in labels:
+              print('OWNED_CONTROL_STARTED ' + json.dumps({'case': label, 'head': os.environ['GITHUB_SHA']}), flush=True)
+              try:
+                  if label == labels[5]:
+                      held_writer(label)
+                  else:
+                      mode = {labels[0]: 'ok', labels[1]: 'fail', labels[2]: 'empty', labels[3]: 'partial',
+                              labels[4]: 'truncated', labels[6]: 'cap', labels[7]: 'utf8'}[label]
+                      result = invoke([sys.executable, '-c', fixture, mode], label)
+                      value, error, records = result
+                      if mode == 'ok':
+                          assert error is None and value == (b'OUT', 'OUTERR')
+                          assert len(records) == 1 and records[0][0] == 'LOG_DECLARATION_COMMAND'
+                          assert records[0][1]['exit_code'] == 0 and records[0][1]['bytes'] == 6
+                      elif mode == 'fail':
+                          assert value is None and isinstance(error, AssertionError)
+                          assert str(error) == 'Command failed; no retry or alternate'
+                          assert len(records) == 1 and records[0][0] == 'LOG_DECLARATION_COMMAND'
+                          assert records[0][1]['exit_code'] == 7 and records[0][1]['bytes'] == 6
+                      elif mode in ('empty', 'partial', 'truncated'):
+                          size = 0 if mode == 'empty' else (16*1024 if mode == 'truncated' else 3)
+                          timeout_check(result, label, b'O'*size, b'E'*size, -9)
+                      elif mode == 'cap':
+                          assert value is None and isinstance(error, AssertionError) and not records
+                          assert str(error) == 'Per-command output limit exceeded'
+                      elif mode == 'utf8':
+                          assert value is None and isinstance(error, UnicodeDecodeError) and not records
+                  outcomes.append(label)
+                  print('OWNED_CONTROL_FINISHED ' + json.dumps({
+                      'case': label, 'outcome': 'PASS', 'head': os.environ['GITHUB_SHA'],
+                      'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+                  }), flush=True)
+              except Exception as error:
+                  print('OWNED_CONTROL_FINISHED ' + json.dumps({
+                      'case': label, 'outcome': 'FAIL', 'error_type': type(error).__name__, 'error': str(error)[:240],
+                      'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+                  }), flush=True)
+                  raise
+          assert outcomes == labels and len(set(outcomes)) == 8
+          print('OWNED_CONTROL_ONLY ' + json.dumps({
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'], 'cases': outcomes,
+              'limits': 'Eight finite command controls only; no SDK boot, device cleanup, allfailure, privacy, preemptive cap, routing or native acceptance'
+          }), flush=True)
+          PY
