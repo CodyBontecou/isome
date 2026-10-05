@@ -246,7 +246,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         guard result == .completed else { throw Failure.unmetCondition }
     }
     private func scrollDirectoryToTop() throws {
-        let introduction = app.staticTexts["Every place is listed here, even outside the visible map. Area annotations group places for rendering; they do not represent one shared location."]
+        let introduction = app.staticTexts.matching(NSPredicate(format: "label == %@", "Every place is listed here, even outside the visible map. Area annotations group places for rendering; they do not represent one shared location.")).firstMatch
         for _ in 0..<40 {
             if introduction.exists && introduction.isHittable { return }
             scrollSurface.swipeDown()
