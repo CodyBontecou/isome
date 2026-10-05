@@ -43,6 +43,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
     func testCombinedDotButtonsRouteSingletonPlaceAndAreaWithoutMarkerRequests() throws {
         try launch(["--fixture-dots"])
         XCTAssertTrue(requests(try receipt()).isEmpty)
+        try closeMapFilters()
         try tap(photoButtons.firstMatch)
         try require(app.buttons["Close photo"])
         try tap(app.buttons["Close photo"])
@@ -51,6 +52,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         try tap(app.buttons["Done"])
         try launch(["--fixture-dots", "--fixture-dense"])
         XCTAssertTrue(requests(try receipt()).isEmpty)
+        try closeMapFilters()
         let area = photoActivationElements.matching(NSPredicate(format: "label ENDSWITH %@", "photos in this area")).firstMatch
         try tap(area)
         try require(app.navigationBars["Photos in This Area"])
@@ -122,6 +124,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
                     try require(app.navigationBars["Photos Here"])
                     try tap(photoButtons.firstMatch)
                 } else {
+                    try closeMapFilters()
                     try tap(photoButtons.firstMatch)
                 }
                 try require(app.buttons["Close photo"])
@@ -316,6 +319,11 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         }
         recordNativeSnapshot("missing-map-layer")
         throw Failure.missingNativeElement
+    }
+    private func closeMapFilters() throws {
+        try tap(app.buttons["Close map filters"])
+        try require(app.buttons["Open map filters"])
+        XCTAssertFalse(app.buttons["Close map filters"].exists)
     }
     private func input(_ label: String) throws {
         try tap(app.buttons["photo.fixture.inputs"])
