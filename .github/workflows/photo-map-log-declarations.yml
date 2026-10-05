@@ -1,0 +1,107 @@
+name: Photo map simulator log declarations
+
+on:
+  push:
+    branches: [prep/iso-65-66-log-declarations-probe-20261005]
+    paths: [.github/workflows/photo-map-log-declarations.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: photo-map-log-declarations-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  declarations:
+    if: github.event.repository.private == false
+    runs-on: macos-latest
+    timeout-minutes: 8
+    steps:
+      - name: Exact hosted SDK provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'HEAD=%s\nWORKFLOW_SHA=%s\nImageOS=%s\nImageVersion=%s\n' "$GITHUB_SHA" "$GITHUB_WORKFLOW_SHA" "${ImageOS:-unknown}" "${ImageVersion:-unknown}"
+          sw_vers
+          xcodebuild -version
+          xcodebuild -showsdks
+          xcrun swift --version
+
+      - name: Installed simulator and guest log help only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, subprocess
+
+          total = 0
+          def run(argv, label, timeout=12, cap=24*1024, print_text=True):
+              global total
+              result = subprocess.run(argv, capture_output=True, timeout=timeout)
+              size = len(result.stdout) + len(result.stderr)
+              assert size <= cap, 'Per-command output limit exceeded'
+              total += size
+              assert total <= 512*1024, 'Cumulative output limit exceeded'
+              text = (result.stdout + result.stderr).decode('utf-8', errors='strict')
+              print('LOG_DECLARATION_COMMAND ' + json.dumps({
+                  'label': label, 'argv': argv, 'exit_code': result.returncode,
+                  'bytes': size, 'head': os.environ['GITHUB_SHA'],
+                  'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+              }), flush=True)
+              if print_text: print(text, flush=True)
+              assert result.returncode == 0, 'Command failed; no retry or alternate'
+              return result.stdout, text
+
+          def declared(text, name):
+              assert re.search(r'^\s*' + re.escape(name) + r'\s+', text, re.M), (
+                  'Required command not declared: ' + name)
+
+          _, root = run(['xcrun', 'simctl', 'help'], 'simctl-root-help')
+          for name in ['list', 'boot', 'bootstatus', 'spawn', 'shutdown']:
+              declared(root, name)
+              run(['xcrun', 'simctl', 'help', name], 'simctl-' + name + '-help')
+          data, _ = run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'],
+                        'available-devices', cap=256*1024, print_text=False)
+          inventory = json.loads(data)
+          candidates = []
+          for runtime, devices in inventory['devices'].items():
+              if not runtime.startswith('com.apple.CoreSimulator.SimRuntime.iOS-'): continue
+              for device in devices:
+                  if device['isAvailable'] and device['state'] == 'Shutdown' and device['name'].startswith('iPhone'):
+                      candidates.append((runtime, device['name'], device['udid']))
+          assert candidates, 'No available shutdown preinstalled iPhone; no download/create fallback'
+          runtime, name, udid = sorted(candidates)[0]
+          assert re.fullmatch(r'[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}', udid)
+          print('LOG_DECLARATION_DEVICE ' + json.dumps({
+              'runtime': runtime, 'name': name, 'udid': udid,
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+          }), flush=True)
+          attempted_boot = False
+          try:
+              attempted_boot = True
+              run(['xcrun', 'simctl', 'boot', udid], 'owned-boot-request', timeout=30)
+              run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], 'owned-boot-status', timeout=150)
+              guest = ['xcrun', 'simctl', 'spawn', udid, 'log']
+              _, log_root = run(guest + ['help'], 'guest-log-root-help')
+              for name in ['show', 'stream']:
+                  declared(log_root, name)
+                  run(guest + ['help', name], 'guest-log-' + name + '-help')
+          finally:
+              if attempted_boot:
+                  run(['xcrun', 'simctl', 'shutdown', udid], 'owned-shutdown-request', timeout=30)
+                  data, _ = run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'],
+                                'post-shutdown-devices', cap=256*1024, print_text=False)
+                  states = [d['state'] for rows in json.loads(data)['devices'].values()
+                            for d in rows if d['udid'] == udid]
+                  assert states == ['Shutdown'], 'Owned device shutdown unverified'
+                  print('LOG_DECLARATION_CLEANUP ' + json.dumps({
+                      'udid': udid, 'observed_state': states[0],
+                      'limits': 'Observable simulator state, not process-absence proof'
+                  }), flush=True)
+          print('LOG_DECLARATIONS_ONLY ' + json.dumps({
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+              'output_bytes': total, 'udid': udid, 'runtime': runtime,
+              'limits': 'Installed declarations only. No emitter/app/test/capture/routing/security acceptance. Output limits are post-return, not preemptive allocation bounds. Guest help is not macOS host-log data or actual product qualification.'
+          }), flush=True)
+          PY
