@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 8
     steps:
-      - name: Eight real child controls without simulator or SDK operations
+      - name: Nine real child controls without simulator or SDK operations
         shell: bash
         run: |
           set -euo pipefail
@@ -83,6 +83,11 @@ jobs:
           import array, contextlib, hashlib, io, pathlib, platform, signal, socket
           import sys, tempfile, threading
 
+          guard_source = (
+              "import sys\n"
+              "if not __debug__ or sys.flags.optimize != 0:\n"
+              "    raise RuntimeError('Checks disabled by optimization')\n")
+          exec(guard_source)
           assert sys.platform == 'darwin', 'Public macOS lane required'
           assert sys.version_info[:3] == (3, 14, 7), 'Unreviewed Python version; no fallback'
           assert signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'Unexpected child wait policy'
@@ -91,6 +96,9 @@ jobs:
           print('OWNED_CONTROL_PROVENANCE ' + json.dumps({
               'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
               'python': sys.version, 'platform': platform.platform(), 'cpu_count': os.cpu_count(),
+              'debug_checks': __debug__, 'optimize': sys.flags.optimize,
+              'sigchld_policy': int(signal.getsignal(signal.SIGCHLD)),
+              'guard_sha256': hashlib.sha256(guard_source.encode()).hexdigest(),
               'image_os': os.environ.get('ImageOS'), 'image_version': os.environ.get('ImageVersion'),
               'subprocess_path': str(module), 'subprocess_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
               'limits': 'Actual module pin, not upstream equality; no SDK/device/service absence or allfailure qualification'
@@ -124,7 +132,8 @@ jobs:
           labels = ['exit_zero_and_eof', 'nonzero_exit_is_not_success', 'timeout_without_output',
                     'timeout_with_partial_streams', 'timeout_with_truncated_partials',
                     'root_exit_with_other_owned_writer_holding_pipe',
-                    'complete_output_limit_rejected', 'invalid_utf8_rejected']
+                    'complete_output_limit_rejected', 'invalid_utf8_rejected',
+                    'optimized_interpreter_rejects_checks']
           outcomes = []
 
           def invoke(argv, label, timeout=12):
@@ -147,7 +156,35 @@ jobs:
                   records.append((kind, record))
               # Emit actual captured helper records; never source echo or expected records.
               print(text, end='', flush=True)
+              if error is not None:
+                  print('OWNED_CONTROL_EXCEPTION ' + json.dumps({
+                      'case': label, 'type': type(error).__name__, 'message': str(error)[:240],
+                      'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+                  }), flush=True)
               return value, error, records
+
+          def optimized_guard_control(label):
+              sink = io.StringIO()
+              error = None
+              with contextlib.redirect_stdout(sink):
+                  try:
+                      run([sys.executable, '-O', '-c', guard_source], label, print_text=True)
+                  except AssertionError as caught:
+                      error = caught
+              text = sink.getvalue()
+              assert len(text.encode()) <= 64*1024
+              assert isinstance(error, AssertionError) and str(error) == 'Command failed; no retry or alternate'
+              commands = [json.loads(line.split(' ', 1)[1]) for line in text.splitlines()
+                          if line.startswith('LOG_DECLARATION_COMMAND ')]
+              assert len(commands) == 1 and commands[0]['label'] == label and commands[0]['exit_code'] == 1
+              assert commands[0]['head'] == commands[0]['workflow_sha'] == os.environ['GITHUB_SHA']
+              assert re.search(r'^RuntimeError: Checks disabled by optimization$', text, re.M)
+              print(text, end='', flush=True)
+              print('OWNED_CONTROL_OPTIMIZATION_REJECTED ' + json.dumps({
+                  'case': label, 'exit_code': 1, 'guard_sha256': hashlib.sha256(guard_source.encode()).hexdigest(),
+                  'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                  'limits': 'Real -O child executing the same guard; parent assertion failure not swallowed as command success'
+              }), flush=True)
 
           def timeout_check(result, label, out, err, code):
               value, error, records = result
@@ -224,7 +261,9 @@ jobs:
           for label in labels:
               print('OWNED_CONTROL_STARTED ' + json.dumps({'case': label, 'head': os.environ['GITHUB_SHA']}), flush=True)
               try:
-                  if label == labels[5]:
+                  if label == labels[8]:
+                      optimized_guard_control(label)
+                  elif label == labels[5]:
                       held_writer(label)
                   else:
                       mode = {labels[0]: 'ok', labels[1]: 'fail', labels[2]: 'empty', labels[3]: 'partial',
@@ -259,9 +298,9 @@ jobs:
                       'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
                   }), flush=True)
                   raise
-          assert outcomes == labels and len(set(outcomes)) == 8
+          assert outcomes == labels and len(set(outcomes)) == 9
           print('OWNED_CONTROL_ONLY ' + json.dumps({
               'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'], 'cases': outcomes,
-              'limits': 'Eight finite command controls only; no SDK boot, device cleanup, allfailure, privacy, preemptive cap, routing or native acceptance'
+              'limits': 'Nine finite command controls only; no SDK boot, device cleanup, allfailure, privacy, preemptive cap, routing or native acceptance'
           }), flush=True)
           PY
