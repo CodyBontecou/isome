@@ -1,0 +1,75 @@
+name: Photo map xcresult evidence discovery
+
+on:
+  push:
+    branches: [prep/iso-65-66-xcresult-evidence-probe-20261005]
+    paths: [.github/workflows/photo-map-xcresult-evidence-discovery.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: photo-map-xcresult-discovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    if: github.event.repository.private == false
+    runs-on: macos-latest
+    timeout-minutes: 8
+    steps:
+      - name: Installed hosted SDK provenance only
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'HEAD=%s\nWORKFLOW_SHA=%s\nImageOS=%s\nImageVersion=%s\n' "$GITHUB_SHA" "$GITHUB_WORKFLOW_SHA" "${ImageOS:-unknown}" "${ImageVersion:-unknown}"
+          sw_vers
+          xcodebuild -version
+          xcrun swift --version
+
+      - name: Follow declared xcresulttool help commands only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, subprocess
+
+          output_bytes = 0
+          def help_for(path):
+              global output_bytes
+              command = ['xcrun', 'xcresulttool', *path, '--help']
+              result = subprocess.run(command, capture_output=True, timeout=10)
+              size = len(result.stdout) + len(result.stderr)
+              assert size <= 24 * 1024, 'Per-command help output cap exceeded'
+              output_bytes += size
+              assert output_bytes <= 256 * 1024, 'Task help output cap exceeded'
+              print('XCRESULT_DECLARED_HELP ' + json.dumps({
+                  'path': path, 'exit_code': result.returncode, 'bytes': size,
+                  'head': os.environ['GITHUB_SHA'],
+                  'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA']
+              }), flush=True)
+              print(result.stdout.decode('utf-8', errors='strict'), flush=True)
+              if result.stderr:
+                  print(result.stderr.decode('utf-8', errors='strict'), flush=True)
+              assert result.returncode == 0, 'Declared help invocation failed; no retry'
+              return result.stdout.decode('utf-8', errors='strict')
+
+          def require_declared(help_text, command):
+              assert re.search(r'^\s+' + re.escape(command) + r'(?:\s|$)', help_text, re.M), (
+                  'Required subcommand not declared; no alternate or guessed retry: ' + command)
+
+          root = help_for([])
+          require_declared(root, 'get')
+          get = help_for(['get'])
+          require_declared(get, 'test-results')
+          results = help_for(['get', 'test-results'])
+          for command in ['tests', 'test-details']:
+              require_declared(results, command)
+              help_for(['get', 'test-results', command])
+          print('XCRESULT_DISCOVERY_ONLY ' + json.dumps({
+              'head': os.environ['GITHUB_SHA'],
+              'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+              'help_output_bytes': output_bytes,
+              'limits': 'Installed help declarations only. No result bundle, test execution, case status/start/end semantics, complete named outcomes, security or release qualification. Capture cap is checked after subprocess return; not a preemptive allocation bound.'
+          }), flush=True)
+          PY
