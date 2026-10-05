@@ -96,6 +96,22 @@ jobs:
               assert re.search(r'^\s*' + re.escape(name) + r'\s+', text, re.M), (
                   'Required command not declared: ' + name)
 
+          _, wrapper_help = run(['xcrun', '--help'], 'xcrun-root-help')
+          assert re.search(r'^\s*(?:-[A-Za-z],?\s+)?--find(?:\s|$)', wrapper_help, re.M), (
+              'xcrun --find option not declared; no guessed alternative')
+          resolved, _ = run(['xcrun', '--find', 'simctl'], 'xcrun-find-simctl')
+          paths = resolved.decode('utf-8', errors='strict').splitlines()
+          assert len(paths) == 1 and len(paths[0].encode()) <= 4096, 'Tool locator malformed'
+          tool_path = paths[0]
+          assert os.path.isabs(tool_path) and os.path.basename(tool_path) == 'simctl'
+          assert os.path.isfile(tool_path), 'Resolved simctl file unavailable; no fallback'
+          record = json.dumps({
+              'tool': 'simctl', 'resolved_path': tool_path,
+              'head': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+              'limits': 'Declared lookup and file predicate only; no direct invocation, binary identity or cause proof'
+          })
+          assert len(record.encode()) <= 8*1024, 'Resolution metadata limit exceeded'
+          print('LOG_DECLARATION_RESOLUTION ' + record, flush=True)
           _, root = run(['xcrun', 'simctl', 'help'], 'simctl-root-help')
           for name in ['list', 'boot', 'bootstatus', 'spawn', 'shutdown']:
               declared(root, name)
