@@ -282,29 +282,23 @@ private struct PhotoMapFixtureRoot: View {
                 .font(.system(size: 8, design: .monospaced))
                 .lineLimit(3)
                 .accessibilityIdentifier("photo.fixture.receipt")
-            NavigationStack {
-                LocationMapView(viewModel: fixture.viewModel, photoThumbnailLoader: {
-                    fixture.inputs.thumbnail($0, $1, $2)
-                })
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu("Fixture inputs") {
-                            Button("Reload unchanged", action: fixture.reload)
-                            Button("Limit same IDs") { fixture.changeAccess(.limited) }
-                            Button("Limit last 21 IDs") { fixture.changeAccess(.limited, lastIDsOnly: true) }
-                            Button("Deny access") { fixture.changeAccess(.denied) }
-                            Button("Restore access") { fixture.changeAccess(.authorized) }
-                            Button("Narrow range", action: fixture.narrowRange)
-                            Button("Restore range", action: fixture.restoreRange)
-                            Button("Replace same-count member", action: fixture.replaceOneMember)
-                            Button("Arm limited access on background") { fixture.arm(.limited) }
-                            Button("Arm range change on background") { fixture.arm(.range) }
-                            Button("Arm replacement on background") { fixture.arm(.replacement) }
-                        }
-                        .accessibilityIdentifier("photo.fixture.inputs")
-                    }
-                }
+            Menu("Fixture inputs") {
+                Button("Reload unchanged", action: fixture.reload)
+                Button("Limit same IDs") { fixture.changeAccess(.limited) }
+                Button("Limit last 21 IDs") { fixture.changeAccess(.limited, lastIDsOnly: true) }
+                Button("Deny access") { fixture.changeAccess(.denied) }
+                Button("Restore access") { fixture.changeAccess(.authorized) }
+                Button("Narrow range", action: fixture.narrowRange)
+                Button("Restore range", action: fixture.restoreRange)
+                Button("Replace same-count member", action: fixture.replaceOneMember)
+                Button("Arm limited access on background") { fixture.arm(.limited) }
+                Button("Arm range change on background") { fixture.arm(.range) }
+                Button("Arm replacement on background") { fixture.arm(.replacement) }
             }
+            .accessibilityIdentifier("photo.fixture.inputs")
+            LocationMapView(viewModel: fixture.viewModel, photoThumbnailLoader: {
+                fixture.inputs.thumbnail($0, $1, $2)
+            })
         }
     }
 }
