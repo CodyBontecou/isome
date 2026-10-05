@@ -113,9 +113,16 @@ jobs:
           assert len(record.encode()) <= 8*1024, 'Resolution metadata limit exceeded'
           print('LOG_DECLARATION_RESOLUTION ' + record, flush=True)
           _, root = run(['xcrun', 'simctl', 'help'], 'simctl-root-help')
+          declared(root, 'help')
+          assert 'simctl help [subcommand]' in root, 'Detail-help grammar unverified'
           for name in ['list', 'boot', 'bootstatus', 'spawn', 'shutdown']:
-              declared(root, name)
-              run(['xcrun', 'simctl', 'help', name], 'simctl-' + name + '-help')
+              if name != 'bootstatus': declared(root, name)
+              _, details = run(['xcrun', 'simctl', 'help', name], 'simctl-' + name + '-help')
+              if name == 'bootstatus':
+                  usage = re.search(r'^Usage:\s+simctl\s+bootstatus\s+([^\n]+)$', details, re.M)
+                  assert usage and '<device>' in usage.group(1), 'Bootstatus usage unverified'
+                  assert (re.search(r'^\s*-b(?:\s|,|$)', details, re.M)
+                          or '[-b]' in usage.group(1)), 'Bootstatus -b declaration unverified'
           data, _ = run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'],
                         'available-devices', cap=256*1024, print_text=False)
           inventory = json.loads(data)
