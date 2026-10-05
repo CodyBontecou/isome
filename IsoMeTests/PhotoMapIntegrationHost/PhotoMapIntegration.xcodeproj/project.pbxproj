@@ -10,6 +10,9 @@
 		E65000010000000000000022 = {isa = PBXBuildFile; productRef = E6500001000000000000001F; };
 		E65000010000000000000023 = {isa = PBXBuildFile; productRef = E65000010000000000000020; };
 		E65000010000000000000024 = {isa = PBXBuildFile; productRef = E65000010000000000000021; };
+		E65000010000000000000025 = {isa = PBXBuildFile; fileRef = E65000010000000000000028; };
+		E65000010000000000000026 = {isa = PBXBuildFile; fileRef = E65000010000000000000029; };
+		E65000010000000000000027 = {isa = PBXBuildFile; fileRef = E6500001000000000000002A; };
 /* End PBXBuildFile section */
 /* Begin PBXContainerItemProxy section */
 		E65000010000000000000015 = {isa = PBXContainerItemProxy; containerPortal = E65000010000000000000003; proxyType = 1; remoteGlobalIDString = E65000010000000000000001; remoteInfo = IsoMePhotoMapHost; };
@@ -20,6 +23,9 @@
 		E6500001000000000000000A = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IsoMePhotoMapHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6500001000000000000000B = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoMapIntegrationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6500001000000000000000C = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PhotoMapIntegrationHost-Info.plist"; sourceTree = "<group>"; };
+		E65000010000000000000028 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLocationData.swift; sourceTree = "<group>"; };
+		E65000010000000000000029 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceFormatter.swift; sourceTree = "<group>"; };
+		E6500001000000000000002A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLocationSyncPayload.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		E65000010000000000000007 = {
@@ -43,7 +49,8 @@
 		E65000010000000000000012 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 /* Begin PBXGroup section */
-		E65000010000000000000004 = {isa = PBXGroup; children = (E65000010000000000000006, E65000010000000000000008, E65000010000000000000009, E6500001000000000000000C, E65000010000000000000005); sourceTree = "<group>"; };
+		E65000010000000000000004 = {isa = PBXGroup; children = (E65000010000000000000006, E6500001000000000000002B, E65000010000000000000008, E65000010000000000000009, E6500001000000000000000C, E65000010000000000000005); sourceTree = "<group>"; };
+		E6500001000000000000002B = {isa = PBXGroup; children = (E65000010000000000000028, E65000010000000000000029, E6500001000000000000002A); name = Shared; path = ../../Shared; sourceTree = "<group>"; };
 		E65000010000000000000005 = {isa = PBXGroup; children = (E6500001000000000000000A, E6500001000000000000000B); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 /* Begin PBXNativeTarget section */
@@ -80,7 +87,7 @@
 		E65000010000000000000014 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 /* Begin PBXSourcesBuildPhase section */
-		E6500001000000000000000F = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6500001000000000000000D); runOnlyForDeploymentPostprocessing = 0; };
+		E6500001000000000000000F = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6500001000000000000000D, E65000010000000000000025, E65000010000000000000026, E65000010000000000000027); runOnlyForDeploymentPostprocessing = 0; };
 		E65000010000000000000010 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (E6500001000000000000000E); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 /* Begin PBXTargetDependency section */

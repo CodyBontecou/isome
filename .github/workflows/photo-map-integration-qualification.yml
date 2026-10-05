@@ -70,10 +70,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xcodebuild build-for-testing -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
-            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2 \
-            -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          BUILD_ARGUMENTS=(-project "$PROJECT" -scheme "$SCHEME" -configuration Debug
+            -destination "$DESTINATION" -derivedDataPath "$DERIVED" -jobs 2
+            -disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile)
+          if [[ "$LANE" == native ]]; then
+            BUILD_ARGUMENTS+=(CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO)
+          fi
+          xcodebuild build-for-testing "${BUILD_ARGUMENTS[@]}"
 
       - name: Run actual registered tests once
         id: tests
@@ -86,8 +89,10 @@ jobs:
           if [[ "$LANE" == native ]]; then
             TEST_ARGUMENTS+=(-test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 300)
           fi
-          TEST_ARGUMENTS+=(-disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO)
+          TEST_ARGUMENTS+=(-disableAutomaticPackageResolution -onlyUsePackageVersionsFromResolvedFile)
+          if [[ "$LANE" == native ]]; then
+            TEST_ARGUMENTS+=(CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO)
+          fi
           xcodebuild test-without-building "${TEST_ARGUMENTS[@]}" 2>&1 | tee "$RUNNER_TEMP/photo-map-$LANE-tests.log"
 
       - name: Collect individually named ordinary outcomes
