@@ -6,8 +6,12 @@ import Foundation
 final class PhotoMapIntegrationUITests: XCTestCase {
     private let app = XCUIApplication(bundleIdentifier: "tech.isolated.synthetic.IsoMePhotoMapHost")
     private enum Failure: Error { case missingNativeElement, missingReceipt, unmetCondition }
+    private var nativeSnapshotRecords = 0
 
-    override func setUpWithError() throws { continueAfterFailure = false }
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        nativeSnapshotRecords = 0
+    }
     override func tearDownWithError() throws { app.terminate() }
 
     func testCombinedPreferenceReopenPreservesMembershipAndLegacyChoice() throws {
@@ -185,6 +189,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["photo.fixture.failed"].exists)
         XCTAssertFalse(flag(try receipt(), "failed"))
         try awaitCondition { self.number(try self.receipt(), "metadataReads") > 0 }
+        if nativeSnapshotRecords == 0 { recordNativeSnapshot("ready-root") }
     }
     private func receipt() throws -> [String: Any] {
         let element = app.staticTexts["photo.fixture.receipt"]
@@ -209,8 +214,63 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         guard let values = receipt["requestedIDs"] as? [String] else { XCTFail("Missing request inventory"); return [] }
         return values
     }
+    /// Diagnostic only: snapshot attributes are NOT visibility or hittability proof.
+    private func recordNativeSnapshot(_ phase: String) {
+        guard nativeSnapshotRecords < 2 else { return }
+        nativeSnapshotRecords += 1
+        let started = Date()
+        do {
+            let snapshot = try app.snapshot()
+            var nodes: [(node: any XCUIElementSnapshot, depth: Int)] = [(snapshot, 0)]
+            var cursor = 0
+            var truncated = false
+            var records: [[String: Any]] = []
+            let labels: Set<String> = ["Photo", "Photos", "Photo Area", "Photo dots", "Photo images", "Fixture inputs", "Open map filters", "Close map filters"]
+            while cursor < nodes.count && cursor < 512 {
+                let (node, depth) = nodes[cursor]
+                cursor += 1
+                let children = node.children
+                let room = 512 - nodes.count
+                if depth < 20 && room > 0 {
+                    nodes.append(contentsOf: children.prefix(room).map { ($0, depth + 1) })
+                    if children.count > room { truncated = true }
+                } else if !children.isEmpty { truncated = true }
+                let label = node.label
+                guard node.identifier == "photo.fixture.inputs" || labels.contains(label)
+                    || label.hasPrefix("Photo taken at") || label.hasPrefix("Browse ")
+                    || label.hasSuffix("photos taken here") || label.hasSuffix("photos in this area")
+                else { continue }
+                guard records.count < 48 else { truncated = true; continue }
+                let frame = node.frame
+                guard frame.minX.isFinite && frame.minY.isFinite && frame.width.isFinite && frame.height.isFinite
+                else { truncated = true; continue }
+                records.append([
+                    "type": node.elementType.rawValue,
+                    "identifier": String(node.identifier.prefix(160)),
+                    "label": String(label.prefix(160)),
+                    "enabled": node.isEnabled,
+                    "frame": [frame.minX, frame.minY, frame.width, frame.height],
+                    "depth": depth
+                ])
+            }
+            let payload: [String: Any] = [
+                "phase": phase, "test": String(name.prefix(160)), "visited": cursor,
+                "truncated": truncated, "notHittabilityEvidence": true,
+                "elapsedSeconds": Date().timeIntervalSince(started), "records": records
+            ]
+            let data = try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys])
+            guard data.count <= 16 * 1_024, let line = String(data: data, encoding: .utf8) else {
+                print("PHOTO_NATIVE_SNAPSHOT unavailable bounded-output")
+                return
+            }
+            print("PHOTO_NATIVE_SNAPSHOT \(line)")
+        } catch {
+            print("PHOTO_NATIVE_SNAPSHOT unavailable snapshot-or-encoding")
+        }
+    }
     private func require(_ element: XCUIElement) throws {
         guard element.waitForExistence(timeout: 5) else {
+            recordNativeSnapshot("missing-required-element")
             XCTFail("Missing native element: \(element)")
             throw Failure.missingNativeElement
         }
@@ -234,6 +294,7 @@ final class PhotoMapIntegrationUITests: XCTestCase {
             if button.exists && button.isHittable { try tap(button); return }
             app.scrollViews.firstMatch.swipeLeft()
         }
+        recordNativeSnapshot("missing-map-layer")
         throw Failure.missingNativeElement
     }
     private func input(_ label: String) throws {
