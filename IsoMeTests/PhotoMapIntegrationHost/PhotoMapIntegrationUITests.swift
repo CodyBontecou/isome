@@ -46,12 +46,12 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         try tap(photoButtons.firstMatch)
         try require(app.buttons["Close photo"])
         try tap(app.buttons["Close photo"])
-        try tap(app.buttons["2 photos taken here"])
+        try tap(photoActivationElements["2 photos taken here"])
         try require(app.navigationBars["Photos Here"])
         try tap(app.buttons["Done"])
         try launch(["--fixture-dots", "--fixture-dense"])
         XCTAssertTrue(requests(try receipt()).isEmpty)
-        let area = app.buttons.matching(NSPredicate(format: "label ENDSWITH %@", "photos in this area")).firstMatch
+        let area = photoActivationElements.matching(NSPredicate(format: "label ENDSWITH %@", "photos in this area")).firstMatch
         try tap(area)
         try require(app.navigationBars["Photos in This Area"])
         try tap(app.buttons["Done"])
@@ -174,8 +174,15 @@ final class PhotoMapIntegrationUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Browse 21 photo places"].isHittable)
     }
 
+    // MapKit exposes actionable annotation content as Other, while grids use Button.
+    // Exact labels and the existing native tap/route assertions still determine success.
+    private var photoActivationElements: XCUIElementQuery {
+        let types = [NSNumber(value: XCUIElement.ElementType.button.rawValue),
+                     NSNumber(value: XCUIElement.ElementType.other.rawValue)]
+        return app.descendants(matching: .any).matching(NSPredicate(format: "elementType IN %@", types as NSArray))
+    }
     private var photoButtons: XCUIElementQuery {
-        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Photo taken at"))
+        photoActivationElements.matching(NSPredicate(format: "label BEGINSWITH %@", "Photo taken at"))
     }
     private var scrollSurface: XCUIElement {
         app.collectionViews.firstMatch.exists ? app.collectionViews.firstMatch : app.scrollViews.firstMatch
