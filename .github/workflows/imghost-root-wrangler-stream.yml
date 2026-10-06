@@ -1,0 +1,68 @@
+name: Imghost bounded registry metadata stream size diagnostic
+on:
+  push:
+    branches: [prep/qualification/imghost-root-wrangler-stream-20261006]
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Resource and identity admission, no checkout or install
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          python3 - <<'PY'
+          import os,shutil
+          assert os.environ['RUNNER_ENVIRONMENT']=='github-hosted'
+          assert os.environ['RUNNER_OS']=='Linux'
+          assert os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          assert os.environ['GITHUB_SHA']==os.environ['GITHUB_WORKFLOW_SHA']
+          assert shutil.disk_usage('/').free>=10*1024**3
+          available=next(int(x.split()[1])*1024 for x in open('/proc/meminfo') if x.startswith('MemAvailable:'))
+          assert available>=3*1024**3
+          PY
+      - name: Syntax then finite controls and one bounded identity metadata stream
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/imghost-root-wrangler-stream-owned"
+          test ! -e "$root"
+          mkdir -m 700 "$root"
+          ulimit -f 128
+          python3 - "$root/control.py" <<'PY'
+          from pathlib import Path
+          import base64,hashlib,sys
+          data=base64.b64decode('IiIiQ2xvdWQtb25seSwgb25lIGZyZXNoIHB1YmxpYyBmdWxsLW1ldGFkYXRhIHN0cmVhbS4gTm8gYm9keSBzdG9yYWdlIG9yIHBhY2thZ2UgcGFyc2luZy4iIiIKaW1wb3J0IGRhdGV0aW1lCmltcG9ydCBoYXNobGliCmltcG9ydCBodHRwLmNsaWVudAppbXBvcnQgaW8KaW1wb3J0IGpzb24KaW1wb3J0IG9zCmltcG9ydCB0aW1lCgpDQVAgPSA2NCAqIDEwMjQgKiAxMDI0CkNIVU5LID0gNjQgKiAxMDI0CkRFQURMSU5FID0gNzUKUFJFRklYID0gJ0lNR0hPU1RfUkVHSVNUUllfU1RSRUFNXycKCgpkZWYgZW1pdChraW5kLCAqKnZhbHVlcyk6CiAgICBwcmludChQUkVGSVggKyBraW5kICsgJyAnICsganNvbi5kdW1wcyh2YWx1ZXMsIHNvcnRfa2V5cz1UcnVlKSwgZmx1c2g9VHJ1ZSkKCgpkZWYgY291bnRfc3RyZWFtKHJlc3BvbnNlLCBjYXAsIGNodW5rLCBkZWFkbGluZSk6CiAgICB0b3RhbCA9IDAKICAgIGRpZ2VzdCA9IGhhc2hsaWIuc2hhMjU2KCkKICAgIHdoaWxlIFRydWU6CiAgICAgICAgaWYgdGltZS5tb25vdG9uaWMoKSA+PSBkZWFkbGluZToKICAgICAgICAgICAgcmV0dXJuIHRvdGFsLCBkaWdlc3QuaGV4ZGlnZXN0KCksICdERUFETElORV9TVE9QJwogICAgICAgIGlmIHRvdGFsID09IGNhcDoKICAgICAgICAgICAgIyBEbyBub3QgcmVhZCBhIHNlbnRpbmVsIGJleW9uZCB0aGUgY2FwLiBFdmVuIGV4YWN0LWNhcCBFT0Ygc3RheXMgdW5xdWFsaWZpZWQuCiAgICAgICAgICAgIHJldHVybiB0b3RhbCwgZGlnZXN0LmhleGRpZ2VzdCgpLCAnQ0FQX1JFQUNIRURfRU9GX1VOUVVBTElGSUVEX1NUT1AnCiAgICAgICAgZGF0YSA9IHJlc3BvbnNlLnJlYWQobWluKGNodW5rLCBjYXAgLSB0b3RhbCkpCiAgICAgICAgaWYgbGVuKGRhdGEpID4gbWluKGNodW5rLCBjYXAgLSB0b3RhbCk6CiAgICAgICAgICAgIHJhaXNlIFJ1bnRpbWVFcnJvcigncmVhZGVyIHJldHVybmVkIG1vcmUgYnl0ZXMgdGhhbiByZXF1ZXN0ZWQnKQogICAgICAgIGlmIG5vdCBkYXRhOgogICAgICAgICAgICByZXR1cm4gdG90YWwsIGRpZ2VzdC5oZXhkaWdlc3QoKSwgJ0VPRicKICAgICAgICB0b3RhbCArPSBsZW4oZGF0YSkKICAgICAgICBkaWdlc3QudXBkYXRlKGRhdGEpCiAgICAgICAgZGVsIGRhdGEKCgpkZWYgY29udHJvbHMoKToKICAgIHBvc2l0aXZlID0gY291bnRfc3RyZWFtKGlvLkJ5dGVzSU8oYidhYmMnKSwgOCwgMiwgdGltZS5tb25vdG9uaWMoKSArIDIpCiAgICBhc3NlcnQgcG9zaXRpdmUgPT0gKDMsIGhhc2hsaWIuc2hhMjU2KGInYWJjJykuaGV4ZGlnZXN0KCksICdFT0YnKQogICAgZXhhY3QgPSBjb3VudF9zdHJlYW0oaW8uQnl0ZXNJTyhiJ2FiY2QnKSwgNCwgMiwgdGltZS5tb25vdG9uaWMoKSArIDIpCiAgICBhc3NlcnQgZXhhY3QgPT0gKDQsIGhhc2hsaWIuc2hhMjU2KGInYWJjZCcpLmhleGRpZ2VzdCgpLCAnQ0FQX1JFQUNIRURfRU9GX1VOUVVBTElGSUVEX1NUT1AnKQogICAgb3ZlciA9IGNvdW50X3N0cmVhbShpby5CeXRlc0lPKGInYWJjZGUnKSwgNCwgMiwgdGltZS5tb25vdG9uaWMoKSArIDIpCiAgICBhc3NlcnQgb3ZlciA9PSBleGFjdAogICAgZXhwaXJlZCA9IGNvdW50X3N0cmVhbShpby5CeXRlc0lPKGInYWJjJyksIDgsIDIsIHRpbWUubW9ub3RvbmljKCkgLSAxKQogICAgYXNzZXJ0IGV4cGlyZWQgPT0gKDAsIGhhc2hsaWIuc2hhMjU2KGInJykuaGV4ZGlnZXN0KCksICdERUFETElORV9TVE9QJykKICAgIGVtaXQoJ0NPTlRST0xTJywgYmVsb3dfY2FwX2VvZj1UcnVlLCBleGFjdF9jYXBfZW9mX3dpdGhoZWxkPVRydWUsCiAgICAgICAgIG92ZXJfY2FwX25vX3NlbnRpbmVsX3JlYWQ9VHJ1ZSwgZXhwaXJlZF9iZWZvcmVfcmVhZD1UcnVlLAogICAgICAgICBsaW1pdHM9J0ZvdXIgaW4tbWVtb3J5IGJ5dGUvY291bnQvaGFzaCBjb250cm9scyBvbmx5LCBub3QgSFRUUC9UTFMvcHJvY2Vzcy9hbGxvY2F0aW9uIHByb29mLicpCgoKZGVmIG1haW4oKToKICAgIGFzc2VydCBvcy5lbnZpcm9uWydSVU5ORVJfRU5WSVJPTk1FTlQnXSA9PSAnZ2l0aHViLWhvc3RlZCcKICAgIGFzc2VydCBvcy5lbnZpcm9uWydSVU5ORVJfT1MnXSA9PSAnTGludXgnCiAgICBhc3NlcnQgb3MuZW52aXJvblsnR0lUSFVCX1JVTl9BVFRFTVBUJ10gPT0gJzEnCiAgICBjb250cm9scygpCiAgICBzdGFydGVkID0gdGltZS5tb25vdG9uaWMoKQogICAgdXRjID0gZGF0ZXRpbWUuZGF0ZXRpbWUubm93KGRhdGV0aW1lLnRpbWV6b25lLnV0YykuaXNvZm9ybWF0KCkKICAgIHRvdGFsID0gMAogICAgZGlnZXN0ID0gaGFzaGxpYi5zaGEyNTYoYicnKS5oZXhkaWdlc3QoKQogICAgZGlzcG9zaXRpb24gPSAnTk9fQk9EWV9SRUFEJwogICAgY29ubmVjdGlvbiA9IGh0dHAuY2xpZW50LkhUVFBTQ29ubmVjdGlvbigncmVnaXN0cnkubnBtanMub3JnJywgdGltZW91dD0xMikKICAgIHJlc3BvbnNlID0gTm9uZQogICAgZW1pdCgnU1RBUlRFRCcsIHN0YXJ0ZWRfdXRjPXV0YywgaG9zdD0ncmVnaXN0cnkubnBtanMub3JnJywgcGF0aD0nL3dyYW5nbGVyJywKICAgICAgICAgbWV0aG9kPSdHRVQnLCBhY2NlcHQ9J2FwcGxpY2F0aW9uL2pzb24nLCBhY2NlcHRfZW5jb2Rpbmc9J2lkZW50aXR5JywKICAgICAgICAgYm9keV9jYXBfYnl0ZXM9Q0FQLCBjaHVua19ieXRlcz1DSFVOSywgZGVhZGxpbmVfc2Vjb25kcz1ERUFETElORSwKICAgICAgICAgYm9keV9kaXNrX2NhY2hlX2FydGlmYWN0PUZhbHNlLCBwYWNrYWdlX3BhcnNpbmc9RmFsc2UsCiAgICAgICAgIGxpbWl0cz0nRnJlc2ggcHVibGljIHJlcHJlc2VudGF0aW9uIG9ubHk7IG5vIG5wbSBnZW5lcmF0aW9uIG9yIGVhcmxpZXIgRUZCSUcgZmlsZS9yZXNwb25zZSBhdHRyaWJ1dGlvbi4nKQogICAgdHJ5OgogICAgICAgIGNvbm5lY3Rpb24ucmVxdWVzdCgnR0VUJywgJy93cmFuZ2xlcicsIGhlYWRlcnM9ewogICAgICAgICAgICAnQWNjZXB0JzogJ2FwcGxpY2F0aW9uL2pzb24nLCAnQWNjZXB0LUVuY29kaW5nJzogJ2lkZW50aXR5JywKICAgICAgICAgICAgJ1VzZXItQWdlbnQnOiAnaXNzdWUtZmFjdG9yeS1yZWdpc3RyeS1zdHJlYW0tY291bnQtb25seScsCiAgICAgICAgfSkKICAgICAgICByZXNwb25zZSA9IGNvbm5lY3Rpb24uZ2V0cmVzcG9uc2UoKQogICAgICAgIGhlYWRlcnMgPSByZXNwb25zZS5nZXRoZWFkZXJzKCkKICAgICAgICBhc3NlcnQgbGVuKGhlYWRlcnMpIDw9IDY0IGFuZCBzdW0obGVuKGspICsgbGVuKHYpIGZvciBrLCB2IGluIGhlYWRlcnMpIDw9IDE2Mzg0CiAgICAgICAgc2VsZWN0ZWQgPSB7bmFtZTogcmVzcG9uc2UuZ2V0aGVhZGVyKG5hbWUpIGZvciBuYW1lIGluIFsKICAgICAgICAgICAgJ0NvbnRlbnQtTGVuZ3RoJywgJ0NvbnRlbnQtVHlwZScsICdDb250ZW50LUVuY29kaW5nJywgJ0VUYWcnLAogICAgICAgICAgICAnVmFyeScsICdUcmFuc2Zlci1FbmNvZGluZycsICdEYXRlJywgJ0NhY2hlLUNvbnRyb2wnLAogICAgICAgIF19CiAgICAgICAgZW1pdCgnSEVBREVSUycsIHN0YXR1cz1yZXNwb25zZS5zdGF0dXMsIGhlYWRlcnM9c2VsZWN0ZWQsCiAgICAgICAgICAgICBib2R5X2J5dGVzX3JlYWRfc29fZmFyPTAsIGxpbWl0cz0nTm8gcmVkaXJlY3RzIGZvbGxvd2VkOyBoZWFkZXIgYm91bmQgY2hlY2tlZCBhZnRlciBzdGFuZGFyZC1saWJyYXJ5IGhlYWRlciBwYXJzZSwgbm90IHByZWVtcHRpdmUgYWxsb2NhdGlvbiBwcm9vZi4nKQogICAgICAgIGFzc2VydCByZXNwb25zZS5zdGF0dXMgPT0gMjAwCiAgICAgICAgYXNzZXJ0IHNlbGVjdGVkWydDb250ZW50LVR5cGUnXS5zcGxpdCgnOycsIDEpWzBdLnN0cmlwKCkubG93ZXIoKSA9PSAnYXBwbGljYXRpb24vanNvbicKICAgICAgICBhc3NlcnQgc2VsZWN0ZWRbJ0NvbnRlbnQtRW5jb2RpbmcnXSBpcyBOb25lIG9yIHNlbGVjdGVkWydDb250ZW50LUVuY29kaW5nJ10ubG93ZXIoKSA9PSAnaWRlbnRpdHknCiAgICAgICAgbGVuZ3RoID0gc2VsZWN0ZWRbJ0NvbnRlbnQtTGVuZ3RoJ10KICAgICAgICBhc3NlcnQgbGVuZ3RoIGlzIE5vbmUgb3IgKGxlbmd0aC5pc2RlY2ltYWwoKSBhbmQgaW50KGxlbmd0aCkgPCBDQVApCiAgICAgICAgdG90YWwsIGRpZ2VzdCwgZGlzcG9zaXRpb24gPSBjb3VudF9zdHJlYW0ocmVzcG9uc2UsIENBUCwgQ0hVTkssIHN0YXJ0ZWQgKyBERUFETElORSkKICAgICAgICBlbWl0KCdPQlNFUlZFRCcsIGJvZHlfYnl0ZXNfcmVhZD10b3RhbCwgc2hhMjU2PWRpZ2VzdCwKICAgICAgICAgICAgIGRpc3Bvc2l0aW9uPWRpc3Bvc2l0aW9uLCBlbGFwc2VkX3NlY29uZHM9dGltZS5tb25vdG9uaWMoKSAtIHN0YXJ0ZWQsCiAgICAgICAgICAgICBib2R5X2Rpc2tfY2FjaGVfYXJ0aWZhY3Q9RmFsc2UsIHBhY2thZ2VfcGFyc2luZz1GYWxzZSwKICAgICAgICAgICAgIGxpbWl0cz0nUmF3IGRlY29kZWQtSFRUUC10cmFuc2ZlciBpZGVudGl0eSBieXRlcyBjb3VudGVkL2hhc2hlZCB0aGVuIGRpc2NhcmRlZC4gRnJlc2ggcmVwcmVzZW50YXRpb24sIG5vdCBlYXJsaWVyIGNhY2hlIGZpbGVuYW1lL2JvZHkvZW5jb2RpbmcsIHVuaXZlcnNhbCBmdXR1cmUgc2l6ZSBvciByZXZpc2VkIGdlbmVyYXRpb24gYWRtaXNzaW9uLicpCiAgICAgICAgYXNzZXJ0IGRpc3Bvc2l0aW9uID09ICdFT0YnIGFuZCAwIDwgdG90YWwgPCBDQVAKICAgICAgICBhc3NlcnQgbGVuZ3RoIGlzIE5vbmUgb3IgdG90YWwgPT0gaW50KGxlbmd0aCkKICAgICAgICBhc3NlcnQgdGltZS5tb25vdG9uaWMoKSAtIHN0YXJ0ZWQgPCBERUFETElORQogICAgICAgIGVtaXQoJ0dBVEVTX1BBU1NFRCcsIGZyZXNoX2lkZW50aXR5X2VvZl9iZWxvd19jYXA9VHJ1ZSwKICAgICAgICAgICAgIGJvZHlfYnl0ZXNfcmVhZD10b3RhbCwgc2hhMjU2PWRpZ2VzdCwKICAgICAgICAgICAgIG5vX2dlbmVyYXRpb25fYXVkaXRfaW5zdGFsbF9zZGtfY2xpX2Fkb3B0aW9uPVRydWUpCiAgICBleGNlcHQgQmFzZUV4Y2VwdGlvbiBhcyBlcnJvcjoKICAgICAgICBlbWl0KCdTVE9QJywgZXJyb3I9dHlwZShlcnJvcikuX19uYW1lX18sIG1lc3NhZ2U9c3RyKGVycm9yKVs6NTEyXSwKICAgICAgICAgICAgIGNvbXBsZXRlZF9jb3VudGVyX2J5dGVzPXRvdGFsLCBjb21wbGV0ZWRfY291bnRlcl9zaGEyNTY9ZGlnZXN0LAogICAgICAgICAgICAgY29tcGxldGVkX2NvdW50ZXJfZGlzcG9zaXRpb249ZGlzcG9zaXRpb24sCiAgICAgICAgICAgICBlbGFwc2VkX3NlY29uZHM9dGltZS5tb25vdG9uaWMoKSAtIHN0YXJ0ZWQsCiAgICAgICAgICAgICBsaW1pdHM9J0NvdW50ZXJzIGFyZSBvbmx5IGNvbXBsZXRlZCBjb3VudF9zdHJlYW0gcmV0dXJuIHZhbHVlczsgYSBzb2NrZXQvcmVhZCBleGNlcHRpb24gY2FuIGxlYXZlIHVuZXhwb3J0ZWQgcGFydGlhbCBjb25zdW1wdGlvbi4gTm8gcmV0cnkvY2FwIGluY3JlYXNlL2FsdGVybmF0aXZlIGVuZHBvaW50L2dlbmVyYXRpb24uJykKICAgICAgICByYWlzZQogICAgZmluYWxseToKICAgICAgICBpZiByZXNwb25zZSBpcyBub3QgTm9uZToKICAgICAgICAgICAgcmVzcG9uc2UuY2xvc2UoKQogICAgICAgIGNvbm5lY3Rpb24uY2xvc2UoKQogICAgICAgIGVtaXQoJ0NPTk5FQ1RJT05fQ0xPU0VEJywgbGltaXRzPSdFeHBsaWNpdCBjbG9zZSBjYWxscyByZXR1cm5lZCBmb3IgdGhpcyBQeXRob24gY29ubmVjdGlvbi9yZXNwb25zZTsgbm90IHJlbW90ZS9nbG9iYWwvcHJvY2Vzcy1kZXNjZW5kYW50IGNsZWFudXAgYXR0ZXN0YXRpb24uJykKCgppZiBfX25hbWVfXyA9PSAnX19tYWluX18nOgogICAgbWFpbigpCg==',validate=True)
+          assert len(data)==5722 and hashlib.sha256(data).hexdigest()=='72ce4412583f6307859b461f7c667f0838c7b486b9eed31373754ee650a6b9f9'
+          path=Path(sys.argv[1])
+          assert not path.exists()
+          path.write_bytes(data)
+          PY
+          timeout --kill-after=2s 12s python3 -m py_compile "$root/control.py"
+          set +e
+          (
+            set -C
+            timeout --kill-after=2s 90s python3 "$root/control.py" > "$root/console.txt" 2>&1
+          )
+          status=$?
+          set -e
+          python3 - "$root/console.txt" "$status" <<'PY'
+          from pathlib import Path
+          import sys,json,hashlib
+          path=Path(sys.argv[1])
+          assert path.is_file() and not path.is_symlink() and path.stat().st_size<=128*1024
+          data=path.read_bytes()
+          print(data.decode(),end='',flush=True)
+          print('IMGHOST_REGISTRY_STREAM_RETURN '+json.dumps({'exit_status':sys.argv[2],'output_bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'limits':'Raw control stdout/stderr exported before command exit guard. Combined streams, not separate stderr. GNU timeout/file-size limits not owned descendant/global cleanup proof.'},sort_keys=True),flush=True)
+          PY
+          test "$status" = 0
+      - name: Final cloud resource observations
+        if: always()
+        shell: bash
+        run: |
+          df -h /
+          free -h
