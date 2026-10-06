@@ -1,0 +1,66 @@
+name: Android emulator selected path metadata only
+on:
+  push:
+    branches: [prep/qualification/health-169-emulator-path-20261006]
+    paths: [.github/workflows/health-169-emulator-path.yml]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  emulator-path-metadata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Resource admission before SDK bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          uptime
+          python3 - <<'PY'
+          import shutil
+          from pathlib import Path
+          memory = dict(line.split(':', 1) for line in Path('/proc/meminfo').read_text().splitlines())
+          if shutil.disk_usage('/').free < 8*1024**3 or int(memory['MemAvailable'].split()[0])*1024 < 2*1024**3:
+              raise RuntimeError('Cloud SDK control admission STOP')
+          print('HEALTHMD_ADB_RESOURCE_ESTIMATE: <=500MiB additional bootstrap/control disk estimate, not allocation guarantee')
+          PY
+      - name: Materialize filesystem inventory (no SDK execution)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, hashlib, os
+          from pathlib import Path
+          data = base64.b64decode('IiIiQ0xPVUQgT05MWTogc2VsZWN0ZWQgU0RLIHBhdGggbWV0YWRhdGEsIG5ldmVyIGV4ZWN1dGUgZW11bGF0b3Igb3IgQURCLiIiIgppbXBvcnQganNvbgppbXBvcnQgb3MKZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCBzdGF0CmltcG9ydCBzeXMKCgpkZWYgcmVxdWlyZSh2YWx1ZSwgbWVzc2FnZSk6CiAgICBpZiBub3QgdmFsdWU6CiAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKCdTREsgcGF0aCBpbnZlbnRvcnkgU1RPUDogJyArIG1lc3NhZ2UpCgoKZGVmIG1haW4oKToKICAgIGUgPSBvcy5lbnZpcm9uCiAgICByZXF1aXJlKHN5cy5hcmd2WzE6XSBpbiBbWydiZWZvcmVfcGxhdGZvcm1fdG9vbHMnXSwgWydhZnRlcl9wbGF0Zm9ybV90b29scyddXSwgJ3BoYXNlJykKICAgIHJlcXVpcmUoc3lzLnZlcnNpb25faW5mb1s6Ml0gPT0gKDMsIDEyKSBhbmQgZVsnR0lUSFVCX0FDVElPTlMnXSA9PSAndHJ1ZScgYW5kIGVbJ0dJVEhVQl9SRVBPU0lUT1JZJ10gPT0gJ0NvZHlCb250ZWNvdS9pc29tZScgYW5kIGVbJ0dJVEhVQl9FVkVOVF9OQU1FJ10gPT0gJ3B1c2gnIGFuZCBlWydHSVRIVUJfUlVOX0FUVEVNUFQnXSA9PSAnMScgYW5kIGVbJ1JVTk5FUl9FTlZJUk9OTUVOVCddID09ICdnaXRodWItaG9zdGVkJyBhbmQgZVsnUlVOTkVSX09TJ10gPT0gJ0xpbnV4JyBhbmQgZVsnR0lUSFVCX1NIQSddID09IGVbJ0dJVEhVQl9XT1JLRkxPV19TSEEnXSwgJ2ZpcnN0IGhvc3RlZCBMaW51eCBwdXNoJykKICAgIHJvb3QgPSBQYXRoKCcvdXNyL2xvY2FsL2xpYi9hbmRyb2lkL3NkaycpCiAgICBmb3Iga2V5IGluIFsnQU5EUk9JRF9IT01FJywgJ0FORFJPSURfU0RLX1JPT1QnXToKICAgICAgICBpZiBlLmdldChrZXkpOgogICAgICAgICAgICByZXF1aXJlKFBhdGgoZVtrZXldKS5yZXNvbHZlKHN0cmljdD1GYWxzZSkgPT0gcm9vdCwgJ3NlbGVjdGVkIFNESyByb290IGRyaWZ0JykKICAgIHJvd3MgPSBbXQogICAgZm9yIHAgaW4gW3Jvb3QsIHJvb3QgLyAnZW11bGF0b3InLCByb290IC8gJ2VtdWxhdG9yL2VtdWxhdG9yJ106CiAgICAgICAgcm93ID0geydwYXRoJzogc3RyKHApfQogICAgICAgIHRyeToKICAgICAgICAgICAgc3QgPSBwLmxzdGF0KCkKICAgICAgICAgICAgcm93LnVwZGF0ZSh7J2xzdGF0X3ByZXNlbnQnOiBUcnVlLCAnbW9kZSc6IG9jdChzdC5zdF9tb2RlKSwgJ3NpemUnOiBzdC5zdF9zaXplLAogICAgICAgICAgICAgICAgICAgICAgICAndWlkJzogc3Quc3RfdWlkLCAnZ2lkJzogc3Quc3RfZ2lkLCAnc3ltbGluayc6IHN0YXQuU19JU0xOSyhzdC5zdF9tb2RlKSwKICAgICAgICAgICAgICAgICAgICAgICAgJ3JlZ3VsYXJfZmlsZSc6IHN0YXQuU19JU1JFRyhzdC5zdF9tb2RlKSwgJ2RpcmVjdG9yeSc6IHN0YXQuU19JU0RJUihzdC5zdF9tb2RlKSwKICAgICAgICAgICAgICAgICAgICAgICAgJ2lzX2ZpbGVfcHJlZGljYXRlJzogcC5pc19maWxlKCksICdleGVjdXRhYmxlX2FjY2Vzcyc6IG9zLmFjY2VzcyhwLCBvcy5YX09LKSwKICAgICAgICAgICAgICAgICAgICAgICAgJ3Jlc29sdmVkJzogc3RyKHAucmVzb2x2ZShzdHJpY3Q9VHJ1ZSkpfSkKICAgICAgICAgICAgaWYgc3RhdC5TX0lTTE5LKHN0LnN0X21vZGUpOgogICAgICAgICAgICAgICAgdGFyZ2V0ID0gb3MucmVhZGxpbmsocCkKICAgICAgICAgICAgICAgIHJlcXVpcmUobGVuKHRhcmdldC5lbmNvZGUoKSkgPD0gNTEyLCAnc3ltbGluayB0ZXh0IGJvdW5kJykKICAgICAgICAgICAgICAgIHJvd1snbGlua190YXJnZXQnXSA9IHRhcmdldAogICAgICAgIGV4Y2VwdCBGaWxlTm90Rm91bmRFcnJvcjoKICAgICAgICAgICAgcm93Wydsc3RhdF9wcmVzZW50J10gPSAnbW9kZScgaW4gcm93CiAgICAgICAgICAgIHJvd1sncmVzb2x1dGlvbl9taXNzaW5nJ10gPSBUcnVlCiAgICAgICAgcm93cy5hcHBlbmQocm93KQogICAgbmFtZXMgPSBbXQogICAgaWYgcm9vdC5pc19kaXIoKToKICAgICAgICB3aXRoIG9zLnNjYW5kaXIocm9vdCkgYXMgZW50cmllczoKICAgICAgICAgICAgZm9yIGVudHJ5IGluIGVudHJpZXM6CiAgICAgICAgICAgICAgICByZXF1aXJlKGxlbihuYW1lcykgPCAzMiBhbmQgbGVuKGVudHJ5Lm5hbWUuZW5jb2RlKCkpIDw9IDEyOCwgJ1NESyBwYXJlbnQgaW52ZW50b3J5IGJvdW5kJykKICAgICAgICAgICAgICAgIG5hbWVzLmFwcGVuZChlbnRyeS5uYW1lKQogICAgcmVzdWx0ID0geydwaGFzZSc6IHN5cy5hcmd2WzFdLCAncHJvYmVfc2hhJzogZVsnR0lUSFVCX1NIQSddLAogICAgICAgICAgICAgICdlbnZpcm9ubWVudCc6IHtrOiBlLmdldChrKSBmb3IgayBpbiBbJ0FORFJPSURfSE9NRScsICdBTkRST0lEX1NES19ST09UJ119LAogICAgICAgICAgICAgICdwYXRocyc6IHJvd3MsICdzZGtfcGFyZW50X25hbWVzJzogc29ydGVkKG5hbWVzKSwKICAgICAgICAgICAgICAnbGltaXRzJzogJ1RhcmdldGVkIGZpbGVzeXN0ZW0gbWV0YWRhdGEgb25seTsgbm90IHByaW9yIHJ1bm5lciBlcXVpdmFsZW5jZSwgcGFja2FnZSBvcmlnaW4sIGdsb2JhbCBhYnNlbmNlIG9yIGVtdWxhdG9yL0FEQiBleGVjdXRpb24uIE5vIHByb3ZpZGVyIGluc3RhbGxhdGlvbi9hZG9wdGlvbi9ib290L2RldmljZS9hcHAgcXVhbGlmaWNhdGlvbi4nfQogICAgdGV4dCA9IGpzb24uZHVtcHMocmVzdWx0LCBzb3J0X2tleXM9VHJ1ZSwgYWxsb3dfbmFuPUZhbHNlKQogICAgcmVxdWlyZShsZW4odGV4dC5lbmNvZGUoKSkgPD0gNDA5NiwgJ3Bvc3QtZW5jb2RpbmcgcmVjZWlwdCBib3VuZCcpCiAgICBwcmludCgnSEVBTFRITURfRU1VTEFUT1JfUEFUSF9PQlNFUlZFRCAnICsgdGV4dCwgZmx1c2g9VHJ1ZSkKCgppZiBfX25hbWVfXyA9PSAnX19tYWluX18nOgogICAgbWFpbigpCg==', validate=True)
+          if len(data) != 2857 or hashlib.sha256(data).hexdigest() != '8b21479a9e945f8308e1c8b741cb5e7c8f78bf7b450a8068958b28ceaec57b2c':
+              raise RuntimeError('Inventory bytes STOP')
+          p = Path(os.environ['RUNNER_TEMP']).resolve(strict=True)/'healthmd-sdk-paths.py'
+          with p.open('xb') as f:
+              f.write(data)
+          if p.read_bytes() != data:
+              raise RuntimeError('Inventory readback STOP')
+          PY
+          python3 -m py_compile "$RUNNER_TEMP/healthmd-sdk-paths.py"
+      - name: Observe selected SDK paths before platform-tools setup
+        run: python3 "$RUNNER_TEMP/healthmd-sdk-paths.py" before_platform_tools
+      - name: Select installed Android platform-tools (no emulator)
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          packages: platform-tools
+      - name: Observe selected SDK paths after platform-tools setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 "$RUNNER_TEMP/healthmd-sdk-paths.py" after_platform_tools
+      - name: Final resource observation (not cleanup or native acceptance)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          echo 'HEALTHMD_EMULATOR_PATH_BOUNDARY: selected filesystem metadata before/after platform-tools setup only; no emulator or ADB command/newprovider/installation/AVD/image/boot/server/device/app/AppleSDKresume/adoption. Fresh runner not prior runner or global absence proof; goal incomplete.'
