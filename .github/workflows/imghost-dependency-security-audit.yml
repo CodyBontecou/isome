@@ -1,0 +1,100 @@
+name: Imghost frozen dependency graph advisory measurement
+on:
+  push:
+    branches: [prep/qualification/imghost-dependency-security-audit-20261006]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    env:
+      NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+      NPM_CONFIG_OMIT: ''
+      NPM_CONFIG_INCLUDE: ''
+      NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+      NPM_CONFIG_UPDATE_NOTIFIER: 'false'
+      NPM_CONFIG_FETCH_RETRIES: '0'
+      NPM_CONFIG_FETCH_TIMEOUT: '30000'
+      NODE_ENV: ''
+    steps:
+      - name: Cloud admission before downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          python3 - <<'PYTHON'
+          import os,shutil
+          assert os.environ['RUNNER_ENVIRONMENT']=='github-hosted'
+          assert os.environ['GITHUB_SHA']==os.environ['GITHUB_WORKFLOW_SHA']
+          assert shutil.disk_usage('/').free>=10*1024**3
+          available=next(int(x.split()[1])*1024 for x in open('/proc/meminfo') if x.startswith('MemAvailable:'))
+          assert available>=3*1024**3
+          PYTHON
+      - name: Exact PR10 four manifests only, no installed graph
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: CodyBontecou/imghost
+          ref: ac727c69d1cd5861d121dbc5930c3c1473d2aac4
+          path: imghost-source
+          fetch-depth: 1
+          lfs: false
+          submodules: false
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /package.json
+            /package-lock.json
+            /backend/img-host/package.json
+            /backend/img-host/package-lock.json
+      - name: Pinned existing runtime family, no dependency installation
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.3'
+          check-latest: false
+      - name: Materialize exact controller and record frozen source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYTHON'
+          import os,json,hashlib,base64
+          from pathlib import Path
+          row={'name': 'controller.py', 'bytes': 6861, 'sha256': 'bea9b736c399e4c843835f033382f3192eb746b10dd0f8ef58e437dd6f7d33d9', 'base64': 'IiIiQ2xvdWQtb25seSBmcm96ZW4tbG9jayBhZHZpc29yeSBtZWFzdXJlbWVudCwgbm90IHNlY3VyaXR5IGNsZWFyYW5jZS4iIiIKaW1wb3J0IGJhc2U2NAppbXBvcnQgaGFzaGxpYgppbXBvcnQganNvbgppbXBvcnQgb3MKZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCBzdWJwcm9jZXNzCmltcG9ydCBzeXMKCkhFQUQgPSAnYWM3MjdjNjlkMWNkNTg2MWQxMjFkYmM1OTMwYzNjMTQ3M2QyYWFjNCcKUElOUyA9IHsKICAgICdwYWNrYWdlLmpzb24nOiAnZDc1ZWQ1NTE0M2JiNDZhOGU1NjViYWIzY2VmMDhhZmY1YmZlNjQ0YmQxNDAxMDJkNjA1NzY2MGZhMzFmOThkYicsCiAgICAncGFja2FnZS1sb2NrLmpzb24nOiAnZDg3OTZjMjEyODIzY2MwNTZiNDQ3OTZjOTJmOTI4NzZkNzI4YjljNTUyODdlMzUzYWNkNTU2N2IxNjgxZTZkZicsCiAgICAnYmFja2VuZC9pbWctaG9zdC9wYWNrYWdlLmpzb24nOiAnYTlhODFlZTZkYjc4YzcxMjE0ZjQ1MjQ1Mzk4ODcwZGZlYTc1MzQ3NGRhNzNhZTcwMGE4NDRjYzg5N2NlNmY1MScsCiAgICAnYmFja2VuZC9pbWctaG9zdC9wYWNrYWdlLWxvY2suanNvbic6ICc1YTk4NDZlM2M3ZjZkYmVjNmQzMzdjNjg1MzE4YjdlODFhM2JlMzIwYTdmNzM1MWJmMTYzNTQ1ZTY3Y2E4Zjc1JywKfQoKCmRlZiByZXF1aXJlKHZhbHVlLCBtZXNzYWdlKToKICAgIGlmIG5vdCB2YWx1ZToKICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoJ0Fkdmlzb3J5IG1lYXN1cmVtZW50IFNUT1A6ICcgKyBtZXNzYWdlKQoKCmRlZiBlbWl0KGtpbmQsIHZhbHVlKToKICAgIHRleHQgPSBqc29uLmR1bXBzKHZhbHVlLCBzb3J0X2tleXM9VHJ1ZSkKICAgIHJlcXVpcmUobGVuKHRleHQuZW5jb2RlKCkpIDw9IDQwOTYsICdwb3N0LXNlcmlhbGl6ZWQgcmVjZWlwdCBjYXAnKQogICAgcHJpbnQoJ0lNR0hPU1RfQURWSVNPUllfJyArIGtpbmQgKyAnICcgKyB0ZXh0LCBmbHVzaD1UcnVlKQoKCmRlZiB2ZXJpZnkoc291cmNlKToKICAgIHJlcXVpcmUoc3VicHJvY2Vzcy5jaGVja19vdXRwdXQoWydnaXQnLCAnLUMnLCBzdHIoc291cmNlKSwgJ3Jldi1wYXJzZScsICdIRUFEJ10sIHRpbWVvdXQ9MTIpLmRlY29kZSgpLnN0cmlwKCkgPT0gSEVBRCwgJ2ZpeGVkIGNoZWNrb3V0IGhlYWQnKQogICAgZm9yIHBhdGgsIGV4cGVjdGVkIGluIFBJTlMuaXRlbXMoKToKICAgICAgICBkYXRhID0gKHNvdXJjZSAvIHBhdGgpLnJlYWRfYnl0ZXMoKQogICAgICAgIHJlcXVpcmUoaGFzaGxpYi5zaGEyNTYoZGF0YSkuaGV4ZGlnZXN0KCkgPT0gZXhwZWN0ZWQsICdmcm96ZW4gbWFuaWZlc3QgJyArIHBhdGgpCiAgICByZXF1aXJlKG5vdCAoc291cmNlIC8gJ25vZGVfbW9kdWxlcycpLmV4aXN0cygpIGFuZCBub3QgKHNvdXJjZSAvICdiYWNrZW5kL2ltZy1ob3N0L25vZGVfbW9kdWxlcycpLmV4aXN0cygpLCAnbm8gaW5zdGFsbGVkIGRlcGVuZGVuY3kgZ3JhcGgnKQogICAgcmVxdWlyZShzdWJwcm9jZXNzLmNoZWNrX291dHB1dChbJ2dpdCcsICctQycsIHN0cihzb3VyY2UpLCAnc3RhdHVzJywgJy0tcG9yY2VsYWluJywgJy0tdW50cmFja2VkLWZpbGVzPWFsbCddLCB0aW1lb3V0PTEyKSA9PSBiJycsICd1bmNoYW5nZWQgdHJhY2tlZC91bnRyYWNrZWQgc291cmNlJykKCgpkZWYgbWFpbigpOgogICAgZW52ID0gb3MuZW52aXJvbgogICAgcmVxdWlyZShlbnYuZ2V0KCdHSVRIVUJfQUNUSU9OUycpID09ICd0cnVlJyBhbmQgZW52LmdldCgnUlVOTkVSX09TJykgPT0gJ0xpbnV4JwogICAgICAgICAgICBhbmQgZW52LmdldCgnUlVOTkVSX0VOVklST05NRU5UJykgPT0gJ2dpdGh1Yi1ob3N0ZWQnCiAgICAgICAgICAgIGFuZCBlbnYuZ2V0KCdHSVRIVUJfUkVQT1NJVE9SWScpID09ICdDb2R5Qm9udGVjb3UvaXNvbWUnCiAgICAgICAgICAgIGFuZCBlbnYuZ2V0KCdHSVRIVUJfRVZFTlRfTkFNRScpID09ICdwdXNoJyBhbmQgZW52LmdldCgnR0lUSFVCX1JVTl9BVFRFTVBUJykgPT0gJzEnCiAgICAgICAgICAgIGFuZCBlbnYuZ2V0KCdHSVRIVUJfU0hBJykgPT0gZW52LmdldCgnR0lUSFVCX1dPUktGTE9XX1NIQScpLCAnZml4ZWQgZmlyc3QgaG9zdGVkIHF1YWxpZmljYXRpb24gcHVzaCcpCiAgICByZXF1aXJlKGxlbihzeXMuYXJndikgPT0gMiBhbmQgc3lzLmFyZ3ZbMV0gaW4gKCdwcmVwYXJlJywgJ3JlcG9ydCcsICdmaW5pc2gnKSwgJ2ZpeGVkIG1vZGUnKQogICAgc291cmNlID0gUGF0aChlbnZbJ0dJVEhVQl9XT1JLU1BBQ0UnXSkgLyAnaW1naG9zdC1zb3VyY2UnCiAgICByb290ID0gUGF0aChlbnZbJ1JVTk5FUl9URU1QJ10pIC8gJ2ltZ2hvc3QtYWR2aXNvcnktb3duZWQnCiAgICB2ZXJpZnkoc291cmNlKQogICAgaWYgc3lzLmFyZ3ZbMV0gPT0gJ3ByZXBhcmUnOgogICAgICAgIHJlcXVpcmUobm90IHJvb3QuZXhpc3RzKCksICdmcmVzaCBwcml2YXRlIHJlY2VpcHQgcm9vdCcpCiAgICAgICAgcm9vdC5ta2Rpcihtb2RlPTBvNzAwKQogICAgICAgIGVtaXQoJ1BSRVBBUkVEJywgeydzb3VyY2VfaGVhZCc6IEhFQUQsICdwcm9iZV9oZWFkJzogZW52WydHSVRIVUJfU0hBJ10sICdwaW5zJzogUElOUywKICAgICAgICAgICAgICAgICAgICAgICAgICdncmFwaCc6ICd1bmluc3RhbGxlZCBmcm96ZW4tbG9jayB2aXJ0dWFsIGdyYXBoJywgJ3NlY3VyaXR5X2dhdGUnOiAnT1BFTid9KQogICAgICAgIHJldHVybgogICAgaWYgc3lzLmFyZ3ZbMV0gPT0gJ2ZpbmlzaCc6CiAgICAgICAgcmVxdWlyZShhbGwoKHJvb3QgLyAoZ3JvdXAgKyAnLScgKyBtb2RlICsgJy5hY2NlcHRlZC5qc29uJykpLmlzX2ZpbGUoKQogICAgICAgICAgICAgICAgICAgIGZvciBncm91cCBpbiAoJ2JhY2tlbmQnLCAncm9vdCcpIGZvciBtb2RlIGluICgnZnVsbCcsICdwcm9kJykpLCAnYWxsIGZvdXIgcmVwb3J0cyBhY2NlcHRlZCcpCiAgICAgICAgZW1pdCgnRklOSVNIRUQnLCB7J3NvdXJjZV9oZWFkJzogSEVBRCwgJ3JlcG9ydHMnOiA0LCAnc2VjdXJpdHlfZ2F0ZSc6ICdPUEVOJywKICAgICAgICAgICAgICAgICAgICAgICAgICdsaW1pdHMnOiAnUG9zaXRpdmUgcmVjZWlwdCBtZWFzdXJlbWVudCBvbmx5OyBub3QgaW5zdGFsbC9leHBsb2l0L2RlcGxveWVkIHJlYWNoYWJpbGl0eSBvciBzZWN1cml0eSBjbGVhcmFuY2UuJ30pCiAgICAgICAgcmV0dXJuCiAgICBncm91cCwgbW9kZSA9IGVudlsnQVVESVRfR1JPVVAnXSwgZW52WydBVURJVF9NT0RFJ10KICAgIHJlcXVpcmUoZ3JvdXAgaW4gKCdiYWNrZW5kJywgJ3Jvb3QnKSBhbmQgbW9kZSBpbiAoJ2Z1bGwnLCAncHJvZCcpLCAnZml4ZWQgcmVwb3J0IHNlbGVjdG9yJykKICAgIHN0ZW0gPSBncm91cCArICctJyArIG1vZGUKICAgIHBhdGgsIHN0ZGVyciA9IHJvb3QgLyAoc3RlbSArICcuanNvbicpLCByb290IC8gKHN0ZW0gKyAnLnN0ZGVycicpCiAgICByZXF1aXJlKHBhdGguaXNfZmlsZSgpIGFuZCBub3QgcGF0aC5pc19zeW1saW5rKCkgYW5kIHBhdGguc3RhdCgpLnN0X3NpemUgPD0gMTMxMDcyLCAnY29tcGxldGVkIHJlcG9ydCBjYXAgYmVmb3JlIHJlYWRpbmcnKQogICAgcmVxdWlyZShzdGRlcnIuaXNfZmlsZSgpIGFuZCBub3Qgc3RkZXJyLmlzX3N5bWxpbmsoKSBhbmQgc3RkZXJyLnN0YXQoKS5zdF9zaXplID09IDAsICdhdWRpdCBzdGRlcnIgbmVlZHMgc2VwYXJhdGUgcmV2aWV3JykKICAgIGRhdGEgPSBwYXRoLnJlYWRfYnl0ZXMoKQogICAgcmVwb3J0ID0ganNvbi5sb2FkcyhkYXRhKQogICAgcmVxdWlyZShpc2luc3RhbmNlKHJlcG9ydCwgZGljdCkgYW5kICdlcnJvcicgbm90IGluIHJlcG9ydCBhbmQgcmVwb3J0WydhdWRpdFJlcG9ydFZlcnNpb24nXSA9PSAyLCAnYXVkaXQgcmVwb3J0IHNjaGVtYSBvciByZWdpc3RyeSBmYWlsdXJlJykKICAgIGZpbmRpbmdzLCBjb3VudHMsIGRlcGVuZGVuY2llcyA9IHJlcG9ydFsndnVsbmVyYWJpbGl0aWVzJ10sIHJlcG9ydFsnbWV0YWRhdGEnXVsndnVsbmVyYWJpbGl0aWVzJ10sIHJlcG9ydFsnbWV0YWRhdGEnXVsnZGVwZW5kZW5jaWVzJ10KICAgIHJlcXVpcmUoaXNpbnN0YW5jZShmaW5kaW5ncywgZGljdCkgYW5kIGlzaW5zdGFuY2UoZGVwZW5kZW5jaWVzLCBkaWN0KSwgJ2ZpbmRpbmcvZGVwZW5kZW5jeSBvYmplY3RzJykKICAgIHNldmVyaXRpZXMgPSAoJ2luZm8nLCAnbG93JywgJ21vZGVyYXRlJywgJ2hpZ2gnLCAnY3JpdGljYWwnKQogICAgcmVxdWlyZShhbGwodHlwZShjb3VudHNba2V5XSkgaXMgaW50IGFuZCBjb3VudHNba2V5XSA+PSAwIGZvciBrZXkgaW4gKCpzZXZlcml0aWVzLCAndG90YWwnKSksICdzZXZlcml0eSBjb3VudHMnKQogICAgcmVxdWlyZShjb3VudHNbJ3RvdGFsJ10gPT0gc3VtKGNvdW50c1trZXldIGZvciBrZXkgaW4gc2V2ZXJpdGllcykgPT0gbGVuKGZpbmRpbmdzKSwgJ2tleWVkIGZpbmRpbmcgY291bnRzJykKICAgIHJlcXVpcmUoYWxsKHR5cGUoZGVwZW5kZW5jaWVzW2tleV0pIGlzIGludCBhbmQgZGVwZW5kZW5jaWVzW2tleV0gPj0gMAogICAgICAgICAgICAgICAgZm9yIGtleSBpbiAoJ3Byb2QnLCAnZGV2JywgJ29wdGlvbmFsJywgJ3BlZXInLCAncGVlck9wdGlvbmFsJywgJ3RvdGFsJykpLCAndmlydHVhbCBkZXBlbmRlbmN5IGNvdW50cycpCiAgICBmb3IgbmFtZSwgZmluZGluZyBpbiBmaW5kaW5ncy5pdGVtcygpOgogICAgICAgIHJlcXVpcmUoZmluZGluZ1snbmFtZSddID09IG5hbWUgYW5kIGZpbmRpbmdbJ3NldmVyaXR5J10gaW4gc2V2ZXJpdGllcwogICAgICAgICAgICAgICAgYW5kIHR5cGUoZmluZGluZ1snaXNEaXJlY3QnXSkgaXMgYm9vbCBhbmQgaXNpbnN0YW5jZShmaW5kaW5nWydyYW5nZSddLCBzdHIpLCAna2V5ZWQgZmluZGluZyBzaGFwZScpCiAgICAgICAgcmVxdWlyZShhbGwoaXNpbnN0YW5jZShmaW5kaW5nW2tleV0sIGxpc3QpIGZvciBrZXkgaW4gKCd2aWEnLCAnZWZmZWN0cycsICdub2RlcycpKSwgJ2ZpbmRpbmcgZ3JhcGggZmllbGRzJykKICAgICAgICByZXF1aXJlKHR5cGUoZmluZGluZ1snZml4QXZhaWxhYmxlJ10pIGlzIGJvb2wgb3IgaXNpbnN0YW5jZShmaW5kaW5nWydmaXhBdmFpbGFibGUnXSwgZGljdCksICdmaXggbWV0YWRhdGEnKQogICAgICAgIGZvciB2aWEgaW4gZmluZGluZ1sndmlhJ106CiAgICAgICAgICAgIHJlcXVpcmUoaXNpbnN0YW5jZSh2aWEsIChzdHIsIGRpY3QpKSwgJ2Fkdmlzb3J5IGVkZ2UnKQogICAgICAgICAgICBpZiBpc2luc3RhbmNlKHZpYSwgZGljdCk6CiAgICAgICAgICAgICAgICByZXF1aXJlKGFsbChrZXkgaW4gdmlhIGZvciBrZXkgaW4gKCdzb3VyY2UnLCAnbmFtZScsICdkZXBlbmRlbmN5JywgJ3RpdGxlJywgJ3VybCcsICdzZXZlcml0eScsICdyYW5nZScpKSwgJ2Fkdmlzb3J5IGZpZWxkcycpCiAgICBjb2RlID0gaW50KGVudlsnQVVESVRfRVhJVCddKQogICAgcmVxdWlyZShjb2RlID09ICgxIGlmIGZpbmRpbmdzIGVsc2UgMCksICdhY3R1YWwgYXVkaXQgY29tbWFuZCBleGl0JykKICAgIHJlY2VpcHQgPSB7J2dyb3VwJzogZ3JvdXAsICdtb2RlJzogbW9kZSwgJ3NvdXJjZV9oZWFkJzogSEVBRCwgJ2V4aXQnOiBjb2RlLAogICAgICAgICAgICAgICAnc3RhcnRlZF91dGMnOiBlbnZbJ0FVRElUX1NUQVJUJ10sICdlbmRlZF91dGMnOiBlbnZbJ0FVRElUX0VORCddLAogICAgICAgICAgICAgICAnYXJndic6IFsnbnBtJywgJ2F1ZGl0JywgJy0tcGFja2FnZS1sb2NrLW9ubHknLCAnLS1pZ25vcmUtc2NyaXB0cycsICctLWxlZ2FjeS1wZWVyLWRlcHMnXQogICAgICAgICAgICAgICAgICAgICAgICsgKFsnLS1vbWl0PWRldiddIGlmIG1vZGUgPT0gJ3Byb2QnIGVsc2UgW10pICsgWyctLWpzb24nXSwKICAgICAgICAgICAgICAgJ3JlcG9ydF9ieXRlcyc6IGxlbihkYXRhKSwgJ3JlcG9ydF9zaGEyNTYnOiBoYXNobGliLnNoYTI1NihkYXRhKS5oZXhkaWdlc3QoKSwKICAgICAgICAgICAgICAgJ3NldmVyaXR5X2NvdW50cyc6IGNvdW50cywgJ3ZpcnR1YWxfZGVwZW5kZW5jeV9jb3VudHMnOiBkZXBlbmRlbmNpZXMsCiAgICAgICAgICAgICAgICdzZWN1cml0eV9nYXRlJzogJ09QRU4nLCAnbGltaXRzJzogJ1ZpcnR1YWwgZ3JhcGggc25hcHNob3Q7IHNldmVyaXR5IGlzIG5vdCBkZXBsb3llZCByZWFjaGFiaWxpdHkgb3IgZXhwbG9pdCBwcm9vZi4gQ291bnRzIG92ZXJsYXAgZ3JhcGggY2F0ZWdvcmllcy4nfQogICAgYWNjZXB0ZWQgPSByb290IC8gKHN0ZW0gKyAnLmFjY2VwdGVkLmpzb24nKQogICAgcmVxdWlyZShub3QgYWNjZXB0ZWQuZXhpc3RzKCksICdzaW5nbGUgcmVwb3J0IGFjY2VwdGFuY2UnKQogICAgYWNjZXB0ZWQud3JpdGVfdGV4dChqc29uLmR1bXBzKHJlY2VpcHQpKQogICAgZW1pdCgnUkVQT1JUX0FDQ0VQVEVEJywgcmVjZWlwdCkKICAgIGVuY29kZWQgPSBiYXNlNjQuYjY0ZW5jb2RlKGRhdGEpLmRlY29kZSgpCiAgICBjaHVua3MgPSBbZW5jb2RlZFtpOmkrMjA0OF0gZm9yIGkgaW4gcmFuZ2UoMCwgbGVuKGVuY29kZWQpLCAyMDQ4KV0KICAgIGVtaXQoJ1JFUE9SVF9TVEFSVEVEJywgeydncm91cCc6IGdyb3VwLCAnbW9kZSc6IG1vZGUsICdieXRlcyc6IGxlbihkYXRhKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgJ3NoYTI1Nic6IHJlY2VpcHRbJ3JlcG9ydF9zaGEyNTYnXSwgJ2NodW5rcyc6IGxlbihjaHVua3MpfSkKICAgIGZvciBpbmRleCwgY2h1bmsgaW4gZW51bWVyYXRlKGNodW5rcyk6CiAgICAgICAgZW1pdCgnUkVQT1JUX0NIVU5LJywgeydncm91cCc6IGdyb3VwLCAnbW9kZSc6IG1vZGUsICdpbmRleCc6IGluZGV4LCAnYmFzZTY0JzogY2h1bmt9KQogICAgZW1pdCgnUkVQT1JUX0ZJTklTSEVEJywgeydncm91cCc6IGdyb3VwLCAnbW9kZSc6IG1vZGUsICdzaGEyNTYnOiByZWNlaXB0WydyZXBvcnRfc2hhMjU2J119KQoKCmlmIF9fbmFtZV9fID09ICdfX21haW5fXyc6CiAgICBtYWluKCkK'}
+          data=base64.b64decode(row['base64'],validate=True)
+          assert len(data)==row['bytes'] and hashlib.sha256(data).hexdigest()==row['sha256']
+          path=Path(os.environ['RUNNER_TEMP'])/'imghost-advisory-controller.py'
+          assert not path.exists()
+          path.write_bytes(data)
+          print('IMGHOST_ADVISORY_CONTROLLER_SOURCE '+json.dumps({k:v for k,v in row.items() if k!='base64'},sort_keys=True),flush=True)
+          PYTHON
+          python3 -m py_compile "$RUNNER_TEMP/imghost-advisory-controller.py"
+          test "$(node --version)" = v22.23.3
+          test "$(npm --version)" = 10.9.9
+          python3 "$RUNNER_TEMP/imghost-advisory-controller.py" prepare
+      - name: Four frozen-lock reports with actual exit and UTC, no npm ci or scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NPM_CONFIG_CACHE="$RUNNER_TEMP/imghost-advisory-cache"
+          export AUDIT_GROUP AUDIT_MODE AUDIT_START AUDIT_END AUDIT_EXIT
+          for AUDIT_GROUP in backend root; do
+            if [ "$AUDIT_GROUP" = backend ]; then directory="$GITHUB_WORKSPACE/imghost-source/backend/img-host"; else directory="$GITHUB_WORKSPACE/imghost-source"; fi
+            for AUDIT_MODE in full prod; do
+              stem="$AUDIT_GROUP-$AUDIT_MODE"
+              args=(audit --package-lock-only --ignore-scripts --legacy-peer-deps)
+              if [ "$AUDIT_MODE" = prod ]; then args+=(--omit=dev); fi
+              args+=(--json)
+              AUDIT_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+              if (cd "$directory" && timeout --kill-after=2s 75s npm "${args[@]}") > "$RUNNER_TEMP/imghost-advisory-owned/$stem.json" 2> "$RUNNER_TEMP/imghost-advisory-owned/$stem.stderr"; then AUDIT_EXIT=0; else AUDIT_EXIT=$?; fi
+              AUDIT_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+              python3 "$RUNNER_TEMP/imghost-advisory-controller.py" report
+            done
+          done
+          python3 "$RUNNER_TEMP/imghost-advisory-controller.py" finish
+      - name: Final resource observations only
+        if: always()
+        shell: bash
+        run: |
+          df -h /
+          free -h
