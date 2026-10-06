@@ -1,0 +1,93 @@
+name: Imghost nondeploy prerequisite unprivileged network namespace control
+on:
+  push:
+    branches: [prep/qualification/imghost-wrangler4-network-control-20261006]
+permissions:
+  contents: read
+jobs:
+  network-control:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Cloud resource and identity admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          python3 - <<'PY'
+          import os,shutil
+          assert os.environ['RUNNER_ENVIRONMENT']=='github-hosted'
+          assert os.environ['RUNNER_OS']=='Linux'
+          assert os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          assert os.environ['GITHUB_SHA']==os.environ['GITHUB_WORKFLOW_SHA']
+          assert shutil.disk_usage('/').free>=10*1024**3
+          available=next(int(x.split()[1])*1024 for x in open('/proc/meminfo') if x.startswith('MemAvailable:'))
+          assert available>=3*1024**3
+          PY
+      - name: Finite unprivileged user and network namespace prerequisite only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/imghost-wrangler4-network-control"
+          test ! -e "$root"
+          mkdir -m 700 "$root"
+          export CONTROL_PARENT_NET="$(readlink /proc/self/ns/net)"
+          export CONTROL_HOST_UID="$(id -u)"
+          python3 - "$root/control.py" <<'PY'
+          from pathlib import Path
+          import sys
+          source='''import errno,json,os,socket
+          from pathlib import Path
+          current=os.readlink('/proc/self/ns/net')
+          parent=os.environ['CONTROL_PARENT_NET']
+          assert current!=parent, 'distinct current network namespace required'
+          mapping=Path('/proc/self/uid_map').read_text().split()
+          assert mapping==['0',os.environ['CONTROL_HOST_UID'],'1'] and os.getuid()==0, 'unprivileged one-user map required'
+          interfaces=socket.if_nameindex()
+          assert interfaces==[(1,'lo')], 'no host/network interfaces admitted'
+          routes=Path('/proc/net/route').read_text().splitlines()
+          assert len(routes)==1, 'no IPv4 route rows admitted'
+          observations=[]
+          for family,address in [(socket.AF_INET,('1.1.1.1',443)),(socket.AF_INET6,('2606:4700:4700::1111',443,0,0))]:
+              with socket.socket(family,socket.SOCK_STREAM) as connection:
+                  connection.settimeout(1)
+                  try:
+                      connection.connect(address)
+                  except OSError as error:
+                      assert error.errno==errno.ENETUNREACH, 'network-unreachable control required'
+                      observations.append({'family':family,'errno':error.errno})
+                  else:
+                      raise AssertionError('unexpected external connect success')
+          print('IMGHOST_WRANGLER_NETWORK_CONTROL '+json.dumps({'status':'FINITE_UNPRIVILEGED_NETNS_CONTROL_PASS','current_net_namespace':current,'parent_net_namespace':parent,'uid_map':mapping,'interfaces':interfaces,'ipv4_route_rows':len(routes)-1,'external_connect_controls':observations,'limits':'Only this kernel/process namespace and two numeric TCP negative controls. Not future runner continuity, all protocols/FDs/IPC/global network absence, process descendant cleanup, Wrangler CLI/SDK/deployment/security/adoption.'},sort_keys=True),flush=True)
+          '''
+          path=Path(sys.argv[1])
+          assert not path.exists()
+          path.write_text(source)
+          PY
+          python3 -m py_compile "$root/control.py"
+          timeout --kill-after=2s 12s /usr/bin/unshare --version
+          set +e
+          (
+            set -C
+            ulimit -f 64
+            timeout --kill-after=2s 12s /usr/bin/unshare --user --map-root-user --net -- /usr/bin/python3 "$root/control.py" > "$root/control.log" 2>&1
+          )
+          status=$?
+          set -e
+          printf '%s\n' "$status" > "$root/control.exit"
+          python3 - "$root" <<'PY'
+          import base64,hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          data=(root/'control.log').read_bytes()
+          assert len(data)<=65536
+          print('IMGHOST_WRANGLER_NETWORK_OBSERVATION '+json.dumps({'exit_status':(root/'control.exit').read_text().strip(),'output_bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'base64':base64.b64encode(data).decode(),'limits':'Raw prerequisite output exported before success gate. No sudo, namespace sysctl/AppArmor changes, package install, SDK, product tests, dependency generation, Wrangler CLI/dryrun/deploy, or secret use. GNU timeout/file-size bound is not owned root/group/descendant cleanup proof.'},sort_keys=True),flush=True)
+          PY
+          test "$status" = 0
+      - name: Final resource observation
+        if: always()
+        shell: bash
+        run: |
+          df -h /
+          free -h
