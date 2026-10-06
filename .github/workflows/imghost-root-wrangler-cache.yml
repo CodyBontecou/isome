@@ -1,0 +1,105 @@
+name: Imghost root EFBIG npm cache source and metadata headers diagnostic
+on:
+  push:
+    branches: [prep/qualification/imghost-root-wrangler-cache-20261006]
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Cloud resource admission before runtime setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h /
+          free -h
+          python3 - <<'PY'
+          import os,shutil
+          assert os.environ['RUNNER_ENVIRONMENT']=='github-hosted'
+          assert os.environ['RUNNER_OS']=='Linux'
+          assert os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          assert os.environ['GITHUB_SHA']==os.environ['GITHUB_WORKFLOW_SHA']
+          assert shutil.disk_usage('/').free>=10*1024**3
+          available=next(int(x.split()[1])*1024 for x in open('/proc/meminfo') if x.startswith('MemAvailable:'))
+          assert available>=3*1024**3
+          PY
+      - name: Pinned existing runtime family only, no project checkout or dependencies
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.3'
+          check-latest: false
+      - name: Materialize literal tool source inspector and observe actual file limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = v22.23.3
+          test "$(npm --version)" = 10.9.9
+          root="$RUNNER_TEMP/imghost-root-wrangler-cache-control"
+          test ! -e "$root"
+          mkdir -m 700 "$root"
+          python3 - "$root/inspect.cjs" <<'PY'
+          from pathlib import Path
+          import sys,base64,hashlib
+          encoded='J3VzZSBzdHJpY3QnOwpjb25zdCBmcyA9IHJlcXVpcmUoJ25vZGU6ZnMnKTsKY29uc3QgcGF0aCA9IHJlcXVpcmUoJ25vZGU6cGF0aCcpOwpjb25zdCBjcnlwdG8gPSByZXF1aXJlKCdub2RlOmNyeXB0bycpOwpjb25zdCB7IGNyZWF0ZVJlcXVpcmUgfSA9IHJlcXVpcmUoJ25vZGU6bW9kdWxlJyk7CmNvbnN0IGFzc2VydCA9IHJlcXVpcmUoJ25vZGU6YXNzZXJ0L3N0cmljdCcpOwphc3NlcnQuZXF1YWwocHJvY2Vzcy5lbnYuR0lUSFVCX0FDVElPTlMsICd0cnVlJyk7CmFzc2VydC5lcXVhbChwcm9jZXNzLmVudi5SVU5ORVJfT1MsICdMaW51eCcpOwphc3NlcnQuZXF1YWwocHJvY2Vzcy5lbnYuUlVOTkVSX0VOVklST05NRU5ULCAnZ2l0aHViLWhvc3RlZCcpOwphc3NlcnQuZXF1YWwocHJvY2Vzcy52ZXJzaW9uLCAndjIyLjIzLjMnKTsKY29uc3QgbnBtQ2xpID0gZnMucmVhbHBhdGhTeW5jKHByb2Nlc3MuYXJndlsyXSk7CmNvbnN0IG5wbVJvb3QgPSBwYXRoLnJlc29sdmUocGF0aC5kaXJuYW1lKG5wbUNsaSksICcuLicpOwpjb25zdCByZXF1ZXN0ID0gY3JlYXRlUmVxdWlyZShucG1DbGkpOwpmdW5jdGlvbiByZWFkUmVndWxhcihmaWxlbmFtZSwgY2FwID0gMTMxMDcyKSB7CiAgY29uc3QgcmVhbCA9IGZzLnJlYWxwYXRoU3luYyhmaWxlbmFtZSk7CiAgYXNzZXJ0KHJlYWwuc3RhcnRzV2l0aChucG1Sb290ICsgcGF0aC5zZXApKTsKICBjb25zdCBzdGF0ID0gZnMubHN0YXRTeW5jKHJlYWwpOwogIGFzc2VydChzdGF0LmlzRmlsZSgpICYmICFzdGF0LmlzU3ltYm9saWNMaW5rKCkgJiYgc3RhdC5zaXplIDw9IGNhcCk7CiAgcmV0dXJuIHsgZmlsZW5hbWU6IHJlYWwsIGJ5dGVzOiBmcy5yZWFkRmlsZVN5bmMocmVhbCkgfTsKfQpmdW5jdGlvbiBwYWNrYWdlVmVyc2lvbihlbnRyeSwgbmFtZSkgewogIGxldCBkaXJlY3RvcnkgPSBwYXRoLmRpcm5hbWUoZnMucmVhbHBhdGhTeW5jKGVudHJ5KSk7CiAgZm9yIChsZXQgaSA9IDA7IGkgPCA1OyBpKyspIHsKICAgIGNvbnN0IGZpbGUgPSBwYXRoLmpvaW4oZGlyZWN0b3J5LCAncGFja2FnZS5qc29uJyk7CiAgICBpZiAoZnMuZXhpc3RzU3luYyhmaWxlKSkgewogICAgICBjb25zdCBkYXRhID0gcmVhZFJlZ3VsYXIoZmlsZSk7CiAgICAgIGNvbnN0IG1ldGFkYXRhID0gSlNPTi5wYXJzZShkYXRhLmJ5dGVzKTsKICAgICAgaWYgKG1ldGFkYXRhLm5hbWUgPT09IG5hbWUpIHJldHVybiB7bmFtZSwgdmVyc2lvbjogbWV0YWRhdGEudmVyc2lvbiwgcGFja2FnZVBhdGg6ZGF0YS5maWxlbmFtZSwgcGFja2FnZVNoYTI1NjpjcnlwdG8uY3JlYXRlSGFzaCgnc2hhMjU2JykudXBkYXRlKGRhdGEuYnl0ZXMpLmRpZ2VzdCgnaGV4Jyl9OwogICAgfQogICAgZGlyZWN0b3J5ID0gcGF0aC5kaXJuYW1lKGRpcmVjdG9yeSk7CiAgfQogIHRocm93IG5ldyBFcnJvcignRXhhY3QgcGFja2FnZSBtZXRhZGF0YSBub3QgZm91bmQ6ICcgKyBuYW1lKTsKfQpjb25zdCBucG1NZXRhZGF0YSA9IEpTT04ucGFyc2UocmVhZFJlZ3VsYXIocGF0aC5qb2luKG5wbVJvb3QsICdwYWNrYWdlLmpzb24nKSkuYnl0ZXMpOwphc3NlcnQuZXF1YWwobnBtTWV0YWRhdGEudmVyc2lvbiwgJzEwLjkuOScpOwpjb25zdCBwYWNvdGUgPSByZXF1ZXN0LnJlc29sdmUoJ3BhY290ZScpOwpjb25zdCBwYWNvdGVSZXF1ZXN0ID0gY3JlYXRlUmVxdWlyZShwYWNvdGUpOwpjb25zdCByZWdpc3RyeUZldGNoID0gcGFjb3RlUmVxdWVzdC5yZXNvbHZlKCducG0tcmVnaXN0cnktZmV0Y2gnKTsKY29uc3QgcmVnaXN0cnlSZXF1ZXN0ID0gY3JlYXRlUmVxdWlyZShyZWdpc3RyeUZldGNoKTsKY29uc3QgbWFrZUZldGNoID0gcmVnaXN0cnlSZXF1ZXN0LnJlc29sdmUoJ21ha2UtZmV0Y2gtaGFwcGVuJyk7CmNvbnN0IG1ha2VSZXF1ZXN0ID0gY3JlYXRlUmVxdWlyZShtYWtlRmV0Y2gpOwpjb25zdCBjYWNhY2hlID0gbWFrZVJlcXVlc3QucmVzb2x2ZSgnY2FjYWNoZScpOwpjb25zdCBhcmJvcmlzdCA9IHJlcXVlc3QucmVzb2x2ZSgnQG5wbWNsaS9hcmJvcmlzdCcpOwpjb25zdCBzZWxlY3Rpb25zID0gWwogIFsnbnBtLWluc3RhbGwnLCBwYXRoLmpvaW4obnBtUm9vdCwgJ2xpYi9jb21tYW5kcy9pbnN0YWxsLmpzJyldLAogIFsnYXJib3Jpc3QtYnVpbGQtaWRlYWwtdHJlZScsIHBhdGguam9pbihwYXRoLmRpcm5hbWUoYXJib3Jpc3QpLCAnYXJib3Jpc3QvYnVpbGQtaWRlYWwtdHJlZS5qcycpXSwKICBbJ3BhY290ZS1yZWdpc3RyeScsIHBhdGguam9pbihwYXRoLmRpcm5hbWUocGFjb3RlKSwgJ3JlZ2lzdHJ5LmpzJyldLAogIFsncmVnaXN0cnktZmV0Y2gnLCByZWdpc3RyeUZldGNoXSwKICBbJ21ha2UtZmV0Y2gnLCBtYWtlRmV0Y2hdLAogIFsnbWFrZS1mZXRjaC1jYWNoZS1lbnRyeScsIHBhdGguam9pbihwYXRoLmRpcm5hbWUobWFrZUZldGNoKSwgJ2NhY2hlL2VudHJ5LmpzJyldLAogIFsnY2FjYWNoZS1jb250ZW50LXdyaXRlJywgcGF0aC5qb2luKHBhdGguZGlybmFtZShjYWNhY2hlKSwgJ2NvbnRlbnQvd3JpdGUuanMnKV0sCl07CmNvbnNvbGUubG9nKCdJTUdIT1NUX05QTV9DQUNIRV9NRVRBREFUQSAnICsgSlNPTi5zdHJpbmdpZnkoe25vZGU6cHJvY2Vzcy52ZXJzaW9uLCBucG06bnBtTWV0YWRhdGEudmVyc2lvbiwgbnBtQ2xpLCBucG1Sb290LCBwYWNrYWdlczpbcGFja2FnZVZlcnNpb24ocGFjb3RlLCdwYWNvdGUnKSxwYWNrYWdlVmVyc2lvbihyZWdpc3RyeUZldGNoLCducG0tcmVnaXN0cnktZmV0Y2gnKSxwYWNrYWdlVmVyc2lvbihtYWtlRmV0Y2gsJ21ha2UtZmV0Y2gtaGFwcGVuJykscGFja2FnZVZlcnNpb24oY2FjYWNoZSwnY2FjYWNoZScpLHBhY2thZ2VWZXJzaW9uKGFyYm9yaXN0LCdAbnBtY2xpL2FyYm9yaXN0JyldLCBsaW1pdHM6J0J1aWx0LWluIG1vZHVsZSByZXNvbHV0aW9uIGFuZCBpbnN0YWxsZWQgdG9vbCBmaWxlL21ldGFkYXRhIHJlYWRzIG9ubHk7IG5vIGRlcGVuZGVuY3kgbW9kdWxlIGltcG9ydC9ib2R5IGV4ZWN1dGlvbiwgZ2VuZXJhdGlvbiwgY2FjaGUgdHJhZmZpYywgcHJvZHVjdCBvciBTREsuIFBhdGhzL2hhc2hlcyBhcmUgbm90IGxvYWRlZCBtb2R1bGUvcHJvY2VzcyBvcmlnaW4gYXR0ZXN0YXRpb24uJ30pKTsKbGV0IHRvdGFsID0gMDsKZm9yIChjb25zdCBbbGFiZWwsIGZpbGVuYW1lXSBvZiBzZWxlY3Rpb25zKSB7CiAgY29uc3Qgc291cmNlID0gcmVhZFJlZ3VsYXIoZmlsZW5hbWUpOwogIHRvdGFsICs9IHNvdXJjZS5ieXRlcy5sZW5ndGg7CiAgYXNzZXJ0KHRvdGFsIDw9IDUyNDI4OCk7CiAgY29uc3Qgc2hhMjU2ID0gY3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShzb3VyY2UuYnl0ZXMpLmRpZ2VzdCgnaGV4Jyk7CiAgY29uc3QgZW5jb2RlZCA9IHNvdXJjZS5ieXRlcy50b1N0cmluZygnYmFzZTY0Jyk7CiAgY29uc3QgY2h1bmtzID0gTWF0aC5jZWlsKGVuY29kZWQubGVuZ3RoIC8gMjA0OCk7CiAgY29uc29sZS5sb2coJ0lNR0hPU1RfTlBNX0NBQ0hFX0ZJTEVfU1RBUlRFRCAnICsgSlNPTi5zdHJpbmdpZnkoe2xhYmVsLCBwYXRoOnNvdXJjZS5maWxlbmFtZSwgYnl0ZXM6c291cmNlLmJ5dGVzLmxlbmd0aCwgc2hhMjU2LCBjaHVua3N9KSk7CiAgZm9yIChsZXQgaSA9IDA7IGkgPCBjaHVua3M7IGkrKykgY29uc29sZS5sb2coJ0lNR0hPU1RfTlBNX0NBQ0hFX0ZJTEVfQ0hVTksgJyArIEpTT04uc3RyaW5naWZ5KHtsYWJlbCwgaW5kZXg6aSwgYmFzZTY0OmVuY29kZWQuc2xpY2UoaSoyMDQ4LChpKzEpKjIwNDgpfSkpOwogIGNvbnNvbGUubG9nKCdJTUdIT1NUX05QTV9DQUNIRV9GSUxFX0ZJTklTSEVEICcgKyBKU09OLnN0cmluZ2lmeSh7bGFiZWwsIHNoYTI1Nn0pKTsKfQo='
+          data=base64.b64decode(encoded,validate=True)
+          assert len(data)==3812 and hashlib.sha256(data).hexdigest()=='842bfb5585807a56903bf4ebb82f50c474c385d69bdb1c0bebff8cfcce853c13'
+          path=Path(sys.argv[1])
+          assert not path.exists()
+          path.write_bytes(data)
+          PY
+          timeout --kill-after=2s 12s node --check "$root/inspect.cjs"
+          (
+            ulimit -f 8192
+            python3 - <<'PY'
+          import json,os,resource
+          print('IMGHOST_NPM_CACHE_FILE_LIMIT '+json.dumps({'shell_value':8192,'rlimit_fsize_bytes':resource.getrlimit(resource.RLIMIT_FSIZE),'bash_version':os.environ.get('BASH_VERSION'),'limits':'Observed fresh shell process file-size guard; not the earlier failed process exact file or response-size attribution.'},sort_keys=True),flush=True)
+          PY
+          )
+          set +e
+          (
+            set -C
+            ulimit -f 4096
+            timeout --kill-after=2s 12s node "$root/inspect.cjs" "$(command -v npm)" > "$root/inspector.log" 2>&1
+          )
+          status=$?
+          set -e
+          python3 - "$root/inspector.log" "$status" <<'PY'
+          from pathlib import Path
+          import sys,hashlib,json
+          path=Path(sys.argv[1])
+          assert path.is_file() and not path.is_symlink() and path.stat().st_size<=1024*1024
+          data=path.read_bytes()
+          print(data.decode(),end='',flush=True)
+          print('IMGHOST_NPM_CACHE_INSPECTOR_RETURN '+json.dumps({'exit_status':sys.argv[2],'output_bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'limits':'Completed bounded tool-source console before exit gate. Source paths/hashes are not loaded module/binary attestation; timeout/file limits not owned descendant/global cleanup proof.'},sort_keys=True),flush=True)
+          PY
+          test "$status" = 0
+      - name: Two exact registry HEAD variants with identity encoding and no body downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --kill-after=2s 40s python3 - <<'PY'
+          import datetime,http.client,json
+          host='registry.npmjs.org'
+          for label,accept in [('full-json','application/json'),('install-v1','application/vnd.npm.install-v1+json')]:
+              connection=http.client.HTTPSConnection(host,timeout=12)
+              started=datetime.datetime.now(datetime.timezone.utc).isoformat()
+              connection.request('HEAD','/wrangler',headers={'Accept':accept,'Accept-Encoding':'identity','User-Agent':'issue-factory-npm-metadata-headers-only'})
+              response=connection.getresponse()
+              headers=response.getheaders()
+              assert len(headers)<=64 and sum(len(k)+len(v) for k,v in headers)<=16384
+              selected={name:response.getheader(name) for name in ['Content-Length','Content-Type','Content-Encoding','ETag','Vary','Transfer-Encoding','Date','Cache-Control']}
+              observation={'label':label,'method':'HEAD','host':host,'path':'/wrangler','request_accept':accept,'request_accept_encoding':'identity','status':response.status,'started_utc':started,'headers':selected,'body_read':False,'limits':'Fresh HEAD representation metadata only. No body/download/cache write/npm generation/audit or earlier-response size/encoding/Accept/cache-file attribution. Missing/encoded length is not a justified decompressed-cache bound.'}
+              print('IMGHOST_NPM_CACHE_HEADERS '+json.dumps(observation,sort_keys=True),flush=True)
+              status=response.status
+              response.close()
+              connection.close()
+              assert status==200
+          PY
+      - name: Final resource observations
+        if: always()
+        shell: bash
+        run: |
+          df -h /
+          free -h
