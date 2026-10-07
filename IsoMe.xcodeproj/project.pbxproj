@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */; };
 		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
 		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
 		AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */; };
@@ -206,6 +207,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMomentMembershipTests.swift; sourceTree = "<group>"; };
 		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
 		AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
@@ -645,6 +647,7 @@
 				AB000001212F0BB000000B2 /* RenameIntentsTests.swift */,
 				6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */,
 				D2A10003212F000000000003 /* RemotePastVisitTests.swift */,
+				A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */,
 				5F000007212F000000000001 /* IntervalScheduledExportTests.swift */,
 				5F000008212F000000000001 /* IntervalPickerCrashReproTests.swift */,
 			);
@@ -1006,6 +1009,7 @@
 				AB000001212F0BB100000B2 /* RenameIntentsTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
 				D2A10003212F000100000003 /* RemotePastVisitTests.swift in Sources */,
+				A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

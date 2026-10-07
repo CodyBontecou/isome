@@ -142,6 +142,23 @@ final class PhotoLibraryManager: NSObject, PHPhotoLibraryChangeObserver {
         return moments
     }
 
+    /// PHAsset fetches reflect the current limited selection (and removals).
+    /// Filter presentation only: never delete cached metadata to match access.
+    func accessibleAssetIdentifiers(in identifiers: [String]) -> Set<String> {
+        guard authorizationState.canRead else { return [] }
+        startObservingChangesIfNeeded()
+        var accessible = Set<String>()
+        let batchSize = 250
+        for start in stride(from: 0, to: identifiers.count, by: batchSize) {
+            let batch = Array(identifiers[start..<min(start + batchSize, identifiers.count)])
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: batch, options: nil)
+            assets.enumerateObjects { asset, _, _ in
+                accessible.insert(asset.localIdentifier)
+            }
+        }
+        return accessible
+    }
+
     func thumbnail(
         for assetLocalIdentifier: String,
         targetSize: CGSize,
