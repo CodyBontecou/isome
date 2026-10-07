@@ -128,6 +128,14 @@
 		FEC10009212F000100000009 /* apple-watch-tracking.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC10009212F000000000009 /* apple-watch-tracking.mp4 */; };
 		FEC1000A212F00010000000A /* multi-format-export.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC1000A212F00000000000A /* multi-format-export.mp4 */; };
 		FEC1000B212F00010000000B /* remote-past-visits.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FEC1000B212F00000000000B /* remote-past-visits.mp4 */; };
+		ACCC14DB78414CAA9A440F4F /* SavedLocationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A117468AA8E34CF7907B6A48 /* SavedLocationsView.swift */; };
+		A801021FE6EE4664AE9072A6 /* SavedPlaceEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7E16B16123499F8142E3B2 /* SavedPlaceEditorView.swift */; };
+		2EE0C37D26884CA7B1B307CD /* SavedPlaceManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C057B2D2A02472C821730A8 /* SavedPlaceManagement.swift */; };
+		7E5184941D514F69A9E799E5 /* SavedPlaceImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C2471135BE43B5B4736D41 /* SavedPlaceImportService.swift */; };
+		AAB94974220E4B5DBFF9C9BF /* VisitMapOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECB4302689C4EB1831CBE59 /* VisitMapOpener.swift */; };
+		54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */; };
+		A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */; };
+		34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -318,6 +326,14 @@
 		B1000007212F000000000007 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		B1000008212F000000000008 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		B1000009212F000000000009 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		A117468AA8E34CF7907B6A48 /* SavedLocationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedLocationsView.swift; sourceTree = "<group>"; };
+		BC7E16B16123499F8142E3B2 /* SavedPlaceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceEditorView.swift; sourceTree = "<group>"; };
+		1C057B2D2A02472C821730A8 /* SavedPlaceManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceManagement.swift; sourceTree = "<group>"; };
+		85C2471135BE43B5B4736D41 /* SavedPlaceImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceImportService.swift; sourceTree = "<group>"; };
+		0ECB4302689C4EB1831CBE59 /* VisitMapOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitMapOpener.swift; sourceTree = "<group>"; };
+		3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceManagementTests.swift; sourceTree = "<group>"; };
+		EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceImportTests.swift; sourceTree = "<group>"; };
+		E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitMapOpenerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -512,6 +528,8 @@
 		A1FFFFFD212EFFFFFFFF0005 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BC7E16B16123499F8142E3B2 /* SavedPlaceEditorView.swift */,
+				A117468AA8E34CF7907B6A48 /* SavedLocationsView.swift */,
 				A1000002212F000000000002 /* ContentView.swift */,
 				BEE50001212F000000000001 /* ReleaseNotes.swift */,
 				A100000B212F00000000000B /* MapView.swift */,
@@ -541,6 +559,9 @@
 		A1FFFFFF212EFFFFFFFF0007 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				0ECB4302689C4EB1831CBE59 /* VisitMapOpener.swift */,
+				85C2471135BE43B5B4736D41 /* SavedPlaceImportService.swift */,
+				1C057B2D2A02472C821730A8 /* SavedPlaceManagement.swift */,
 				A1000007212F000000000007 /* ExportService.swift */,
 				E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
@@ -607,6 +628,9 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */,
+				EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */,
+				3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */,
 				D5E7A1580000000000000058 /* ExportRoundTripTests.swift */,
 				E9A100000000000000000003 /* ExportKitIntegrationTests.swift */,
 				76A0A8C8D0C96D0243E02089 /* LocationManagerTrackingTests.swift */,
@@ -857,6 +881,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAB94974220E4B5DBFF9C9BF /* VisitMapOpener.swift in Sources */,
+				7E5184941D514F69A9E799E5 /* SavedPlaceImportService.swift in Sources */,
+				2EE0C37D26884CA7B1B307CD /* SavedPlaceManagement.swift in Sources */,
+				A801021FE6EE4664AE9072A6 /* SavedPlaceEditorView.swift in Sources */,
+				ACCC14DB78414CAA9A440F4F /* SavedLocationsView.swift in Sources */,
 				A1000001212F000100000001 /* IsoMeApp.swift in Sources */,
 				A1000019212F000100000019 /* AppDelegate.swift in Sources */,
 				A100001F212F00010000001F /* TEDesign.swift in Sources */,
@@ -958,6 +987,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */,
+				A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */,
+				54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */,
 				D5E7A1580000000000000158 /* ExportRoundTripTests.swift in Sources */,
 				E9A100000000000000000004 /* ExportKitIntegrationTests.swift in Sources */,
 				5F000007212F000100000001 /* IntervalScheduledExportTests.swift in Sources */,
@@ -1172,7 +1204,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1188,7 +1220,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1205,7 +1237,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1221,7 +1253,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1237,7 +1269,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1247,7 +1279,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1264,7 +1296,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me Widget";
@@ -1274,7 +1306,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1291,7 +1323,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1301,7 +1333,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1320,7 +1352,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1330,7 +1362,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1349,7 +1381,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1359,7 +1391,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1378,7 +1410,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "iso.me";
@@ -1388,7 +1420,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.6;
+				MARKETING_VERSION = 1.7.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;

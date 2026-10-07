@@ -288,7 +288,7 @@ struct VisitDetailView: View {
             .buttonStyle(.bordered)
             .accessibilityLabel("Open visit in Maps")
             .accessibilityValue(visit.displayName)
-            .accessibilityHint("Opens this location in Apple Maps.")
+            .accessibilityHint("Opens this location in your default navigation app when supported.")
 
             // Delete
             Button(role: .destructive) {
@@ -442,10 +442,11 @@ struct VisitDetailView: View {
     }
 
     private func openInMaps() {
-        let placemark = MKPlacemark(coordinate: visit.coordinate)
-        let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = visit.displayName
-        mapItem.openInMaps(launchOptions: nil)
+        let coordinate = visit.coordinate
+        let name = visit.displayName
+        Task { @MainActor in
+            await VisitMapOpener.open(coordinate: coordinate, name: name)
+        }
     }
 }
 

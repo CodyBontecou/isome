@@ -23,6 +23,46 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.13",
+            items: [
+                .list(
+                    title: "Manage your saved places",
+                    rows: [
+                        .init(
+                            symbolSystemName: "bookmark",
+                            title: "Saved Locations in Settings",
+                            description: "Add, edit, search, and delete reusable locations. Your past visits stay unchanged."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.down",
+                            title: "Review CSV imports",
+                            description: "Review locations, invalid rows, and duplicates before importing. Keep existing locations or update matches."
+                        ),
+                        .init(
+                            symbolSystemName: "mappin.and.ellipse",
+                            title: "Save places missing from Maps",
+                            description: "Drop a precise map pin or enter exact coordinates to save any location."
+                        )
+                    ]
+                ),
+                .list(
+                    title: "Maps and visit fixes",
+                    rows: [
+                        .init(
+                            symbolSystemName: "map",
+                            title: "Use your default navigation app",
+                            description: "Open in Maps uses your default navigation app where supported, with Apple Maps as a fallback."
+                        ),
+                        .init(
+                            symbolSystemName: "trash",
+                            title: "Smoother visit deletion",
+                            description: "Deleting a visit now closes its details screen correctly."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.4",
             items: [
                 .media(

@@ -616,6 +616,10 @@ struct LocationMapView: View {
             .onChange(of: filteredPoints.count) { _, _ in
                 validateRouteReplayState()
             }
+            .onChange(of: viewModel.allVisits.map(\.id)) { _, visitIDs in
+                guard let selectedVisit, !visitIDs.contains(selectedVisit.id) else { return }
+                self.selectedVisit = nil
+            }
             .onChange(of: showOutliers) { _, _ in
                 validateRouteReplayState()
             }

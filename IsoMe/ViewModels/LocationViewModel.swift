@@ -904,6 +904,94 @@ final class LocationViewModel {
 
     // MARK: - Saved Places
 
+    /// Explicit library edits update by identity and never rewrite historical visits.
+    @discardableResult
+    func saveManagedPlace(_ draft: SavedPlaceDraft) throws -> SavedPlace {
+        if let message = draft.validationMessage { throw SavedPlaceManagementError.invalid(message) }
+        let place: SavedPlace
+        let snapshot: SavedPlaceDraft?
+        let oldUpdatedAt: Date?
+        if let id = draft.existingPlaceID {
+            guard let existing = try modelContext.fetch(FetchDescriptor<SavedPlace>()).first(where: { $0.id == id }) else {
+                throw SavedPlaceManagementError.missingPlace
+            }
+            place = existing
+            snapshot = SavedPlaceDraft(existing)
+            oldUpdatedAt = existing.updatedAt
+        } else {
+            place = SavedPlace(id: draft.id, name: draft.name, latitude: draft.latitude!, longitude: draft.longitude!)
+            snapshot = nil
+            oldUpdatedAt = nil
+            modelContext.insert(place)
+        }
+        draft.apply(to: place)
+        place.updatedAt = Date()
+        do {
+            try modelContext.save()
+        } catch {
+            if let snapshot {
+                snapshot.apply(to: place)
+                place.updatedAt = oldUpdatedAt!
+            } else {
+                modelContext.delete(place)
+            }
+            throw error
+        }
+        loadSavedPlaces()
+        return place
+    }
+
+    func deleteManagedPlace(_ place: SavedPlace) throws {
+        modelContext.delete(place)
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.insert(place)
+            throw error
+        }
+        loadSavedPlaces()
+    }
+
+    func importSavedPlaces(_ imported: [ImportedSavedPlace], duplicates: SavedPlaceDuplicatePolicy) throws -> SavedPlaceImportSummary {
+        let drafts = imported.map(SavedPlaceDraft.init)
+        for draft in drafts {
+            if let message = draft.validationMessage { throw SavedPlaceManagementError.invalid(message) }
+        }
+        let workingPlaces = try modelContext.fetch(FetchDescriptor<SavedPlace>())
+        let plan = SavedPlaceImportPlan(places: imported, existing: workingPlaces.map(SavedPlaceDraft.init), policy: duplicates)
+        var byID = Dictionary(uniqueKeysWithValues: workingPlaces.map { ($0.id, $0) })
+        let originalValues = workingPlaces.map { ($0, SavedPlaceDraft($0), $0.updatedAt) }
+        var inserted: [SavedPlace] = []
+        for entry in plan.entries {
+            let draft = SavedPlaceDraft(entry.place)
+            switch entry.action {
+            case .skip: continue
+            case .update:
+                guard let match = byID[entry.targetID] else { throw SavedPlaceManagementError.missingPlace }
+                draft.apply(to: match)
+                match.updatedAt = Date()
+            case .add:
+                let place = SavedPlace(id: entry.targetID, name: draft.name, latitude: draft.latitude!, longitude: draft.longitude!)
+                draft.apply(to: place)
+                modelContext.insert(place)
+                byID[place.id] = place
+                inserted.append(place)
+            }
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            for (place, snapshot, updatedAt) in originalValues {
+                snapshot.apply(to: place)
+                place.updatedAt = updatedAt
+            }
+            for place in inserted { modelContext.delete(place) }
+            throw error
+        }
+        loadSavedPlaces()
+        return plan.summary
+    }
+
     @discardableResult
     func createSavedPlace(
         name: String,
@@ -968,6 +1056,13 @@ final class LocationViewModel {
         let name = (visit.exportLocationName ?? visit.address)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard let name, !name.isEmpty else { return nil }
+
+        // Confirming a visit must not undo an explicitly managed pin or radius.
+        let draft = SavedPlaceDraft(name: name, latitude: visit.latitude, longitude: visit.longitude)
+        if let existing = savedPlaces.filter({ draft.matches(SavedPlaceDraft($0)) })
+            .min(by: { draft.distance(to: SavedPlaceDraft($0)) < draft.distance(to: SavedPlaceDraft($1)) }) {
+            return existing
+        }
 
         return createSavedPlace(
             name: name,

@@ -47,6 +47,7 @@ struct SettingsView: View {
                         liveActivitySection
                         unitsSection
                         mapDisplaySection
+                        savedLocationsSection
                         importSection
                         dataSection
                         onboardingSection
@@ -430,6 +431,33 @@ struct SettingsView: View {
     }
 
     // MARK: - Import Section
+
+    private var savedLocationsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "SAVED LOCATIONS")
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        SavedLocationsView(viewModel: viewModel)
+                    } label: {
+                        HStack {
+                            Image(systemName: "mappin.and.ellipse").foregroundStyle(TE.accent)
+                            Text("MANAGE LOCATIONS")
+                                .font(TE.mono(.subheadline, weight: .semibold))
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.right").foregroundStyle(TE.textMuted)
+                        }
+                        .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Manage Saved Locations")
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "Add, edit, or import reusable places for future visit suggestions.")
+        }
+    }
 
     private var importSection: some View {
         VStack(spacing: 0) {
