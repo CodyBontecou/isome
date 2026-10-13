@@ -84,7 +84,7 @@ struct PaywallView: View {
 
                 Text(isManagingPurchase
                      ? "Manage your lifetime export purchase and Family Sharing."
-                     : "Export your visits, points, and routes in every supported format. Tracking stays free and unlimited.")
+                     : "Export your visits, points, routes, and country days. Tracking stays free and unlimited.")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

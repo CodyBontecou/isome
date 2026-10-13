@@ -373,7 +373,7 @@ final class SavedPlaceManagementTests: XCTestCase {
     }
 
     private func makeEnvironment() throws -> (ModelContainer, LocationViewModel) {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, allowsSave: true)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let manager = LocationManager()

@@ -13,7 +13,8 @@ struct IsoMeApp: App {
             LocationPoint.self,
             RecordingSession.self,
             PhotoMoment.self,
-            SavedPlace.self
+            SavedPlace.self,
+            CountryStay.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,

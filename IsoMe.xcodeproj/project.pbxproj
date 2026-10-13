@@ -136,6 +136,10 @@
 		54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */; };
 		A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */; };
 		34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */; };
+		C0DE0301212F000100000301 /* CountryStay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0301212F000000000301 /* CountryStay.swift */; };
+		C0DE0302212F000100000302 /* CountryDayResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0302212F000000000302 /* CountryDayResolver.swift */; };
+		C0DE0303212F000100000303 /* CountryDaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0303212F000000000303 /* CountryDaysView.swift */; };
+		C0DE0304212F000100000304 /* CountryDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0304212F000000000304 /* CountryDayTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -334,6 +338,10 @@
 		3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceManagementTests.swift; sourceTree = "<group>"; };
 		EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlaceImportTests.swift; sourceTree = "<group>"; };
 		E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitMapOpenerTests.swift; sourceTree = "<group>"; };
+		C0DE0301212F000000000301 /* CountryStay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryStay.swift; sourceTree = "<group>"; };
+		C0DE0302212F000000000302 /* CountryDayResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDayResolver.swift; sourceTree = "<group>"; };
+		C0DE0303212F000000000303 /* CountryDaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDaysView.swift; sourceTree = "<group>"; };
+		C0DE0304212F000000000304 /* CountryDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDayTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -487,6 +495,7 @@
 		A1FFFFFB212EFFFFFFFF0003 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C0DE0301212F000000000301 /* CountryStay.swift */,
 				A1000003212F000000000003 /* Visit.swift */,
 				A1000004212F000000000004 /* LocationPoint.swift */,
 				C0DE0001212F000000000001 /* RecordingSession.swift */,
@@ -501,6 +510,7 @@
 		A1FFFFFC212EFFFFFFFF0004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C0DE0302212F000000000302 /* CountryDayResolver.swift */,
 				AA110000212F000000000000 /* Analytics */,
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
@@ -528,6 +538,7 @@
 		A1FFFFFD212EFFFFFFFF0005 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C0DE0303212F000000000303 /* CountryDaysView.swift */,
 				BC7E16B16123499F8142E3B2 /* SavedPlaceEditorView.swift */,
 				A117468AA8E34CF7907B6A48 /* SavedLocationsView.swift */,
 				A1000002212F000000000002 /* ContentView.swift */,
@@ -628,6 +639,7 @@
 		AD8A47404A1FA6D94EF61780 /* IsoMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				C0DE0304212F000000000304 /* CountryDayTests.swift */,
 				E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */,
 				EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */,
 				3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */,
@@ -881,6 +893,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DE0303212F000100000303 /* CountryDaysView.swift in Sources */,
+				C0DE0302212F000100000302 /* CountryDayResolver.swift in Sources */,
+				C0DE0301212F000100000301 /* CountryStay.swift in Sources */,
 				AAB94974220E4B5DBFF9C9BF /* VisitMapOpener.swift in Sources */,
 				7E5184941D514F69A9E799E5 /* SavedPlaceImportService.swift in Sources */,
 				2EE0C37D26884CA7B1B307CD /* SavedPlaceManagement.swift in Sources */,
@@ -987,6 +1002,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DE0304212F000100000304 /* CountryDayTests.swift in Sources */,
 				34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */,
 				A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */,
 				54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */,

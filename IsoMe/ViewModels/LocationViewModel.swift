@@ -1141,6 +1141,9 @@ final class LocationViewModel {
 
         let now = Date()
         visit.preserveOriginalValuesIfNeeded()
+        visit.countryCode = nil
+        visit.countryTimeZoneIdentifier = nil
+        visit.countryResolutionAttemptedAt = nil
         visit.latitude = coordinate.latitude
         visit.longitude = coordinate.longitude
         visit.customName = nil
@@ -1165,6 +1168,9 @@ final class LocationViewModel {
               let originalLongitude = visit.originalLongitude else { return }
 
         let now = Date()
+        visit.countryCode = nil
+        visit.countryTimeZoneIdentifier = nil
+        visit.countryResolutionAttemptedAt = nil
         visit.latitude = originalLatitude
         visit.longitude = originalLongitude
         visit.locationName = visit.originalLocationName
@@ -1227,6 +1233,7 @@ final class LocationViewModel {
 
         visit.arrivedAt = arrivedAt
         visit.departedAt = departedAt
+        visit.countryDepartureIsInferred = false
         visit.updatedAt = Date()
         try? modelContext.save()
         loadTodayVisits()
@@ -1461,6 +1468,7 @@ final class LocationViewModel {
             try modelContext.delete(model: RecordingSession.self)
             try modelContext.delete(model: PhotoMoment.self)
             try modelContext.delete(model: SavedPlace.self)
+            try modelContext.delete(model: CountryStay.self)
             try modelContext.save()
             allRecordingSessions = []
             locationPoints = []

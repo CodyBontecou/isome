@@ -3757,7 +3757,7 @@ extension MKCoordinateRegion {
 
 #Preview {
     LocationMapView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
         locationManager: LocationManager()
     ))
 }

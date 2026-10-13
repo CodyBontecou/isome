@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var showingImportError = false
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("appAppearance") private var appAppearance = AppAppearance.system.rawValue
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
@@ -42,6 +43,7 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         purchaseSection
+                        appearanceSection
                         trackingSection
                         inferredOutingsSection
                         liveActivitySection
@@ -70,7 +72,7 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) { viewModel.clearAllData() }
             } message: {
-                Text("This will permanently delete all visit data and location points. This action cannot be undone.")
+                Text("This will permanently delete all visits, location points, and manual country stays. This action cannot be undone.")
             }
             .alert("Import Complete", isPresented: $showingImportResult) {
                 Button("OK", role: .cancel) {}
@@ -160,6 +162,27 @@ struct SettingsView: View {
             return String(localized: "Individual Lifetime").uppercased()
         }
         return String(localized: "Lifetime Export active").uppercased()
+    }
+
+    private var appearanceSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "APPEARANCE")
+            TECard {
+                TERow(showDivider: false) {
+                    settingsPickerRow(title: "THEME") {
+                        Picker("Theme", selection: $appAppearance) {
+                            ForEach(AppAppearance.allCases) { appearance in
+                                Text(appearance.title).tag(appearance.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .tint(TE.accent)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "System follows your device’s appearance.")
+        }
     }
 
     // MARK: - Tracking Section
@@ -810,7 +833,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
         locationManager: LocationManager()
     ))
 }

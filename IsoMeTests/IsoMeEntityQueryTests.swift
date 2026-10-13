@@ -16,7 +16,7 @@ final class IsoMeEntityQueryTests: XCTestCase {
             LocationPoint.self,
             RecordingSession.self,
             PhotoMoment.self,
-            SavedPlace.self,
+            SavedPlace.self, CountryStay.self,
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [configuration])

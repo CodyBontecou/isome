@@ -469,6 +469,7 @@ final class LocationManager: NSObject, ObservableObject {
                     in: visits,
                     fallback: referenceDate
                 )
+                visit.countryDepartureIsInferred = true
                 changedCount += 1
             }
 
@@ -504,6 +505,7 @@ final class LocationManager: NSObject, ObservableObject {
                let existingVisit = try matchingOpenVisit(for: clVisit, in: context) {
                 // Departure update for an existing open visit.
                 existingVisit.departedAt = max(existingVisit.arrivedAt, departureDate)
+                existingVisit.countryDepartureIsInferred = false
                 try applySavedPlaceNameIfNeeded(to: existingVisit, in: context)
             } else if hasArrival {
                 // A new arrival means any previous open visit is no longer current,
@@ -697,6 +699,7 @@ final class LocationManager: NSObject, ObservableObject {
             target.departedAt = max(targetDeparture, sourceDeparture)
         }
 
+        target.countryDepartureIsInferred = target.countryDepartureIsInferred != false || source.countryDepartureIsInferred != false
         target.customName = target.customName ?? source.customName
         target.locationName = target.locationName ?? source.locationName
         target.address = target.address ?? source.address
@@ -728,6 +731,7 @@ final class LocationManager: NSObject, ObservableObject {
 
         for visit in openVisits where visit.id != excludedID && visit.arrivedAt <= arrivalDate {
             visit.departedAt = max(visit.arrivedAt, arrivalDate)
+            visit.countryDepartureIsInferred = true
             closedCount += 1
         }
 
@@ -859,6 +863,9 @@ final class LocationManager: NSObject, ObservableObject {
 
         do {
             let result = try await geocodingService.reverseGeocode(location: location)
+            guard !visit.isDeleted, visit.modelContext != nil,
+                  visit.latitude == location.coordinate.latitude,
+                  visit.longitude == location.coordinate.longitude else { return }
             if visit.canReceiveAutomaticGeocodeUpdates {
                 visit.locationName = result.name
                 visit.address = result.address
@@ -866,6 +873,9 @@ final class LocationManager: NSObject, ObservableObject {
                 visit.detectedAddress = result.address
                 visit.placeSource = .coreLocationGeocode
             }
+            visit.countryCode = result.timeZoneIdentifier == nil ? nil : result.countryCode
+            visit.countryTimeZoneIdentifier = result.timeZoneIdentifier
+            visit.countryResolutionAttemptedAt = Date()
             visit.geocodingCompleted = true
 
             try modelContext?.save()
@@ -889,15 +899,27 @@ final class LocationManager: NSObject, ObservableObject {
         // Throttle geocoding - only geocode if we've moved more than 50 meters
         if let lastLocation = lastGeocodedLocation {
             let distance = location.distance(from: lastLocation)
-            guard distance > 50 else { return }
+            guard distance > 50 || !Calendar.current.isDate(location.timestamp, inSameDayAs: lastLocation.timestamp) else { return }
         }
 
         lastGeocodedLocation = location
+        let resolvedPoint = lastSavedPoint.flatMap { point in
+            point.latitude == location.coordinate.latitude &&
+            point.longitude == location.coordinate.longitude &&
+            point.timestamp == location.timestamp ? point : nil
+        }
 
         do {
             let result = try await geocodingService.reverseGeocode(location: location)
             currentLocationName = result.name ?? result.address
             currentAddress = result.address
+            // Associate only with the actual fix that was resolved, never a later GPS update.
+            if let point = resolvedPoint, !point.isDeleted, point.modelContext != nil, !point.isOutlier {
+                point.countryCode = result.timeZoneIdentifier == nil ? nil : result.countryCode
+                point.countryTimeZoneIdentifier = result.timeZoneIdentifier
+                point.countryResolutionAttemptedAt = Date()
+                try modelContext?.save()
+            }
         } catch {
             // Keep the previous location name on error
         }
