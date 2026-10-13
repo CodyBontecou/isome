@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 import SwiftUI
 import UIKit
+import CoreLocation
 @testable import IsoMe
 
 @MainActor
@@ -234,6 +235,80 @@ final class CountryDayTests: XCTestCase {
         XCTAssertNil(storedPoint.countryCode)
         XCTAssertEqual(resolver.completed, 0)
         XCTAssertFalse(resolver.isRunning)
+    }
+
+    func testAppleNetworkErrorExplainsRetryAndPreservesCompletedResults() async throws {
+        let context = try makeContext()
+        let first = point("PT", "2026-10-02T12:00:00Z")
+        let second = point("PT", "2026-10-03T12:00:00Z")
+        first.countryCode = nil
+        second.countryCode = nil
+        second.latitude += 1
+        context.insert(first)
+        context.insert(second)
+        try context.save()
+        var calls = 0
+        let resolver = CountryDayResolver { _ in
+            calls += 1
+            if calls == 2 { throw CLError(.network) }
+            return GeocodingResult(name: nil, address: nil, countryCode: "PT", timeZoneIdentifier: "Europe/Lisbon")
+        }
+        await resolver.resolveHistory(in: context)
+        XCTAssertEqual(first.countryCode, "PT")
+        XCTAssertNil(second.countryCode)
+        XCTAssertEqual(resolver.completed, 1)
+        XCTAssertEqual(resolver.message, "Country lookup is temporarily unavailable. Completed results are saved. Check your connection and try again in a minute.")
+    }
+
+    func testCancellingPacedLookupPreservesProgressAndResumeUsesCache() async throws {
+        let context = try makeContext()
+        let first = point("PT", "2026-10-02T12:00:00Z")
+        let sameLocation = point("PT", "2026-10-03T12:00:00Z")
+        let differentLocation = point("PT", "2026-10-04T12:00:00Z")
+        for item in [first, sameLocation, differentLocation] {
+            item.countryCode = nil
+            context.insert(item)
+        }
+        differentLocation.latitude += 1
+        try context.save()
+        var calls = 0
+        let resolver = CountryDayResolver(minimumLookupInterval: 0.3) { _ in
+            calls += 1
+            return GeocodingResult(name: nil, address: nil, countryCode: "PT", timeZoneIdentifier: "Europe/Lisbon")
+        }
+        let analysis = Task { await resolver.resolveHistory(in: context) }
+        // The third location waits, while both repeated coordinates resolve from one request.
+        for _ in 0..<100 where resolver.completed < 2 {
+            try await Task.sleep(for: .milliseconds(1))
+        }
+        XCTAssertEqual(resolver.completed, 2)
+        resolver.cancel()
+        await analysis.value
+        XCTAssertEqual(calls, 1)
+        XCTAssertNil(differentLocation.countryCode)
+        XCTAssertTrue(resolver.message?.contains("Analysis stopped") == true)
+        await resolver.resolveHistory(in: context)
+        XCTAssertEqual(calls, 2)
+        XCTAssertEqual(differentLocation.countryCode, "PT")
+    }
+
+    func testDistinctLookupsRespectPacing() async throws {
+        let context = try makeContext()
+        for (index, date) in ["2026-10-02T12:00:00Z", "2026-10-03T12:00:00Z"].enumerated() {
+            let item = point("PT", date)
+            item.countryCode = nil
+            item.latitude += Double(index)
+            context.insert(item)
+        }
+        try context.save()
+        var startedAt: [Date] = []
+        let resolver = CountryDayResolver(minimumLookupInterval: 0.15) { _ in
+            startedAt.append(Date())
+            return GeocodingResult(name: nil, address: nil, countryCode: "PT", timeZoneIdentifier: "Europe/Lisbon")
+        }
+        await resolver.resolveHistory(in: context)
+        XCTAssertEqual(startedAt.count, 2)
+        XCTAssertGreaterThanOrEqual(startedAt[1].timeIntervalSince(startedAt[0]), 0.15)
     }
 
     func testAppearancePreferenceAndPaletteResolveBothThemes() {

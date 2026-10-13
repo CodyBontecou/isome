@@ -13,9 +13,15 @@ final class CountryDayResolver: ObservableObject {
     private var cancelled = false
     private let geocoder = GeocodingService()
     private let reverseGeocode: ((CLLocation) async throws -> GeocodingResult)?
+    private let minimumLookupInterval: TimeInterval
+    private var nextLookupAt = Date.distantPast
+    private var lookupCache: [String: GeocodingResult] = [:]
 
-    init(reverseGeocode: ((CLLocation) async throws -> GeocodingResult)? = nil) {
+    init(minimumLookupInterval: TimeInterval? = nil,
+         reverseGeocode: ((CLLocation) async throws -> GeocodingResult)? = nil) {
         self.reverseGeocode = reverseGeocode
+        // Apple recommends at most one automatic geocode per minute. Mock lookups need no delay.
+        self.minimumLookupInterval = max(0, minimumLookupInterval ?? (reverseGeocode == nil ? 60 : 0))
     }
 
     func cancel() {
@@ -92,7 +98,15 @@ final class CountryDayResolver: ObservableObject {
                 message = String(localized: "Identified \(resolved) of \(completed) locations. Unavailable lookups can be retried after an hour.")
             }
         } catch {
-            message = error.localizedDescription
+            if cancelled || Task.isCancelled {
+                message = String(localized: "Analysis stopped. Completed results are saved; analyze again to continue.")
+            } else if !networkAllowed {
+                message = String(localized: "Analysis stopped because network geocoding is disabled.")
+            } else if (error as NSError).domain == kCLErrorDomain || error is URLError {
+                message = String(localized: "Country lookup is temporarily unavailable. Completed results are saved. Check your connection and try again in a minute.")
+            } else {
+                message = error.localizedDescription
+            }
         }
     }
 
@@ -102,21 +116,32 @@ final class CountryDayResolver: ObservableObject {
     private var shouldStop: Bool { cancelled || Task.isCancelled || !networkAllowed }
 
     private func lookup(latitude: Double, longitude: Double) async throws -> GeocodingResult? {
-        do {
+        // Match the geocoder's existing cache precision, so repeated coordinates don't incur waits.
+        let key = "\((latitude * 10000).rounded()),\((longitude * 10000).rounded())"
+        let result: GeocodingResult
+        if let cached = lookupCache[key] {
+            result = cached
+        } else {
+            while Date() < nextLookupAt {
+                guard !shouldStop else { throw CancellationError() }
+                message = String(localized: "Waiting before the next country lookup… You can stop and continue later.")
+                try await Task.sleep(for: .milliseconds(100))
+            }
+            guard !shouldStop else { throw CancellationError() }
+            message = nil
+            // Keep this deadline after failures and cancellation, including an immediate retry.
+            nextLookupAt = Date().addingTimeInterval(minimumLookupInterval)
             let location = CLLocation(latitude: latitude, longitude: longitude)
-            let result: GeocodingResult
             if let reverseGeocode {
                 result = try await reverseGeocode(location)
             } else {
                 result = try await geocoder.reverseGeocode(location: location)
             }
-            // A country without a local time zone cannot be assigned a reliable civil date.
-            guard result.countryCode != nil, result.timeZoneIdentifier != nil else { return nil }
-            return result
-        } catch {
-            // Stop on network/rate-limit errors rather than hammering a failing service.
-            throw error
+            lookupCache[key] = result
         }
+        // A country without a local time zone cannot be assigned a reliable civil date.
+        guard result.countryCode != nil, result.timeZoneIdentifier != nil else { return nil }
+        return result
     }
 
     private func record(_ result: GeocodingResult?) {
