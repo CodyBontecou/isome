@@ -23,6 +23,36 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.14",
+            items: [
+                .list(
+                    title: "Dark mode and country days",
+                    rows: [
+                        .init(
+                            symbolSystemName: "moon",
+                            title: "Choose your appearance",
+                            description: "Use System, Light, or Dark in Settings."
+                        ),
+                        .init(
+                            symbolSystemName: "globe.europe.africa",
+                            title: "Days in each country",
+                            description: "Open Country Days from Timeline. Review recorded local dates and add or edit manual stays without counting overlapping days twice."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.up",
+                            title: "Export your country days",
+                            description: "The tracker is free. Export CSV with your existing lifetime export purchase."
+                        ),
+                        .init(
+                            symbolSystemName: "clock.arrow.circlepath",
+                            title: "Include earlier history",
+                            description: "Analyze saved locations with saved progress, stopping and resuming, and clearer messages when country lookup is unavailable."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.13",
             items: [
                 .list(
