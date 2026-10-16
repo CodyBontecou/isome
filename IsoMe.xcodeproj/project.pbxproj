@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC1090010000000000000001 /* MyselfClaimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1090010000000000000002 /* MyselfClaimView.swift */; };
 		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
 		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
 		AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */; };
@@ -210,6 +211,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC1090010000000000000002 /* MyselfClaimView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyselfClaimView.swift; sourceTree = "<group>"; };
 		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
 		AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
@@ -548,6 +550,7 @@
 				C0DE0103212F000000000103 /* PhotoMomentViews.swift */,
 				C0DE0002212F000000000002 /* OutingsView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
+				CC1090010000000000000002 /* MyselfClaimView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
@@ -925,6 +928,7 @@
 				C0DE0103212F000100000103 /* PhotoMomentViews.swift in Sources */,
 				C0DE0002212F000100000002 /* OutingsView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
+				CC1090010000000000000001 /* MyselfClaimView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
 				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,

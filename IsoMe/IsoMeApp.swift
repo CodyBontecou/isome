@@ -6,6 +6,7 @@ import StoreKit
 struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var watchSyncReceiver = WatchLocationSyncReceiver()
+    @State private var showingMyselfClaim = false
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -35,6 +36,9 @@ struct IsoMeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .sheet(isPresented: $showingMyselfClaim) {
+                    MyselfClaimView(app: "iso.me")
+                }
                 .onOpenURL { url in
                     handleDeepLink(url)
                 }
@@ -65,6 +69,12 @@ struct IsoMeApp: App {
     
     private func handleDeepLink(_ url: URL) {
         guard url.scheme == "isome" else { return }
+
+        if url.host == "myself", url.path == "/claim", url.user == nil,
+           url.password == nil, url.port == nil, url.query == nil, url.fragment == nil {
+            showingMyselfClaim = true
+            return
+        }
 
         switch url.host {
         case "stop":

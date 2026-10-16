@@ -7,6 +7,7 @@ struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @ObservedObject private var storeManager = StoreManager.shared
+    @State private var showingMyselfClaim = false
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
     @State private var showingImportPicker = false
@@ -43,6 +44,7 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         purchaseSection
+                        myselfClaimSection
                         appearanceSection
                         trackingSection
                         inferredOutingsSection
@@ -98,6 +100,7 @@ struct SettingsView: View {
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
             }
+            .sheet(isPresented: $showingMyselfClaim) { MyselfClaimView(app: "iso.me") }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager, context: .settings)
             }
@@ -151,6 +154,19 @@ struct SettingsView: View {
             } else {
                 TESectionFooter(text: "Tracking is free and unlimited. Choose an Individual or Family one-time purchase for data export.")
             }
+        }
+    }
+
+    private var myselfClaimSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "MYSELF.MD")
+            TECard {
+                TERow(showDivider: false) {
+                    settingsButton("CLAIM MYSELF.MD ACCESS", icon: "gift.fill") { showingMyselfClaim = true }
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "Existing purchasers receive complimentary lifetime access. Verify your purchase, then sign in to myself.md.")
         }
     }
 
