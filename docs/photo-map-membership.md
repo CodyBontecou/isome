@@ -52,6 +52,18 @@ Keep issue open and PR draft until reviewed:
 5. Real image requests with iCloud-only/unavailable assets, rapid navigation, responsiveness and memory; do not infer request cancellation or a measured performance result from hosted spies.
 6. Original assets and cached metadata survive presentation/access changes using test-only assets; distinguish intentional existing sync reconciliation from density reduction.
 
-## PR #67 integration gate
+## Integration with PR #67
 
-No merge/cherry-pick of #67 is included. The follow-up keeps the compatible `PhotoThumbnailLoader`/`loader` extension point needed for hosted detail spies. #67's dots preferences, marker branches and activation must survive later integration with complete membership, directories and area labels. The original build-file/file-reference insertion conflicts in `IsoMe.xcodeproj/project.pbxproj` still require both registrations to be retained. Map selection changes can also require manual integration with #67's call sites. A combined hosted run executing both suites and combined dots/image/pin physical QA remain unresolved; independent green runs do not establish them.
+The branch includes PR #67 after merging current main into its dots branch.
+Both test registrations are retained. Dots keep centered anchors, the saved
+image/pin preference, accessible labels and full touch targets. Marker callbacks
+use the shared detail selection, so range/library/access revisions dismiss the
+whole presentation chain in every marker mode. Area dots open the place directory;
+place browsing retains every photo and bounded grid pages. The thumbnail loader's
+post-await cancellation guard is retained.
+
+`PhotoMapMarkerTests` adds combined coverage for a 501-photo place inside an area,
+all image/pin/dot combinations, shared selection invalidation, and a hosted area
+dot with zero image requests followed by a positive last-photo browser request.
+The original membership and hosted grid/browser cases remain registered.
+Physical MapKit taps, Photos permissions and VoiceOver still need device QA.
