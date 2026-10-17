@@ -174,6 +174,85 @@ final class PhotoMapMarkerTests: XCTestCase {
         XCTAssertEqual(Set(requestedIdentifiers), Set(["single", "first", "second"]))
     }
 
+    func testDotsAndPinsRetainCompletePlaceAndAreaSelection() throws {
+        let photos = (0..<501).map { photo("dense-\($0)") }
+        let singleton = photo("separate", latitude: 38)
+        let places = PhotoMomentClusterBuilder.placeClusters(for: photos + [singleton])
+        let dense = try XCTUnwrap(places.first { $0.count == 501 })
+        let area = try XCTUnwrap(PhotoMomentClusterBuilder.annotations(for: places, maximumCount: 1).first)
+        XCTAssertTrue(area.isArea)
+        XCTAssertEqual(area.count, 502)
+        XCTAssertTrue(area.accessibilityLabel.contains("in this area"))
+        let selection = PhotoMomentDetailSelection()
+        for (images, dots) in [(true, false), (false, false), (true, true), (false, true)] {
+            for cluster in [dense, area] {
+                PhotoMomentClusterMapMarker(
+                    cluster: cluster, isSelected: false, showsImage: images, showsDots: dots,
+                    action: { selection.cluster = cluster }
+                ).activate()
+                XCTAssertEqual(selection.cluster?.count, cluster.count)
+                XCTAssertEqual(selection.cluster?.places.map(\.id), cluster.places.map(\.id))
+            }
+            PhotoMomentMapMarker(
+                photo: singleton, isSelected: false, showsImage: images, showsDots: dots,
+                action: { selection.photo = singleton }
+            ).activate()
+            selection.place = dense
+            selection.browserPhoto = dense.sortedPhotos.last
+            let browser = PhotoMomentFullScreenView(photo: try XCTUnwrap(selection.browserPhoto), photos: dense.sortedPhotos)
+            XCTAssertEqual(browser.photos.count, 501)
+            XCTAssertEqual(Set(browser.photos.map(\.id)), Set(photos.map(\.id)))
+            selection.dismissAll()
+            XCTAssertNil(selection.photo)
+            XCTAssertNil(selection.cluster)
+            XCTAssertNil(selection.place)
+            XCTAssertNil(selection.browserPhoto)
+        }
+    }
+
+    func testHostedAreaDotsDeferImagesUntilCompletePlaceBrowsing() async throws {
+        let photos = (0..<501).map { photo("dense-\($0)") }
+        let places = PhotoMomentClusterBuilder.placeClusters(for: photos + [photo("separate", latitude: 38)])
+        let dense = try XCTUnwrap(places.first { $0.count == 501 })
+        let area = try XCTUnwrap(PhotoMomentClusterBuilder.annotations(for: places, maximumCount: 1).first)
+        let selection = PhotoMomentDetailSelection()
+        var requested: [String] = []
+        var browsing = false
+        let loaded = expectation(description: "Opening the complete place loads its last photo")
+        loaded.assertForOverFulfill = false
+        let last = try XCTUnwrap(dense.sortedPhotos.last)
+        let loader: PhotoThumbnailLoader = { identifier, _, _ in
+            requested.append(identifier)
+            if browsing && identifier == last.assetLocalIdentifier { loaded.fulfill() }
+            return nil
+        }
+        let marker = PhotoMomentClusterMapMarker(
+            cluster: area, isSelected: false, showsImage: true, showsDots: true,
+            thumbnailLoader: loader, action: { selection.cluster = area }
+        )
+        let host = UIHostingController(rootView: AnyView(marker))
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        host.view.layoutIfNeeded()
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertTrue(requested.isEmpty)
+        marker.activate()
+        let selectedArea = try XCTUnwrap(selection.cluster)
+        selection.place = try XCTUnwrap(selectedArea.places.first { $0.id == dense.id })
+        let selectedPlace = try XCTUnwrap(selection.place)
+        XCTAssertEqual(selectedPlace.count, 501)
+        browsing = true
+        host.rootView = AnyView(PhotoMomentFullScreenView(photo: last, photos: selectedPlace.sortedPhotos, loader: loader))
+        host.view.layoutIfNeeded()
+        await fulfillment(of: [loaded], timeout: 5)
+        XCTAssertEqual(Set(requested), Set([last.assetLocalIdentifier]))
+    }
+
     func testDotLayoutKeeps44PointTargetForSingleAndGroupedPhotos() {
         for isCluster in [false, true] {
             let host = UIHostingController(rootView: PhotoMapDot(isSelected: false, isCluster: isCluster))
