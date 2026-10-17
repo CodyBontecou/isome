@@ -63,6 +63,12 @@
             "state": "translated",
             "value": "iso.me"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me"
+          }
         }
       }
     },
@@ -128,6 +134,12 @@
             "state": "translated",
             "value": "IsoMeWatchWidgetExtension"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IsoMeWatchWidgetExtension"
+          }
         }
       }
     },
@@ -189,6 +201,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": ""

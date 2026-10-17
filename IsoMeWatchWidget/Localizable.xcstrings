@@ -62,6 +62,12 @@
             "state": "translated",
             "value": "%@左边"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pozostało %@"
+          }
         }
       }
     },
@@ -122,6 +128,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld"
@@ -190,6 +202,12 @@
             "state": "translated",
             "value": "%lld次访问"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld wizyt"
+          }
         }
       }
     },
@@ -253,6 +271,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld次访问 • %2$@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld odwiedzin • %2$@"
           }
         }
       }
@@ -318,6 +342,12 @@
             "state": "translated",
             "value": "%1$lld小时%2$lld米"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld godz. %2$lld min"
+          }
         }
       }
     },
@@ -382,6 +412,12 @@
             "state": "translated",
             "value": "%lldm"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
         }
       }
     },
@@ -442,6 +478,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "iso.me"
@@ -510,6 +552,12 @@
             "state": "translated",
             "value": "离开"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyłączone"
+          }
         }
       }
     },
@@ -573,6 +621,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "追踪"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Śledzenie"
           }
         }
       }
@@ -638,6 +692,12 @@
             "state": "translated",
             "value": "追踪关闭"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Śledzenie wyłączone"
+          }
         }
       }
     },
@@ -702,6 +762,12 @@
             "state": "translated",
             "value": "未知"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieznany"
+          }
         }
       }
     },
@@ -765,6 +831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "查看您的跟踪状态和今天的统计数据。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdź swój status śledzenia i dzisiejsze statystyki."
           }
         }
       }

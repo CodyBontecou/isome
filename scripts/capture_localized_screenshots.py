@@ -30,6 +30,7 @@ LOCALES = {
     "fr-FR": ("fr", "fr_FR"),
     "hi": ("hi", "hi_IN"),
     "ja": ("ja", "ja_JP"),
+    "pl": ("pl", "pl_PL"),
     "pt-BR": ("pt-BR", "pt_BR"),
     "ru": ("ru", "ru_RU"),
     "zh-Hans": ("zh-Hans", "zh_CN"),

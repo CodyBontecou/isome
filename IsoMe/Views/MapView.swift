@@ -276,7 +276,7 @@ struct LocationMapView: View {
                     }
 
                     if isRouteReplayEnabled, let routeReplaySnapshot {
-                        Annotation("Replay Position", coordinate: routeReplaySnapshot.currentPoint.coordinate) {
+                        Annotation(String(localized: "Route replay position"), coordinate: routeReplaySnapshot.currentPoint.coordinate) {
                             RouteReplayMarker(snapshot: routeReplaySnapshot)
                         }
                     }
@@ -289,9 +289,9 @@ struct LocationMapView: View {
                     }
                     
                     if showSessionPath, let firstSessionPoint = activeSessionPoints.first {
-                        Annotation("Session Start", coordinate: firstSessionPoint.coordinate) {
+                        Annotation(String(localized: "Path start"), coordinate: firstSessionPoint.coordinate) {
                             StartMarker(
-                                accessibilityLabel: "Active session start",
+                                accessibilityLabel: String(localized: "Active session start"),
                                 accessibilityValue: firstSessionPoint.accessibilityValue
                             )
                         }
@@ -300,9 +300,9 @@ struct LocationMapView: View {
                     if showSessionPath,
                        let lastSessionPoint = activeSessionPoints.last,
                        activeSessionPoints.count > 1 {
-                        Annotation("Current", coordinate: lastSessionPoint.coordinate) {
+                        Annotation(String(localized: "Current location"), coordinate: lastSessionPoint.coordinate) {
                             CurrentLocationMarker(
-                                accessibilityLabel: "Active session current location",
+                                accessibilityLabel: String(localized: "Active session current location"),
                                 accessibilityValue: lastSessionPoint.accessibilityValue
                             )
                         }
@@ -1047,27 +1047,27 @@ struct LocationMapView: View {
 
     private var mapAccessibilitySummary: String {
         var parts: [String] = []
-        parts.append("\(filteredVisits.count) \(filteredVisits.count == 1 ? "visit" : "visits")")
+        parts.append(String(localized: "\(filteredVisits.count) visits"))
         if viewModel.mapLocationPointCount > filteredPoints.count {
-            parts.append("Showing \(filteredPoints.count) of \(viewModel.mapLocationPointCount) path points")
+            parts.append(String(localized: "Showing \(filteredPoints.count) of \(viewModel.mapLocationPointCount) path points"))
         } else {
-            parts.append("\(filteredPoints.count) \(filteredPoints.count == 1 ? "path point" : "path points")")
+            parts.append(String(localized: "\(filteredPoints.count) path points"))
         }
 
         if showPhotoMarkers {
             if viewModel.mapPhotoMomentCount > filteredPhotoMoments.count {
-                parts.append("Showing \(filteredPhotoMoments.count) of \(viewModel.mapPhotoMomentCount) matched photos")
+                parts.append(String(localized: "Showing \(filteredPhotoMoments.count) of \(viewModel.mapPhotoMomentCount) matched photos"))
             } else {
-                parts.append("\(filteredPhotoMoments.count) \(filteredPhotoMoments.count == 1 ? "matched photo" : "matched photos")")
+                parts.append(String(localized: "\(filteredPhotoMoments.count) matched photos"))
             }
         }
 
         if isRouteReplayEnabled, let routeReplaySnapshot {
-            parts.append("Route replay: \(routeReplaySnapshot.accessibilitySummary)")
+            parts.append(String(localized: "Route replay: \(routeReplaySnapshot.accessibilitySummary)"))
         }
 
         if !activeSessionPoints.isEmpty {
-            parts.append("Active session: \(viewModel.sessionAccessibilitySummary)")
+            parts.append(String(localized: "Active session: \(viewModel.sessionAccessibilitySummary)"))
         }
 
         return parts.joined(separator: ". ")
@@ -1227,7 +1227,7 @@ struct MapTrackingControlPill: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isTracking ? "Stop tracking" : "Start tracking")
-        .accessibilityValue(isTracking ? viewModel.sessionAccessibilitySummary : "Tracking is off.")
+        .accessibilityValue(isTracking ? viewModel.sessionAccessibilitySummary : String(localized: "Tracking is off."))
         .accessibilityHint(isTracking ? "Stops the active session." : "Starts a new location tracking session.")
         .sensoryFeedback(.impact(flexibility: .solid), trigger: isTracking)
     }
@@ -1479,9 +1479,9 @@ struct PathPointTooltip: View {
 
     private func formattedSpeed(_ metersPerSecond: Double) -> String {
         if usesMetricDistanceUnits {
-            return String(format: "%.1f km/h", metersPerSecond * 3.6)
+            return String(format: "%.1f km/h", locale: .current, metersPerSecond * 3.6)
         }
-        return String(format: "%.1f mph", metersPerSecond * 2.23693629)
+        return String(format: "%.1f mph", locale: .current, metersPerSecond * 2.23693629)
     }
 }
 

@@ -28,7 +28,7 @@ CATALOGS = (
     Path("IsoMeWatchWidget/Localizable.xcstrings"),
     Path("IsoMeWatchWidget/InfoPlist.xcstrings"),
 )
-LOCALES = ("ar", "bn", "en", "es", "fr", "hi", "ja", "pt-BR", "ru", "zh-Hans")
+LOCALES = ("ar", "bn", "en", "es", "fr", "hi", "ja", "pl", "pt-BR", "ru", "zh-Hans")
 GOOGLE_LOCALES = {
     "ar": "ar",
     "bn": "bn",
@@ -36,6 +36,7 @@ GOOGLE_LOCALES = {
     "fr": "fr",
     "hi": "hi",
     "ja": "ja",
+    "pl": "pl",
     "pt-BR": "pt",
     "ru": "ru",
     "zh-Hans": "zh-CN",
@@ -94,6 +95,7 @@ EXACT_EQUIVALENTS = {
     "••••••••",
 }
 NATURAL_EQUIVALENTS = {
+    *(("pl", value) for value in ("Core Location", "Format", "FORMAT", "Import", "START", "STOP", "STATUS", "X-API-Key", "Plan", "m", "MYSELF.MD")),
     ("es", "MANUAL"),
     ("es", "Manual"),
     ("fr", "%lld PHOTOS"),
@@ -296,7 +298,7 @@ def translation_prompt(value: str) -> str:
 
 def preserve_display_case(source: str, translated: str, locale: str) -> str:
     ascii_letters = [character for character in source if character.isascii() and character.isalpha()]
-    if ascii_letters and all(character.isupper() for character in ascii_letters) and locale in {"es", "fr", "pt-BR", "ru"}:
+    if ascii_letters and all(character.isupper() for character in ascii_letters) and locale in {"es", "fr", "pl", "pt-BR", "ru"}:
         return translated.upper()
     return translated
 
@@ -309,7 +311,8 @@ def source_values(key: str, entry: dict) -> tuple[str, list[str]]:
     english = entry.setdefault("localizations", {}).get("en", {})
     if "stringSet" in english:
         return "stringSet", list(english["stringSet"].get("values", []))
-    value = english.get("stringUnit", {}).get("value", key)
+    unit = english.get("stringUnit") or english.get("variations", {}).get("plural", {}).get("other", {}).get("stringUnit", {})
+    value = unit.get("value", key)
     return "stringUnit", [value]
 
 
@@ -318,7 +321,9 @@ def locale_values(entry: dict, locale: str, kind: str) -> list[str] | None:
     if kind == "stringSet":
         values = localized.get("stringSet", {}).get("values")
         return list(values) if isinstance(values, list) else None
-    value = localized.get("stringUnit", {}).get("value")
+    # A plural catalog entry represents the same source value with count-specific forms.
+    unit = localized.get("stringUnit") or localized.get("variations", {}).get("plural", {}).get("other", {}).get("stringUnit", {})
+    value = unit.get("value")
     return [value] if isinstance(value, str) else None
 
 
@@ -435,7 +440,8 @@ def fill(overwrite: bool = False) -> int:
                 raise RuntimeError(f"{relative}: {key!r} has no English source values")
             kinds[(relative, key)] = kind
             sources[(relative, key)] = values
-            set_locale_values(entry, "en", kind, values)
+            if "variations" not in entry["localizations"].get("en", {}):
+                set_locale_values(entry, "en", kind, values)
 
             for locale in LOCALES:
                 if locale == "en":
@@ -510,10 +516,38 @@ def fill(overwrite: bool = False) -> int:
     return audit()
 
 
-def audit() -> int:
+def audit_extracted(build_root: Path) -> int:
+    """Check compiler-discovered keys for every app target, including shared sources."""
+    targets = {
+        "IsoMe": Path("IsoMe/Localizable.xcstrings"),
+        "IsoMeWatch": Path("IsoMeWatch/Localizable.xcstrings"),
+        "IsoMeWidgetExtension": Path("IsoMeWidget/Localizable.xcstrings"),
+        "IsoMeWatchWidgetExtension": Path("IsoMeWatchWidget/Localizable.xcstrings"),
+    }
+    failures = []
+    for target, catalog in targets.items():
+        files = list(build_root.glob(f"**/{target}.build/Objects-normal/*/*.stringsdata"))
+        if not files:
+            failures.append(f"no compiler extraction data for {target}")
+            continue
+        keys = json.loads((ROOT / catalog).read_text())["strings"]
+        missing = set()
+        for path in files:
+            tables = json.loads(path.read_text()).get("tables", {})
+            missing.update(item["key"] for item in tables.get("Localizable", []) if item["key"] not in keys)
+        failures.extend(f"missing extracted key {catalog}:{key!r}" for key in sorted(missing))
+        print(f"  {target}: {len(files)} extraction files, {len(missing)} missing keys")
+    if failures:
+        print("\n".join(failures), file=sys.stderr)
+        return 1
+    print("PASS: all four targets' extracted keys are cataloged")
+    return 0
+
+
+def audit(locales: tuple[str, ...] = LOCALES) -> int:
     failures: list[str] = []
     total = 0
-    identical: dict[str, list[str]] = {locale: [] for locale in LOCALES if locale != "en"}
+    identical: dict[str, list[str]] = {locale: [] for locale in locales if locale != "en"}
     for relative in CATALOGS:
         document = json.loads((ROOT / relative).read_text())
         for key, entry in document.get("strings", {}).items():
@@ -521,7 +555,7 @@ def audit() -> int:
                 continue
             total += 1
             kind, source = source_values(key, entry)
-            for locale in LOCALES:
+            for locale in locales:
                 target = locale_values(entry, locale, kind)
                 label = f"{relative}:{key!r}:{locale}"
                 if target is None or len(target) != len(source) or any(value == "" and src != "" for src, value in zip(source, target)):
@@ -532,8 +566,16 @@ def audit() -> int:
                         failures.append(f"placeholder mismatch {label}")
                     if locale != "en" and source_value == target_value and not is_intentional_equivalent(source_value, locale):
                         identical[locale].append(f"{relative}:{key}")
+                plural = entry.get("localizations", {}).get(locale, {}).get("variations", {}).get("plural")
+                if plural is not None:
+                    if locale == "pl" and not {"one", "few", "many", "other"}.issubset(plural):
+                        failures.append(f"missing Polish plural forms {label}")
+                    for category, form in plural.items():
+                        value = form.get("stringUnit", {}).get("value")
+                        if not value or placeholders(source[0]) != placeholders(value):
+                            failures.append(f"invalid plural form {label}:{category}")
 
-    print(f"Audited {total} active catalog keys across {len(CATALOGS)} catalogs and {len(LOCALES)} locales.")
+    print(f"Audited {total} active catalog keys across {len(CATALOGS)} catalogs and {len(locales)} locales.")
     for locale, values in identical.items():
         print(f"  {locale}: {len(values)} non-allowlisted values identical to English")
     if failures:
@@ -548,8 +590,17 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=("fill", "audit"))
     parser.add_argument("--overwrite", action="store_true", help="regenerate all non-manual, non-allowlisted translations")
+    parser.add_argument("--locale", choices=LOCALES, action="append", help="audit only this locale (repeatable; audit command only)")
+    parser.add_argument("--extracted-from", type=Path, help="also audit compiler .stringsdata under this build directory")
     args = parser.parse_args()
-    return fill(overwrite=args.overwrite) if args.command == "fill" else audit()
+    if args.command == "fill":
+        if args.locale or args.extracted_from:
+            parser.error("--locale and --extracted-from are supported only by audit")
+        return fill(overwrite=args.overwrite)
+    result = audit(tuple(args.locale) if args.locale else LOCALES)
+    if args.extracted_from:
+        result = max(result, audit_extracted(args.extracted_from))
+    return result
 
 
 if __name__ == "__main__":

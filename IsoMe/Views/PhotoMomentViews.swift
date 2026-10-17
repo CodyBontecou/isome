@@ -188,7 +188,9 @@ struct PhotoMomentCluster: Identifiable {
     }
 
     var accessibilityLabel: String {
-        isArea ? "\(count) photos in this area" : "\(count) photos taken here"
+        isArea
+            ? String(localized: "\(count) photos in this area")
+            : String(localized: "\(count) photos taken here")
     }
 
     var accessibilityValue: String {
