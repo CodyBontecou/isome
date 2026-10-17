@@ -152,7 +152,7 @@ struct PlaceSelectionView: View {
                     }
                     .disabled(mapCenterCoordinate == nil)
                 } footer: {
-                    Text("Tap the map to place the pin exactly where the visit happened.")
+                    Text("Tap the map to place the pin exactly where you want it.")
                 }
 
                 if let selection {
@@ -275,7 +275,7 @@ struct PlaceSelectionView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(result.name)
                     .accessibilityValue(result.address ?? "")
-                    .accessibilityHint("Selects this location for the past visit.")
+                    .accessibilityHint("Selects this location.")
                 }
             }
         } else if trimmedQuery.count >= 2 {
@@ -285,7 +285,7 @@ struct PlaceSelectionView: View {
         } else {
             Section {
                 ContentUnavailableView(
-                    "Find Where You Were",
+                    "Find a Location",
                     systemImage: "magnifyingglass",
                     description: Text("Search for a business, landmark, or street address. You can also navigate and tap the map.")
                 )
@@ -313,7 +313,7 @@ struct PlaceSelectionView: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                Text("Add a place name in the visit form.")
+                Text("Add a name after selecting this location.")
                     .foregroundStyle(.secondary)
             }
 

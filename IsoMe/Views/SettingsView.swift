@@ -7,6 +7,7 @@ struct SettingsView: View {
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
     @ObservedObject private var storeManager = StoreManager.shared
+    @State private var showingMyselfClaim = false
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
     @State private var showingImportPicker = false
@@ -16,6 +17,7 @@ struct SettingsView: View {
     @State private var showingImportError = false
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("appAppearance") private var appAppearance = AppAppearance.system.rawValue
     @AppStorage("usesMetricDistanceUnits") private var usesMetricDistanceUnits = true
     @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @AppStorage("showOutliers") private var showOutliers = false
@@ -42,11 +44,14 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         purchaseSection
+                        myselfClaimSection
+                        appearanceSection
                         trackingSection
                         inferredOutingsSection
                         liveActivitySection
                         unitsSection
                         mapDisplaySection
+                        savedLocationsSection
                         importSection
                         dataSection
                         onboardingSection
@@ -69,7 +74,7 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) { viewModel.clearAllData() }
             } message: {
-                Text("This will permanently delete all visit data and location points. This action cannot be undone.")
+                Text("This will permanently delete all visits, location points, and manual country stays. This action cannot be undone.")
             }
             .alert("Import Complete", isPresented: $showingImportResult) {
                 Button("OK", role: .cancel) {}
@@ -95,6 +100,7 @@ struct SettingsView: View {
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
             }
+            .sheet(isPresented: $showingMyselfClaim) { MyselfClaimView(app: "iso.me") }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(storeManager: storeManager, context: .settings)
             }
@@ -151,6 +157,19 @@ struct SettingsView: View {
         }
     }
 
+    private var myselfClaimSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "MYSELF.MD")
+            TECard {
+                TERow(showDivider: false) {
+                    settingsButton("CLAIM MYSELF.MD ACCESS", icon: "gift.fill") { showingMyselfClaim = true }
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "Existing purchasers receive complimentary lifetime access. Verify your purchase, then sign in to myself.md.")
+        }
+    }
+
     private var currentPurchasePlanName: String {
         if storeManager.isFamilyUnlocked {
             return String(localized: "Family Lifetime").uppercased()
@@ -159,6 +178,27 @@ struct SettingsView: View {
             return String(localized: "Individual Lifetime").uppercased()
         }
         return String(localized: "Lifetime Export active").uppercased()
+    }
+
+    private var appearanceSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "APPEARANCE")
+            TECard {
+                TERow(showDivider: false) {
+                    settingsPickerRow(title: "THEME") {
+                        Picker("Theme", selection: $appAppearance) {
+                            ForEach(AppAppearance.allCases) { appearance in
+                                Text(appearance.title).tag(appearance.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .tint(TE.accent)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "System follows your device’s appearance.")
+        }
     }
 
     // MARK: - Tracking Section
@@ -430,6 +470,33 @@ struct SettingsView: View {
     }
 
     // MARK: - Import Section
+
+    private var savedLocationsSection: some View {
+        VStack(spacing: 0) {
+            TESectionHeader(title: "SAVED LOCATIONS")
+            TECard {
+                TERow(showDivider: false) {
+                    NavigationLink {
+                        SavedLocationsView(viewModel: viewModel)
+                    } label: {
+                        HStack {
+                            Image(systemName: "mappin.and.ellipse").foregroundStyle(TE.accent)
+                            Text("MANAGE LOCATIONS")
+                                .font(TE.mono(.subheadline, weight: .semibold))
+                                .foregroundStyle(TE.textPrimary)
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.right").foregroundStyle(TE.textMuted)
+                        }
+                        .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Manage Saved Locations")
+                }
+            }
+            .padding(.horizontal, 16)
+            TESectionFooter(text: "Add, edit, or import reusable places for future visit suggestions.")
+        }
+    }
 
     private var importSection: some View {
         VStack(spacing: 0) {
@@ -782,7 +849,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(viewModel: LocationViewModel(
-        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
+        modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
         locationManager: LocationManager()
     ))
 }

@@ -5,6 +5,8 @@ import MapKit
 struct GeocodingResult {
     let name: String?
     let address: String?
+    var countryCode: String? = nil
+    var timeZoneIdentifier: String? = nil
 }
 
 actor GeocodingService {
@@ -58,7 +60,9 @@ actor GeocodingService {
 
             let result = GeocodingResult(
                 name: extractPlaceName(from: placemark),
-                address: formatAddress(from: placemark)
+                address: formatAddress(from: placemark),
+                countryCode: placemark.isoCountryCode,
+                timeZoneIdentifier: placemark.timeZone?.identifier
             )
 
             cache[key] = result

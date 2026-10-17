@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var viewModel: LocationViewModel?
     @State private var locationManager: LocationManager?
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("appAppearance") private var appAppearance = AppAppearance.system.rawValue
     @State private var crashLog: String?
     @State private var pendingTrackingStart = false
 
@@ -47,6 +48,8 @@ struct ContentView: View {
                 ProgressView("Loading...")
             }
         }
+        .preferredColorScheme((AppAppearance(rawValue: appAppearance) ?? .system).colorScheme)
+        .tint(TE.accent)
         .task {
             if viewModel == nil {
                 let manager = LocationManager()
@@ -1128,22 +1131,22 @@ private struct OnboardingTextButtonStyle: ButtonStyle {
 }
 
 private enum OnboardingPalette {
-    static let backgroundTop = Color(red: 0.974, green: 0.981, blue: 0.996)
-    static let backgroundBottom = Color(red: 0.924, green: 0.942, blue: 0.979)
+    static let backgroundTop = TE.surface
+    static let backgroundBottom = TE.surface
 
-    static let card = Color.white.opacity(0.94)
-    static let cardSoft = Color(red: 0.953, green: 0.966, blue: 0.992)
-    static let border = Color(red: 0.816, green: 0.852, blue: 0.917)
+    static let card = TE.card
+    static let cardSoft = TE.surface
+    static let border = TE.border
 
-    static let accent = Color(red: 0.196, green: 0.455, blue: 0.956)
+    static let accent = TE.accent
 
-    static let textPrimary = Color(red: 0.125, green: 0.161, blue: 0.247)
-    static let textSecondary = Color(red: 0.294, green: 0.345, blue: 0.459)
-    static let textMuted = Color(red: 0.459, green: 0.514, blue: 0.639)
+    static let textPrimary = TE.textPrimary
+    static let textSecondary = TE.textMuted
+    static let textMuted = TE.textMuted
 
-    static let success = Color(red: 0.173, green: 0.67, blue: 0.42)
-    static let warning = Color(red: 0.923, green: 0.611, blue: 0.145)
-    static let danger = Color(red: 0.849, green: 0.327, blue: 0.278)
+    static let success = TE.success
+    static let warning = TE.warning
+    static let danger = TE.danger
 }
 
 private extension Font {
@@ -1507,5 +1510,5 @@ private enum ScreenshotFeatureDemoSeeder {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self], inMemory: true)
+        .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self], inMemory: true)
 }

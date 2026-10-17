@@ -99,7 +99,7 @@ final class ExportDataIntentTests: XCTestCase {
 
     @MainActor
     private func makeSeededContext() throws -> ModelContext {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self])
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: true,

@@ -17,7 +17,7 @@ final class RenameIntentsTests: XCTestCase {
             LocationPoint.self,
             RecordingSession.self,
             PhotoMoment.self,
-            SavedPlace.self,
+            SavedPlace.self, CountryStay.self,
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
