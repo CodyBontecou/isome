@@ -21,6 +21,36 @@ enum PhotoMapMarkerStyle: Equatable {
     }
 }
 
+/// Resolve overlaps by distance to the visible dot, rather than annotation order.
+/// Centers come from MapProxy at touch time, so zoom, rotation and pitch apply.
+enum PhotoMapDotHitTesting {
+    static let targetSize: CGFloat = 44
+
+    static func mapPoint(localPoint: CGPoint, markerCenter: CGPoint) -> CGPoint {
+        CGPoint(x: markerCenter.x + localPoint.x - targetSize / 2,
+                y: markerCenter.y + localPoint.y - targetSize / 2)
+    }
+
+    static func targetIndex(at point: CGPoint, centers: [CGPoint?]) -> Int? {
+        var winner: Int?
+        var nearest = CGFloat.infinity
+        for (index, center) in centers.enumerated() {
+            guard let center else { continue }
+            let dx = point.x - center.x
+            let dy = point.y - center.y
+            guard abs(dx) <= targetSize / 2, abs(dy) <= targetSize / 2 else { continue }
+            let distance = dx * dx + dy * dy
+            if distance < nearest {
+                winner = index
+                nearest = distance
+            }
+        }
+        // Exact ties keep the first stable cluster. Accessibility activation
+        // still acts on the focused marker, including coincident locations.
+        return winner
+    }
+}
+
 struct PhotoMapDot: View {
     let isSelected: Bool
     let isCluster: Bool
@@ -34,7 +64,7 @@ struct PhotoMapDot: View {
             }
             .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
             // Small visual, full rectangular touch target. No image view or task.
-            .frame(width: 44, height: 44)
+            .frame(width: PhotoMapDotHitTesting.targetSize, height: PhotoMapDotHitTesting.targetSize)
             .contentShape(Rectangle())
             .accessibilityHidden(true)
     }
@@ -225,10 +255,15 @@ struct PhotoMomentMapMarker: View {
     let isSelected: Bool
     let showsImage: Bool
     var showsDots = false
+    var onDotTap: ((CGPoint) -> Void)? = nil
     var thumbnailLoader: PhotoThumbnailLoader = loadPhotoThumbnail
     let action: () -> Void
 
     func activate() { action() }
+
+    func activateDot(at point: CGPoint) {
+        if let onDotTap { onDotTap(point) } else { activate() }
+    }
 
     private var style: PhotoMapMarkerStyle {
         .resolve(showsImages: showsImage, showsDots: showsDots)
@@ -240,6 +275,10 @@ struct PhotoMomentMapMarker: View {
                 .scaleEffect(isSelected ? 1.06 : 1)
         }
         .buttonStyle(.plain)
+        .highPriorityGesture(
+            SpatialTapGesture().onEnded { activateDot(at: $0.location) },
+            including: showsDots ? .all : .none
+        )
         .zIndex(100)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(photo.accessibilityLabel)
@@ -329,10 +368,15 @@ struct PhotoMomentClusterMapMarker: View {
     let isSelected: Bool
     let showsImage: Bool
     var showsDots = false
+    var onDotTap: ((CGPoint) -> Void)? = nil
     var thumbnailLoader: PhotoThumbnailLoader = loadPhotoThumbnail
     let action: () -> Void
 
     func activate() { action() }
+
+    func activateDot(at point: CGPoint) {
+        if let onDotTap { onDotTap(point) } else { activate() }
+    }
 
     private var style: PhotoMapMarkerStyle {
         .resolve(showsImages: showsImage, showsDots: showsDots)
@@ -348,6 +392,10 @@ struct PhotoMomentClusterMapMarker: View {
                 .scaleEffect(isSelected ? 1.06 : 1)
         }
         .buttonStyle(.plain)
+        .highPriorityGesture(
+            SpatialTapGesture().onEnded { activateDot(at: $0.location) },
+            including: showsDots ? .all : .none
+        )
         .zIndex(100)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cluster.accessibilityLabel)

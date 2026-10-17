@@ -213,6 +213,7 @@ struct LocationMapView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                MapReader { mapProxy in
                 Map(position: $cameraPosition, selection: $selectedVisit) {
                     // Current user location
                     UserAnnotation()
@@ -369,6 +370,9 @@ struct LocationMapView: View {
                                     isSelected: selectedPhotoMoment?.id == photo.id,
                                     showsImage: showPhotoMarkerImages,
                                     showsDots: showPhotoMarkerDots,
+                                    onDotTap: { point in
+                                        selectPhotoDot(at: point, relativeTo: cluster, proxy: mapProxy)
+                                    },
                                     action: { selectedPhotoMoment = photo }
                                 )
                             }
@@ -383,6 +387,9 @@ struct LocationMapView: View {
                                     isSelected: selectedPhotoCluster?.id == cluster.id,
                                     showsImage: showPhotoMarkerImages,
                                     showsDots: showPhotoMarkerDots,
+                                    onDotTap: { point in
+                                        selectPhotoDot(at: point, relativeTo: cluster, proxy: mapProxy)
+                                    },
                                     action: { selectedPhotoCluster = cluster }
                                 )
                             }
@@ -412,6 +419,8 @@ struct LocationMapView: View {
                     }
                 }
                 .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
+
+                }
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -832,6 +841,20 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
+    }
+
+    private func selectPhotoDot(at localPoint: CGPoint, relativeTo owner: PhotoMomentCluster, proxy: MapProxy) {
+        let clusters = photoMomentClusters
+        guard let center = proxy.convert(owner.coordinate, to: .local) else { return }
+        let point = PhotoMapDotHitTesting.mapPoint(localPoint: localPoint, markerCenter: center)
+        let centers = clusters.map { proxy.convert($0.coordinate, to: .local) }
+        guard let index = PhotoMapDotHitTesting.targetIndex(at: point, centers: centers) else { return }
+        let target = clusters[index]
+        if let photo = target.onlyPhoto {
+            selectedPhotoMoment = photo
+        } else {
+            selectedPhotoCluster = target
+        }
     }
 
     private func requestPhotoMomentsForCurrentRange() {
