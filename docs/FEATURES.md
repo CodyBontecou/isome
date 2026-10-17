@@ -69,12 +69,15 @@
 **VIS-2 Saved places** — free · iOS
 - `SavedPlace` (name/coords/address/radius, **default 150 m**, min 25 m). Creating a place with an identical name (case-insensitive) within radius updates instead of duplicating.
 - Auto-stamp: new visits inside a saved place's radius get its name/address, marked confirmed (`placeSource = userEntered`, distance recorded).
-- Confirming or correcting a visit auto-remembers a saved place at 150 m.
+- Settings → Saved Locations: searchable library with standalone Add/Edit/Delete, name, optional address, map pin or direct coordinates, and match radius (25–10,000 m). Edits and deletion keep historical visits unchanged.
+- Confirming or correcting a visit remembers a new place at 150 m; an existing matching place retains its managed pin, address, and radius.
+- Saved-location CSV import previews valid/invalid rows and new/duplicate locations. Required columns: `name,latitude,longitude`; optional `address,radius_meters` (default 150). Supports quoted/multiline UTF-8 CSV and BOM, up to 5 MB / 10,000 rows. Invalid rows are skipped; users explicitly choose Keep existing or Update matching locations. Matching uses the same case-insensitive name within either radius, choosing the nearest match deterministically.
 
 **VIS-3 Visit confirmation & correction** — free · iOS
 - Status machine: unconfirmed → confirmed / corrected, with provenance (`VisitSource` automatic/manual/imported; `VisitPlaceSource` coreLocationGeocode/appleMaps/userEntered/import).
 - Correcting preserves originals (lat/lon/name/address) for **Undo Correction**; automatic geocoding never overwrites user-touched visits.
 - Editing: custom name (reset to detected), address, notes (autosave), arrived/departed times + "still here" toggle with validation.
+- Open in Maps: iOS 18.4+ tries the system default navigation app with a location URL, falling back to Apple Maps if unavailable; earlier iOS uses Apple Maps. System default navigation selection is region-dependent.
 
 **VIS-4 Manual visit entry** — free · iOS
 - Map "+" menu: Save current place / Add past visit / Add place manually. Sheet offers: name, address/note, saved-location picker, arrival/departure (past-only, validated), "still here", location via Apple Maps search or map pin or current location, optional "save as reusable location" with radius picker 50/100/150/250 m. Past-visit mode never falls back to current location.

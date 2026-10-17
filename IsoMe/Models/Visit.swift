@@ -35,6 +35,12 @@ final class Visit {
     var placeSourceRaw: String?
     var placeDistanceMeters: Double?
 
+    var countryCode: String?
+    var countryTimeZoneIdentifier: String?
+    var countryResolutionAttemptedAt: Date?
+    /// nil on legacy visits; only an observed or user-entered departure proves a multi-day stay.
+    var countryDepartureIsInferred: Bool?
+
     init(
         id: UUID = UUID(),
         latitude: Double,
@@ -66,6 +72,7 @@ final class Visit {
         self.longitude = longitude
         self.arrivedAt = arrivedAt
         self.departedAt = departedAt
+        self.countryDepartureIsInferred = false
         self.customName = customName
         self.locationName = locationName
         self.address = address

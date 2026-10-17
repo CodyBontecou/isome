@@ -23,6 +23,76 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.14",
+            items: [
+                .list(
+                    title: "Dark mode and country days",
+                    rows: [
+                        .init(
+                            symbolSystemName: "moon",
+                            title: "Choose your appearance",
+                            description: "Use System, Light, or Dark in Settings."
+                        ),
+                        .init(
+                            symbolSystemName: "globe.europe.africa",
+                            title: "Days in each country",
+                            description: "Open Country Days from Timeline. Review recorded local dates and add or edit manual stays without counting overlapping days twice."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.up",
+                            title: "Export your country days",
+                            description: "The tracker is free. Export CSV with your existing lifetime export purchase."
+                        ),
+                        .init(
+                            symbolSystemName: "clock.arrow.circlepath",
+                            title: "Include earlier history",
+                            description: "Analyze saved locations with saved progress, stopping and resuming, and clearer messages when country lookup is unavailable."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
+            version: "1.7.13",
+            items: [
+                .list(
+                    title: "Manage your saved places",
+                    rows: [
+                        .init(
+                            symbolSystemName: "bookmark",
+                            title: "Saved Locations in Settings",
+                            description: "Add, edit, search, and delete reusable locations. Your past visits stay unchanged."
+                        ),
+                        .init(
+                            symbolSystemName: "square.and.arrow.down",
+                            title: "Review CSV imports",
+                            description: "Review locations, invalid rows, and duplicates before importing. Keep existing locations or update matches."
+                        ),
+                        .init(
+                            symbolSystemName: "mappin.and.ellipse",
+                            title: "Save places missing from Maps",
+                            description: "Drop a precise map pin or enter exact coordinates to save any location."
+                        )
+                    ]
+                ),
+                .list(
+                    title: "Maps and visit fixes",
+                    rows: [
+                        .init(
+                            symbolSystemName: "map",
+                            title: "Use your default navigation app",
+                            description: "Open in Maps uses your default navigation app where supported, with Apple Maps as a fallback."
+                        ),
+                        .init(
+                            symbolSystemName: "trash",
+                            title: "Smoother visit deletion",
+                            description: "Deleting a visit now closes its details screen correctly."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.4",
             items: [
                 .media(

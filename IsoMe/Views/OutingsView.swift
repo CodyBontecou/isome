@@ -129,6 +129,7 @@ struct OutingsView: View {
                     ScrollView {
                         VStack(spacing: 0) {
                             overviewSection
+                            countryDaysSection
                             dayControlsSection
 
                             if timelineEvents.isEmpty {
@@ -159,6 +160,38 @@ struct OutingsView: View {
                 selectInitialTimelineDateIfNeeded()
             }
         }
+    }
+
+    private var countryDaysSection: some View {
+        TECard {
+            NavigationLink {
+                CountryDaysView()
+            } label: {
+                TERow(showDivider: false) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "globe.europe.africa")
+                            .foregroundStyle(TE.accent)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Country Days")
+                                .font(TE.mono(.subheadline, weight: .semibold))
+                                .foregroundStyle(TE.textPrimary)
+                            Text("Review days present in each country.")
+                                .font(.caption)
+                                .foregroundStyle(TE.textMuted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(TE.textMuted)
+                    }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     private var overviewSection: some View {
@@ -1795,7 +1828,7 @@ private struct OutingStatChip: View {
 #Preview {
     OutingsView(
         viewModel: LocationViewModel(
-            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self).mainContext,
+            modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
             locationManager: LocationManager()
         ),
         onShowOnMap: {}

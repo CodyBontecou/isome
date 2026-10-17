@@ -1,21 +1,35 @@
 import SwiftUI
+import UIKit
 
 /// Teenage Engineering–inspired design tokens shared across all views.
 enum TE {
     // MARK: - Colors
-    static let accent = Color(red: 0.196, green: 0.455, blue: 0.956)
-    static let surface = Color(red: 0.96, green: 0.955, blue: 0.94)
+    /// Dynamic colors preserve the existing light palette and adapt across sheets and controls.
+    static func adaptive(_ light: UIColor, _ dark: UIColor) -> Color {
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark ? dark : light
+        })
+    }
+
+    static let accent = adaptive(UIColor(red: 0.196, green: 0.455, blue: 0.956, alpha: 1),
+                                 UIColor(red: 0.38, green: 0.62, blue: 1, alpha: 1))
+    static let surface = adaptive(UIColor(red: 0.96, green: 0.955, blue: 0.94, alpha: 1),
+                                  UIColor(red: 0.09, green: 0.09, blue: 0.085, alpha: 1))
     static let surfaceDark = Color(red: 0.12, green: 0.12, blue: 0.12)
-    static let card = Color.white
-    static let border = Color(red: 0.82, green: 0.81, blue: 0.79)
+    static let card = adaptive(.white, UIColor(red: 0.14, green: 0.14, blue: 0.135, alpha: 1))
+    static let border = adaptive(UIColor(red: 0.82, green: 0.81, blue: 0.79, alpha: 1),
+                                 UIColor(red: 0.30, green: 0.30, blue: 0.28, alpha: 1))
     static let borderDark = Color(red: 0.25, green: 0.25, blue: 0.25)
-    static let textPrimary = Color(red: 0.12, green: 0.12, blue: 0.12)
-    static let textMuted = Color(red: 0.52, green: 0.51, blue: 0.49)
+    static let textPrimary = adaptive(UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1),
+                                      UIColor(red: 0.95, green: 0.95, blue: 0.93, alpha: 1))
+    static let textMuted = adaptive(UIColor(red: 0.44, green: 0.43, blue: 0.41, alpha: 1),
+                                    UIColor(red: 0.68, green: 0.67, blue: 0.64, alpha: 1))
     static let lcdGreen = Color(red: 0.0, green: 0.78, blue: 0.45)
-    static let lcdBackground = Color(red: 0.88, green: 0.90, blue: 0.85)
-    static let danger = Color(red: 0.85, green: 0.2, blue: 0.15)
-    static let warning = Color(red: 0.92, green: 0.61, blue: 0.14)
-    static let success = Color(red: 0.17, green: 0.67, blue: 0.42)
+    static let lcdBackground = adaptive(UIColor(red: 0.88, green: 0.90, blue: 0.85, alpha: 1),
+                                        UIColor(red: 0.17, green: 0.21, blue: 0.17, alpha: 1))
+    static let danger = Color(uiColor: .systemRed)
+    static let warning = Color(uiColor: .systemOrange)
+    static let success = Color(uiColor: .systemGreen)
 
     // MARK: - Typography
     static func mono(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
@@ -165,5 +179,25 @@ struct TESectionFooter: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.top, 4)
+    }
+}
+
+/// Stored as a raw value so an unknown preference safely falls back to the system.
+enum AppAppearance: String, CaseIterable, Identifiable {
+    case system, light, dark
+    var id: String { rawValue }
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+    var title: LocalizedStringKey {
+        switch self {
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
     }
 }

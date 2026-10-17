@@ -13,6 +13,10 @@ final class LocationPoint {
     var horizontalAccuracy: Double
     var isOutlier: Bool = false
 
+    var countryCode: String?
+    var countryTimeZoneIdentifier: String?
+    var countryResolutionAttemptedAt: Date?
+
     init(
         id: UUID = UUID(),
         latitude: Double,

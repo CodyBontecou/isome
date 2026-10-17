@@ -24,6 +24,14 @@ Automatic background detection of places you arrive at and depart from, powered 
 ### Continuous Tracking
 High-accuracy GPS tracking that records your exact path. Configurable distance filter (5m-200m) and auto-off timer (30 min to never). Tracked points include altitude, speed, and accuracy metadata.
 
+### Dark Mode
+Follow the device appearance or choose Light or Dark in **Settings → Appearance → Theme**. The shared palette adapts across the map, timeline, settings, export, and onboarding screens.
+
+### Country Days
+The free **Timeline → Country Days** screen counts unique local dates present in each country from recorded visits and route points. Filter by this year, the last 365 days, or all time; open a country to review individual dates. Travel days can count in both countries. Add, edit, or delete manual stays to cover missing records; overlapping dates are deduplicated.
+
+New recordings identify countries using the existing network-geocoding preference. **Analyze saved locations** resolves earlier history in resumable batches and respects network opt-out. Dates use the resolved location's time zone. Unknown locations, outliers, and gaps are not assigned invented days; open visits and unverified departure times contribute only the arrival day. Existing history with unverified departures may need manual stays for multi-day totals. Country-day CSV export uses the existing lifetime export purchase and includes the country code, local date, and recorded/manual source.
+
 ### Live Activities
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
