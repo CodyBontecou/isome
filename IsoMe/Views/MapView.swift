@@ -405,7 +405,11 @@ struct LocationMapView: View {
                     visibleMapRegion = context.region
                 }
                 .simultaneousGesture(
-                    TapGesture().onEnded(handleMapTap)
+                    SpatialTapGesture().onEnded { value in
+                        handleMapTap()
+                        guard showPhotoMarkerDots else { return }
+                        selectPhotoDot(at: value.location, proxy: mapProxy)
+                    }
                 )
                 .accessibilityLabel("Location map")
                 .accessibilityValue(mapAccessibilitySummary)
@@ -864,11 +868,19 @@ struct LocationMapView: View {
     }
 
     private func selectPhotoDot(at localPoint: CGPoint, relativeTo owner: PhotoMomentCluster, proxy: MapProxy) {
-        let clusters = photoMomentClusters
         guard let center = proxy.convert(owner.coordinate, to: .local) else { return }
         let point = PhotoMapDotHitTesting.mapPoint(localPoint: localPoint, markerCenter: center)
+        selectPhotoDot(at: point, proxy: proxy)
+    }
+
+    private func selectPhotoDot(at point: CGPoint, proxy: MapProxy) {
+        let clusters = photoMomentClusters
         let centers = clusters.map { proxy.convert($0.coordinate, to: .local) }
         guard let index = PhotoMapDotHitTesting.targetIndex(at: point, centers: centers) else { return }
+        // A path or visit annotation can receive the same touch. The map-level
+        // gesture still gives photo dots priority inside their 44-point targets.
+        selectedPointID = nil
+        selectedVisit = nil
         let target = clusters[index]
         if let photo = target.onlyPhoto {
             viewModel.photoDetails.photo = photo
