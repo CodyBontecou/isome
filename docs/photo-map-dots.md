@@ -67,3 +67,18 @@ Three marker tests cover the recorded overlap geometry in both directions,
 nearby singleton centers, target bounds, nil projections and ties, and separation
 of spatial touch routing from accessibility activation. MapKit touches are
 verified separately in simulator QA.
+
+## Photo dots overlapping path markers
+
+The map also observes spatial taps and resolves the same nearest-dot target.
+This catches touches delivered to a path start/end, point, session or visit
+annotation instead of a photo annotation. Only taps inside a visible photo dot's
+44-point target select a photo; other map gestures and marker actions continue.
+Photo selection clears any competing point tooltip or selected visit. Image and
+pin modes keep their existing tap handling, and semantic Button activation stays
+on the focused marker.
+
+The mixed-annotation regression requires a real MapKit touch: the hosted marker
+callback tests cannot reproduce MapKit dispatch to another annotation. In iPhone
+QA, the previously intercepted area center now opens its directory with paths
+still visible. Keep this interaction in device QA alongside neighboring-dot taps.
