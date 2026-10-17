@@ -14,6 +14,52 @@ final class PhotoMapMarkerTests: XCTestCase {
         )
     }
 
+    func testOverlappingDotTargetsChooseTheVisibleCenterFromEitherOwner() throws {
+        // Recorded iPhone 17 Pro frames: area center lies inside the next
+        // singleton's 44-point target. Annotation order used to pick that photo.
+        let area = CGPoint(x: 200, y: 230.56)
+        let singleton = CGPoint(x: 200, y: 211.2)
+        let other = CGPoint(x: 200, y: 199.76)
+        let centers: [CGPoint?] = [area, singleton, other]
+        for expected in centers.indices {
+            let point = try XCTUnwrap(centers[expected])
+            for owner in centers.compactMap({ $0 }) {
+                let local = CGPoint(x: point.x - owner.x + 22, y: point.y - owner.y + 22)
+                let mapped = PhotoMapDotHitTesting.mapPoint(localPoint: local, markerCenter: owner)
+                XCTAssertEqual(PhotoMapDotHitTesting.targetIndex(at: mapped, centers: centers), expected)
+            }
+        }
+        XCTAssertEqual(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: 210, y: 223), centers: centers), 0)
+        XCTAssertEqual(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: 200, y: 209), centers: centers), 1)
+    }
+
+    func testDotHitTestingRetainsTargetBoundsAndStableTies() {
+        let centers: [CGPoint?] = [nil, .zero, CGPoint(x: 0, y: 20)]
+        XCTAssertEqual(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: 22, y: -22), centers: centers), 1)
+        XCTAssertNil(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: 22.1, y: -22), centers: centers))
+        XCTAssertEqual(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: 0, y: 10), centers: centers), 1)
+        XCTAssertNil(PhotoMapDotHitTesting.targetIndex(at: .zero, centers: []))
+        XCTAssertNil(PhotoMapDotHitTesting.targetIndex(at: CGPoint(x: CGFloat.nan, y: 0), centers: centers))
+    }
+
+    func testDotTouchRoutingKeepsAccessibilityActivationOnFocusedMarker() throws {
+        let single = photo("single")
+        let group = try XCTUnwrap(PhotoMomentClusterBuilder.clusters(for: [photo("a"), photo("b")]).first)
+        var routed: [CGPoint] = []
+        var activated: [String] = []
+        let marker = PhotoMomentMapMarker(photo: single, isSelected: false, showsImage: true, showsDots: true,
+            onDotTap: { routed.append($0) }, action: { activated.append("single") })
+        let cluster = PhotoMomentClusterMapMarker(cluster: group, isSelected: false, showsImage: true, showsDots: true,
+            onDotTap: { routed.append($0) }, action: { activated.append("group") })
+        marker.activateDot(at: CGPoint(x: 22, y: 40))
+        cluster.activateDot(at: CGPoint(x: 22, y: 2))
+        XCTAssertEqual(routed, [CGPoint(x: 22, y: 40), CGPoint(x: 22, y: 2)])
+        XCTAssertTrue(activated.isEmpty)
+        marker.activate()
+        cluster.activate()
+        XCTAssertEqual(activated, ["single", "group"])
+    }
+
     func testModeSwitchingPreservesLegacyImageAndPinChoices() {
         XCTAssertEqual(PhotoMapMarkerStyle.resolve(showsImages: true, showsDots: false), .images)
         XCTAssertEqual(PhotoMapMarkerStyle.resolve(showsImages: false, showsDots: false), .pins)

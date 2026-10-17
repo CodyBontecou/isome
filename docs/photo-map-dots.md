@@ -52,3 +52,18 @@ Before marking ready, use an iPhone with permitted **test-only** Photos assets:
 The PR stays draft and the issue stays open until cloud checks and required
 interaction/accessibility QA have concrete evidence. No hardware evidence is
 claimed by the source or hosted callback/layout tests.
+
+## Overlapping touch targets
+
+Dot touch gestures now resolve against the current MapProxy screen projections.
+Even when MapKit delivers the gesture to a neighboring 44-point annotation,
+its local touch offset is converted to map space and the nearest dot whose
+44-point rectangle contains that touch opens. The camera projection is read at
+touch time, including after zoom, pan, rotation or pitch. Isolated dots retain
+the full target. Exact distance ties use stable cluster order. VoiceOver/Button
+activation keeps the focused marker's own action instead of using touch routing.
+
+Three marker tests cover the recorded overlap geometry in both directions,
+nearby singleton centers, target bounds, nil projections and ties, and separation
+of spatial touch routing from accessibility activation. MapKit touches are
+verified separately in simulator QA.
