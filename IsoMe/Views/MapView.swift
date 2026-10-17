@@ -28,7 +28,8 @@ struct LocationMapView: View {
     @State private var showVisitMarkers = true
     @AppStorage(LocationViewModel.showPhotoMarkersKey) private var showPhotoMarkers = false
     @AppStorage(LocationViewModel.showVisitSuggestionsKey) private var showVisitSuggestions = false
-    @AppStorage("showPhotoMarkerImages") private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.imagesKey) private var showPhotoMarkerImages = true
+    @AppStorage(PhotoMapMarkerStyle.dotsKey) private var showPhotoMarkerDots = false
     @AppStorage("snapTravelPathToRoads") private var snapTravelPathToRoads = true
     @AppStorage("showStraightLinePathSegments") private var showStraightLinePathSegments = false
     @State private var roadSnappedRoute: RoadSnappedRoute?
@@ -212,6 +213,7 @@ struct LocationMapView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                MapReader { mapProxy in
                 Map(position: $cameraPosition, selection: $selectedVisit) {
                     // Current user location
                     UserAnnotation()
@@ -361,12 +363,16 @@ struct LocationMapView: View {
                             Annotation(
                                 "Photo",
                                 coordinate: photo.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentMapMarker(
                                     photo: photo,
                                     isSelected: selectedPhotoMoment?.id == photo.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
+                                    onDotTap: { point in
+                                        selectPhotoDot(at: point, relativeTo: cluster, proxy: mapProxy)
+                                    },
                                     action: { selectedPhotoMoment = photo }
                                 )
                             }
@@ -374,12 +380,16 @@ struct LocationMapView: View {
                             Annotation(
                                 "Photos",
                                 coordinate: cluster.coordinate,
-                                anchor: .bottom
+                                anchor: showPhotoMarkerDots ? .center : .bottom
                             ) {
                                 PhotoMomentClusterMapMarker(
                                     cluster: cluster,
                                     isSelected: selectedPhotoCluster?.id == cluster.id,
                                     showsImage: showPhotoMarkerImages,
+                                    showsDots: showPhotoMarkerDots,
+                                    onDotTap: { point in
+                                        selectPhotoDot(at: point, relativeTo: cluster, proxy: mapProxy)
+                                    },
                                     action: { selectedPhotoCluster = cluster }
                                 )
                             }
@@ -395,7 +405,11 @@ struct LocationMapView: View {
                     visibleMapRegion = context.region
                 }
                 .simultaneousGesture(
-                    TapGesture().onEnded(handleMapTap)
+                    SpatialTapGesture().onEnded { value in
+                        handleMapTap()
+                        guard showPhotoMarkerDots else { return }
+                        selectPhotoDot(at: value.location, proxy: mapProxy)
+                    }
                 )
                 .accessibilityLabel("Location map")
                 .accessibilityValue(mapAccessibilitySummary)
@@ -409,6 +423,8 @@ struct LocationMapView: View {
                     }
                 }
                 .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.82), value: discordPromoDismissed)
+
+                }
 
                 // Bottom liquid-glass tracking + filter controls
                 VStack(spacing: 8) {
@@ -473,6 +489,7 @@ struct LocationMapView: View {
                                 showVisitMarkers: $showVisitMarkers,
                                 showPhotoMarkers: $showPhotoMarkers,
                                 showPhotoMarkerImages: $showPhotoMarkerImages,
+                                showPhotoMarkerDots: $showPhotoMarkerDots,
                                 snapTravelPathToRoads: $snapTravelPathToRoads,
                                 showStraightLinePathSegments: $showStraightLinePathSegments,
                                 isRouteReplayEnabled: isRouteReplayEnabled,
@@ -828,6 +845,28 @@ struct LocationMapView: View {
         guard pendingSessionAutoFocus, !activeSessionPoints.isEmpty else { return }
         fitMapToSession()
         pendingSessionAutoFocus = false
+    }
+
+    private func selectPhotoDot(at localPoint: CGPoint, relativeTo owner: PhotoMomentCluster, proxy: MapProxy) {
+        guard let center = proxy.convert(owner.coordinate, to: .local) else { return }
+        let point = PhotoMapDotHitTesting.mapPoint(localPoint: localPoint, markerCenter: center)
+        selectPhotoDot(at: point, proxy: proxy)
+    }
+
+    private func selectPhotoDot(at point: CGPoint, proxy: MapProxy) {
+        let clusters = photoMomentClusters
+        let centers = clusters.map { proxy.convert($0.coordinate, to: .local) }
+        guard let index = PhotoMapDotHitTesting.targetIndex(at: point, centers: centers) else { return }
+        // A path or visit annotation can receive the same touch. The map-level
+        // gesture still gives photo dots priority inside their 44-point targets.
+        selectedPointID = nil
+        selectedVisit = nil
+        let target = clusters[index]
+        if let photo = target.onlyPhoto {
+            selectedPhotoMoment = photo
+        } else {
+            selectedPhotoCluster = target
+        }
     }
 
     private func requestPhotoMomentsForCurrentRange() {
@@ -2769,6 +2808,7 @@ struct QuickFilterBar: View {
     @Binding var showVisitMarkers: Bool
     @Binding var showPhotoMarkers: Bool
     @Binding var showPhotoMarkerImages: Bool
+    @Binding var showPhotoMarkerDots: Bool
     @Binding var snapTravelPathToRoads: Bool
     @Binding var showStraightLinePathSegments: Bool
     let isRouteReplayEnabled: Bool
@@ -2844,6 +2884,14 @@ struct QuickFilterBar: View {
                     label: "Photo images",
                     help: .photoImages,
                     isOn: $showPhotoMarkerImages,
+                    activeHelp: $activeLayerHelp
+                )
+                .disabled(showPhotoMarkerDots)
+                LayerToggleButton(
+                    systemImage: "circle.fill",
+                    label: "Photo dots",
+                    help: .photoDots,
+                    isOn: $showPhotoMarkerDots,
                     activeHelp: $activeLayerHelp
                 )
                 LayerToggleButton(
@@ -3003,7 +3051,13 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let photoImages = LayerToggleHelp(
         id: "photo-images",
         title: "Photo images",
-        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map."
+        message: "Shows thumbnail previews inside photo markers. Turn this off to use compact camera pins while keeping photos available on the map. Photo dots override this setting without changing it."
+    )
+
+    static let photoDots = LayerToggleHelp(
+        id: "photo-dots",
+        title: "Photo dots",
+        message: "Uses small dots instead of photo images or camera pins. Larger dots represent grouped photos. Tap a dot to browse; previews load only when you open the photos. Turn this off to restore your image or pin preference."
     )
 
     static let roadMatchedPath = LayerToggleHelp(
