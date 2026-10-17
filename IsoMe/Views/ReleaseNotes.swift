@@ -23,6 +23,36 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.15",
+            items: [
+                .list(
+                    title: "Explore your photo map",
+                    rows: [
+                        .init(
+                            symbolSystemName: "circle.grid.3x3.fill",
+                            title: "Photos as dots",
+                            description: "Turn on Photo dots in the map filters for a clearer view of where you took your photos. Your choice is saved."
+                        ),
+                        .init(
+                            symbolSystemName: "photo.on.rectangle",
+                            title: "Browse every photo",
+                            description: "Explore all matching photos in each group, or use Browse Photo Places to find locations beyond the markers currently shown on the map."
+                        ),
+                        .init(
+                            symbolSystemName: "hand.tap",
+                            title: "Easier photo selection",
+                            description: "Open the photo you intended, even when nearby dots or route markers overlap."
+                        ),
+                        .init(
+                            symbolSystemName: "gift",
+                            title: "Claim your myself.md access",
+                            description: "Existing purchasers can verify their purchase in Settings and sign in to myself.md to claim complimentary lifetime access."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.14",
             items: [
                 .list(
