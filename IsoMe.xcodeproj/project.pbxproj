@@ -817,6 +817,7 @@
 				ru,
 				ja,
 				fr,
+				pl,
 			);
 			mainGroup = A1FFFFF8212EFFFFFFFF0000;
 			packageReferences = (

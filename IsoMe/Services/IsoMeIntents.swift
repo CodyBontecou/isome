@@ -41,9 +41,9 @@ enum IntentSupport {
         let total = Int(seconds)
         let h = total / 3600
         let m = (total % 3600) / 60
-        if h > 0 && m > 0 { return "\(h)h \(m)m" }
-        if h > 0 { return "\(h)h" }
-        return "\(m)m"
+        if h > 0 && m > 0 { return String(localized: "\(h)h \(m)m") }
+        if h > 0 { return String(localized: "\(h)h") }
+        return String(localized: "\(m)m")
     }
 }
 

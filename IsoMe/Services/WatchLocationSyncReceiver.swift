@@ -30,7 +30,7 @@ final class WatchLocationSyncReceiver: NSObject, ObservableObject {
                 deviceID: payload.deviceID,
                 sequence: payload.sequence,
                 succeeded: false,
-                errorMessage: "Unsupported watch sync payload version \(payload.version)."
+                errorMessage: String(localized: "Unsupported watch sync payload version \(payload.version).")
             )
         }
 
@@ -39,7 +39,7 @@ final class WatchLocationSyncReceiver: NSObject, ObservableObject {
                 deviceID: payload.deviceID,
                 sequence: payload.sequence,
                 succeeded: false,
-                errorMessage: "The iPhone data store is not ready yet."
+                errorMessage: String(localized: "The iPhone data store is not ready yet.")
             )
         }
 

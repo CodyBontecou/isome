@@ -1767,9 +1767,9 @@ private struct RecordingSessionDetailView: View {
 
     private func formattedSpeed(_ metersPerSecond: Double) -> String {
         if usesMetricDistanceUnits {
-            return String(format: "%.1f km/h", metersPerSecond * 3.6)
+            return String(format: "%.1f km/h", locale: .current, metersPerSecond * 3.6)
         }
-        return String(format: "%.1f mph", metersPerSecond * 2.23693629)
+        return String(format: "%.1f mph", locale: .current, metersPerSecond * 2.23693629)
     }
 }
 

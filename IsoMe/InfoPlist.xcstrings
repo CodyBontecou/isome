@@ -63,6 +63,12 @@
             "state": "translated",
             "value": "iso.me"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me"
+          }
         }
       }
     },
@@ -124,6 +130,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IsoMe"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "IsoMe"
@@ -193,6 +205,12 @@
             "state": "translated",
             "value": "iso.me 需要始终访问您的位置，以便全天自动记录您到访的地点，即使应用在后台运行也可以。此权限用于检测访问记录和跟踪出行。"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me potrzebuje stałego dostępu do lokalizacji, aby automatycznie rejestrować odwiedzane miejsca przez cały dzień, także w tle. Umożliwia to wykrywanie wizyt i rejestrowanie tras."
+          }
         }
       }
     },
@@ -258,6 +276,12 @@
             "state": "translated",
             "value": "iso.me 需要访问您的位置，以便在应用打开时显示当前位置并记录访问。"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me potrzebuje dostępu do lokalizacji, aby pokazywać Twoje bieżące położenie i rejestrować wizyty, gdy aplikacja jest otwarta."
+          }
         }
       }
     },
@@ -322,6 +346,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "iso.me 可以将带有位置信息的照片关联到您的私人地图和出行记录。照片文件仍保留在照片图库中；iso.me 只在设备上存储本地元数据。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me może łączyć zdjęcia z danymi lokalizacji z Twoją prywatną mapą i podróżami. Pliki zdjęć pozostają w bibliotece Zdjęć; iso.me przechowuje na urządzeniu tylko lokalne metadane."
           }
         }
       }

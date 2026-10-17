@@ -63,6 +63,12 @@
             "state": "translated",
             "value": "iso.me"
           }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me"
+          }
         }
       }
     },
@@ -124,6 +130,12 @@
           }
         },
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IsoMeWatch"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "IsoMeWatch"
@@ -192,6 +204,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "iso.me 使用 Apple Watch 的位置在手表上直接记录访问和距离。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iso.me używa lokalizacji Apple Watch do rejestrowania wizyt i dystansu bezpośrednio na zegarku."
           }
         }
       }

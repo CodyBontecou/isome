@@ -577,7 +577,7 @@ struct WebhookSettingsView: View {
 
     @ViewBuilder
     private func webhookButtonLabel(
-        _ title: String,
+        _ title: LocalizedStringKey,
         systemImage: String,
         showsTrailingArrow: Bool = true,
         isLoading: Bool = false
