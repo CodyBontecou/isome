@@ -63,6 +63,8 @@ final class LocationViewModel {
     private var cancellables = Set<AnyCancellable>()
     private var isAutomaticPhotoSyncInProgress = false
     private var lastAutomaticPhotoSyncAt: Date?
+    private var activePhotoSyncRange: ClosedRange<Date>?
+    private var pendingPhotoSyncRange: ClosedRange<Date>?
 
     static let automaticPhotoSyncEnabledKey = "automaticPhotoSyncEnabled"
     static let showPhotoMarkersKey = "showPhotoMarkers"
@@ -400,6 +402,20 @@ final class LocationViewModel {
     }
 
     func syncPhotoMoments(in range: ClosedRange<Date>) async {
+        // Range changes and foreground/library notifications can arrive while
+        // a batch yields. Finish one sync at a time, then process the latest request.
+        if activePhotoSyncRange == range, pendingPhotoSyncRange == nil { return }
+        pendingPhotoSyncRange = range
+        guard activePhotoSyncRange == nil else { return }
+        defer { activePhotoSyncRange = nil }
+        while let nextRange = pendingPhotoSyncRange {
+            pendingPhotoSyncRange = nil
+            activePhotoSyncRange = nextRange
+            await performPhotoMomentSync(in: nextRange)
+        }
+    }
+
+    private func performPhotoMomentSync(in range: ClosedRange<Date>) async {
         photoLibraryAccessState = PhotoLibraryManager.shared.authorizationState
         guard photoLibraryAccessState.canRead else {
             mapPhotoMomentCount = 0
@@ -409,13 +425,11 @@ final class LocationViewModel {
 
         let libraryMetadata = PhotoLibraryManager.shared.fetchPhotoMetadata(in: range)
         let metadata = resolvedPhotoMoments(from: libraryMetadata, in: range)
-        upsertPhotoMoments(metadata)
-
-        if photoLibraryAccessState == .authorized {
-            deleteMissingPhotoMoments(in: range, keeping: Set(metadata.map(\.assetLocalIdentifier)))
-        }
-
         do {
+            try await upsertPhotoMoments(metadata)
+            if photoLibraryAccessState == .authorized {
+                deleteMissingPhotoMoments(in: range, keeping: Set(metadata.map(\.assetLocalIdentifier)))
+            }
             try modelContext.save()
         } catch {
             print("Failed to save photo moments: \(error)")
@@ -654,41 +668,39 @@ final class LocationViewModel {
         }
     }
 
-    private func fetchPhotoMoment(assetLocalIdentifier: String) -> PhotoMoment? {
-        let identifier = assetLocalIdentifier
-        let predicate = #Predicate<PhotoMoment> { photo in
-            photo.assetLocalIdentifier == identifier
+    func upsertPhotoMoments(_ metadata: [PhotoAssetMetadata]) async throws {
+        guard !metadata.isEmpty else { return }
+        // A predicate fetch for each asset repeatedly examines pending changes
+        // and makes an all-library import quadratic. Build the index once.
+        let cached = try modelContext.fetch(FetchDescriptor<PhotoMoment>())
+        var byIdentifier: [String: PhotoMoment] = [:]
+        for photo in cached {
+            byIdentifier[photo.assetLocalIdentifier] = photo
         }
-
-        var descriptor = FetchDescriptor<PhotoMoment>(predicate: predicate)
-        descriptor.fetchLimit = 1
-
-        do {
-            return try modelContext.fetch(descriptor).first
-        } catch {
-            print("Failed to fetch photo moment: \(error)")
-            return nil
-        }
-    }
-
-    private func upsertPhotoMoments(_ metadata: [PhotoAssetMetadata]) {
         let now = Date()
-        for item in metadata {
-            if let existing = fetchPhotoMoment(assetLocalIdentifier: item.assetLocalIdentifier) {
+        for (index, item) in metadata.enumerated() {
+            if index.isMultiple(of: 100) {
+                // Give the main run loop time for input and lifecycle events;
+                // SwiftData models remain confined to the main actor.
+                try await Task.sleep(for: .milliseconds(1))
+            }
+            if let existing = byIdentifier[item.assetLocalIdentifier] {
                 existing.takenAt = item.takenAt
                 existing.latitude = item.latitude
                 existing.longitude = item.longitude
                 existing.coordinateSource = item.coordinateSource
                 existing.lastSyncedAt = now
             } else {
-                modelContext.insert(PhotoMoment(
+                let photo = PhotoMoment(
                     assetLocalIdentifier: item.assetLocalIdentifier,
                     takenAt: item.takenAt,
                     latitude: item.latitude,
                     longitude: item.longitude,
                     coordinateSource: item.coordinateSource,
                     lastSyncedAt: now
-                ))
+                )
+                modelContext.insert(photo)
+                byIdentifier[item.assetLocalIdentifier] = photo
             }
         }
     }
