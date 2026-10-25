@@ -8,6 +8,49 @@ import SwiftData
 final class LocationViewModelPointScalingTests: XCTestCase {
     private let mapPointDisplayCap = 2_500
 
+    func testLargePhotoSyncLetsMainThreadHandleInputBeforeCompletion() async throws {
+        let container = try makeInMemoryContainer()
+        let model = makeViewModel(container: container)
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let metadata = (0..<2_000).map { index in
+            PhotoAssetMetadata(assetLocalIdentifier: "photo-\(index)",
+                takenAt: start.addingTimeInterval(Double(index)), latitude: 18,
+                longitude: -67, coordinateSource: .photoGPS)
+        }
+        var handledInput = false
+        DispatchQueue.main.async { handledInput = true }
+
+        try await model.upsertPhotoMoments(metadata)
+
+        XCTAssertTrue(handledInput, "Large photo imports must let the main run loop handle input before finishing")
+        XCTAssertEqual(try container.mainContext.fetchCount(FetchDescriptor<PhotoMoment>()), metadata.count)
+    }
+
+    func testPhotoSyncUpdatesExistingIdentityAndDoesNotDuplicateAssetsAcrossBatches() async throws {
+        let container = try makeInMemoryContainer()
+        let model = makeViewModel(container: container)
+        let original = PhotoMoment(assetLocalIdentifier: "existing", takenAt: .distantPast,
+            latitude: 1, longitude: 2)
+        container.mainContext.insert(original)
+        try container.mainContext.save()
+        let update = PhotoAssetMetadata(assetLocalIdentifier: "existing", takenAt: .now,
+            latitude: 18, longitude: -67, coordinateSource: .inferredFromRoute)
+        let newPhoto = PhotoAssetMetadata(assetLocalIdentifier: "new", takenAt: .now,
+            latitude: 19, longitude: -66, coordinateSource: .photoGPS)
+
+        try await model.upsertPhotoMoments([update] + Array(repeating: newPhoto, count: 201))
+        try container.mainContext.save()
+
+        let photos = try container.mainContext.fetch(FetchDescriptor<PhotoMoment>())
+        XCTAssertEqual(photos.count, 2)
+        let updated = try XCTUnwrap(photos.first { $0.assetLocalIdentifier == "existing" })
+        XCTAssertEqual(updated.id, original.id)
+        XCTAssertEqual(updated.takenAt, update.takenAt)
+        XCTAssertEqual(updated.latitude, 18)
+        XCTAssertEqual(updated.longitude, -67)
+        XCTAssertEqual(updated.coordinateSource, .inferredFromRoute)
+    }
+
     override func setUp() {
         super.setUp()
         resetUserDefaults()

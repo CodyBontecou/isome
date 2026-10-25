@@ -1,0 +1,22 @@
+# Requires an existing photo library with geotagged photos, Photos access,
+# and no photos dated today. Uses existing data without changing records.
+steps:
+  - launch: com.bontecou.isome
+  - await:
+      visible: { text: Open map filters }
+      timeout: 10000
+  - await: { idle: true }
+  - tap: { id: slider.horizontal.3 }
+  - await:
+      visible: { text: All time }
+      timeout: 5000
+  - await: { idle: true }
+  - tap: { text: All time }
+  - await:
+      visible: { text: Browse, role: Button }
+      timeout: 5000
+  - await: { idle: true }
+  - tap: { text: Today }
+  - await:
+      hidden: { text: Browse, role: Button }
+      timeout: 5000
