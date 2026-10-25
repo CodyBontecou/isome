@@ -43,6 +43,7 @@ struct LocationMapView: View {
     @State private var activePreset: MapDatePreset? = .today
     @AppStorage("showOutliers") private var showOutliers = false
     @AppStorage("discordPromoDismissed") private var discordPromoDismissed = false
+    @AppStorage("photoPlacesPromptDismissed") private var photoPlacesPromptDismissed = false
 
     init(viewModel: LocationViewModel) {
         self.viewModel = viewModel
@@ -431,17 +432,30 @@ struct LocationMapView: View {
                 VStack(spacing: 8) {
                     Spacer()
 
-                    if showPhotoMarkers, !viewModel.mapPhotoPlaces.isEmpty {
-                        Button {
-                            photoDetails.showsPlaces = true
-                        } label: {
-                            Label("Browse \(viewModel.mapPhotoPlaces.count) photo places", systemImage: "photo.stack")
-                                .font(TE.mono(.caption, weight: .semibold))
-                                .padding(12)
-                                .background(TE.card, in: Capsule())
+                    if showPhotoMarkers, !viewModel.mapPhotoPlaces.isEmpty, !photoPlacesPromptDismissed {
+                        HStack(spacing: 0) {
+                            Button {
+                                photoDetails.showsPlaces = true
+                            } label: {
+                                Label("Browse \(viewModel.mapPhotoPlaces.count) photo places", systemImage: "photo.stack")
+                                    .font(TE.mono(.caption, weight: .semibold))
+                                    .padding(12)
+                            }
+                            .accessibilityHint("Lists every matched place, including places outside the visible map area.")
+
+                            Button {
+                                photoPlacesPromptDismissed = true
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(TE.textMuted)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .accessibilityLabel("Close")
                         }
                         .buttonStyle(.plain)
-                        .accessibilityHint("Lists every matched place, including places outside the visible map area.")
+                        .background(TE.card, in: Capsule())
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
 
