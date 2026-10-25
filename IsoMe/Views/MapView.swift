@@ -36,6 +36,8 @@ struct LocationMapView: View {
     @State private var routeReplayProgress: Double = 1.0
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var visibleMapRegion: MKCoordinateRegion?
+    @State private var visibleMapRect: MKMapRect?
+    @State private var mapViewportSize: CGSize = .zero
     @State private var pendingSessionAutoFocus = false
     @State private var appliedMapFocusRequestID: UUID?
     @State private var activePreset: MapDatePreset? = .today
@@ -59,8 +61,6 @@ struct LocationMapView: View {
         locationManager.isTrackingEnabled
     }
 
-    // Minimum distance in meters between points to show as markers
-    private let minimumPointDistance: Double = 50
     private let routeReplayTimer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
 
     var filteredVisits: [Visit] {
@@ -192,21 +192,12 @@ struct LocationMapView: View {
     }
     
     var spacedPoints: [LocationPoint] {
-        let pathPoints = displayedTravelPathPoints
-        guard !pathPoints.isEmpty else { return [] }
-        
-        var result: [LocationPoint] = [pathPoints[0]]
-        
-        for point in pathPoints.dropFirst() {
-            if let lastPoint = result.last {
-                let distance = lastPoint.distance(to: point)
-                if distance >= minimumPointDistance {
-                    result.append(point)
-                }
-            }
-        }
-        
-        return result
+        MapPointMarkerSampler.sample(
+            displayedTravelPathPoints,
+            in: visibleMapRect,
+            viewportSize: mapViewportSize,
+            selectedPointID: selectedPointID
+        )
     }
 
     var body: some View {
@@ -403,6 +394,16 @@ struct LocationMapView: View {
                 }
                 .onMapCameraChange(frequency: .onEnd) { context in
                     visibleMapRegion = context.region
+                    visibleMapRect = context.rect
+                }
+                .background {
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear { mapViewportSize = geometry.size }
+                            .onChange(of: geometry.size) { _, size in
+                                mapViewportSize = size
+                            }
+                    }
                 }
                 .simultaneousGesture(
                     SpatialTapGesture().onEnded { value in
@@ -3553,10 +3554,12 @@ enum RoadSnappedRouteBuilder {
         return hasher.finalize()
     }
 
-    static func taskFingerprint(for points: [LocationPoint], isEnabled: Bool) -> Int {
+    static func taskFingerprint(for points: @autoclosure () -> [LocationPoint], isEnabled: Bool) -> Int {
+        // Keep point filtering and hashing lazy while road snapping is disabled.
+        guard isEnabled else { return 0 }
         var hasher = Hasher()
         hasher.combine(isEnabled)
-        hasher.combine(fingerprint(for: points))
+        hasher.combine(fingerprint(for: points()))
         return hasher.finalize()
     }
 
@@ -3834,4 +3837,64 @@ extension MKCoordinateRegion {
         modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
         locationManager: LocationManager()
     ))
+}
+
+
+/// Bounds interactive GPS annotations independently of the stored route detail.
+/// Camera rectangles are projected map bounds, so longitude wraps at the date line.
+@MainActor
+enum MapPointMarkerSampler {
+    static let maximumMarkerCount = 160
+    private static let cellSize: Double = 48
+
+    static func sample(
+        _ points: [LocationPoint],
+        in rect: MKMapRect?,
+        viewportSize: CGSize,
+        selectedPointID: UUID? = nil
+    ) -> [LocationPoint] {
+        guard let rect, !rect.isNull,
+              rect.origin.x.isFinite, rect.origin.y.isFinite,
+              rect.width.isFinite, rect.height.isFinite,
+              rect.width > 0, rect.height > 0,
+              viewportSize.width.isFinite, viewportSize.height.isFinite,
+              viewportSize.width > 0, viewportSize.height > 0 else {
+            // Wait for the first camera/layout update rather than creating an
+            // unbounded annotation set before the viewport is known.
+            return []
+        }
+
+        var columns = max(1, Int(min(Double(maximumMarkerCount), viewportSize.width / cellSize)))
+        var rows = max(1, Int(min(Double(maximumMarkerCount), viewportSize.height / cellSize)))
+        if columns * rows > maximumMarkerCount {
+            let scale = sqrt(Double(maximumMarkerCount) / Double(columns * rows))
+            columns = max(1, Int(Double(columns) * scale))
+            rows = max(1, Int(Double(rows) * scale))
+        }
+
+        let worldWidth = MKMapRect.world.width
+        let width = min(rect.width, worldWidth)
+        var cells: [Int: (index: Int, point: LocationPoint)] = [:]
+        cells.reserveCapacity(columns * rows)
+
+        for (index, point) in points.enumerated() {
+            guard point.latitude.isFinite, point.longitude.isFinite,
+                  abs(point.latitude) <= 90, abs(point.longitude) <= 180 else { continue }
+            let projected = MKMapPoint(point.coordinate)
+            var x = (projected.x - rect.minX).truncatingRemainder(dividingBy: worldWidth)
+            if x < 0 { x += worldWidth }
+            let y = projected.y - rect.minY
+            guard x.isFinite, y.isFinite, x <= width, y >= 0, y <= rect.height else { continue }
+
+            let column = min(columns - 1, Int(x / width * Double(columns)))
+            let row = min(rows - 1, Int(y / rect.height * Double(rows)))
+            let cell = row * columns + column
+            if cells[cell] == nil || point.id == selectedPointID {
+                cells[cell] = (index, point)
+            }
+        }
+
+        // Keep route order and model identities stable across view updates.
+        return cells.values.sorted { $0.index < $1.index }.map(\.point)
+    }
 }
