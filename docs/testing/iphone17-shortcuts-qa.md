@@ -34,3 +34,9 @@ Review video order: links at 0:00, Check In at 0:19, Check Out at 0:32.
 The test created two visits named QA Shortcuts Cafe, one reusable place with that name, and two shortcuts named QA iso.me Check In and QA iso.me Check Out. Both QA visits were checked out. These fixtures remain available for inspection. The Check Out shortcut deliberately retains its closed QA visit to demonstrate repeated-checkout protection.
 
 The exploratory Argent trace is diagnostic evidence, not a replay-verified regression test. Several native Shortcuts controls required coordinate fallback or produced inaccurate recorded selectors; repeating the entire trace against a personal journal would create more test visits. The video and live result checks establish the observed behavior.
+
+## Bundled update slider
+
+The 1.7.17 release notes include `IsoMe/ReleaseNoteVideos/manual-visit-shortcuts.mp4`: a silent, square 35-second cut of the Shortcuts segments, excluding the personal map and saved-location list. It is bundled in the app and requires no network fetch. The project advances to version 1.7.17 / build 47 so Notelet's version-based seen state can present the new notes.
+
+After adding the asset, the simulator suite again completed successfully with 318 XCTest cases and 10 Swift Testing tests. Runtime verification confirmed the first page reports a loaded video, playback is visible, Next opens the explanatory page, and Done returns to the map. Local preview: `build/qa-iphone17-shortcuts/release-slider.png`.

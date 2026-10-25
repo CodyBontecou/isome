@@ -13975,6 +13975,16 @@
         }
       }
     },
+    "Check in and out with Shortcuts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in and out with Shortcuts"
+          }
+        }
+      }
+    },
     "Check the destination, file names, counts, warnings, and contents before writing or sharing your location history.": {
       "localizations": {
         "ar": {
@@ -34791,6 +34801,16 @@
         }
       }
     },
+    "Keep overlapping visits intentional": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep overlapping visits intentional"
+          }
+        }
+      }
+    },
     "Keep the visit in context": {
       "localizations": {
         "ar": {
@@ -36637,6 +36657,16 @@
         }
       }
     },
+    "Links can open Check In, Add Past Visit, or a visit's details. Review the place and times before saving.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links can open Check In, Add Past Visit, or a visit's details. Review the place and times before saving."
+          }
+        }
+      }
+    },
     "Lists every matched place, including places outside the visible map area.": {
       "localizations": {
         "en": {
@@ -37398,6 +37428,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lokalizacje"
+          }
+        }
+      }
+    },
+    "Log a visit from Shortcuts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log a visit from Shortcuts"
           }
         }
       }
@@ -40196,6 +40236,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "有多次进行中的手动访问。请选择要签退的访问。"
+          }
+        }
+      }
+    },
+    "More ways to log your visits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More ways to log your visits"
           }
         }
       }
@@ -46642,6 +46692,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Otwieraj wybrane zdjęcie także wtedy, gdy pobliskie punkty lub znaczniki trasy nakładają się na siebie."
+          }
+        }
+      }
+    },
+    "Open visit forms with a link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open visit forms with a link"
           }
         }
       }
@@ -62847,6 +62907,16 @@
         }
       }
     },
+    "Shortcuts warns about overlapping visits. Enable Allow Overlap only when you want to keep both records.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts warns about overlapping visits. Enable Allow Overlap only when you want to keep both records."
+          }
+        }
+      }
+    },
     "Show Explanation": {
       "localizations": {
         "ar": {
@@ -64463,6 +64533,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "开始追踪"
+          }
+        }
+      }
+    },
+    "Start a manual visit at a saved place or coordinates, then finish it with Check Out. Choose the visit when more than one is open.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a manual visit at a saved place or coordinates, then finish it with Check Out. Choose the visit when more than one is open."
           }
         }
       }
@@ -72943,6 +73023,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用此位置"
+          }
+        }
+      }
+    },
+    "Use a saved place, enter coordinates, or request your current location when permission allows.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use a saved place, enter coordinates, or request your current location when permission allows."
           }
         }
       }
