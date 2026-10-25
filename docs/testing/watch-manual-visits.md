@@ -1,0 +1,38 @@
+# Watch manual visits (#75)
+
+The Watch dashboard's **Check In / Out** button opens Manual Visits. The phone supplies saved places and open visits with their source and confirmation status. Saved places work without Watch location permission; Current location requests a fresh one-shot location without starting route recording. Check Out always targets the selected manual visit. Automatic and imported visits cannot be checked out through these controls.
+
+Check In rejects overlaps unless the user enables Allow Overlap. A failed command stays failed; changing the choice creates a new command rather than silently changing a retry. Multiple open manual visits require a selection. Missing/deleted places, missing or inaccurate locations, invalid times and missing/closed visits produce visible errors.
+
+## Delivery and persistence
+
+- `WatchVisitCommandQueue` is saved atomically in the Watch app group before any transmission. An unreadable queue is preserved and blocks new commands; a write failure sends nothing new.
+- Commands retain UUID, device ID, original action time, destination and overlap choice. Location must be within 30 seconds of the action with accuracy at most 100 metres. Validation compares the sample to the action time, so an offline replay does not turn a previously fresh sample into a stale one.
+- Only the first pending command is transmitted. A queued Check Out targets the Check In command's deterministic visit UUID and depends on that Check In. A failed Check In fails its dependent Check Out. The queue permits at most 100 pending commands and keeps recent terminal results for display.
+- `transferUserInfo` provides background delivery and reachable peers additionally use `sendMessageData`. Reconnection, activation, foreground entry and Refresh / Retry Pending retry the queue. A transport callback never removes a command.
+- The phone reads durable receipts in a fresh SwiftData context for **each delivery**. The shared `ManualVisitStore` inserts a receipt in the same save as the visit mutation. Save failures roll back and return retryable; no terminal success is recorded. A receipt stores a SHA-256 command fingerprint, not another copy of the command's name/location. Reusing an ID with altered content fails.
+- Success and terminal validation failures are acknowledged only after their receipts save. Matching retries return the original result, even after a restart. Checkout retries preserve the original departure and correction/detection metadata.
+- Replies also carry a fresh snapshot. Status uses `updateApplicationContext` (latest state wins), bounded to 20 open visits, prioritizing manual visits, and 50 saved places. Names are bounded to 80 characters. A count warns when additional manual visits remain on iPhone. Older snapshots cannot overwrite newer status.
+- Shared status is optional, so older `SharedLocationData` payloads still decode. Existing recording/sync payloads continue through their original receiver. The phone configures its receiver at app initialization to handle background launches.
+
+## Automated verification
+
+`WatchManualVisitTests` covers persisted/restarted replay, changed-payload reuse, repeated checkout, correction metadata, overlap override, offline timestamps, missing/stale/inaccurate/invalid location, future time, version mismatch, saved/deleted places, no-open/ambiguous/nonmanual targets, out-of-order dependency, queue persistence/FIFO/duplicate acknowledgments, failed dependencies, retryable results, device isolation, legacy shared payloads, snapshot ordering, receiver dispatch, read-only save failures and additive store migration.
+
+The read-only-store regression is intentional: SwiftData can retain registered objects from a failed save even after rollback. Reusing that identity map for receipt lookup can incorrectly acknowledge an unsaved command. A fresh context per delivery is required.
+
+Run the app's IsoMe scheme tests on an iPhone simulator. The scheme also builds the Watch app and both widget targets.
+
+## Paired hardware acceptance still required
+
+The Watch dashboard entry point was rendered on an isolated Series 11 (46 mm), watchOS 26.5 simulator. Automated tests exercise command replay against real SwiftData storage. Simulator checks do not establish physical WatchConnectivity background delivery: Apple documents `transferUserInfo` as unsupported in Simulator.
+
+On a physical paired Watch and iPhone, verify:
+
+1. Reachable Check In at a saved place and Check Out become Completed only after phone persistence; inspect the phone journal.
+2. Disconnect, queue Check In and dependent Check Out, relaunch Watch, reconnect, and confirm exactly one closed visit with the original action times.
+3. Retry repeatedly, background/terminate the phone, reopen both apps, and verify one receipt/mutation per command.
+4. Exercise location denied, unavailable/inaccurate location, overlap rejection and explicit override, multiple manual visits, and deleted/closed checkout targets.
+5. Verify existing Watch route recording and subsequent sync still work, and automatic/imported visits retain their metadata.
+
+Do not mark paired hardware acceptance complete solely from simulator replay.

@@ -5,7 +5,7 @@ import StoreKit
 @main
 struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var watchSyncReceiver = WatchLocationSyncReceiver()
+    @StateObject private var watchSyncReceiver: WatchLocationSyncReceiver
     @State private var showingMyselfClaim = false
     @State private var manualVisitRouter = ManualVisitRouter()
 
@@ -16,6 +16,7 @@ struct IsoMeApp: App {
             RecordingSession.self,
             PhotoMoment.self,
             SavedPlace.self,
+            WatchVisitCommandReceipt.self,
             CountryStay.self
         ])
         let modelConfiguration: ModelConfiguration
@@ -39,6 +40,12 @@ struct IsoMeApp: App {
         }
     }()
 
+    init() {
+        let receiver = WatchLocationSyncReceiver()
+        receiver.configure(modelContainer: sharedModelContainer)
+        _watchSyncReceiver = StateObject(wrappedValue: receiver)
+    }
+
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -58,7 +65,6 @@ struct IsoMeApp: App {
                     handleDeepLink(url)
                 }
                 .task {
-                    watchSyncReceiver.configure(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.attach(modelContainer: sharedModelContainer)
                     DailyExportScheduler.shared.scheduleNextBackgroundRun()
                     await DailyExportScheduler.shared.runIfDue()
