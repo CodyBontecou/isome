@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to export Google Timeline and import it into iso.me — iso.me</title>
+<meta name="description" content="Export your Google Maps Timeline to JSON, save it to Files, and import visits and points into iso.me with a preview and duplicate detection.">
+<!-- Release gate: keep this PR draft and noindex until #78 is merged and an installable import build is available. Update availability copy and add the URL to sitemap.xml at publication. -->
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://isome.isolated.tech/blog/google-timeline-import/"><meta name="theme-color" content="#f5f4ef">
+<meta property="og:title" content="How to export Google Timeline and import it into iso.me"><meta property="og:description" content="Export your Google Maps Timeline to JSON, save it to Files, and import visits and points into iso.me with a preview and duplicate detection.">
+<meta property="og:type" content="article"><meta property="og:url" content="https://isome.isolated.tech/blog/google-timeline-import/">
+<meta property="og:site_name" content="iso.me"><meta property="og:image" content="https://isome.isolated.tech/blog/google-timeline-import/screenshots/import-button.png">
+<meta property="og:image:alt" content="The Import File button in iso.me Settings">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://isome.isolated.tech/blog/google-timeline-import/screenshots/import-button.png">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "@id": "https://isome.isolated.tech/blog/google-timeline-import/#article", "headline": "How to export Google Timeline and import it into iso.me", "description": "Export your Google Maps Timeline to JSON, save it to Files, and import visits and points into iso.me with a preview and duplicate detection.", "url": "https://isome.isolated.tech/blog/google-timeline-import/", "dateModified": "2026-10-25", "author": {"@type": "Person", "name": "Cody Bontecou", "url": "https://isolated.tech"}, "publisher": {"@type": "Organization", "name": "isolated.tech", "url": "https://isolated.tech"}, "image": ["https://isome.isolated.tech/blog/google-timeline-import/screenshots/import-button.png"]}</script>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:       #f5f4ef;
+      --paper-deep:  #ecebe4;
+      --paper-warm:  #fbfaf6;
+      --card:        #ffffff;
+      --ink:         #1f1f1f;
+      --ink-soft:    #3a3a38;
+      --mute:        #5f5d59;
+      --rule:        #d2cfca;
+      --rule-soft:   #e3e0db;
+      --accent:      #1c57ca;
+      --accent-deep: #1748a8;
+      --accent-soft: rgba(28, 87, 202, 0.10);
+      --lcd:         #006f46;
+      --lcd-bright:  #007a4d;
+      --lcd-bg:      #e0e6d9;
+      --warning:     #8a5700;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --display: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+      --radius: 4px;
+      --shadow: 0 18px 60px -34px rgba(31, 31, 31, 0.58);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--mono);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(50, 116, 244, 0.12), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(0, 122, 77, 0.10), transparent 28%),
+        linear-gradient(180deg, var(--paper-warm), var(--paper) 20%, var(--paper));
+      color: var(--ink);
+      line-height: 1.62;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-feature-settings: 'ss01', 'ss02';
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    p a, li a { text-decoration: underline; text-underline-offset: 0.18em; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 8px;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 10px 14px;
+      z-index: 1000;
+    }
+    .skip-link:focus { left: 8px; }
+
+    nav.top {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245, 244, 239, 0.92);
+      backdrop-filter: saturate(180%) blur(18px);
+      -webkit-backdrop-filter: saturate(180%) blur(18px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-inner {
+      max-width: 1180px; margin: 0 auto;
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .brand:hover { text-decoration: none; }
+    .brand img {
+      width: 26px; height: 26px;
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+    }
+    .brand-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lcd-bright);
+      box-shadow: 0 0 6px rgba(0, 199, 115, 0.6);
+    }
+    .nav-links { display: flex; align-items: center; gap: 22px; }
+    .nav-links a {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+      font-weight: 500;
+    }
+    .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--ink); text-decoration: none; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 9px 16px;
+      border-radius: var(--radius);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      border: 1px solid var(--ink);
+      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--ink); color: var(--paper) !important; }
+    .btn-primary:hover { background: var(--accent); border-color: var(--accent); text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--ink) !important; }
+    .btn-ghost:hover { background: var(--ink); color: var(--paper) !important; text-decoration: none; }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mute);
+      font-weight: 600;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 22px; height: 1px; background: var(--mute);
+      display: inline-block;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 76px 0 56px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(31, 31, 31, 0.04) 39px 40px),
+        repeating-linear-gradient(90deg, transparent 0 39px, rgba(31, 31, 31, 0.04) 39px 40px);
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse at 50% 30%, black 28%, transparent 76%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 28%, transparent 76%);
+    }
+    .hero-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.55fr);
+      gap: 56px;
+      align-items: center;
+    }
+    .hero-copy .eyebrow { margin-bottom: 24px; }
+    h1 {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: clamp(2.7rem, 5.4vw, 4.7rem);
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+      margin-bottom: 22px;
+      color: var(--ink);
+      max-width: 820px;
+    }
+    h1 .accent { color: var(--accent); }
+    .lede {
+      font-size: 1rem;
+      color: var(--ink-soft);
+      max-width: 690px;
+      line-height: 1.68;
+      margin-bottom: 30px;
+    }
+    .hero-actions {
+      display: flex; align-items: center; gap: 14px;
+      flex-wrap: wrap;
+    }
+    .hero-actions .btn { padding: 14px 22px; font-size: 0.82rem; }
+
+    .field-card {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .field-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    }
+    .field-title {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mute);
+      font-weight: 700;
+    }
+    .field-led {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--lcd);
+      font-weight: 700;
+    }
+    .field-led::before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lcd-bright);
+      box-shadow: 0 0 6px rgba(0, 199, 115, 0.65);
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px dashed var(--rule);
+      align-items: start;
+    }
+    .field-row:last-child { border-bottom: 0; }
+    .field-row .num {
+      color: var(--mute);
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .field-row h2 {
+      font-family: var(--display);
+      font-size: 1.05rem;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .field-row p {
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+      line-height: 1.55;
+    }
+
+    .meta-strip {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      background: var(--paper-deep);
+    }
+    .meta-inner {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+    }
+    .meta-item {
+      padding: 16px 18px;
+      border-right: 1px solid var(--rule);
+    }
+    .meta-item:last-child { border-right: 0; }
+    .meta-item .k {
+      display: block;
+      color: var(--mute);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .meta-item .v {
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .article-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.42fr);
+      gap: 42px;
+      padding-block: 82px;
+    }
+    .toc {
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .toc h2 {
+      font-family: var(--display);
+      font-size: 1.18rem;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .toc ol {
+      list-style: none;
+      counter-reset: toc;
+      display: grid;
+      gap: 10px;
+    }
+    .toc a {
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+    }
+    .toc a::before {
+      counter-increment: toc;
+      content: counter(toc, decimal-leading-zero);
+      color: var(--mute);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+    }
+
+    article.post {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .article-body { padding: 42px; }
+    .article-body > p:first-child {
+      font-size: 1.08rem;
+      line-height: 1.72;
+      color: var(--ink);
+    }
+    .article-body p,
+    .article-body li {
+      color: var(--ink-soft);
+      font-size: 0.94rem;
+      line-height: 1.72;
+    }
+    .article-body p + p { margin-top: 18px; }
+    .article-body h2 {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(1.55rem, 3vw, 2.05rem);
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      margin: 46px 0 16px;
+      padding-top: 8px;
+    }
+    .article-body h3 {
+      font-family: var(--display);
+      font-weight: 780;
+      font-size: 1.2rem;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin: 28px 0 10px;
+    }
+    .article-body ul,
+    .article-body ol {
+      margin: 16px 0 0 0;
+      padding-left: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .article-body li {
+      position: relative;
+      padding-left: 28px;
+    }
+    .article-body li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.72em;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .callout {
+      margin: 30px 0;
+      padding: 22px 24px;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+    }
+    .callout strong {
+      display: block;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .callout p { font-size: 0.88rem; }
+
+    .screenshot-set {
+      margin: 34px 0 42px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+    figure.shot {
+      margin: 0;
+    }
+    .phone-frame {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 34px;
+      padding: 7px;
+      box-shadow: 0 26px 70px -32px rgba(31, 31, 31, 0.65);
+    }
+    .phone-frame picture { display: block; }
+    .phone-frame img {
+      width: 100%;
+      height: auto;
+      border-radius: 27px;
+      background: var(--paper);
+    }
+    figcaption {
+      margin-top: 10px;
+      color: var(--mute);
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
+    .checklist-box {
+      margin: 34px 0;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background: var(--paper-warm);
+      overflow: hidden;
+    }
+    .checklist-box h2 {
+      margin: 0;
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 1.4rem;
+    }
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .checkitem {
+      padding: 18px 20px;
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .checkitem:nth-child(2n) { border-right: 0; }
+    .checkitem:nth-last-child(-n+2) { border-bottom: 0; }
+    .checkitem .k {
+      display: block;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .checkitem .v {
+      color: var(--ink-soft);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .cta-panel {
+      margin-top: 46px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: var(--radius);
+      padding: 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: center;
+    }
+    .cta-panel h2 {
+      margin: 0 0 8px;
+      color: var(--paper);
+    }
+    .cta-panel p { color: rgba(245, 244, 239, 0.78); }
+    .cta-panel .btn { border-color: var(--paper); }
+    .cta-panel .btn-primary { background: var(--paper); color: var(--ink) !important; }
+    .cta-panel .btn-primary:hover { background: #9bbaff; border-color: #9bbaff; }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      background: var(--paper-deep);
+      padding: 36px 0;
+    }
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-brand {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-brand .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--lcd-bright);
+    }
+    .footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .footer-links a:hover { color: var(--ink); text-decoration: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .btn:hover { transform: none; }
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .article-shell { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .meta-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .meta-item:nth-child(2n) { border-right: 0; }
+      .meta-item:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+      .screenshot-set { grid-template-columns: 1fr; max-width: 420px; }
+      .cta-panel { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links a:not(.btn) { display: none; }
+      .wrap { padding: 0 20px; }
+      .nav-inner { padding: 12px 18px; }
+      .nav-links .btn { padding: 8px 12px; font-size: 0.7rem; letter-spacing: 0.1em; }
+      .brand { font-size: 0.85rem; letter-spacing: 0.06em; }
+      .brand img { width: 22px; height: 22px; }
+      .hero { padding: 52px 0 38px; }
+      .article-shell { padding-block: 52px; }
+      .article-body { padding: 28px 22px; }
+      .meta-inner { grid-template-columns: 1fr; }
+      .meta-item { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .meta-item:last-child { border-bottom: 0; }
+      .checklist-grid { grid-template-columns: 1fr; }
+      .checkitem,
+      .checkitem:nth-child(2n),
+      .checkitem:nth-last-child(-n+2) { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .checkitem:last-child { border-bottom: 0; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+  
+/* Tutorial images preserve their source captures; the Google viewport focuses on the export section. */
+.hero-grid.guide-hero { display:block; }
+.guide-hero .hero-copy { max-width:680px; }
+h1,h2,h3 { text-wrap:balance; }
+.article-body h2[id],.article-body h3[id] {scroll-margin-top:96px;} p,li { text-wrap:pretty; }
+.guide-shot { margin:32px 0; }
+.guide-shot.phone { max-width:400px; margin-inline:auto; }
+.guide-shot img { width:100%;height:auto; border:1px solid var(--rule); border-radius:8px; }
+.guide-shot svg { width:100%;height:auto; display:block; border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
+.guide-shot figcaption {font-size:14px; line-height:20px; margin-top:8px;}
+.article-body ol.steps { list-style:decimal; padding-left:24px; }
+.article-body ol.steps li {padding-left:8px;margin-block:12px;}
+.article-body ol.steps li::before {content:none;}
+.guide-table { width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;line-height:20px;}
+.guide-table th,.guide-table td {border:1px solid var(--rule);padding:12px;text-align:left;vertical-align:top;}
+.guide-table th {background:var(--paper-deep);}
+code {overflow-wrap:anywhere;} a:focus-visible {outline:2px solid var(--accent);outline-offset:4px;}
+@media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}}
+</style></head><body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="top" aria-label="Primary navigation">
+    <div class="nav-inner">
+      <a href="/" class="brand" aria-label="iso.me home">
+        <img src="/app-icon-28.png" srcset="/app-icon-28.png 1x, /app-icon-84.png 3x" alt="" width="26" height="26">
+        <span class="brand-dot" aria-hidden="true"></span>
+        ISO.ME
+      </a>
+      <div class="nav-links">
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a href="/docs/">Docs</a>
+        <a href="/#faq">FAQ</a>
+        <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn btn-primary">Download</a>
+      </div>
+    </div>
+  </nav>
+
+
+<main id="main">
+<header class="hero"><div class="wrap hero-grid guide-hero"><div class="hero-copy">
+<span class="eyebrow">Migration guide · Release preview · October 2026</span>
+<h1 id="post-title">Bring your Google Timeline<br>into <span class="accent">iso.me.</span></h1>
+<p class="lede">Keep the history you already have. Export a JSON file from Google, review what it contains, and add the supported visits and points to your journal on your iPhone.</p>
+<div class="hero-actions"><a href="#export-iphone" class="btn btn-primary">Start with the Google export</a></div>
+</div></div></header>
+<div class="wrap article-shell">
+<aside class="toc" aria-label="Table of contents"><h2>In this guide</h2><ol>
+<li><a href="#before">Before you begin</a></li><li><a href="#export-iphone">Export on iPhone</a></li>
+<li><a href="#export-android">Export on Android</a></li><li><a href="#takeout">Existing Takeout files</a></li>
+<li><a href="#import">Import into iso.me</a></li><li><a href="#duplicates">Understand duplicates</a></li>
+<li><a href="#review">Check your history</a></li><li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol></aside>
+<article class="post" aria-labelledby="post-title"><div class="article-body">
+<div class="callout"><strong>Release preview</strong><p>This guide documents the Google Timeline importer prepared for an upcoming iso.me update. The feature is awaiting review and is not announced as available in the App Store. Screenshots of iso.me use a preview build and synthetic history.</p></div>
+<p>The transfer uses a file you choose. iso.me reads that file locally, shows a preview, and waits for you to confirm. The import does not sign into Google, upload your history, or request place names from a server.</p>
+<h2 id="before">Before you begin</h2>
+<ul><li>Use the phone that holds the Google Timeline history you want to export.</li>
+<li>Have iso.me on your iPhone, with the Google Timeline import update when it becomes available.</li>
+<li>Keep the original JSON file as a backup while you check the imported history.</li></ul>
+<p>This first version handles one file at a time, up to 50 MiB and 250,000 visits plus points. You can choose to import visits, points, or both. Raw location history contains coordinates and times; it does not contain ready made visits, and this importer does not infer them.</p>
+<h2 id="export-iphone">1. Export Google Timeline on iPhone</h2>
+<p>Google currently documents the export inside the Google Maps app. Its <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&amp;hl=en">iPhone Timeline help page</a> is the source for these steps.</p>
+<ol class="steps"><li>Open <strong>Google Maps</strong> and tap your account avatar.</li>
+<li>Go to <strong>Settings → Location &amp; Privacy</strong>.</li>
+<li>Choose <strong>Export Timeline data</strong>.</li>
+<li>In the sharing options, choose <strong>Save to Files</strong>. Pick a folder you will recognize, then save.</li></ol>
+<p>The resulting file is named <code>location-history.json</code>. Leave it as JSON.</p>
+<figure class="guide-shot">
+<svg viewBox="150 320 1400 520" role="img" aria-labelledby="google-export-title"><title id="google-export-title">Google Maps Help showing the iPhone Timeline export steps</title><image href="screenshots/google-export-iphone.png" width="2360" height="1640" /></svg>
+<figcaption>Google’s official iPhone export instructions, captured in Arc on October 25, 2026. This is a help page screenshot, not a recording of a personal Google account export. <a href="screenshots/google-export-iphone.png">View the full capture</a>.</figcaption></figure>
+<h2 id="export-android">Exporting from Android instead?</h2>
+<p>On the Android device holding your history, open the system <strong>Settings</strong> app. Follow <strong>Location → Location services → Timeline</strong>, choose <strong>Export Timeline data</strong>, continue, and save the file. Google documents this separate path in its <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DAndroid&amp;hl=en">Android Timeline help</a>.</p>
+<p>Move the exported JSON to your iPhone using your usual file transfer method, then save it in Files. Google’s labels can vary by device or app version; follow the current help page if your menus differ.</p>
+<h2 id="takeout">Already have a Google Takeout archive?</h2>
+<p>You can use supported JSON from an existing export. If it is inside a ZIP, extract the archive first. Select individual JSON files rather than the ZIP or a folder.</p>
+<table class="guide-table"><caption>Google JSON formats supported by the first importer</caption><thead><tr><th scope="col">File contents</th><th scope="col">What can be imported</th></tr></thead><tbody>
+<tr><td>Classic Location History, often <code>Records.json</code>, with a <code>locations</code> array</td><td>Timestamped location points</td></tr>
+<tr><td>Legacy Semantic Timeline with <code>timelineObjects</code></td><td>Place visits and activity points that have usable times</td></tr>
+<tr><td>Device Timeline with <code>semanticSegments</code>, or an iOS array of segments</td><td>Supported visits and timed path points</td></tr>
+</tbody></table>
+<p>The filename alone does not guarantee compatibility. iso.me checks the contents. Untimed waypoints are skipped rather than given invented timestamps. An encrypted Timeline backup is not the JSON file this importer expects.</p>
+<h2 id="import">2. Open the importer in iso.me</h2>
+<ol class="steps"><li>Open <strong>iso.me → Settings</strong>.</li><li>Scroll past <strong>Saved Locations</strong> to <strong>Data Import</strong>.</li><li>Tap the blue <strong>Import File</strong> button.</li><li>Choose the Google JSON file in Files.</li></ol>
+<figure class="guide-shot phone"><img src="screenshots/import-button.png" alt="iso.me Settings with the blue Import File button under Data Import, below Saved Locations" width="603" height="1311" loading="lazy"><figcaption>The button is in Settings under Data Import. You do not need the Export tab to import.</figcaption></figure>
+<h2>3. Review before you save</h2>
+<p>The <strong>Review Import</strong> sheet shows the filename, detected format, date range, new visits and points, and duplicate counts. It also counts invalid records and unsupported entries when present.</p>
+<figure class="guide-shot phone"><img src="screenshots/preview.png" alt="Review Import preview showing one new visit, two new points, duplicate counts, and one skipped invalid record" width="603" height="1311" loading="lazy"><figcaption>Synthetic sample: one new visit and two new points, with duplicates and an invalid record identified before saving.</figcaption></figure>
+<p>Turn <strong>Visits</strong> or <strong>Points</strong> off if you only want one type. Those controls change the counts for your selection. A raw history export keeps Visits off because it contains points only.</p>
+<p>Choose <strong>Cancel</strong> to leave your journal unchanged. When the selection looks right, tap <strong>Import Selected Records</strong>. The completion summary reports the records added and the duplicates skipped.</p>
+<h2 id="duplicates">What counts as a duplicate?</h2>
+<p>iso.me checks for duplicates both within your file and against the history already saved on your phone. It checks again when you confirm, so a preview is not a reservation to insert those records later.</p>
+<ul><li><strong>Points:</strong> the same timestamp rounded to the nearest second, with coordinates within 10 meters.</li><li><strong>Visits:</strong> arrival times within 60 seconds, departure times within 5 minutes, and coordinates within 100 meters. Visits with no departure only match other visits with no departure.</li></ul>
+<p>Matching is approximate. Nearby visits at similar times may be skipped, while records outside those tolerances may still be added. Existing names, notes, and confirmations are preserved; this operation adds new records and skips matches.</p>
+<figure class="guide-shot phone"><img src="screenshots/repeat-import.png" alt="The same file selected again showing zero new records and a disabled Import Selected Records button" width="302" height="656" loading="lazy"><figcaption>Selecting the same sample again finds no new records. The import button stays disabled.</figcaption></figure>
+<h2 id="review">4. Check the imported days</h2>
+<p>Open the relevant dates in <strong>Timeline</strong> and inspect the visits or paths on the map. A file’s date range is not a promise that every day contains data. The preview formats times in your device’s local time zone, so a UTC timestamp can appear on the previous or following calendar day.</p>
+<p>Some exports have coordinates without place names. Those records can still be useful, but this import does not look up missing names. Keep your original file until you are satisfied with the result.</p>
+<h2 id="troubleshooting">If the import does not look right</h2>
+<h3>I cannot find the new Google import</h3><p>Check that you have a version of iso.me with the Google Timeline update. Older versions have an Import File button for iso.me backups without the Google preview described here.</p>
+<h3>The preview has points but no visits</h3><p>That is expected for raw Location History. This version does not turn raw points into visits. A semantic export may include place visits already identified by Google.</p>
+<h3>The file is rejected</h3><p>Select an extracted JSON file. ZIP, KML, GPX, and GeoJSON cannot be imported here. A damaged or unsupported JSON file, or one with no usable records, can also fail. Keep the error message and original file when asking for help.</p>
+<h3>The file is too large</h3><p>Use smaller files from an existing export where available. This version cannot open a whole export folder or split a large JSON file for you. Avoid cutting a JSON file into arbitrary text chunks; each file needs a valid supported structure.</p>
+<h3>Import is disabled</h3><p>There are no new records in the selected types, or both toggles are off. Review the duplicate counts and selection before trying another file.</p>
+<h3>Does importing remove anything from Google?</h3><p>No. You are reading a saved export file. Any choice about deleting your Google history is separate from importing it into iso.me.</p>
+<h2 id="sources">Sources and screenshot notes</h2>
+<p>Google’s <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&amp;hl=en">iPhone</a> and <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DAndroid&amp;hl=en">Android</a> instructions were checked in Arc on October 25, 2026. Google’s website and menus may change. The iso.me screenshots come from simulator QA using synthetic records, not a personal location archive.</p>
+<p>For your next backup, see the <a href="/docs/export-import/">iso.me export and import guide</a>. Import is free; exporting data from iso.me is a separate paid feature.</p>
+</div></article></div></main>
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="dot"></span>
+        © 2026 ISO.ME · BUILT BY ISOLATED.TECH
+      </div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:cody.bontecou@gmail.com">Support</a>
+        <a href="https://apps.apple.com/us/app/iso-me/id6761960794">App Store</a>
+      </div>
+    </div>
+  </footer>
+
+</body></html>
