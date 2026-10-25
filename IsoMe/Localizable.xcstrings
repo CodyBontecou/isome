@@ -6493,6 +6493,76 @@
         }
       }
     },
+    "A fresh accurate location is unavailable. Choose a saved place or provide coordinates.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتعذر الحصول على موقع حديث ودقيق. اختر مكانًا محفوظًا أو أدخل الإحداثيات."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "সাম্প্রতিক নির্ভুল অবস্থান পাওয়া যাচ্ছে না। সংরক্ষিত জায়গা বেছে নিন বা স্থানাঙ্ক দিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A fresh accurate location is unavailable. Choose a saved place or provide coordinates."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay una ubicación reciente y precisa. Elige un lugar guardado o proporciona coordenadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position récente et précise indisponible. Choisissez un lieu enregistré ou indiquez des coordonnées."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ताज़ा सटीक स्थान उपलब्ध नहीं है। सहेजी गई जगह चुनें या निर्देशांक दें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい正確な位置情報を取得できません。保存済みの場所を選ぶか、座標を指定してください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak aktualnej dokładnej lokalizacji. Wybierz zapisane miejsce lub podaj współrzędne."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma localização recente e precisa não está disponível. Escolha um lugar salvo ou informe coordenadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось получить точное текущее местоположение. Выберите сохранённое место или укажите координаты."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取最新的准确位置。请选择已存地点或提供坐标。"
+          }
+        }
+      }
+    },
     "A fresh coat of polish": {
       "localizations": {
         "ar": {
@@ -9777,6 +9847,16 @@
         }
       }
     },
+    "Allow Overlap": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Overlap"
+          }
+        }
+      }
+    },
     "Allow location to save a visit": {
       "localizations": {
         "ar": {
@@ -10484,6 +10564,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "申请"
+          }
+        }
+      }
+    },
+    "Arrival Time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrival Time"
           }
         }
       }
@@ -13805,6 +13895,16 @@
         }
       }
     },
+    "Check In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check In"
+          }
+        }
+      }
+    },
     "Check Out": {
       "localizations": {
         "ar": {
@@ -13875,6 +13975,16 @@
         }
       }
     },
+    "Check in and out with Shortcuts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in and out with Shortcuts"
+          }
+        }
+      }
+    },
     "Check the destination, file names, counts, warnings, and contents before writing or sharing your location history.": {
       "localizations": {
         "ar": {
@@ -13941,6 +14051,146 @@
           "stringUnit": {
             "state": "translated",
             "value": "在写入或共享您的位置历史记录之前，请检查目的地、文件名、计数、警告和内容。"
+          }
+        }
+      }
+    },
+    "Checked in at %@.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تسجيل الوصول إلى %@."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-এ চেক ইন করা হয়েছে।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked in at %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se registró la llegada a %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivée enregistrée à %@."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ पर चेक इन किया गया।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ にチェックインしました。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zameldowano w %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in realizado em %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прибытие в %@ отмечено."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已在 %@ 签到。"
+          }
+        }
+      }
+    },
+    "Checked out of %@.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تسجيل المغادرة من %@."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ থেকে চেক আউট করা হয়েছে।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked out of %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se registró la salida de %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Départ enregistré de %@."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ से चेक आउट किया गया।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ からチェックアウトしました。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wymeldowano z %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-out realizado de %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уход из %@ отмечен."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已从 %@ 签退。"
           }
         }
       }
@@ -14408,6 +14658,76 @@
         }
       }
     },
+    "Choose a time between the visit's arrival and now.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر وقتًا بين وقت الوصول والآن."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পরিদর্শনের আগমন ও বর্তমান সময়ের মধ্যে একটি সময় বেছে নিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a time between the visit's arrival and now."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una hora entre la llegada de la visita y ahora."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une heure entre l’arrivée de la visite et maintenant."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विज़िट के आगमन और अभी के बीच का समय चुनें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訪問の到着時刻から現在までの時刻を選んでください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz czas między przybyciem a chwilą obecną."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um horário entre a chegada da visita e agora."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите время между прибытием и настоящим моментом."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择访问到达时间与现在之间的时间。"
+          }
+        }
+      }
+    },
     "Choose a valid location on the map.": {
       "localizations": {
         "en": {
@@ -14420,6 +14740,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wybierz prawidłową lokalizację na mapie."
+          }
+        }
+      }
+    },
+    "Choose an arrival time at or before now.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر وقت وصول لا يتجاوز الوقت الحالي."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "বর্তমান সময় বা তার আগের আগমনের সময় বেছে নিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an arrival time at or before now."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una hora de llegada anterior o igual a la actual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une heure d’arrivée antérieure ou égale à maintenant."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभी या उससे पहले का आगमन समय चुनें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在以前の到着時刻を選んでください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz czas przybycia nie późniejszy niż teraz."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um horário de chegada até o momento atual."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите время прибытия не позднее текущего момента."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择现在或更早的到达时间。"
           }
         }
       }
@@ -14491,6 +14881,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "选择另一个位置"
+          }
+        }
+      }
+    },
+    "Choose one saved place or provide both latitude and longitude.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر مكانًا محفوظًا واحدًا أو أدخل خط العرض وخط الطول معًا."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "একটি সংরক্ষিত জায়গা বেছে নিন অথবা অক্ষাংশ ও দ্রাঘিমাংশ দুটোই দিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose one saved place or provide both latitude and longitude."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un lugar guardado o proporciona la latitud y la longitud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un lieu enregistré ou indiquez la latitude et la longitude."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक सहेजी गई जगह चुनें या अक्षांश और देशांतर दोनों दें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存済みの場所を1つ選ぶか、緯度と経度の両方を指定してください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz zapisane miejsce lub podaj szerokość i długość geograficzną."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um lugar salvo ou informe a latitude e a longitude."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите сохранённое место или укажите широту и долготу."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择一个已存地点，或同时提供纬度和经度。"
           }
         }
       }
@@ -19664,6 +20124,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "离开"
+          }
+        }
+      }
+    },
+    "Departure Time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Departure Time"
           }
         }
       }
@@ -28341,6 +28811,16 @@
         }
       }
     },
+    "Finish an open manual visit. Choose a visit when more than one is open.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish an open manual visit. Choose a visit when more than one is open."
+          }
+        }
+      }
+    },
     "Finish signing in on myself.md, then sign in with the same account in the myself.md app on iOS or Android.": {
       "localizations": {
         "en": {
@@ -34321,6 +34801,16 @@
         }
       }
     },
+    "Keep overlapping visits intentional": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep overlapping visits intentional"
+          }
+        }
+      }
+    },
     "Keep the visit in context": {
       "localizations": {
         "ar": {
@@ -36167,6 +36657,16 @@
         }
       }
     },
+    "Links can open Check In, Add Past Visit, or a visit's details. Review the place and times before saving.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links can open Check In, Add Past Visit, or a visit's details. Review the place and times before saving."
+          }
+        }
+      }
+    },
     "Lists every matched place, including places outside the visible map area.": {
       "localizations": {
         "en": {
@@ -36928,6 +37428,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lokalizacje"
+          }
+        }
+      }
+    },
+    "Log a visit from Shortcuts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log a visit from Shortcuts"
           }
         }
       }
@@ -39656,6 +40166,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "更可靠的日常出口"
+          }
+        }
+      }
+    },
+    "More than one manual visit is open. Choose the visit to check out.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هناك أكثر من زيارة يدوية مفتوحة. اختر الزيارة لتسجيل المغادرة."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "একাধিক ম্যানুয়াল পরিদর্শন চলছে। চেক আউট করার পরিদর্শন বেছে নিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than one manual visit is open. Choose the visit to check out."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hay más de una visita manual abierta. Elige de cuál registrar la salida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plusieurs visites manuelles sont en cours. Choisissez celle à terminer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक से अधिक मैन्युअल विज़िट खुली हैं। चेक आउट करने वाली विज़िट चुनें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複数の手動訪問が進行中です。チェックアウトする訪問を選んでください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Więcej niż jedna ręczna wizyta jest otwarta. Wybierz wizytę do zakończenia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Há mais de uma visita manual aberta. Escolha de qual fazer check-out."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыто несколько посещений, добавленных вручную. Выберите, какое завершить."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有多次进行中的手动访问。请选择要签退的访问。"
+          }
+        }
+      }
+    },
+    "More ways to log your visits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More ways to log your visits"
           }
         }
       }
@@ -46106,6 +46696,16 @@
         }
       }
     },
+    "Open visit forms with a link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open visit forms with a link"
+          }
+        }
+      }
+    },
     "Open visit in Maps": {
       "localizations": {
         "ar": {
@@ -51296,6 +51896,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "地方"
+          }
+        }
+      }
+    },
+    "Place Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place Name"
           }
         }
       }
@@ -59468,6 +60078,16 @@
         }
       }
     },
+    "Saved Place": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved Place"
+          }
+        }
+      }
+    },
     "Saved location map": {
       "localizations": {
         "en": {
@@ -62287,6 +62907,16 @@
         }
       }
     },
+    "Shortcuts warns about overlapping visits. Enable Allow Overlap only when you want to keep both records.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts warns about overlapping visits. Enable Allow Overlap only when you want to keep both records."
+          }
+        }
+      }
+    },
     "Show Explanation": {
       "localizations": {
         "ar": {
@@ -63903,6 +64533,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "开始追踪"
+          }
+        }
+      }
+    },
+    "Start a manual visit at a saved place or coordinates, then finish it with Check Out. Choose the visit when more than one is open.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a manual visit at a saved place or coordinates, then finish it with Check Out. Choose the visit when more than one is open."
+          }
+        }
+      }
+    },
+    "Start a manual visit at a saved place, coordinates, or your current location. Overlaps require Allow Overlap to be explicitly enabled.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a manual visit at a saved place, coordinates, or your current location. Overlaps require Allow Overlap to be explicitly enabled."
           }
         }
       }
@@ -66852,6 +67502,146 @@
         }
       }
     },
+    "That saved place no longer exists. Choose another place.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يعد هذا المكان المحفوظ موجودًا. اختر مكانًا آخر."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "সংরক্ষিত জায়গাটি আর নেই। অন্য জায়গা বেছে নিন।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That saved place no longer exists. Choose another place."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese lugar guardado ya no existe. Elige otro."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce lieu enregistré n’existe plus. Choisissez un autre lieu."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वह सहेजी गई जगह अब मौजूद नहीं है। दूसरी जगह चुनें।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その保存済みの場所は存在しません。別の場所を選んでください。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To zapisane miejsce już nie istnieje. Wybierz inne."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse lugar salvo não existe mais. Escolha outro lugar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это сохранённое место больше не существует. Выберите другое."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该已存地点已不存在。请选择其他地点。"
+          }
+        }
+      }
+    },
+    "That visit is already checked out or is not a manual visit.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تسجيل المغادرة من هذه الزيارة بالفعل أو أنها ليست زيارة يدوية."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "এই পরিদর্শন থেকে ইতিমধ্যে চেক আউট হয়েছে অথবা এটি ম্যানুয়াল পরিদর্শন নয়।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That visit is already checked out or is not a manual visit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya se registró la salida de esa visita o no es una visita manual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette visite est déjà terminée ou n’est pas une visite manuelle."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस विज़िट से पहले ही चेक आउट हो चुका है या यह मैन्युअल विज़िट नहीं है।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この訪問はチェックアウト済みか、手動訪問ではありません。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta wizyta jest już zakończona lub nie jest wizytą ręczną."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essa visita já foi encerrada ou não é uma visita manual."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это посещение уже завершено или не было добавлено вручную."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该访问已签退或不是手动访问。"
+          }
+        }
+      }
+    },
     "The CSV file has no saved-place rows.": {
       "localizations": {
         "en": {
@@ -67448,6 +68238,16 @@
         }
       }
     },
+    "The visit could not be loaded. Please try again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The visit could not be loaded. Please try again."
+          }
+        }
+      }
+    },
     "The visit could not be saved. Please try again.": {
       "localizations": {
         "ar": {
@@ -67686,6 +68486,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "所选导出设置没有数据。"
+          }
+        }
+      }
+    },
+    "There is no open manual visit to check out.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد زيارة يدوية مفتوحة لتسجيل المغادرة."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "চেক আউট করার মতো কোনো চলমান ম্যানুয়াল পরিদর্শন নেই।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no open manual visit to check out."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay ninguna visita manual abierta de la que registrar la salida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune visite manuelle en cours à terminer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चेक आउट करने के लिए कोई खुली मैन्युअल विज़िट नहीं है।"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックアウトできる進行中の手動訪問はありません。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak otwartej ręcznej wizyty do zakończenia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há visita manual aberta para fazer check-out."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет открытого посещения, добавленного вручную."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有可签退的进行中的手动访问。"
           }
         }
       }
@@ -68218,6 +69088,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta zapisana lokalizacja już nie istnieje. Zamknij edytor i spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "This visit link is invalid. Check the place, coordinates, and times.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This visit link is invalid. Check the place, coordinates, and times."
           }
         }
       }
@@ -72147,6 +73027,16 @@
         }
       }
     },
+    "Use a saved place, enter coordinates, or request your current location when permission allows.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use a saved place, enter coordinates, or request your current location when permission allows."
+          }
+        }
+      }
+    },
     "Use current location instead": {
       "localizations": {
         "ar": {
@@ -73483,6 +74373,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "参观详情"
+          }
+        }
+      }
+    },
+    "Visit Link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visit Link"
           }
         }
       }
@@ -74849,6 +75749,76 @@
         }
       }
     },
+    "What is the place name?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما اسم المكان؟"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "জায়গাটির নাম কী?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is the place name?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo se llama el lugar?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel est le nom du lieu ?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जगह का नाम क्या है?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所の名前は何ですか？"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak nazywa się to miejsce?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qual é o nome do lugar?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как называется место?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点名称是什么？"
+          }
+        }
+      }
+    },
     "What’s new in iso.me": {
       "localizations": {
         "ar": {
@@ -75125,6 +76095,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "当今天没有时间线事件时， iso.me现在会打开最近一天已保存的访问或活动，以便您更轻松地查看历史记录。"
+          }
+        }
+      }
+    },
+    "Which visit should be checked out?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أي زيارة تريد تسجيل المغادرة منها؟"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "কোন পরিদর্শন থেকে চেক আউট করবেন?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which visit should be checked out?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿De qué visita quieres registrar la salida?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De quelle visite souhaitez-vous enregistrer le départ ?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किस विज़िट से चेक आउट करना है?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どの訪問からチェックアウトしますか？"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Którą wizytę chcesz zakończyć?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De qual visita deseja fazer check-out?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Какое посещение завершить?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要结束哪次访问？"
           }
         }
       }

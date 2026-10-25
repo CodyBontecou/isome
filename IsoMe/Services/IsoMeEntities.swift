@@ -29,7 +29,7 @@ struct VisitEntity: AppEntity {
     }
 
     var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(name)")
+        DisplayRepresentation(title: "\(name)", subtitle: "\(arrivedAt.formatted(date: .abbreviated, time: .shortened))")
     }
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Visit"

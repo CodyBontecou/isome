@@ -330,6 +330,12 @@ struct ExportRunner {
 struct IsoMeAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
+            intent: CheckInIntent(),
+            phrases: ["Check in with \(.applicationName)"],
+            shortTitle: "Check In",
+            systemImageName: "mappin.and.ellipse"
+        )
+        AppShortcut(
             intent: StartTrackingIntent(),
             phrases: [
                 "Start \(.applicationName)",

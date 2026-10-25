@@ -23,6 +23,37 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.17",
+            items: [
+                .media(
+                    kind: .video,
+                    url: releaseNoteVideoURL("manual-visit-shortcuts"),
+                    title: "Check in and out with Shortcuts",
+                    description: "Start a manual visit at a saved place or coordinates, then finish it with Check Out. Choose the visit when more than one is open."
+                ),
+                .list(
+                    title: "More ways to log your visits",
+                    rows: [
+                        .init(
+                            symbolSystemName: "mappin.and.ellipse",
+                            title: "Log a visit from Shortcuts",
+                            description: "Use a saved place, enter coordinates, or request your current location when permission allows."
+                        ),
+                        .init(
+                            symbolSystemName: "checkmark.circle",
+                            title: "Keep overlapping visits intentional",
+                            description: "Shortcuts warns about overlapping visits. Enable Allow Overlap only when you want to keep both records."
+                        ),
+                        .init(
+                            symbolSystemName: "link",
+                            title: "Open visit forms with a link",
+                            description: "Links can open Check In, Add Past Visit, or a visit's details. Review the place and times before saving."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.16",
             items: [
                 .list(
