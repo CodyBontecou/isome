@@ -3,7 +3,7 @@ import SwiftData
 import CoreLocation
 @testable import IsoMe
 
-@Suite @MainActor
+@Suite(.serialized) @MainActor
 struct ManualVisitAutomationTests {
     private func container() throws -> ModelContainer {
         let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self])
@@ -13,6 +13,53 @@ struct ManualVisitAutomationTests {
     private func noLocation() async throws -> CLLocationCoordinate2D {
         Issue.record("Explicit destinations must not request GPS")
         throw ManualVisitIntentError.locationUnavailable
+    }
+
+    @Test func backgroundCheckInRefreshesVisitCountWithoutChangingTrackingSnapshot() async throws {
+        let db = try container(), context = ModelContext(db)
+        let defaults = try #require(UserDefaults(suiteName: SharedLocationData.appGroupIdentifier))
+        let previous = defaults.object(forKey: "sharedLocationData")
+        defer {
+            if let previous { defaults.set(previous, forKey: "sharedLocationData") }
+            else { defaults.removeObject(forKey: "sharedLocationData") }
+        }
+        let trackingWasEnabled = UserDefaults.standard.bool(forKey: "isTrackingEnabled")
+        var snapshot = SharedLocationData.empty
+        snapshot.todayVisitsCount = 99
+        snapshot.todayDistanceMeters = 1234
+        snapshot.todayPointsCount = 42
+        snapshot.currentLocationName = "Preserved place"
+        snapshot.lastLatitude = 18
+        snapshot.lastLongitude = -67
+        snapshot.lastUpdateTime = arrival
+        snapshot.usesMetricDistanceUnits = false
+        snapshot.save()
+
+        let start = Calendar.current.startOfDay(for: Date())
+        for offset in [-1, 0, 1] {
+            let date = try #require(Calendar.current.date(byAdding: .day, value: offset, to: start))
+            let visit = Visit(latitude: 18, longitude: -67,
+                arrivedAt: date, departedAt: date.addingTimeInterval(1))
+            context.insert(visit)
+        }
+        try context.save()
+        // Exercise the background mutation seam directly: no UI or LocationManager is created.
+        _ = try await ManualVisitAutomation.checkIn(context: context, name: "Cafe", savedPlaceID: nil,
+            latitude: 18, longitude: -67, allowOverlap: true, currentLocation: noLocation)
+
+        let updated = try #require(SharedLocationData.load())
+        #expect(updated.todayVisitsCount == 2)
+        let countResult = try await TodayVisitCountIntent().perform()
+        #expect(countResult.value == 2)
+        #expect(updated.isTrackingEnabled == false)
+        #expect(updated.todayDistanceMeters == snapshot.todayDistanceMeters)
+        #expect(updated.todayPointsCount == snapshot.todayPointsCount)
+        #expect(updated.currentLocationName == snapshot.currentLocationName)
+        #expect(updated.lastLatitude == snapshot.lastLatitude)
+        #expect(updated.lastLongitude == snapshot.lastLongitude)
+        #expect(updated.lastUpdateTime == snapshot.lastUpdateTime)
+        #expect(updated.usesMetricDistanceUnits == false)
+        #expect(UserDefaults.standard.bool(forKey: "isTrackingEnabled") == trackingWasEnabled)
     }
 
     @Test func savedPlaceCheckInAndCheckoutPersistMetadata() async throws {

@@ -41,3 +41,7 @@ Validated on 2026-10-25 with Xcode and the dedicated iOS 26.5 simulator:
 - Invalid coordinates produced the Visit Link error instead of opening or saving a form.
 
 Local evidence: `/private/tmp/isome76-qa/evidence/` and `/private/tmp/isome76-verified-tests.log`. Captures contain synthetic simulator data only. Exploratory Argent recordings live under `/private/tmp/isome76-qa/.argent/e2e/`; they are not claimed as replay-verified regression tests.
+
+### PR #80 shared visit-count regression
+
+A focused test reproduced a successful background check-in leaving both the App Group snapshot and TodayVisitCountIntent at the old value (99 rather than 2). ManualVisitStore now recounts today's persisted visits after a successful insert, updates only the shared visit count, and reloads widget timelines. It does not create a LocationManager or start tracking. The regression also verifies that previous/next-day visits are excluded and cached GPS, distance, point count, timestamp, units and disabled tracking state are preserved. The full suite passes: 318 XCTest cases and 11 Swift Testing tests.

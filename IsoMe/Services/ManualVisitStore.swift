@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import CoreLocation
+import WidgetKit
 
 enum VisitMutationError: LocalizedError {
     case invalidInput
@@ -71,7 +72,25 @@ final class ManualVisitStore {
             visitMutationError = .persistence
             return nil
         }
+        refreshSharedVisitCount()
         return visit
+    }
+
+    /// A manual save can run while tracking is off or before the UI exists.
+    /// Publish only the count so cached GPS, distance and tracking state stay intact.
+    private func refreshSharedVisitCount() {
+        guard let day = Calendar.current.dateInterval(of: .day, for: Date()) else { return }
+        let start = day.start
+        let end = day.end
+        let descriptor = FetchDescriptor<Visit>(predicate: #Predicate { visit in
+            visit.arrivedAt >= start && visit.arrivedAt < end
+        })
+        // A snapshot read failure must not turn a saved visit into a retryable mutation failure.
+        guard let count = try? modelContext.fetchCount(descriptor) else { return }
+        var snapshot = SharedLocationData.load() ?? .empty
+        snapshot.todayVisitsCount = count
+        snapshot.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// Uses stored visits rather than the UI cache, which may contain only a date range.
