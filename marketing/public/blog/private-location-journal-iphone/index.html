@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://isome.isolated.tech/blog/private-location-journal-iphone/">
   <meta property="og:site_name" content="iso.me">
   <meta property="article:published_time" content="2026-06-13T00:00:00-10:00">
-  <meta property="article:modified_time" content="2026-06-13T00:00:00-10:00">
+  <meta property="article:modified_time" content="2026-10-25T00:00:00-04:00">
   <meta property="article:author" content="Cody Bontecou">
   <meta property="article:section" content="Guides">
   <meta property="article:tag" content="Private location journal">
@@ -53,7 +53,7 @@
           "https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/settings.png"
         ],
         "datePublished": "2026-06-13T00:00:00-10:00",
-        "dateModified": "2026-06-13T00:00:00-10:00",
+        "dateModified": "2026-10-25T00:00:00-04:00",
         "author": {
           "@type": "Person",
           "name": "Cody Bontecou",
@@ -516,6 +516,7 @@
     .phone-frame picture { display: block; }
     .phone-frame img {
       width: 100%;
+      height: auto;
       border-radius: 27px;
       background: var(--paper);
     }
@@ -749,8 +750,10 @@
           <li><a href="#why-private">Why keep it private?</a></li>
           <li><a href="#setup">A simple setup checklist</a></li>
           <li><a href="#capture">Capture visits and routes</a></li>
+          <li><a href="#battery">Choose a battery tradeoff</a></li>
           <li><a href="#review">Review the map locally</a></li>
           <li><a href="#export">Export without lock-in</a></li>
+          <li><a href="#backup">Back up and restore</a></li>
           <li><a href="#webhooks">Use webhooks carefully</a></li>
           <li><a href="#habits">Build durable habits</a></li>
         </ol>
@@ -833,6 +836,15 @@
             </div>
           </div>
 
+          <h3>Verify your first recording</h3>
+          <ol>
+            <li>Open iso.me and finish setup. Choose While Using for manual sessions, or Always if you want automatic visits in the background. You can revisit this in iOS Settings.</li>
+            <li>On the Map tab, start a short route with the recording control. Stop it when you finish.</li>
+            <li>Open Timeline and check the date, route, and start/end times. Automatic visits need time at a place; do not expect every brief stop to appear immediately.</li>
+            <li>If the result is empty, check location permission, tracking state, and the selected day before relying on a longer recording.</li>
+          </ol>
+          <p>Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See <a href="/#pricing">current pricing</a> and the <a href="/docs/getting-started/">setup reference</a>.</p>
+
           <h2 id="capture">Capture visits and routes without turning your life into a feed</h2>
           <p>
             A good location journal has two layers: places and paths. Places are the stops you care about: a restaurant, hotel, trailhead, client site, beach, school, or errand. Paths are the routes between them: a hike, commute, road trip, city walk, bike ride, or site visit.
@@ -845,6 +857,16 @@
             <li>For a trail, photo walk, road trip, or inspection route, start a more intentional tracking session.</li>
             <li>Use auto-stop settings as a safety net so precise tracking does not run longer than intended.</li>
           </ul>
+
+          <h2 id="battery">Choose a battery tradeoff</h2>
+          <p>Use automatic visits for everyday recall and start detailed route recording when you need the path. High-accuracy GPS uses more power; there is no universal battery-life promise.</p>
+          <ul>
+            <li>For a walk or trip, start a route deliberately and stop it when finished.</li>
+            <li>Try a 25–50 meter distance filter for a longer day, then inspect a short test route. A larger filter can reduce detail; choose it for your use case rather than assuming maximum precision is always better.</li>
+            <li>Set an auto-stop timer as a fallback. Check that the timer will not end before a route you intend to keep.</li>
+            <li>If history has gaps, check permission and recording state. Battery-saving settings cannot recover points that were never captured.</li>
+          </ul>
+          <p>The <a href="/docs/tracking/">tracking reference</a> explains visits, routes, distance filters, and auto-stop.</p>
 
           <h2 id="review">Review your map locally first</h2>
           <p>
@@ -875,6 +897,17 @@
           <p>
             Exported files are powerful because they leave the app boundary. Store them deliberately. If you put them in cloud storage, email them, or import them into another service, that copy follows the privacy rules of the place you sent it.
           </p>
+
+          <h2 id="backup">Keep a backup you can restore</h2>
+          <p>Use iso.me JSON when your goal is a restorable copy. GPX and KML are useful for map viewers, but a map file is not a substitute for a journal backup.</p>
+          <ol>
+            <li>In Export, choose JSON, include the data types you need, and select the date range. For a full-history backup, use all available history and review any filters that would exclude records.</li>
+            <li>Use Preview to check the result, then export to a folder you control. Writing the file requires export access; Preview is free.</li>
+            <li>Open Files and confirm the JSON exists and contains the expected date range. Keep a separate copy before replacing your phone or deleting iso.me.</li>
+            <li>To restore a prior export, open Settings → Import file and select your saved JSON. Review the import result, then check several dates in Timeline and the map before treating recovery as complete.</li>
+          </ol>
+          <p>Keep your original backup during recovery. A filtered export contains only the selected data, and import cannot restore records absent from that file. See <a href="/docs/export-import/">export and import</a> for supported formats and <a href="/docs/automatic-exports/">automatic exports</a> for scheduled copies.</p>
+          <p>Content reviewed October 25, 2026 against the published product documentation. Existing screenshots show the workflow; labels can vary by app version.</p>
 
           <h2 id="webhooks">Use optional webhooks carefully</h2>
           <p>
