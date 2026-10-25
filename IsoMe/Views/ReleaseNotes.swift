@@ -23,6 +23,31 @@ enum IsoMeReleaseNotes {
 
     static let notes: [NoteletVersionNotes] = [
         .init(
+            version: "1.7.16",
+            items: [
+                .list(
+                    title: "Watch sync and smoother maps",
+                    rows: [
+                        .init(
+                            symbolSystemName: "applewatch",
+                            title: "Sync your Watch visits",
+                            description: "Watch recordings now include visited places. Open iso.me on your iPhone and tap Sync Now in the Watch app to retry a transfer."
+                        ),
+                        .init(
+                            symbolSystemName: "arrow.triangle.2.circlepath",
+                            title: "Keep completed outings up to date",
+                            description: "The iPhone app refreshes when your Watch sends an outing's completion update."
+                        ),
+                        .init(
+                            symbolSystemName: "map",
+                            title: "Smoother GPS maps",
+                            description: "GPS dots adjust to the visible map area and zoom level to keep large location histories responsive."
+                        )
+                    ]
+                )
+            ]
+        ),
+        .init(
             version: "1.7.15",
             items: [
                 .list(

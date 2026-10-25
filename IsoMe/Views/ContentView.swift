@@ -11,10 +11,18 @@ struct ContentView: View {
     @State private var crashLog: String?
     @State private var pendingTrackingStart = false
 
+    private var bypassOnboardingForWatchReplay: Bool {
+        #if DEBUG && targetEnvironment(simulator)
+        ProcessInfo.processInfo.arguments.contains("--watch-sync-replay")
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         Group {
             if let viewModel = viewModel {
-                if hasCompletedOnboarding {
+                if hasCompletedOnboarding || bypassOnboardingForWatchReplay {
                     Group {
                         #if DEBUG
                         if ProcessInfo.processInfo.arguments.contains("--review-upgrade-paywall") {

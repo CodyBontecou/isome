@@ -17,11 +17,18 @@ struct IsoMeApp: App {
             SavedPlace.self,
             CountryStay.self
         ])
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            allowsSave: true
-        )
+        let modelConfiguration: ModelConfiguration
+        #if DEBUG && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.arguments.contains("--watch-sync-replay") {
+            let directory = URL.documentsDirectory.appendingPathComponent("WatchSyncReplay")
+            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            modelConfiguration = ModelConfiguration(schema: schema, url: directory.appendingPathComponent("phone.store"))
+        } else {
+            modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
+        }
+        #else
+        modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
+        #endif
 
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
