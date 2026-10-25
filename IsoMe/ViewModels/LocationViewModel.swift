@@ -11,6 +11,23 @@ struct MapSessionFocusRequest: Equatable {
     let range: ClosedRange<Date>
 }
 
+enum VisitMutationError: LocalizedError {
+    case invalidInput
+    case overlap(String)
+    case persistence
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidInput:
+            return String(localized: "Enter a place name, location, and valid times.")
+        case .overlap(let name):
+            return String(format: String(localized: "These times overlap your visit to %@. Review the times or save both visits."), name)
+        case .persistence:
+            return String(localized: "The visit could not be saved. Please try again.")
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class LocationViewModel {
@@ -56,6 +73,7 @@ final class LocationViewModel {
     var showingExportSheet = false
     var showingClearConfirmation = false
     var exportError: String?
+    private(set) var visitMutationError: VisitMutationError?
 
     private var hasLoadedAllLocationPoints = false
     private var sessionLocationPointsCache: [LocationPoint] = []
@@ -1261,16 +1279,19 @@ final class LocationViewModel {
         coordinate: CLLocationCoordinate2D,
         arrivedAt: Date,
         departedAt: Date?,
-        placeSource: VisitPlaceSource = .userEntered
+        placeSource: VisitPlaceSource = .userEntered,
+        allowOverlap: Bool = false
     ) -> Visit? {
+        visitMutationError = nil
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty,
               CLLocationCoordinate2DIsValid(coordinate),
               coordinate.latitude.isFinite,
               coordinate.longitude.isFinite else {
+            visitMutationError = .invalidInput
             return nil
         }
-        if let departedAt, departedAt < arrivedAt { return nil }
+        guard validateVisitTimes(arrivedAt: arrivedAt, departedAt: departedAt, allowOverlap: allowOverlap) else { return nil }
 
         let now = Date()
         let visit = Visit(
@@ -1288,24 +1309,101 @@ final class LocationViewModel {
             placeSource: placeSource
         )
         modelContext.insert(visit)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.delete(visit)
+            visitMutationError = .persistence
+            return nil
+        }
         loadData()
         return visit
     }
 
-    @discardableResult
-    func updateVisitTimes(_ visit: Visit, arrivedAt: Date, departedAt: Date?) -> Bool {
-        if let departedAt, departedAt < arrivedAt { return false }
+    /// Uses stored visits rather than the UI cache, which may contain only a date range.
+    /// Adjacent visits may share an arrival/departure boundary without overlapping.
+    private func validateVisitTimes(
+        arrivedAt: Date,
+        departedAt: Date?,
+        excluding visit: Visit? = nil,
+        allowOverlap: Bool
+    ) -> Bool {
+        guard departedAt.map({ $0 >= arrivedAt }) ?? true else {
+            visitMutationError = .invalidInput
+            return false
+        }
+        guard !allowOverlap else { return true }
+        let end = departedAt ?? Date.distantFuture
+        let distantFuture = Date.distantFuture
+        let predicate = #Predicate<Visit> { candidate in
+            candidate.arrivedAt <= end && (candidate.departedAt ?? distantFuture) >= arrivedAt
+        }
+        var descriptor = FetchDescriptor<Visit>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.arrivedAt, order: .reverse)]
+        do {
+            let overlap = try modelContext.fetch(descriptor).first { candidate in
+                guard candidate.id != visit?.id else { return false }
+                let candidateEnd = candidate.departedAt ?? Date.distantFuture
+                // Equal, zero-length records are duplicates too.
+                return (candidate.arrivedAt < end && candidateEnd > arrivedAt)
+                    || (candidate.arrivedAt == arrivedAt && candidateEnd == end)
+            }
+            if let overlap {
+                visitMutationError = .overlap(overlap.displayName)
+                return false
+            }
+            return true
+        } catch {
+            visitMutationError = .persistence
+            return false
+        }
+    }
 
+    @discardableResult
+    func updateVisitTimes(
+        _ visit: Visit,
+        arrivedAt: Date,
+        departedAt: Date?,
+        allowOverlap: Bool = false
+    ) -> Bool {
+        visitMutationError = nil
+        guard validateVisitTimes(
+            arrivedAt: arrivedAt,
+            departedAt: departedAt,
+            excluding: visit,
+            allowOverlap: allowOverlap || visit.source != .manual
+        ) else { return false }
+
+        let previous = (visit.arrivedAt, visit.departedAt, visit.countryDepartureIsInferred, visit.updatedAt)
         visit.arrivedAt = arrivedAt
         visit.departedAt = departedAt
         visit.countryDepartureIsInferred = false
         visit.updatedAt = Date()
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            (visit.arrivedAt, visit.departedAt, visit.countryDepartureIsInferred, visit.updatedAt) = previous
+            visitMutationError = .persistence
+            return false
+        }
         loadTodayVisits()
         loadAllVisits()
         loadMapLocationPoints(in: mapDateRange)
+        locationManager.syncDataToWatch()
         return true
+    }
+
+    @discardableResult
+    func checkoutVisit(_ visit: Visit, at date: Date = Date()) -> Bool {
+        visitMutationError = nil
+        guard visit.source == .manual, visit.departedAt == nil,
+              date >= visit.arrivedAt, date <= Date() else {
+            visitMutationError = .invalidInput
+            return false
+        }
+        // Closing an existing visit cannot add an overlap, even if the user chose
+        // to save overlapping records earlier.
+        return updateVisitTimes(visit, arrivedAt: visit.arrivedAt, departedAt: date, allowOverlap: true)
     }
 
     // MARK: - Recording Session Management

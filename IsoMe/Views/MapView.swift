@@ -2056,6 +2056,7 @@ struct ManualVisitSheet: View {
     @State private var errorMessage: String?
     @State private var showingLocationPicker = false
     @State private var isSaving = false
+    @State private var showingOverlapConfirmation = false
 
     init(
         viewModel: LocationViewModel,
@@ -2358,6 +2359,12 @@ struct ManualVisitSheet: View {
                         .disabled(isSaveDisabled)
                 }
             }
+            .alert("Overlapping Visit", isPresented: $showingOverlapConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Save Anyway") { save(allowOverlap: true) }
+            } message: {
+                Text(viewModel.visitMutationError?.localizedDescription ?? "")
+            }
             .sheet(isPresented: $showingLocationPicker) {
                 PlaceSelectionView(
                     initialSelection: locationSelection,
@@ -2416,7 +2423,7 @@ struct ManualVisitSheet: View {
         }
     }
 
-    private func save() {
+    private func save(allowOverlap: Bool = false) {
         guard let coordinate else {
             if mode == .addPastVisit {
                 errorMessage = String(localized: "Search for the place, choose it on the map, or select a saved location.")
@@ -2439,12 +2446,17 @@ struct ManualVisitSheet: View {
             coordinate: coordinate,
             arrivedAt: arrivedAt,
             departedAt: mode.requiresDeparture ? departedAt : (isStillHere ? nil : departedAt),
-            placeSource: locationSelection?.visitPlaceSource ?? .userEntered
+            placeSource: locationSelection?.visitPlaceSource ?? .userEntered,
+            allowOverlap: allowOverlap
         )
 
         guard let visit else {
             isSaving = false
-            errorMessage = String(localized: "Enter a place name, location, and valid times.")
+            if case .overlap = viewModel.visitMutationError {
+                showingOverlapConfirmation = true
+            } else {
+                errorMessage = viewModel.visitMutationError?.localizedDescription
+            }
             return
         }
 
@@ -2544,6 +2556,7 @@ struct DateRangeFilterSheet: View {
 struct VisitQuickView: View {
     @Bindable var visit: Visit
     @Bindable var viewModel: LocationViewModel
+    @State private var checkoutError: String?
     @State private var nameText: String = ""
     @FocusState private var isNameFieldFocused: Bool
 
@@ -2681,6 +2694,20 @@ struct VisitQuickView: View {
                         .buttonStyle(.borderedProminent)
                     }
 
+                    if visit.source == .manual, visit.departedAt == nil {
+                        Button {
+                            if !viewModel.checkoutVisit(visit) {
+                                checkoutError = viewModel.visitMutationError?.localizedDescription
+                            }
+                        } label: {
+                            Label("Check Out", systemImage: "rectangle.portrait.and.arrow.right")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(visit.arrivedAt > Date())
+                        .accessibilityHint("Ends this manual visit at the current time.")
+                    }
+
                     NavigationLink {
                         VisitDetailView(visit: visit, viewModel: viewModel)
                     } label: {
@@ -2694,6 +2721,14 @@ struct VisitQuickView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 nameText = visit.displayName
+            }
+            .alert("Unable to Check Out", isPresented: Binding(
+                get: { checkoutError != nil },
+                set: { if !$0 { checkoutError = nil } }
+            )) {
+                Button("OK", role: .cancel) { checkoutError = nil }
+            } message: {
+                Text(checkoutError ?? "")
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
