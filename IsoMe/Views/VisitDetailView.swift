@@ -13,6 +13,8 @@ struct VisitDetailView: View {
     @State private var departedAt: Date = Date()
     @State private var isStillHere = false
     @State private var timeValidationMessage: String?
+    @State private var showingOverlapConfirmation = false
+    @State private var checkoutError: String?
     @FocusState private var focusedField: FocusedField?
 
     private enum FocusedField: Hashable {
@@ -53,6 +55,20 @@ struct VisitDetailView: View {
             }
         } message: {
             Text("This visit will be permanently deleted.")
+        }
+        .alert("Overlapping Visit", isPresented: $showingOverlapConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Save Anyway") { saveTimes(allowOverlap: true) }
+        } message: {
+            Text(viewModel.visitMutationError?.localizedDescription ?? "")
+        }
+        .alert("Unable to Check Out", isPresented: Binding(
+            get: { checkoutError != nil },
+            set: { if !$0 { checkoutError = nil } }
+        )) {
+            Button("OK", role: .cancel) { checkoutError = nil }
+        } message: {
+            Text(checkoutError ?? "")
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -243,6 +259,22 @@ struct VisitDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 12) {
+            if visit.source == .manual, visit.departedAt == nil {
+                Button {
+                    if viewModel.checkoutVisit(visit) {
+                        syncEditableStateFromVisit()
+                    } else {
+                        checkoutError = viewModel.visitMutationError?.localizedDescription
+                    }
+                } label: {
+                    Label("Check Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(visit.arrivedAt > Date())
+                .accessibilityHint("Ends this manual visit at the current time.")
+            }
+
             if visit.confirmationStatus == .unconfirmed {
                 Button {
                     confirmVisit()
@@ -348,11 +380,15 @@ struct VisitDetailView: View {
         }
     }
 
-    private func saveTimes() {
+    private func saveTimes(allowOverlap: Bool = false) {
         validateEditedTimes()
         guard timeValidationMessage == nil else { return }
-        guard viewModel.updateVisitTimes(visit, arrivedAt: arrivedAt, departedAt: editedDeparture) else {
-            timeValidationMessage = String(localized: "Departure must be after arrival.")
+        guard viewModel.updateVisitTimes(visit, arrivedAt: arrivedAt, departedAt: editedDeparture, allowOverlap: allowOverlap) else {
+            if case .overlap = viewModel.visitMutationError {
+                showingOverlapConfirmation = true
+            } else {
+                timeValidationMessage = viewModel.visitMutationError?.localizedDescription
+            }
             return
         }
         syncEditableStateFromVisit()

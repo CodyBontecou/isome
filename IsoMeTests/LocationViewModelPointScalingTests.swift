@@ -189,6 +189,124 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         XCTAssertNil(visit.departedAt)
     }
 
+    func testManualVisitCheckoutPersistsAndCannotCheckoutTwice() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrival = Date().addingTimeInterval(-3600)
+        let departure = arrival.addingTimeInterval(1800)
+        let visit = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Cafe", address: nil,
+            coordinate: CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4),
+            arrivedAt: arrival, departedAt: nil
+        ))
+        let confirmedAt = visit.confirmedAt
+        XCTAssertFalse(viewModel.checkoutVisit(visit, at: arrival.addingTimeInterval(-1)))
+        XCTAssertNil(visit.departedAt)
+        XCTAssertTrue(viewModel.checkoutVisit(visit, at: departure))
+        XCTAssertEqual(visit.departedAt, departure)
+        XCTAssertEqual(visit.confirmedAt, confirmedAt)
+        XCTAssertEqual(visit.confirmationStatus, .confirmed)
+        XCTAssertEqual(visit.countryDepartureIsInferred, false)
+        XCTAssertFalse(viewModel.checkoutVisit(visit, at: departure.addingTimeInterval(60)))
+        XCTAssertEqual(visit.departedAt, departure)
+        let freshContext = ModelContext(container)
+        let savedVisit = try XCTUnwrap(freshContext.fetch(FetchDescriptor<Visit>()).first)
+        XCTAssertEqual(savedVisit.departedAt, departure)
+    }
+
+    func testCheckoutRejectsAutomaticAndFutureManualVisits() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let automatic = Visit(latitude: 37.7, longitude: -122.4, arrivedAt: Date().addingTimeInterval(-60))
+        container.mainContext.insert(automatic)
+        XCTAssertFalse(viewModel.checkoutVisit(automatic))
+        XCTAssertNil(automatic.departedAt)
+        let future = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Tomorrow", address: nil,
+            coordinate: CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4),
+            arrivedAt: Date().addingTimeInterval(3600), departedAt: nil,
+            allowOverlap: true
+        ))
+        XCTAssertFalse(viewModel.checkoutVisit(future))
+        XCTAssertFalse(viewModel.checkoutVisit(future, at: Date().addingTimeInterval(7200)))
+        XCTAssertNil(future.departedAt)
+    }
+
+    func testManualOverlapWarningCanBeOverriddenWithoutLosingEitherVisit() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrival = Date().addingTimeInterval(-7200)
+        let coordinate = CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4)
+        // Insert after the view model loads: overlap detection must query storage.
+        let automatic = Visit(latitude: 37.7, longitude: -122.4, arrivedAt: arrival,
+                              departedAt: arrival.addingTimeInterval(3600), locationName: "Detected Cafe")
+        container.mainContext.insert(automatic)
+        try container.mainContext.save()
+        XCTAssertNil(viewModel.createManualVisit(
+            name: "Lunch", address: nil, coordinate: coordinate,
+            arrivedAt: arrival.addingTimeInterval(600), departedAt: arrival.addingTimeInterval(1800)
+        ))
+        guard case .overlap = viewModel.visitMutationError else {
+            return XCTFail("Expected an overlap warning")
+        }
+        let manual = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Lunch", address: nil, coordinate: coordinate,
+            arrivedAt: arrival.addingTimeInterval(600), departedAt: arrival.addingTimeInterval(1800),
+            allowOverlap: true
+        ))
+        XCTAssertEqual(viewModel.allVisits.count, 2)
+        XCTAssertTrue(viewModel.allVisits.contains { $0.id == automatic.id })
+        XCTAssertTrue(viewModel.allVisits.contains { $0.id == manual.id })
+        XCTAssertNil(viewModel.visitMutationError)
+    }
+
+    func testAdjacentManualVisitsAndOverlapEditing() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrival = Date().addingTimeInterval(-7200)
+        let boundary = arrival.addingTimeInterval(1800)
+        let coordinate = CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4)
+        let first = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Breakfast", address: nil, coordinate: coordinate,
+            arrivedAt: arrival, departedAt: boundary
+        ))
+        let second = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Coffee", address: nil, coordinate: coordinate,
+            arrivedAt: boundary, departedAt: boundary.addingTimeInterval(1800)
+        ))
+        XCTAssertEqual(viewModel.allVisits.count, 2)
+        XCTAssertTrue(viewModel.updateVisitTimes(first, arrivedAt: arrival, departedAt: boundary))
+        XCTAssertFalse(viewModel.updateVisitTimes(second, arrivedAt: arrival, departedAt: boundary.addingTimeInterval(1800)))
+        XCTAssertEqual(second.arrivedAt, boundary)
+        XCTAssertTrue(viewModel.updateVisitTimes(second, arrivedAt: arrival, departedAt: boundary.addingTimeInterval(1800), allowOverlap: true))
+        XCTAssertEqual(viewModel.allVisits.count, 2)
+    }
+
+    func testReconciliationPreservesOpenManualVisitsAndExplicitOverlaps() throws {
+        let container = try makeInMemoryContainer()
+        let viewModel = makeViewModel(container: container)
+        let arrival = Date().addingTimeInterval(-7200)
+        let coordinate = CLLocationCoordinate2D(latitude: 37.7, longitude: -122.4)
+        let first = try XCTUnwrap(viewModel.createManualVisit(
+            name: "First", address: nil, coordinate: coordinate,
+            arrivedAt: arrival, departedAt: nil
+        ))
+        XCTAssertNil(viewModel.createManualVisit(
+            name: "Second", address: nil, coordinate: coordinate,
+            arrivedAt: arrival.addingTimeInterval(1800), departedAt: nil
+        ))
+        let second = try XCTUnwrap(viewModel.createManualVisit(
+            name: "Second", address: nil, coordinate: coordinate,
+            arrivedAt: arrival.addingTimeInterval(1800), departedAt: nil, allowOverlap: true
+        ))
+        viewModel.locationManager.reconcileOpenVisits()
+        XCTAssertNil(first.departedAt)
+        XCTAssertNil(second.departedAt)
+        XCTAssertEqual(viewModel.allVisits.count, 2)
+        XCTAssertTrue(viewModel.checkoutVisit(first, at: arrival.addingTimeInterval(3600)))
+        XCTAssertNil(second.departedAt)
+    }
+
     func testRemoteManualVisitPersistsAppleMapsSelection() throws {
         let container = try makeInMemoryContainer()
         let viewModel = makeViewModel(container: container)

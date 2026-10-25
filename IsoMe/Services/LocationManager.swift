@@ -459,7 +459,7 @@ final class LocationManager: NSObject, ObservableObject {
             var descriptor = FetchDescriptor<Visit>()
             descriptor.sortBy = [SortDescriptor(\.arrivedAt, order: .forward)]
             let visits = try context.fetch(descriptor)
-            let openVisits = visits.filter { $0.departedAt == nil }
+            let openVisits = visits.filter { $0.departedAt == nil && $0.source == .automatic }
             let latestOpenVisit = openVisits.max { $0.arrivedAt < $1.arrivedAt }
             var changedCount = 0
 
@@ -569,6 +569,7 @@ final class LocationManager: NSObject, ObservableObject {
 
         return openVisits
             .compactMap { visit -> (visit: Visit, score: Double)? in
+                guard visit.source == .automatic else { return nil }
                 guard let score = matchScore(
                     for: visit,
                     clVisit: clVisit,
@@ -658,7 +659,7 @@ final class LocationManager: NSObject, ObservableObject {
         _ rhs: Visit,
         referenceDate: Date
     ) -> Bool {
-        guard lhs.id != rhs.id else { return false }
+        guard lhs.id != rhs.id, lhs.source == .automatic, rhs.source == .automatic else { return false }
 
         let lhsLocation = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude)
         let rhsLocation = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude)
@@ -729,7 +730,7 @@ final class LocationManager: NSObject, ObservableObject {
         let openVisits = try context.fetch(descriptor)
         var closedCount = 0
 
-        for visit in openVisits where visit.id != excludedID && visit.arrivedAt <= arrivalDate {
+        for visit in openVisits where visit.source == .automatic && visit.id != excludedID && visit.arrivedAt <= arrivalDate {
             visit.departedAt = max(visit.arrivedAt, arrivalDate)
             visit.countryDepartureIsInferred = true
             closedCount += 1

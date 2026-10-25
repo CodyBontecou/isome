@@ -27,6 +27,9 @@ High-accuracy GPS tracking that records your exact path. Configurable distance f
 ### Dark Mode
 Follow the device appearance or choose Light or Dark in **Settings → Appearance → Theme**. The shared palette adapts across the map, timeline, settings, export, and onboarding screens.
 
+### Manual Visits
+Manual visits can be logged from the map, including past visits at a selected location. Confirm or correct detected places and edit arrival/departure times from Visit Details. Use **Check Out** on an open manual visit to record departure now. If a manual log overlaps another visit, review the warning before choosing **Save Anyway** to keep both records. Automatic visit cleanup preserves manual logs. Apple Maps place searches may send your query and search area to Apple.
+
 ### Country Days
 The free **Timeline → Country Days** screen counts unique local dates present in each country from recorded visits and route points. Filter by this year, the last 365 days, or all time; open a country to review individual dates. Travel days can count in both countries. Add, edit, or delete manual stays to cover missing records; overlapping dates are deduplicated.
 
