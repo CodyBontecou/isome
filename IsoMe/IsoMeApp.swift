@@ -7,6 +7,7 @@ struct IsoMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var watchSyncReceiver = WatchLocationSyncReceiver()
     @State private var showingMyselfClaim = false
+    @State private var manualVisitRouter = ManualVisitRouter()
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -43,6 +44,13 @@ struct IsoMeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(manualVisitRouter)
+                .alert("Visit Link", isPresented: Binding(
+                    get: { manualVisitRouter.errorMessage != nil },
+                    set: { if !$0 { manualVisitRouter.errorMessage = nil } }
+                )) { Button("OK", role: .cancel) {} } message: {
+                    Text(manualVisitRouter.errorMessage ?? "")
+                }
                 .sheet(isPresented: $showingMyselfClaim) {
                     MyselfClaimView(app: "iso.me")
                 }
@@ -84,6 +92,8 @@ struct IsoMeApp: App {
         }
 
         switch url.host {
+        case "check-in", "log-visit", "visit":
+            manualVisitRouter.open(url)
         case "stop":
             NotificationCenter.default.post(name: .stopTracking, object: nil)
         default:

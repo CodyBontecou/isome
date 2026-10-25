@@ -4,6 +4,9 @@ import SwiftData
 import Combine
 
 struct LocationMapView: View {
+    @Environment(ManualVisitRouter.self) private var manualVisitRouter
+    @State private var deepLinkedVisit: Visit?
+    @State private var handledVisitRouteID: UUID?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var viewModel: LocationViewModel
     @ObservedObject private var locationManager: LocationManager
@@ -577,6 +580,16 @@ struct LocationMapView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .onChange(of: manualVisitRouter.request?.id, initial: true) { _, id in
+                guard id != nil else { return }
+                openManualVisitRoute()
+            }
+            .onChange(of: canPresentVisitRoute) { _, ready in
+                if ready { openManualVisitRoute() }
+            }
+            .sheet(item: $deepLinkedVisit) { visit in
+                NavigationStack { VisitDetailView(visit: visit, viewModel: viewModel) }
+            }
             .sheet(item: $manualVisitDraft) { draft in
                 ManualVisitSheet(
                     viewModel: viewModel,
@@ -704,6 +717,55 @@ struct LocationMapView: View {
         if let location = freshManualLocation {
             dismissedCurrentPlaceArea = CurrentPlacePromptSuppression(center: location.coordinate)
         }
+    }
+
+    private var canPresentVisitRoute: Bool {
+        manualVisitDraft == nil && selectedVisit == nil && deepLinkedVisit == nil && !showingFilters
+            && viewModel.photoDetails.cluster == nil && !viewModel.photoDetails.showsPlaces && viewModel.photoDetails.photo == nil
+    }
+
+    private func openManualVisitRoute() {
+        // A new link waits for the current sheet; never discard an unfinished form.
+        guard canPresentVisitRoute else { return }
+        guard let request = manualVisitRouter.request, request.id != handledVisitRouteID else { return }
+        handledVisitRouteID = request.id
+        // Let the tab selection observer see the request before consuming it.
+        Task { @MainActor in
+            await Task.yield()
+            if manualVisitRouter.request?.id == request.id { manualVisitRouter.request = nil }
+        }
+        switch request.route {
+        case .visit(let id):
+            do {
+                guard let visit = try viewModel.storedVisit(id: id) else {
+                    manualVisitRouter.errorMessage = String(localized: "That IsoMe item couldn't be found.")
+                    return
+                }
+                deepLinkedVisit = visit
+            } catch {
+                manualVisitRouter.errorMessage = String(localized: "The visit could not be loaded. Please try again.")
+            }
+        case .checkIn(let name, let latitude, let longitude, let arrival):
+            manualVisitDraft = routeDraft(name: name, latitude: latitude, longitude: longitude,
+                arrival: arrival ?? Date(), departure: nil, isPast: false)
+        case .pastVisit(let name, let latitude, let longitude, let arrival, let departure):
+            let end = departure ?? Date()
+            manualVisitDraft = routeDraft(name: name, latitude: latitude, longitude: longitude,
+                arrival: arrival ?? end.addingTimeInterval(-3600), departure: end, isPast: true)
+        }
+    }
+
+    private func routeDraft(name: String?, latitude: Double?, longitude: Double?, arrival: Date,
+                            departure: Date?, isPast: Bool) -> ManualVisitDraft {
+        var selection: ManualLocationSelection?
+        if let latitude, let longitude {
+            selection = ManualLocationSelection(name: name ?? "", address: nil,
+                coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), source: .mapPin)
+        }
+        return ManualVisitDraft(mode: isPast ? .addPastVisit : .saveCurrentPlace,
+            name: name ?? "", locationSelection: selection, arrivedAt: arrival,
+            departedAt: departure ?? Date(), isStillHere: !isPast,
+            title: isPast ? "Add Past Visit" : "Check In", hidesCurrentPlacePromptAfterSave: !isPast)
     }
 
     private func openSaveCurrentPlaceSheet() {
@@ -3886,6 +3948,7 @@ extension MKCoordinateRegion {
         modelContext: try! ModelContainer(for: Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self).mainContext,
         locationManager: LocationManager()
     ))
+    .environment(ManualVisitRouter())
 }
 
 

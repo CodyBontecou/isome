@@ -61,6 +61,7 @@ struct ContentView: View {
         .task {
             if viewModel == nil {
                 let manager = LocationManager()
+                ManualVisitAutomation.foregroundContext = modelContext
                 locationManager = manager
                 viewModel = LocationViewModel(
                     modelContext: modelContext,
@@ -136,6 +137,7 @@ struct ContentView: View {
 }
 
 private struct MainTabView: View {
+    @Environment(ManualVisitRouter.self) private var manualVisitRouter
     let viewModel: LocationViewModel
     @State private var selectedTab: Int = MainTabView.initialTabFromLaunchArguments()
     @ObservedObject private var exportToastCenter = ExportToastCenter.shared
@@ -167,6 +169,12 @@ private struct MainTabView: View {
                     Label("Settings", systemImage: "gear")
                 }
                 .tag(2)
+        }
+        .onChange(of: manualVisitRouter.request?.id, initial: true) { _, id in
+            if id != nil { selectedTab = 0 }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .manualVisitsChanged)) { _ in
+            viewModel.loadData()
         }
         .overlay(alignment: .top) {
             if let toast = exportToastCenter.toast {
@@ -1519,4 +1527,5 @@ private enum ScreenshotFeatureDemoSeeder {
 #Preview {
     ContentView()
         .modelContainer(for: [Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self], inMemory: true)
+    .environment(ManualVisitRouter())
 }

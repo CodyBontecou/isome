@@ -151,6 +151,10 @@
 		C0DE04010000000000000002 /* WatchLocationSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE04010000000000000001 /* WatchLocationSyncState.swift */; };
 		C0DE04010000000000000003 /* WatchLocationSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE04010000000000000001 /* WatchLocationSyncState.swift */; };
 		C0DE04020000000000000002 /* WatchLocationSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE04020000000000000001 /* WatchLocationSyncTests.swift */; };
+		76AB00000000000000000002 /* ManualVisitStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000001 /* ManualVisitStore.swift */; };
+		76AB00000000000000000012 /* IsoMeManualVisitIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000011 /* IsoMeManualVisitIntents.swift */; };
+		76AB00000000000000000022 /* ManualVisitRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000021 /* ManualVisitRoute.swift */; };
+		76AB00000000000000000032 /* ManualVisitAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000031 /* ManualVisitAutomationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -363,6 +367,10 @@
 		C0DE0304212F000000000304 /* CountryDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDayTests.swift; sourceTree = "<group>"; };
 		C0DE04010000000000000001 /* WatchLocationSyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLocationSyncState.swift; sourceTree = "<group>"; };
 		C0DE04020000000000000001 /* WatchLocationSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLocationSyncTests.swift; sourceTree = "<group>"; };
+		76AB00000000000000000001 /* ManualVisitStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitStore.swift; sourceTree = "<group>"; };
+		76AB00000000000000000011 /* IsoMeManualVisitIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsoMeManualVisitIntents.swift; sourceTree = "<group>"; };
+		76AB00000000000000000021 /* ManualVisitRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitRoute.swift; sourceTree = "<group>"; };
+		76AB00000000000000000031 /* ManualVisitAutomationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitAutomationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -542,6 +550,9 @@
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
 				E1000002212F000000000002 /* LogManager.swift */,
 				AB000001212F000000000001 /* IsoMeIntents.swift */,
+				76AB00000000000000000021 /* ManualVisitRoute.swift */,
+				76AB00000000000000000011 /* IsoMeManualVisitIntents.swift */,
+				76AB00000000000000000001 /* ManualVisitStore.swift */,
 				AB000001212F0EE0000000E1 /* IsoMeEntities.swift */,
 				AB000001212F0DD0000000D1 /* IsoMeExportIntents.swift */,
 				AB000001212F0AA0000000A1 /* IsoMeReadIntents.swift */,
@@ -685,6 +696,7 @@
 				AB000001212F0CC000000C2 /* GetVisitsGetMovementsIntentTests.swift */,
 				AB000001212F0BB000000B2 /* RenameIntentsTests.swift */,
 				6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */,
+				76AB00000000000000000031 /* ManualVisitAutomationTests.swift */,
 				D2A10003212F000000000003 /* RemotePastVisitTests.swift */,
 				8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */,
 				A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */,
@@ -980,6 +992,9 @@
 				E1000003212F000100000003 /* LogViewerView.swift in Sources */,
 				D15C04D0BA000000000000A1 /* DiscordPromoBanner.swift in Sources */,
 				AB000001212F000100000001 /* IsoMeIntents.swift in Sources */,
+				76AB00000000000000000022 /* ManualVisitRoute.swift in Sources */,
+				76AB00000000000000000012 /* IsoMeManualVisitIntents.swift in Sources */,
+				76AB00000000000000000002 /* ManualVisitStore.swift in Sources */,
 				AB000001212F0EE1000000E1 /* IsoMeEntities.swift in Sources */,
 				AB000001212F0DD1000000D1 /* IsoMeExportIntents.swift in Sources */,
 				AB000001212F0AA1000000A1 /* IsoMeReadIntents.swift in Sources */,
@@ -1062,6 +1077,7 @@
 				AB000001212F0CC100000C2 /* GetVisitsGetMovementsIntentTests.swift in Sources */,
 				AB000001212F0BB100000B2 /* RenameIntentsTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
+				76AB00000000000000000032 /* ManualVisitAutomationTests.swift in Sources */,
 				D2A10003212F000100000003 /* RemotePastVisitTests.swift in Sources */,
 				F2DCEC8ADF4641F4AFEBB1BA /* TimelineImportTests.swift in Sources */,
 				A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */,

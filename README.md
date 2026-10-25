@@ -187,3 +187,5 @@ If you want to chat about the project, design decisions, or what to build next, 
 ## License
 
 iso.me is licensed under the [GNU Affero General Public License v3.0](LICENSE). The AGPL ensures that any modified version of iso.me — including ones run as a hosted service — must also be open source. This protects the privacy-first promise: nobody can take iso.me, bolt on tracking, and ship it as a closed product.
+
+Manual visit automation: [Check In / Check Out Shortcuts and visit links](docs/testing/manual-visit-shortcuts.md).
