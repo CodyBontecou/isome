@@ -22,3 +22,26 @@ Observed all expected results. The system file picker did not expose a reliable 
 ## MVP boundaries
 
 Single JSON files only for Google exports; unzip Takeout manually. No folder/ZIP import or inferred visits from raw points. The parser accepts up to 50 MiB and 250,000 visits plus points. Duplicate thresholds and privacy behavior are documented in the README. New interface copy currently uses English fallback in other locales.
+
+
+## Expanded QA run
+
+Repeated manual acceptance on implementation commit `e53d328` with synthetic files in Files > On My iPhone > Downloads.
+
+| Scenario | Observed result |
+| --- | --- |
+| Fresh device export preview | 1 new visit, 2 new points, 1/2 in-file duplicates, 1 invalid record |
+| Both selection toggles off | Selected counts become zero; confirmation visibly disabled |
+| Cancel preview | Settings totals unchanged at 7 visits / 113 points |
+| Reopen canceled file | 1 visit and 2 points remain available; options reset to on |
+| Import with Visits off | Completion reports 2 points; totals become 7 visits / 115 points |
+| Reopen after points-only import | 1 visit still available; 0 new points and 4 duplicate points |
+| Raw Location History | Correct format; 0 visits / 1 new point; Visits toggle remains off when tapped |
+| Malformed JSON | Import Failed message; no confirmation action; Cancel works |
+| Recover after malformed JSON | Valid file previews successfully with the expected remaining visit |
+
+No product defects were found in these checks. The exploratory Argent record lives in `/private/tmp/isome-google-import-qa/`; its system-picker selectors are unreliable, so it is not a verified automated UI test. Checks used screen inspection and accessibility descriptions.
+
+The first automated test attempt was interrupted by starting UI automation before the runner finished. It is excluded from the verdict. The independent rerun after UI automation and instrumentation stopped passed all 313 tests with zero failures. Log: `/private/tmp/isome-google-import-qa-final.log`.
+
+Xcode stalled while finalizing the result bundle after the complete 313-test pass summary. The runner was stopped with SIGINT after roughly two minutes. Test-case results above passed, but a successfully finalized `.xcresult` bundle is not claimed.
