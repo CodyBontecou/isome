@@ -34,7 +34,7 @@ Validated on 2026-10-25 with Xcode and the dedicated iOS 26.5 simulator:
 
 - Final full run: 318 XCTest cases and 10 Swift Testing tests passed (including 14 malformed-link parameter cases). `xcodebuild test` completed with TEST SUCCEEDED.
 - Compiled App Intents metadata includes CheckInIntent and CheckOutIntent. Shortcuts displays the Check In card and finds Check Out in action search.
-- Shortcuts Check Out executed after terminating iso.me, showed “Checked out of Shortcut Cafe”, and persisted the departure in the shared simulator SwiftData store. No foreground app handoff was required. Both actual intent perform methods also pass the injected-store test; background system Check In with explicit coordinates has not been separately driven through the Shortcuts editor.
+- Shortcuts Check Out executed after terminating iso.me, showed “Checked out of Shortcut Cafe”, and persisted the departure in the shared simulator SwiftData store. No foreground app handoff was required. Both actual intent perform methods also pass the injected-store test; physical iPhone 17 Pro QA subsequently verified saved-place Check In and Check Out through Shortcuts (see iphone17-shortcuts-qa.md).
 - Check-in URL prefilled name and coordinates; saving encountered the expected overlap warning and required Save Anyway. Stored metadata remained manual/confirmed.
 - Visit UUID URL opened the saved record in Visit Details.
 - Past-log URL prefilled both times correctly. A second link left the unfinished form intact, then opened the queued check-in form after Cancel.
