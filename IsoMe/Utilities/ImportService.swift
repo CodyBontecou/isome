@@ -8,7 +8,7 @@ enum ImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return String(localized: "Unsupported file format. Import currently supports JSON, CSV, or Markdown files exported from iso.me. KML, GPX, and GeoJSON exports are one-way map files.")
+            return String(localized: "Unsupported file format. Import supports Google Timeline JSON and iso.me JSON, CSV, or Markdown files. KML, GPX, and GeoJSON exports are one-way map files.")
         case .invalidData(let detail):
             return String(format: String(localized: "Invalid data: %@"), detail)
         case .parsingFailed(let detail):
@@ -22,7 +22,7 @@ enum ImportDataType {
     case locationPoints
 }
 
-struct ImportedVisit {
+struct ImportedVisit: Sendable {
     let latitude: Double
     let longitude: Double
     let arrivedAt: Date
@@ -95,7 +95,7 @@ struct ImportedVisit {
     }
 }
 
-struct ImportedLocationPoint {
+struct ImportedLocationPoint: Sendable {
     let latitude: Double
     let longitude: Double
     let timestamp: Date
@@ -185,6 +185,11 @@ struct ImportService {
     // MARK: - Unified Import
 
     static func importFile(data: Data, format: ExportFormat) throws -> (visits: [ImportedVisit], points: [ImportedLocationPoint]) {
+        if format == .json, let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+           root["visits"] != nil, root["points"] != nil {
+            return (visits: try importVisits(data: data, format: format),
+                    points: try importLocationPoints(data: data, format: format))
+        }
         let dataType = detectDataType(from: data, format: format)
 
         switch dataType {

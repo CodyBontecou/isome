@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F2DCEC8ADF4641F4AFEBB1BA /* TimelineImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */; };
+		2CC3A28B9A3146D59DF28C11 /* ImportPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */; };
+		D4F646027F3544B28CA1C8ED /* TimelineImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF988D99D664DF8A3F3B0B4 /* TimelineImportService.swift */; };
+		A30F32016A3C45B08E910CC2 /* GoogleTimelineImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C93238ACDE4723BBB542B6 /* GoogleTimelineImportService.swift */; };
 		C0DE05010000000000000002 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = C0DE05010000000000000001 /* Fixtures */; };
 		A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */; };
 		A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* PhotoMapMarkerTests.swift */; };
@@ -217,6 +221,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportTests.swift; sourceTree = "<group>"; };
+		2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPreviewView.swift; sourceTree = "<group>"; };
+		4EF988D99D664DF8A3F3B0B4 /* TimelineImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportService.swift; sourceTree = "<group>"; };
+		16C93238ACDE4723BBB542B6 /* GoogleTimelineImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTimelineImportService.swift; sourceTree = "<group>"; };
 		C0DE05010000000000000001 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures; sourceTree = "<group>"; };
 		A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMomentMembershipTests.swift; sourceTree = "<group>"; };
 		A06500000000000000000001 /* PhotoMapMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapMarkerTests.swift; sourceTree = "<group>"; };
@@ -561,6 +569,7 @@
 				C0DE0103212F000000000103 /* PhotoMomentViews.swift */,
 				C0DE0002212F000000000002 /* OutingsView.swift */,
 				A100000C212F00000000000C /* SettingsView.swift */,
+				2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */,
 				CC1090010000000000000002 /* MyselfClaimView.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
@@ -590,6 +599,8 @@
 				A1000007212F000000000007 /* ExportService.swift */,
 				E9A100000000000000000001 /* IsoMeExportKitAdapter.swift */,
 				A1000020212F000000000020 /* ImportService.swift */,
+				4EF988D99D664DF8A3F3B0B4 /* TimelineImportService.swift */,
+				16C93238ACDE4723BBB542B6 /* GoogleTimelineImportService.swift */,
 				5F000001212F000000000001 /* ExportFolderManager.swift */,
 				5F000006212F000000000001 /* ScheduledExportMergeStrategies.swift */,
 				E1000001212F000000000001 /* AppInfo.swift */,
@@ -675,6 +686,7 @@
 				AB000001212F0BB000000B2 /* RenameIntentsTests.swift */,
 				6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */,
 				D2A10003212F000000000003 /* RemotePastVisitTests.swift */,
+				8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */,
 				A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */,
 				5F000007212F000000000001 /* IntervalScheduledExportTests.swift */,
 				5F000008212F000000000001 /* IntervalPickerCrashReproTests.swift */,
@@ -940,12 +952,15 @@
 				A1000030212F000100000030 /* ExportOptions.swift in Sources */,
 				A1000031212F000100000031 /* ExportView.swift in Sources */,
 				A1000020212F000100000020 /* ImportService.swift in Sources */,
+				D4F646027F3544B28CA1C8ED /* TimelineImportService.swift in Sources */,
+				A30F32016A3C45B08E910CC2 /* GoogleTimelineImportService.swift in Sources */,
 				A1000008212F000100000008 /* LocationViewModel.swift in Sources */,
 				A100000B212F00010000000B /* MapView.swift in Sources */,
 				D2A10002212F000100000002 /* PlaceSelectionView.swift in Sources */,
 				C0DE0103212F000100000103 /* PhotoMomentViews.swift in Sources */,
 				C0DE0002212F000100000002 /* OutingsView.swift in Sources */,
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
+				2CC3A28B9A3146D59DF28C11 /* ImportPreviewView.swift in Sources */,
 				CC1090010000000000000001 /* MyselfClaimView.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
@@ -1048,6 +1063,7 @@
 				AB000001212F0BB100000B2 /* RenameIntentsTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
 				D2A10003212F000100000003 /* RemotePastVisitTests.swift in Sources */,
+				F2DCEC8ADF4641F4AFEBB1BA /* TimelineImportTests.swift in Sources */,
 				A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

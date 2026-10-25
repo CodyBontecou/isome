@@ -1,6 +1,286 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Preview and import one Google Timeline JSON or iso.me JSON, CSV, or Markdown file. Duplicate visits and points are skipped.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview and import one Google Timeline JSON or iso.me JSON, CSV, or Markdown file. Duplicate visits and points are skipped."
+          }
+        }
+      }
+    },
+    "Choose a file smaller than 50 MB. Larger exports must be split before importing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a file smaller than 50 MB. Larger exports must be split before importing."
+          }
+        }
+      }
+    },
+    "Duplicate matching is approximate. Review the counts before importing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate matching is approximate. Review the counts before importing."
+          }
+        }
+      }
+    },
+    "Duplicate points": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate points"
+          }
+        }
+      }
+    },
+    "Duplicate visits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate visits"
+          }
+        }
+      }
+    },
+    "Duplicates are always skipped. Existing records are never changed.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicates are always skipped. Existing records are never changed."
+          }
+        }
+      }
+    },
+    "File": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        }
+      }
+    },
+    "Files are processed locally on this device. Import does not sign into Google, upload your history, or look up place names.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files are processed locally on this device. Import does not sign into Google, upload your history, or look up place names."
+          }
+        }
+      }
+    },
+    "Google Device Timeline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Device Timeline"
+          }
+        }
+      }
+    },
+    "Google Location History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Location History"
+          }
+        }
+      }
+    },
+    "Google Semantic Timeline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Semantic Timeline"
+          }
+        }
+      }
+    },
+    "Import Options": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Options"
+          }
+        }
+      }
+    },
+    "Import Selected Records": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Selected Records"
+          }
+        }
+      }
+    },
+    "Invalid records skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid records skipped"
+          }
+        }
+      }
+    },
+    "New points": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New points"
+          }
+        }
+      }
+    },
+    "New visits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New visits"
+          }
+        }
+      }
+    },
+    "No new records selected.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No new records selected."
+          }
+        }
+      }
+    },
+    "No supported visits or points were found in this file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No supported visits or points were found in this file."
+          }
+        }
+      }
+    },
+    "Preview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
+          }
+        }
+      }
+    },
+    "Raw location history contains points only. Visits are not inferred in this version.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raw location history contains points only. Visits are not inferred in this version."
+          }
+        }
+      }
+    },
+    "Reading and checking duplicates...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading and checking duplicates..."
+          }
+        }
+      }
+    },
+    "Saving import...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving import..."
+          }
+        }
+      }
+    },
+    "Select visits or points to import.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select visits or points to import."
+          }
+        }
+      }
+    },
+    "Duplicates skipped: visits %d, points %d.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicates skipped: visits %d, points %d."
+          }
+        }
+      }
+    },
+    "The Google export does not contain a supported record array.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Google export does not contain a supported record array."
+          }
+        }
+      }
+    },
+    "This file contains too many records. Import files with up to 250,000 visits and points.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file contains too many records. Import files with up to 250,000 visits and points."
+          }
+        }
+      }
+    },
+    "Unsupported entries skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported entries skipped"
+          }
+        }
+      }
+    },
+    "Unsupported file format. Import supports Google Timeline JSON and iso.me JSON, CSV, or Markdown files. KML, GPX, and GeoJSON exports are one-way map files.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported file format. Import supports Google Timeline JSON and iso.me JSON, CSV, or Markdown files. KML, GPX, and GeoJSON exports are one-way map files."
+          }
+        }
+      }
+    },
     "": {
       "localizations": {
         "ar": {
