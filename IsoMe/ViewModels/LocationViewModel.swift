@@ -33,6 +33,7 @@ enum VisitMutationError: LocalizedError {
 final class LocationViewModel {
     var locationManager: LocationManager
     private var modelContext: ModelContext
+    private let timelineImportService: TimelineImportService
 
     // Cached data
     var todayVisits: [Visit] = []
@@ -114,6 +115,7 @@ final class LocationViewModel {
         }
     ) {
         self.modelContext = modelContext
+        self.timelineImportService = TimelineImportService(container: modelContext.container)
         self.locationManager = locationManager
         self.photoAuthorizationProvider = photoAuthorizationProvider
         self.accessiblePhotoIdentifiersProvider = accessiblePhotoIdentifiersProvider
@@ -1552,73 +1554,20 @@ final class LocationViewModel {
 
     // MARK: - Import
 
-    func importData(from url: URL) throws -> ImportResult {
-        guard url.startAccessingSecurityScopedResource() else {
-            throw ImportError.invalidData(String(localized: "Cannot access file"))
-        }
-        defer { url.stopAccessingSecurityScopedResource() }
+    func prepareImport(from url: URL) async throws -> ImportPreview {
+        try await timelineImportService.preview(url: url)
+    }
 
-        guard let format = ImportService.detectFormat(url: url) else {
-            throw ImportError.unsupportedFormat
-        }
-
-        let data = try Data(contentsOf: url)
-        let result = try ImportService.importFile(data: data, format: format)
-
-        for imported in result.visits {
-            let source = imported.sourceRaw.flatMap(VisitSource.init(rawValue:)) ?? .imported
-            let confirmationStatus = imported.confirmationStatusRaw.flatMap(VisitConfirmationStatus.init(rawValue:)) ?? .unconfirmed
-            let placeSource = imported.placeSourceRaw.flatMap(VisitPlaceSource.init(rawValue:)) ?? (source == .imported ? .import : nil)
-            let visit = Visit(
-                latitude: imported.latitude,
-                longitude: imported.longitude,
-                arrivedAt: imported.arrivedAt,
-                departedAt: imported.departedAt,
-                customName: imported.customName,
-                locationName: imported.locationName,
-                address: imported.address,
-                notes: imported.notes,
-                geocodingCompleted: imported.locationName != nil || imported.address != nil,
-                source: source,
-                confirmationStatus: confirmationStatus,
-                confirmedAt: imported.confirmedAt,
-                updatedAt: imported.updatedAt,
-                originalLatitude: imported.originalLatitude,
-                originalLongitude: imported.originalLongitude,
-                originalLocationName: imported.originalLocationName,
-                originalAddress: imported.originalAddress,
-                detectedLatitude: imported.detectedLatitude,
-                detectedLongitude: imported.detectedLongitude,
-                detectedLocationName: imported.detectedLocationName,
-                detectedAddress: imported.detectedAddress,
-                placeSource: placeSource,
-                placeDistanceMeters: imported.placeDistanceMeters
-            )
-            modelContext.insert(visit)
-        }
-
-        for imported in result.points {
-            let point = LocationPoint(
-                latitude: imported.latitude,
-                longitude: imported.longitude,
-                timestamp: imported.timestamp,
-                altitude: imported.altitude,
-                speed: imported.speed,
-                horizontalAccuracy: imported.horizontalAccuracy,
-                isOutlier: imported.isOutlier
-            )
-            modelContext.insert(point)
-        }
-
-        try modelContext.save()
-        locationManager.reconcileOpenVisits()
-        if !result.points.isEmpty {
+    func commitImport(_ preview: ImportPreview, options: ImportOptions) async throws -> ImportCommitResult {
+        let result = try await timelineImportService.commit(preview, options: options)
+        if result.pointCount > 0 {
             locationPoints = []
             hasLoadedAllLocationPoints = false
         }
+        // Imported visits must not be reconciled into live detections or geocoded.
         loadData()
-
-        return ImportResult(visitCount: result.visits.count, pointCount: result.points.count)
+        locationManager.syncDataToWatch()
+        return result
     }
 
     // MARK: - Clear Data

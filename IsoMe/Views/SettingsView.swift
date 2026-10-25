@@ -11,8 +11,7 @@ struct SettingsView: View {
     @State private var showingPaywall = false
     @State private var showingClearConfirmation = false
     @State private var showingImportPicker = false
-    @State private var importResultMessage: String?
-    @State private var showingImportResult = false
+    @State private var importFileSelection: ImportFileSelection?
     @State private var importErrorMessage: String?
     @State private var showingImportError = false
 
@@ -76,13 +75,6 @@ struct SettingsView: View {
             } message: {
                 Text("This will permanently delete all visits, location points, and manual country stays. This action cannot be undone.")
             }
-            .alert("Import Complete", isPresented: $showingImportResult) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                if let message = importResultMessage {
-                    Text(message)
-                }
-            }
             .alert("Import Failed", isPresented: $showingImportError) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -92,13 +84,16 @@ struct SettingsView: View {
             }
             .fileImporter(
                 isPresented: $showingImportPicker,
-                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText, UTType(filenameExtension: "kml") ?? .xml],
+                allowedContentTypes: [.json, .commaSeparatedText, UTType(filenameExtension: "md") ?? .plainText],
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)
             }
             .onChange(of: usesMetricDistanceUnits) { _, _ in
                 locationManager.refreshDistanceUnitPreference()
+            }
+            .sheet(item: $importFileSelection) { selection in
+                ImportPreviewView(url: selection.url, viewModel: viewModel)
             }
             .sheet(isPresented: $showingMyselfClaim) { MyselfClaimView(app: "iso.me") }
             .sheet(isPresented: $showingPaywall) {
@@ -513,7 +508,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
 
-            TESectionFooter(text: "Import visits or points from JSON, CSV, or Markdown. KML, GPX, and GeoJSON are one-way map exports.")
+            TESectionFooter(text: "Preview and import one Google Timeline JSON or iso.me JSON, CSV, or Markdown file. Duplicate visits and points are skipped.")
         }
     }
 
@@ -831,14 +826,7 @@ struct SettingsView: View {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            do {
-                let importResult = try viewModel.importData(from: url)
-                importResultMessage = importResult.summary
-                showingImportResult = true
-            } catch {
-                importErrorMessage = error.localizedDescription
-                showingImportError = true
-            }
+            importFileSelection = ImportFileSelection(url: url)
         case .failure(let error):
             importErrorMessage = error.localizedDescription
             showingImportError = true
