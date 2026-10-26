@@ -63,3 +63,18 @@ the named 641-byte file in Files. This verifies the download fix, not import.
 The site build passed 29 HTML pages and 952 local targets. Local screenshots
 of the incomplete restore and downloaded sample files are retained in
 `build/seo-evidence/restore-20261026/` and are not published as restore proof.
+
+## Production verification
+
+Website changes were committed on `main` as `871f2b1` and deployed as
+`57d22c01` (<https://57d22c01.spotted-8ez.pages.dev>). The live article is
+<https://isome.isolated.tech/blog/back-up-iphone-location-history/>.
+
+Production checks passed all 28 HTML/Markdown pairs, method/error/API behavior,
+and existing asset integrity. Both JSON download URLs returned 200, their
+intended attachment filenames, and unchanged fixture bytes. Mobile and desktop
+Lighthouse 13.5.0 each scored 100 for performance, accessibility, best practices,
+and SEO on the changed guide. Full reports are retained in the local evidence
+directory. These lab scores do not establish indexing or ranking improvements.
+
+Argent services were stopped only for the two simulators used in this attempt.
