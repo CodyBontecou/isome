@@ -72,3 +72,28 @@ embedded by the generator, so the generated docs HTML changes together.
 
 No community plugin, receiver, sync destination, account permission, new
 automation, or download campaign was configured in this work.
+
+## Deployment and site checks
+
+Committed and pushed on `main` as `78897fd`. Production Pages deployment short
+ID `4ca41f6d`: https://4ca41f6d.spotted-8ez.pages.dev.
+
+- Static build passes: 29 HTML pages, 959 local targets, metadata, JSON-LD,
+  fragment/ARIA targets, and sitemap coverage. `git diff --check` passes.
+- Pre-deployment Lighthouse 13.5.0: homepage and Shortcuts reference, both mobile
+  and desktop, score 100 for performance, accessibility, best practices, and SEO.
+- Production Lighthouse: Shortcuts reference, mobile and desktop, scores 100 in
+  all four categories. Reports: `/private/tmp/isome-seo-shortcuts-after/`.
+  These are lab checks, not field Core Web Vitals or ranking evidence.
+- Production HTTP checks pass for all 28 HTML/Markdown pairs, representations,
+  cache separation, error recovery, API contract, methods, and asset integrity.
+- Live homepage returns 200, has no obsolete nine-action claim, links to the
+  reference, and has parseable matching FAQ JSON-LD.
+- Live reference at 390×844 has client width and scroll width both 390 px, no
+  obsolete export table rows, the twelve-action explanation, and the recipe.
+- Browser proof retained locally at
+  `build/seo-evidence/shortcuts-20261026/shortcuts-reference-live.png`.
+
+The reference's recipe remains explicitly source-reviewed. Native tests and
+website checks do not establish successful Siri recognition, Shortcuts editor
+registration, or unattended Save File delivery on a physical iPhone.

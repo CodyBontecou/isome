@@ -80,6 +80,14 @@ pass and mobile/desktop Lighthouse scores are all 100. See
 [the Obsidian evidence record](qa/seo-obsidian-export-2026-10-26.md).
 Mobile transfer, plugins, and scheduled delivery remain separate gates.
 
+The Siri and Shortcuts reference and homepage now match the released action
+set: twelve App Intents, nine built-in phrase registrations, and one configurable
+Export Data action. The reference includes date defaults, error recovery, and a
+source-reviewed Markdown recipe. All 48 existing native logic tests pass;
+production HTTP checks and mobile/desktop Lighthouse checks pass. A shared docs
+footer overflow was also corrected. See
+[the Shortcuts verification record](qa/seo-shortcuts-reference-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.
