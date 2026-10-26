@@ -1,0 +1,27 @@
+{
+  "window": "2026-09-29 through 2026-10-26 inclusive; current day incomplete",
+  "rows": [
+    {
+      "day": "2026-10-26",
+      "page": "/blog/track-days-in-country-iphone/",
+      "source": "direct",
+      "page_loads": 2,
+      "download_activations": 0
+    },
+    {
+      "day": "2026-10-26",
+      "page": "/compare/google-maps-timeline/",
+      "source": "direct",
+      "page_loads": 2,
+      "download_activations": 0
+    }
+  ],
+  "limits": [
+    "Aggregate page loads, not unique people",
+    "May include verification/automated browser loads",
+    "No organic session attribution or install measurement",
+    "Observed before subsequent live inspection tests"
+  ],
+  "captured_date": "2026-10-26",
+  "capture_context": "During the indexing audit, before subsequent GPX/history live tests; exact query timestamp not retained"
+}

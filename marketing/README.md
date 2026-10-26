@@ -149,10 +149,11 @@ cd marketing
 wrangler pages dev public --port 8892
 ```
 
-For a 28-day aggregate report:
+For an aggregate report covering 28 UTC calendar dates, including today's
+incomplete counts:
 
 ```sh
-wrangler d1 execute iso-me-onboarding-analytics --remote --config marketing/wrangler.jsonc --file marketing/queries/acquisition.sql
+python3 marketing/scripts/report_acquisition.py
 ```
 
 Interpret `page_view` as page loads and `app_store_clicked` as activations,
@@ -161,6 +162,12 @@ page's referrer: a later internal page does not retain the original search
 source. Do not calculate an organic session conversion rate by joining these
 rows. The UTC day is the server receipt day. The existing Search Console
 baseline measures search-result clicks independently.
+
+The helper runs `queries/acquisition.sql` in Wrangler query mode and prints its
+JSON results. Do not use `d1 execute --file` to read this report: that path
+returns import/execution statistics instead of the selected rows. Counts may
+include verification or automated browser loads; they are not labelled as human
+traffic by this collector.
 
 Four pages now use Apple-generated campaign links: the homepage, private-journal
 article, Google Timeline comparison, and GPX walkthrough. The genuine developer
