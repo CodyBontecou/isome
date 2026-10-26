@@ -47,3 +47,24 @@ At 390 px, viewport and document width both measure 390 px.
 No new native workflow success, recoverability guarantee, field performance,
 Google indexation, rankings, outreach, campaign creation, or app binary release
 is claimed. No duplicate indexing request is needed for this content update.
+
+## Publication and verification
+
+Implementation pushed to `main` as `a691544`. Production Pages deployment:
+`09d5b867`, https://09d5b867.spotted-8ez.pages.dev.
+
+- Local and production Lighthouse 13.5.0: all four categories score 100 on
+  both changed pages, on mobile and desktop. Reports are in
+  `/private/tmp/isome-seo-troubleshooting-before/` and
+  `/private/tmp/isome-seo-troubleshooting-after/`. Lab scores do not establish
+  field Core Web Vitals or search performance.
+- Production HTTP checker passes all 30 HTML/Markdown pairs and its cache,
+  representation, 404, API, method, and asset checks.
+- Both production hostname and deployment URL serve the new example and
+  export section. A browser reload confirmed the revised description,
+  five export steps, four questions, and loaded screenshot. Mobile document
+  and viewport are both 390 px; image renders at 240 px without overflow.
+- Desktop visual proof:
+  `build/seo-evidence/troubleshooting-20261026/missing-history-live.jpg`.
+
+No native app services were started. The local preview was stopped after QA.

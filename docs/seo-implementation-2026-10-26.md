@@ -146,6 +146,9 @@ arrival-date and export-filter diagnosis, and four practical questions. The
 export reference links directly to the diagnosis. Release-source review
 confirms the filter semantics; no new physical recording or recovery is
 claimed. See [the diagnostic review](qa/seo-missing-history-2026-10-26.md).
+Production deployment `09d5b867` passes all 30 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse on both changed pages, with live mobile layout
+and content checks.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
