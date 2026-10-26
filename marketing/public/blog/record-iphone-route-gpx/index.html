@@ -65,6 +65,9 @@ th, td { text-align: left; vertical-align: top; padding: 16px; border: 1px solid
 thead { background: #ecebe4; }
 .product-example { margin: 48px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
 .product-example img { width: 240px; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--rule); }
+.route-example { margin: 48px 0; }
+.route-example img { display: block; width: 100%; height: auto; border-radius: 16px; }
+.route-example figcaption { max-width: none; margin-top: 12px; }
 figcaption { max-width: 320px; color: var(--muted); font-size: 14px; line-height: 20px; }
 .closing { padding: 32px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
 .closing h2 { font-size: 36px; line-height: 40px; }
@@ -204,6 +207,9 @@ pre code { overflow-wrap: normal; }
   </ul>
   <p>GPX describes geographic data; it does not include a street map or guarantee that every app offers the same display. Files preview may show text or a file icon rather than drawing a route. A viewer that supports waypoints alone may not display a track.</p>
   <p>iso.me exports recorded points. Do not assume the file follows the same road-matched line shown in a map preview. When consecutive points are more than ten minutes apart, the current exporter starts a new GPX track segment.</p>
+  <h3>Open a track in gpx.studio</h3>
+  <p>On a computer, open <a href="https://gpx.studio/app">gpx.studio</a>, choose <strong>File → Open…</strong>, and select the saved GPX. Use <strong>View → File tree</strong> to inspect its tracks and segments alongside the map. These controls are described in the viewer’s <a href="https://gpx.studio/help/menu/file">file help</a> and <a href="https://gpx.studio/help/menu/view">view help</a>.</p>
+  <p>Try the synthetic example below before opening your own location file. A map line connects the saved points; it does not prove continuous GPS coverage between them. Check segment boundaries and timestamps as well as the shape.</p>
 </section>
 
 <section aria-labelledby="sample">
@@ -213,6 +219,21 @@ pre code { overflow-wrap: normal; }
   &lt;time&gt;2000-01-01T12:01:00Z&lt;/time&gt;
 &lt;/trkpt&gt;</code></pre>
   <p>The coordinates identify a point. Its time helps a viewer place it in sequence; <code>Z</code> denotes UTC. Track points sit inside a track segment. For the same invented coordinates in iso.me’s importable JSON structure, see the <a href="/blog/back-up-iphone-location-history/#sample">backup file examples</a>. The sample uses the <a href="https://www.topografix.com/GPX/1/1/">GPX 1.1 format</a>, but does not include every optional extension iso.me can export.</p>
+  <h3>A sample made by iso.me’s GPX serializer</h3>
+  <p><a href="/samples/synthetic-app-export.gpx" download>Download the five-point synthetic app export</a>. We passed invented records through the same GPX serializer included in public version 1.7.16. The input was deliberately out of order; the resulting points are sorted by time. This is a serializer check, not a walk recorded with an iPhone or a test of the purchase and sharing screens.</p>
+  <div class="table-scroll" role="region" aria-label="Synthetic GPX export contents" tabindex="0"><table>
+    <caption>What to check in the synthetic app export</caption>
+    <thead><tr><th scope="col">Item</th><th scope="col">Expected value</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Track points</th><td>Five invented locations near latitude zero and longitude zero</td></tr>
+      <tr><th scope="row">Point times</th><td>January 1, 2000: 12:00, 12:01, 12:02, 12:13, and 12:14 UTC</td></tr>
+      <tr><th scope="row">Track segments</th><td>Two: three points, then two points after an eleven-minute gap</td></tr>
+      <tr><th scope="row">Visits</th><td>None; this file demonstrates Points export</td></tr>
+    </tbody>
+  </table></div>
+  <p>The metadata time records when the file was generated; it is separate from the invented point times. Preserve both segments when comparing viewers. A program may display them differently or omit iso.me’s optional speed and accuracy extensions.</p>
+  <p><a href="https://gpx.studio/app?files=%5B%22https%3A%2F%2Fisome.isolated.tech%2Fsamples%2Fsynthetic-app-export.gpx%22%5D">Open this public synthetic sample in gpx.studio</a>. This link loads only the example hosted on this website. It does not read your journal.</p>
+  <figure class="route-example"><img src="/screenshots/gpx-studio-synthetic.png" width="1280" height="720" alt="gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2" loading="lazy" decoding="async"><figcaption>Checked October 26, 2026 in gpx.studio on desktop. The synthetic export appears as two segments. The viewer reports 03:00 of segment time; the first and last timestamps span fourteen minutes because the eleven-minute gap is excluded. This is not a real recorded journey.</figcaption></figure>
 </section>
 
 <section aria-labelledby="problems">

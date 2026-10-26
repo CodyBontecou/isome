@@ -62,6 +62,12 @@ Screenshot of the live mobile guide is retained locally at `build/seo-evidence/c
 
 ## Remaining work and publication gates
 
+Follow-up on `main`: the GPX guide now includes a reproducible synthetic file
+from the actual released GPX serializer, a checked gpx.studio example, and a
+screenshot showing both segments. See [the GPX evidence record](qa/seo-gpx-viewer-2026-10-26.md).
+This advances file/viewer evidence; the physical recording and sharing checks
+below remain open.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.

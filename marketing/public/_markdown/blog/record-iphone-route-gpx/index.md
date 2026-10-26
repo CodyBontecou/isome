@@ -69,6 +69,12 @@ GPX describes geographic data; it does not include a street map or guarantee tha
 
 iso.me exports recorded points. Do not assume the file follows the same road-matched line shown in a map preview. When consecutive points are more than ten minutes apart, the current exporter starts a new GPX track segment.
 
+### Open a track in gpx.studio
+
+On a computer, open [gpx.studio](https://gpx.studio/app), choose File → Open…, and select the saved GPX. Use View → File tree to inspect its tracks and segments alongside the map. These controls are described in the viewer’s [file help](https://gpx.studio/help/menu/file) and [view help](https://gpx.studio/help/menu/view).
+
+Try the synthetic example below before opening your own location file. A map line connects the saved points; it does not prove continuous GPS coverage between them. Check segment boundaries and timestamps as well as the shape.
+
 ## What a GPX track looks like
 
 [Download a synthetic GPX example](https://isome.isolated.tech/samples/synthetic-route.gpx) to inspect before sharing your own data. It contains three invented points near latitude zero and longitude zero, with fixed example timestamps. It is not a real trip or a captured iso.me export.
@@ -80,6 +86,25 @@ iso.me exports recorded points. Do not assume the file follows the same road-mat
 ```
 
 The coordinates identify a point. Its time helps a viewer place it in sequence; `Z` denotes UTC. Track points sit inside a track segment. For the same invented coordinates in iso.me’s importable JSON structure, see the [backup file examples](https://isome.isolated.tech/blog/back-up-iphone-location-history/#sample). The sample uses the [GPX 1.1 format](https://www.topografix.com/GPX/1/1/), but does not include every optional extension iso.me can export.
+
+### A sample made by iso.me’s GPX serializer
+
+[Download the five-point synthetic app export](https://isome.isolated.tech/samples/synthetic-app-export.gpx). We passed invented records through the same GPX serializer included in public version 1.7.16. The input was deliberately out of order; the resulting points are sorted by time. This is a serializer check, not a walk recorded with an iPhone or a test of the purchase and sharing screens.
+
+What to check in the synthetic app export
+| Item | Expected value
+| Track points | Five invented locations near latitude zero and longitude zero
+| Point times | January 1, 2000: 12:00, 12:01, 12:02, 12:13, and 12:14 UTC
+| Track segments | Two: three points, then two points after an eleven-minute gap
+| Visits | None; this file demonstrates Points export
+
+The metadata time records when the file was generated; it is separate from the invented point times. Preserve both segments when comparing viewers. A program may display them differently or omit iso.me’s optional speed and accuracy extensions.
+
+[Open this public synthetic sample in gpx.studio](https://gpx.studio/app?files=%5B%22https%3A%2F%2Fisome.isolated.tech%2Fsamples%2Fsynthetic-app-export.gpx%22%5D). This link loads only the example hosted on this website. It does not read your journal.
+
+![gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2](https://isome.isolated.tech/screenshots/gpx-studio-synthetic.png)
+
+Checked October 26, 2026 in gpx.studio on desktop. The synthetic export appears as two segments. The viewer reports 03:00 of segment time; the first and last timestamps span fourteen minutes because the eleven-minute gap is excluded. This is not a real recorded journey.
 
 ## If the export is empty or the line looks wrong
 

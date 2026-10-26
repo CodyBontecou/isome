@@ -43,6 +43,9 @@ th, td { text-align: left; vertical-align: top; padding: 16px; border: 1px solid
 thead { background: #ecebe4; }
 .product-example { margin: 48px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
 .product-example img { width: 240px; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--rule); }
+.route-example { margin: 48px 0; }
+.route-example img { display: block; width: 100%; height: auto; border-radius: 16px; }
+.route-example figcaption { max-width: none; margin-top: 12px; }
 figcaption { max-width: 320px; color: var(--muted); font-size: 14px; line-height: 20px; }
 .closing { padding: 32px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
 .closing h2 { font-size: 36px; line-height: 40px; }
