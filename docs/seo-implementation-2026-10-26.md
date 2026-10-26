@@ -4,7 +4,7 @@ October 26, 2026. Implements the available first release of [the prioritized pla
 
 ## Deployed
 
-Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `0018a7db` ([snapshot](https://0018a7db.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.
+Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `9b4b2698` ([snapshot](https://9b4b2698.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.
 
 - Published [Track days spent in each country on iPhone](https://isome.isolated.tech/blog/track-days-in-country-iphone/), with counting rules, travel-day and timezone examples, manual stays, geocoding boundaries, CSV limitations, current app UI, and links to setup/backup help.
 - Linked the guide from the homepage, guide hub, original journal article, and Timeline reference. Added a download CTA after the journal setup steps and clarified background-permission wording.
@@ -30,7 +30,20 @@ The `website_acquisition_daily` table stores UTC day, event, public page, placem
 
 Page loads and activations are not unique visitors, installs, purchases, or an organic session conversion rate. The source category is per-page referrer context; the code does not preserve the original acquisition source through internal navigation. Excluded browsers, early exits, network failures, and automated requests limit interpretation. No synthetic valid event was inserted into production to inflate counts.
 
-Apple campaign attribution remains unconfigured. The CLI had no Apple web session, but a subsequent browser check found an existing signed-in App Store Connect session. The Campaigns page did not display existing campaign data. Automatic approval review rejected opening Generate a Campaign Link, stating that creation of persistent campaign state lacked explicit authorization. Explicit approval for four named campaign links was requested and is pending. Standard App Store links remain valid; no token was guessed. The provider token is null in `marketing/content/acquisition.json`; the build-time anchor rewriter and QR URL consistency check are prepared for an approved genuine token. Account for Apple's thresholds and delays once links are active.
+Apple campaign links are now configured after explicit owner approval. An existing
+signed-in App Store Connect browser session was used to generate `seo-home`,
+`seo-private-journal`, `seo-google-timeline`, and `seo-gpx`. Each returned the
+genuine public developer provider token `126424970`. The approved links are
+applied to all download anchors on their four respective pages, including
+header/footer anchors. The homepage QR was regenerated for `seo-home` and its
+URL consistency is enforced by the build. Unmeasured pages and product metadata
+keep the canonical App Store URL.
+
+Automatic review initially blocked opening campaign generation, after which the
+owner explicitly authorized creating and applying the four links. That blocker
+is resolved. No credentials or session tokens were copied into the repository.
+Apple still reports insufficient campaign data; generation is not evidence of
+installs, and its reporting thresholds/delays still apply.
 
 Report with the SQL command in [the website README](../marketing/README.md). No recurring automation was created.
 
@@ -52,7 +65,6 @@ Screenshot of the live mobile guide is retained locally at `build/seo-evidence/c
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.
-4. Add genuine Apple campaign links when a provider token is available.
-5. Review relevant queries/indexation and acquisition counters after reporting lag. Choose further articles or a small localization pilot from meaningful demand evidence, not today's sparse sample.
+4. Review relevant queries/indexation and acquisition counters after reporting lag. Choose further articles or a small localization pilot from meaningful demand evidence, not today's sparse sample.
 
-No app binary, pricing, account permissions, or scheduled automation was changed. The website deployment and new aggregate table are the external changes in this batch.
+No app binary, pricing, account permissions, or scheduled automation was changed. The external changes in this batch are the website deployments, separate aggregate table, approved Apple campaign-link generation, and Google indexing request.

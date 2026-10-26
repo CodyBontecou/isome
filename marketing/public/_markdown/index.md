@@ -5,7 +5,7 @@ Keep your history on your iPhone.
 
 Start tracking to record your own routes and detect visits, then review the day on your iPhone. No account. No iso.me location server. Recording is free; portable exports are an optional purchase.
 
-[  Download free ](https://apps.apple.com/us/app/iso-me/id6761960794) [See how it works](https://isome.isolated.tech/#inside)
+[  Download free ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8) [See how it works](https://isome.isolated.tech/#inside)
 
 Free download and free tracking. Lifetime export access is $19.99 Individual or $39.99 with Apple Family Sharing in the U.S. App Store; local prices reflect purchasing power.
 
@@ -174,9 +174,9 @@ Reading on your computer? Scan this code with your iPhone camera to open iso.me 
 
 ![QR code linking to iso.me on the App Store](https://isome.isolated.tech/assets/app-store-qr.png)
 
-](https://apps.apple.com/us/app/iso-me/id6761960794)
+](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
 
-[Open the App Store link](https://apps.apple.com/us/app/iso-me/id6761960794). Recording is free; file exports are optional purchases.
+[Open the App Store link](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8). Recording is free; file exports are optional purchases.
 
 § 02 Why people install it
 
@@ -377,7 +377,7 @@ Individual Lifetime. Family Lifetime is $39.99, and the later Family Upgrade is 
 - Individual → Family upgrade$19.99 once
 - Apple paymentsHandled by App Store
 
-[Get iso.me on the App Store](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Get iso.me on the App Store](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
 
 § 06 FAQ
 

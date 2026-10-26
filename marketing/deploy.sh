@@ -9,7 +9,7 @@ wrangler d1 migrations apply iso-me-onboarding-analytics --remote --config "$MAR
 
 (
   cd "$MARKETING_ROOT"
-  wrangler pages deploy public --project-name spotted
+  wrangler pages deploy public --project-name spotted --branch main
 )
 
 if command -v indexnow >/dev/null 2>&1; then

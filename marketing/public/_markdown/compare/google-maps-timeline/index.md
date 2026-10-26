@@ -38,7 +38,7 @@ Google features: [Google’s Timeline help for iPhone](https://support.google.co
 
 Use the [private location journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/) to set up your first recording. Start enables detailed GPS as well as visit monitoring; there is no separate passive visit-only switch. Permissions, GPS conditions, and battery can affect the record.
 
-[Try free tracking on iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Try free tracking on iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-google-timeline&mt=8)
 
 ## When keeping Google Timeline makes sense
 
@@ -67,7 +67,7 @@ Keep a copy you can use.
 
 Start with free tracking, then decide whether you need the optional export unlock.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-google-timeline&mt=8)
 
 ## Read next
 

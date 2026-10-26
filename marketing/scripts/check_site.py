@@ -116,7 +116,17 @@ def check():
             page.errors.append(f"duplicate IDs: {duplicates}")
 
     checked_links = 0
+    from campaign_links import app_url, CONFIG
+    campaign_config = json.loads(CONFIG.read_text())
     for path, page in pages.items():
+        public_path = page_url(path).removeprefix(BASE)
+        download_links = [target for target, kind in page.targets
+                          if kind == 'href' and urlsplit(target).hostname == 'apps.apple.com'
+                          and 'id6761960794' in urlsplit(target).path]
+        if public_path in campaign_config['campaigns'] and not download_links:
+            page.errors.append('missing campaign download anchor')
+        if any(target != app_url(public_path) for target in download_links):
+            page.errors.append('download campaign does not match this page')
         for target, kind in page.targets:
             url = urlsplit(urljoin(page_url(path), target))
             if url.scheme not in ("https", "http") or url.netloc != urlsplit(BASE).netloc:

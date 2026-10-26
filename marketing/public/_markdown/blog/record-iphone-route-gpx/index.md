@@ -104,7 +104,7 @@ Choose how to keep it.
 
 Try free recording and export preview. The optional purchase unlocks writing files; see [current pricing](https://isome.isolated.tech/#pricing).
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-gpx&mt=8)
 
 Reviewed October 26, 2026. Steps reflect iso.me’s recording and export controls; labels can vary by app version. For setup, read [the private journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/); for existing Apple or Google records, see [how to view iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/).
 

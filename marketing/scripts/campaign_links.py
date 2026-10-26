@@ -18,11 +18,11 @@ def app_url(path):
         return APP
     if not isinstance(token, str) or not re.fullmatch(r'[0-9]+', token):
         raise ValueError('Use the actual numeric provider token from an Apple-generated campaign link.')
-    return APP + '?' + urlencode({'pt': token, 'ct': campaign, 'mt': '8'})
+    return 'https://apps.apple.com/app/apple-store/id6761960794?' + urlencode({'pt': token, 'ct': campaign, 'mt': '8'})
 
 
 def update_download_links():
-    pattern = re.compile(r'(<a\b[^>]*?\bhref=["\'])https://apps\.apple\.com/(?:us/)?app/(?:iso-me/)?id6761960794(?:\?[^"\']*)?(["\'])')
+    pattern = re.compile(r'(<a\b[^>]*?\bhref=["\'])https://apps\.apple\.com/(?:us/)?app/(?:(?:iso-me|apple-store)/)?id6761960794(?:\?[^"\']*)?(["\'])')
     for page in PUBLIC.rglob('*.html'):
         url = app_url(page_url(page).removeprefix(BASE))
         original = page.read_text()

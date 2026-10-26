@@ -4,7 +4,7 @@ Guide · Reviewed October 26, 2026
 
 To keep a private location journal on iPhone, enable recording in iso.me, check a short route in Timeline, and keep supported exports for records you want to restore later. Your visits and routes stay on your phone unless you export or configure delivery elsewhere.
 
-[Start the checklist](https://isome.isolated.tech/blog/private-location-journal-iphone/#setup) [Get iso.me](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Start the checklist](https://isome.isolated.tech/blog/private-location-journal-iphone/#setup) [Get iso.me](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
 Private journal setup
 
@@ -91,11 +91,11 @@ Deletion Know how to remove local history and remember that deleting an app can 
 - Open Timeline and check the date, route, and start/end times. Automatic visits need time at a place; do not expect every brief stop to appear immediately.
 - If the result is empty, check location permission, tracking state, and the selected day before relying on a longer recording.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
 Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See [current pricing](https://isome.isolated.tech/#pricing) and the [setup reference](https://isome.isolated.tech/docs/getting-started/).
 
-[Record your first day free](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Record your first day free](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
 ## Capture visits and routes without turning your life into a feed
 
@@ -184,6 +184,6 @@ Used that way, a private location journal is quietly valuable. It gives you the 
 
 Download iso.me, keep your working location history on your iPhone, and export when you need a portable copy.
 
-[Get iso.me](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Get iso.me](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
 Source: https://isome.isolated.tech/blog/private-location-journal-iphone/

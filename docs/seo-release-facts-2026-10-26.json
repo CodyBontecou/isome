@@ -22,5 +22,12 @@
       "currency": "USD"
     }
   },
-  "source_note": "App Store Connect release/build relationship; build-46 archive source checkout was clean at the recorded revision. Current development source is ahead of this binary."
+  "source_note": "App Store Connect release/build relationship; build-46 archive source checkout was clean at the recorded revision. Current development source is ahead of this binary.",
+  "apple_campaign_links": {
+    "/": "https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8",
+    "/blog/private-location-journal-iphone/": "https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8",
+    "/compare/google-maps-timeline/": "https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-google-timeline&mt=8",
+    "/blog/record-iphone-route-gpx/": "https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-gpx&mt=8"
+  },
+  "apple_campaign_source": "Generated in App Store Connect Campaigns UI with explicit owner approval; public provider token, not an authentication credential."
 }

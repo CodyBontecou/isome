@@ -148,15 +148,14 @@ source. Do not calculate an organic session conversion rate by joining these
 rows. The UTC day is the server receipt day. The existing Search Console
 baseline measures search-result clicks independently.
 
-App Store links remain standard links. A signed-in browser session was found,
-but automatic approval review blocked opening Generate a Campaign Link pending
-explicit approval for persistent campaign setup. No `pt` token was guessed.
-`content/acquisition.json` keeps the provider token null; the four intended
-page-level campaign names are prepared. Once approved and generated in Apple,
-set the genuine provider token, regenerate the QR for the homepage campaign,
-and update `assets/app-store-qr-url.txt`. The build refuses a QR URL mismatch.
-`campaign_links.py` applies tokens to download anchors on the four measured
-pages, while public product metadata keeps its canonical App Store URL.
+Four pages now use Apple-generated campaign links: the homepage, private-journal
+article, Google Timeline comparison, and GPX walkthrough. The genuine developer
+provider token and stable campaign labels live in `content/acquisition.json`.
+`campaign_links.py` rewrites download anchors during the build; public product
+metadata and unmeasured pages keep their canonical App Store URLs. The homepage
+QR encodes the same `seo-home` URL, checked against `assets/app-store-qr-url.txt`.
+Regenerate the QR and its URL file when changing that configuration.
+
 Apple campaign reports have thresholds and delays. Keep organic visits,
 outbound activations, visible campaign downloads, and purchases separate.
 
