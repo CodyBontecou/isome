@@ -257,6 +257,10 @@ were verified in Obsidian 1.14.5. The guide now includes the exact tested block,
 sample, screenshot, and observed provider/zoom failures. Restricted mode was
 restored and verified afterward. Mobile and scheduled delivery remain open. See
 [the plugin compatibility record](qa/seo-obsidian-maps-2026-10-26.md).
+Deployment `0e0f729e` passes all 31 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse checks on both changed pages. The sample and
+screenshot match the tested files; mobile web layout and the negotiated
+Markdown block are checked. No separate integration URL was created.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.

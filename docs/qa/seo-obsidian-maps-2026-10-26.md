@@ -124,5 +124,24 @@ pass for ordinary, triple-nested, and longer fences; other page output retains
 its existing fence when no longer fence is needed.
 
 The build passes 32 HTML pages (31 public) and 1,109 local targets. Both changed
-pages pass all-100 mobile/desktop Lighthouse locally. Publication verification
-is recorded below after deployment.
+pages pass all-100 mobile/desktop Lighthouse locally.
+
+## Publication
+
+Guide release commit `75f5fe4` is on main and origin. Production deployment
+`0e0f729e` (<https://0e0f729e.spotted-8ez.pages.dev>) serves the updated guide
+and comparison. Both have all-100 mobile/desktop Lighthouse scores. Reports:
+`/private/tmp/isome-seo-obsidian-maps-local/` and
+`/private/tmp/isome-seo-obsidian-maps-production/`.
+
+All 31 production HTML/Markdown pairs, cache separation, error recovery,
+methods, product contract, and asset checks pass. The live guide exposes the
+new section, metadata, sample, and loaded screenshot. The nested `iso-me` block
+remains intact inside its longer fence in negotiated Markdown. Local layout
+checks at 320 and 390 and a production 390-pixel check show no document
+overflow. The two new public files match the tested local files byte-for-byte.
+Live guide screenshot: `build/seo-evidence/obsidian-maps-20261026/guide-live.jpg`.
+
+The native Markdown input remains unchanged. No new URL, Google indexing
+request, campaign, app binary, mobile UI change, or scheduled task was created.
+The isolated native Obsidian test required no simulator or physical device.
