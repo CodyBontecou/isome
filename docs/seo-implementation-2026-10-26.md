@@ -73,6 +73,13 @@ destination verification checklist. The isolated 1.7.16 simulator rebuild did
 not present its file picker, so no clean-destination restore or persistence
 success is claimed. See [the restore attempt](qa/seo-restore-verification-2026-10-26.md).
 
+The Obsidian guide now includes an exact Markdown file generated through the
+released 1.7.16 export pipeline, native parser assertions, and a checked desktop
+vault example with screenshot and wiki-link navigation. Production HTTP checks
+pass and mobile/desktop Lighthouse scores are all 100. See
+[the Obsidian evidence record](qa/seo-obsidian-export-2026-10-26.md).
+Mobile transfer, plugins, and scheduled delivery remain separate gates.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.

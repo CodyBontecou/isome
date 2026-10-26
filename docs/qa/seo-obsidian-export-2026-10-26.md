@@ -70,3 +70,26 @@ This verifies native serialization, parser compatibility, desktop rendering,
 and a manual file-to-note link. It does not verify iPhone sharing, cloud transfer,
 mobile vault access, scheduled delivery, or map plugins. The earlier hand-authored
 sample's recorded 1.14.4 rendering check remains a separate historical result.
+
+## Publication and checks
+
+Committed the guide, exact export, screenshot, and evidence on `main` as
+`3a97bf0`, then pushed and deployed production Pages deployment
+`1c94540e` (short ID; deployment URL: https://1c94540e.spotted-8ez.pages.dev).
+The earlier preview was https://70545249.spotted-8ez.pages.dev; it preceded the
+desktop verification and does not contain the final screenshot.
+
+- Static build: 29 HTML pages, 954 local targets, metadata, JSON-LD, IDs, and
+  sitemap coverage pass; `git diff --check` passes.
+- Production HTTP checker: all 28 HTML/Markdown pairs and representation,
+  error, method, API contract, and asset checks pass.
+- The live Markdown download returns HTTP 200, `text/markdown`, an attachment
+  filename, and the exact bytes verified above. The screenshot returns HTTP 200
+  and matches the committed PNG.
+- Live guide inspected in the browser: the new download, verification text,
+  screenshot, and caption are present and the screenshot renders correctly.
+- Lighthouse 13.5.0: mobile and desktop both score 100 for performance,
+  accessibility, best practices, and SEO. Mobile LCP 947 ms, desktop LCP 340 ms;
+  CLS and total blocking time are zero in both lab runs. These are lab results,
+  not field Core Web Vitals or ranking evidence.
+- Local Lighthouse reports: `/private/tmp/isome-seo-obsidian-after/`.
