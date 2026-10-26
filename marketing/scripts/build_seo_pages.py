@@ -91,7 +91,7 @@ PAGES = [
         "type": "BlogPosting",
         "title": "Back Up and Restore iPhone Location History — iso.me",
         "headline": "How to back up and restore your iso.me location history",
-        "description": "Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.",
+        "description": "Back up iso.me visits and GPS points as JSON. See checked file-picker imports, saved counts after an app restart, and limits to verify before changing iPhones.",
         "lede": "Export Visits and Points separately as iso.me JSON, check the saved files, and keep the originals when importing on another iPhone.",
         "image": "/screenshots/export.png",
         "image_alt": "iso.me export interface with data and file format controls",

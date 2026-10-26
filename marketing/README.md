@@ -105,16 +105,21 @@ publicly distributed binary.
 The two synthetic JSON downloads use attachment response headers in `_headers`
 so iPhone Safari offers the named file instead of opening a text page. The
 backup guide includes the touch-and-hold fallback and a destination verification
-checklist. A release-source simulator restore attempt remains incomplete because
-the test copy did not present its file picker; see the
-[verification record](../docs/qa/seo-restore-verification-2026-10-26.md).
+checklist. The earlier release-source simulator attempt did not establish a
+working picker; its [historical record](../docs/qa/seo-restore-verification-2026-10-26.md)
+is now followed by a successful [file-picker and restart check](../docs/qa/seo-restore-picker-restart-2026-10-26.md).
 
 A later native test used the actual released 1.7.16 import method and a new
 on-disk store. Opening the store again and re-exporting JSON confirmed one
 combined visit from the two nearby fixture stops, and all three points. A
 repeat point import saved six points. The guide now distinguishes parsed,
 reported, and stored counts. See the [disk import evidence](../docs/qa/seo-backup-disk-import-2026-10-26.md).
-This does not establish a working file-picker transfer or app-process restart.
+That disk test alone does not establish file-picker or app-process behavior.
+The separate UI check selected both public JSON fixtures in the isolated
+release-source app, then confirmed one reconciled visit and three points after
+termination and relaunch. The guide includes its post-restart screenshot.
+Physical phone transfer, a captured source-phone export, and purchase flow
+remain unverified by that check.
 
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
 existing iso.me recordings; the broader history guide handles locating Apple,

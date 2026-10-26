@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Back Up and Restore iPhone Location History — iso.me</title>
-  <meta name="description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
+  <meta name="description" content="Back up iso.me visits and GPS points as JSON. See checked file-picker imports, saved counts after an app restart, and limits to verify before changing iPhones.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/blog/back-up-iphone-location-history/">
   <meta name="theme-color" content="#f5f4ef">
   <meta property="og:title" content="Back Up and Restore iPhone Location History — iso.me">
-  <meta property="og:description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
+  <meta property="og:description" content="Back up iso.me visits and GPS points as JSON. See checked file-picker imports, saved counts after an app restart, and limits to verify before changing iPhones.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://isome.isolated.tech/blog/back-up-iphone-location-history/">
   <meta property="og:image" content="https://isome.isolated.tech/screenshots/export.png">
   <meta property="og:image:alt" content="iso.me export interface with data and file format controls">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Back Up and Restore iPhone Location History — iso.me">
-  <meta name="twitter:description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
+  <meta name="twitter:description" content="Back up iso.me visits and GPS points as JSON. See checked file-picker imports, saved counts after an app restart, and limits to verify before changing iPhones.">
   <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/export.png">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -99,7 +99,7 @@ pre code { overflow-wrap: normal; }
       "@id": "https://isome.isolated.tech/blog/back-up-iphone-location-history/",
       "url": "https://isome.isolated.tech/blog/back-up-iphone-location-history/",
       "name": "Back Up and Restore iPhone Location History — iso.me",
-      "description": "Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.",
+      "description": "Back up iso.me visits and GPS points as JSON. See checked file-picker imports, saved counts after an app restart, and limits to verify before changing iPhones.",
       "inLanguage": "en",
       "dateModified": "2026-10-26",
       "author": {
@@ -244,13 +244,18 @@ pre code { overflow-wrap: normal; }
   <p>The released app reconciles nearby visits after importing. In this example it retained <strong>Synthetic stop A</strong> at the first stop’s coordinates, with arrival at <strong>11:45 UTC</strong> and departure at <strong>12:17 UTC</strong> on January 1, 2000. It combined the two stops instead of preserving a separate stop B. The three point timestamps and coordinates remained in the saved route.</p>
   <p>This is why you should retain the original files and compare individual records as well as totals. An import result counts the records read, not necessarily the final number of visits. Visit reconciliation is separate from a duplicate-safe archive import: repeating the point file added its three points again.</p>
   <p class="source-note">Checked October 26, 2026 in a Debug rebuild of the verified release source, using invented records and a separate disk store. The native import, save, store reopening, and JSON re-export were tested. This was not the App Store binary, a file-picker test, an app-process restart, or a transfer between physical phones. The original samples remain unchanged.</p>
+  <h3 id="checked-picker">File selection and a full app restart</h3>
+  <p>In a separate check, the same release-source app started with <strong>zero visits and zero points</strong> in its isolated simulator journal. We selected <code>synthetic-visits.json</code> through Settings → Import File and the system file picker. The alert reported <strong>Imported 2 visits</strong>, while Settings showed one saved visit after reconciliation.</p>
+  <p>We then downloaded <code>synthetic-points.json</code> in Safari and selected it through the picker. Its alert reported <strong>Imported 3 points</strong>. After terminating and relaunching the app, Settings still showed <strong>1 visit and 3 points</strong>. This checks the file-selection, import, save, and app-restart path separately from the native field and re-export checks above.</p>
+  <figure class="product-example"><img src="/screenshots/restore-synthetic-after-restart.png" width="1206" height="2622" alt="Isolated iso.me simulator Settings after an app restart, showing one saved visit and three saved points from the synthetic JSON files" loading="lazy" decoding="async"><figcaption>Saved totals after the app process was restarted. The two nearby invented visits became one; all three points remained. No personal journal was used.</figcaption></figure>
+  <p class="source-note">Checked October 26, 2026 on iOS 26.5 with a Debug rebuild of 1.7.16 (46) and a separate app identity. Settings and import code were unchanged from the verified release source. This was not the App Store binary, a purchase test, a captured source-phone export, or a transfer between physical phones.</p>
 </section>
 
 <section aria-labelledby="restore">
   <h2 id="restore">3. Import the supported files on the destination</h2>
   <ol>
     <li>Make the saved visit and point files available in Files on the destination iPhone.</li>
-    <li>Open iso.me, then choose <strong>Settings → Import file</strong>.</li>
+    <li>Open iso.me, then choose <strong>Settings → Import file</strong>. Allow the system file picker to finish opening; a later opening in the simulator check took about seven seconds.</li>
     <li>Select a supported iso.me file and read the import result. Repeat for the other data type and any additional dated files.</li>
     <li>Check several dates on Map and Timeline. Look for both visits and route points, including the earliest and most recent records you expected.</li>
     <li>Close and reopen iso.me, then check the same dates again. Confirm the imported records remain before erasing or retiring the original phone.</li>
