@@ -284,6 +284,14 @@ Published from main commit `f08b2be` as deployment `ec5b64fc`; local and
 production mobile/desktop Lighthouse all 100, all 31 HTML/Markdown pairs pass,
 and exact production sample/image bytes and a fresh production viewer were checked.
 
+The homepage now places three checked-example links beside the existing App
+Store QR: GPX saved through Files, import surviving app restart, and Obsidian
+Maps desktop rendering. Synthetic inputs, unverified physical/scheduled paths,
+and free/paid boundaries are explicit. The existing campaign and collector
+placements are preserved. Local mobile/desktop Lighthouse scores are all 100
+and the section fits at 320/390 px. See
+[the homepage evidence record](qa/seo-homepage-checked-examples-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
 3. Verify Obsidian mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Obsidian desktop plugin is checked with synthetic data; the Dawarich native batch/persistence test used only invented data and a local receiver.

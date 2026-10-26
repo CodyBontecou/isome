@@ -180,15 +180,27 @@ Choose Markdown for Obsidian or Overland for Dawarich. Each walkthrough includes
 
 Manage reusable pins, correct a visit, or add a past stop. Includes a tested saved locations CSV.
 
-Reading on your computer? Scan this code with your iPhone camera to open iso.me in the App Store.
+## Inspect the files before you start.
+
+These walkthroughs include downloadable examples, screenshots, and the result of each check. They use invented records in an isolated test app or vault.
+
+- [Follow a GPX export into Files and gpx.studio](https://isome.isolated.tech/blog/record-iphone-route-gpx/#checked-ui-export). Three stored points become one file; compare the preview with the saved track.
+- [See imported records survive an app restart](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-picker). The simulator check retains one visit and three points after import and reconciliation.
+- [Inspect the Markdown in Obsidian Maps](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#map-plugin). The desktop plugin displays two synthetic visit markers and their popups.
+
+Checked October 26, 2026. These examples do not verify a physical recording, a transfer between phones, or scheduled delivery.
+
+### Try your own first recording
+
+Recording and review are free. File export uses an optional lifetime purchase; supported import is free.
 
 [
 
-![QR code linking to iso.me on the App Store](https://isome.isolated.tech/assets/app-store-qr.png)
+![Scan with your iPhone camera to open iso.me in the App Store](https://isome.isolated.tech/assets/app-store-qr.png)
 
 ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
 
-[Open the App Store link](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8). Recording is free; file exports are optional purchases.
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
 
 § 02 Why people install it
 
@@ -343,7 +355,7 @@ Webhooks — OwnTracks · Overland formatsPro
 
 ## Built by Cody Bontecou at isolated.tech.
 
-iso.me is an independent app, not a data broker product. The site makes no fabricated ratings claims; the honest proof is simpler: a current App Store listing, visible support, a privacy policy that spells out every network request the app can make, and an export path for your data.
+iso.me is an independent, open source app. Inspect the [checked export and restore examples](https://isome.isolated.tech/#checked-examples), read the [privacy policy](https://isome.isolated.tech/privacy) for storage and network behavior, or ask the developer about your workflow.
 
 Need help, want to report a bug, or have a question before installing? Email [cody.bontecou@gmail.com](mailto:cody.bontecou@gmail.com).
 
