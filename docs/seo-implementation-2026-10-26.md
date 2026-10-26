@@ -118,6 +118,14 @@ The places update is live in deployment `ec2c0058`. All 30 HTML/Markdown pairs
 and exact sample/screenshot checks pass; the reference and its changed
 Timeline/outings neighbor score 100 in all mobile/desktop Lighthouse categories.
 
+The location-history guide now answers with concrete app/date paths, separates
+Significant Locations settings from saved app history, and includes a
+preservation checklist and practical questions linked to checked places and
+recording-state examples. Apple/Google instructions were reviewed against their
+current primary help pages, with Apple iOS 26 context. No personal history was
+accessed or new platform-UI/recovery success claimed. See
+[the history-answer review](qa/seo-history-answer-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

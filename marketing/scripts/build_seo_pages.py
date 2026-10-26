@@ -65,8 +65,8 @@ PAGES = [
         "type": "BlogPosting",
         "title": "How to See Your Location History on iPhone — iso.me",
         "headline": "How to see your location history on iPhone",
-        "description": "Find your own visited places in Apple Maps, check Google Timeline, and understand missing records before starting a new iPhone location journal.",
-        "lede": "Check Apple Maps Visited Places, Google Maps Timeline, or a journal you already enabled. A new recorder can capture future trips, but cannot recover movement it never recorded.",
+        "description": "Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.",
+        "lede": "Find the app and date that hold your saved visits, distinguish iPhone location settings from recorded history, and check existing copies before changing your setup.",
         "source": "view-location-history-iphone.html",
     },
     {

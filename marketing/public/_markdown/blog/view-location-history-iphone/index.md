@@ -6,19 +6,21 @@ Practical iPhone guides
 
 # How to see your location history on iPhone
 
-Check Apple Maps Visited Places, Google Maps Timeline, or a journal you already enabled. A new recorder can capture future trips, but cannot recover movement it never recorded.
+Find the app and date that hold your saved visits, distinguish iPhone location settings from recorded history, and check existing copies before changing your setup.
 
 By [Cody Bontecou](https://isolated.tech), iso.me’s developer · Reviewed October 26, 2026
 
 ## Check the recorder you already used
 
-To see where you have been on iPhone, check Apple Maps Visited Places, Google Maps Timeline, or a location journal you had already enabled. There is no single history screen that combines every app’s records. An empty day may mean nothing was recorded.
+For saved iPhone location history, open Maps → Places → Visited Places, where available, or Google Maps → profile picture → Your Timeline and select a date. In iso.me, open Timeline. Start with the app that recorded the day; these histories are separate.
 
 This guide covers your own visits and routes. If you want a record of future trips, you can start one in iso.me, but installing it cannot reconstruct earlier movement.
 
 Choose your next step
 - [Look for Apple’s visited places](https://isome.isolated.tech/blog/view-location-history-iphone/#apple)
+- [Find Significant Locations in Settings](https://isome.isolated.tech/blog/view-location-history-iphone/#significant)
 - [Open your Google Timeline](https://isome.isolated.tech/blog/view-location-history-iphone/#google)
+- [Keep existing records before making changes](https://isome.isolated.tech/blog/view-location-history-iphone/#preserve)
 - [Check why a day is missing](https://isome.isolated.tech/blog/view-location-history-iphone/#missing)
 - [Record future visits and routes](https://isome.isolated.tech/blog/view-location-history-iphone/#future)
 
@@ -27,6 +29,7 @@ Choose your next step
 Start with the service that recorded the day
 | What you used | Where to look | What to check
 | Apple Maps | Places → Visited Places, where available | Whether the feature was enabled and the visit is retained
+| Significant Locations setting | Settings → Privacy & Security → Location Services → System Services | A location-related Maps setting; check the recorder for the history you need
 | Google Maps | Profile picture → Your Timeline | The account, selected device history, and date
 | iso.me | Timeline or the date range on Map | Whether tracking was enabled for that period
 | No enabled recorder | There may be no route record to open | Start a new recording before the next trip
@@ -39,19 +42,34 @@ Directions you requested, places you searched for, and a recorded visit are diff
 - Choose Visited Places, if it is available.
 - Search for a place or filter by date, category, or city. Use All Visits to browse.
 
-Apple says this feature needs to be enabled before visits appear, is unavailable in some regions, and keeps visits encrypted so Apple cannot read them. Retention settings can also remove older entries. Menus vary with iOS version; use [Apple’s Visited Places instructions](https://support.apple.com/guide/iphone/view-visited-places-iph0c2597c4f/ios) for your version.
+Visited Places depends on prior setup and regional availability. In Apple’s iOS 26 instructions, check Settings → Apps → Maps → Location for Precise Location and Visited Places. Also check Location Services and Significant Locations & Routes under System Services. Follow [Apple’s versioned instructions](https://support.apple.com/guide/iphone/view-and-manage-visited-places-iph0c2597c4f/26/ios/26) when labels differ.
 
-If you are looking for a setting called Significant Locations rather than a Maps list, check [Apple’s Maps location settings](https://support.apple.com/guide/iphone/set-up-maps-iph10d7bdf26/ios). Do not expect every location-related setting to contain the same records.
+For older entries, review Keep Visits at the bottom of Visited Places. A retention choice may explain a missing date; changing it does not establish that an older visit still exists.
+
+## Find Significant Locations in iPhone Settings
+
+Open Settings → Privacy & Security → Location Services → System Services → Significant Locations & Routes. Some versions use the shorter label Significant Locations.
+
+Apple documents this as a setting used for location-related Maps features. It is separate from the Visited Places list. For the records in this guide, return to the app that saved them. See [Apple’s Maps location settings](https://support.apple.com/guide/iphone/set-up-maps-iph10d7bdf26/ios).
 
 ## Open Google Maps Timeline
 
-- Open Google Maps and tap your profile picture or initial.
-- Choose Your Timeline, then use the calendar to select a day.
-- If history is missing, confirm which account and device you used. Check your backup and deletion settings before making changes.
+- Open Google Maps → profile picture or initial → Your Timeline.
+- Use the calendar to select the day. Confirm the account and device whose history you need.
 
-Google Timeline stores history on the device and can keep an encrypted backup. To save an independent archive, Google’s iPhone instructions use Settings → Location & Privacy → Export Timeline data, then Save to Files. Settings are changing, so follow [Google’s current Timeline guide](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en) if your menus differ.
+Google’s iPhone guide describes optional encrypted backup and a device selector under Timeline’s cloud icon. A backup can be imported into Google Maps on another device; inspect that device’s date range afterwards. Recent changes can take days to reach a backup.
 
-Keep that archive separately. The verified App Store 1.7.16 build does not import Google Timeline files; the [Google Timeline comparison](https://isome.isolated.tech/compare/google-maps-timeline/) explains the tradeoffs before you change your recording setup.
+For an independent file, use Settings → Location & Privacy → Export Timeline data → Save to Files. Google names the export `location-history.json`. Follow [Google’s current iPhone instructions](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en) if menus differ.
+
+Keep the archive separately. The verified App Store 1.7.16 build of iso.me does not import Google Timeline files; see the [Google Timeline comparison](https://isome.isolated.tech/compare/google-maps-timeline/) before switching.
+
+## Keep the records before changing the setup
+
+- Check the old device and the date you need before moving to a different phone or account.
+- Review retention and backup settings before clearing history. Google warns that deleting Maps or factory-resetting the phone removes device Timeline data; verify an available backup or export first.
+- Keep the original archive until you have checked the destination’s actual records. A backup switch or a successful file download is not proof of a complete copy.
+
+For iso.me records, follow the [backup and restore checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/). Each app’s backup belongs to that app’s workflow; similarly named files are not automatically interchangeable.
 
 ## Why a day can be empty
 
@@ -72,12 +90,26 @@ If you want a separate journal without an iso.me account, try a short recording 
 
 - Install iso.me and complete permission setup. Always location access allows recording in the background.
 - On Map, tap the recording control before you leave. Start enables GPS recording and visit monitoring together.
-- Stop when you finish. Open Timeline and check the date, route, and times.
+- Stop when you finish. Open Timeline, choose the day, and open the outing. Check its Points count, Path, and times; a saved outing alone does not prove a GPS route was captured.
 - If you need a portable route file, follow [the iPhone route and GPX guide](https://isome.isolated.tech/blog/record-iphone-route-gpx/).
 
 Recording and reviewing your journal are free. Writing export files requires the optional one-time unlock; preview is free. Read [the setup walkthrough](https://isome.isolated.tech/blog/private-location-journal-iphone/) for permissions, battery controls, and keeping supported copies.
 
 Core records are stored on your phone. Apple services supply place names and map features; default-on first-party onboarding telemetry excludes location records. Optional webhooks send records to your chosen endpoint. The [privacy policy](https://isome.isolated.tech/privacy) explains those boundaries.
+
+## Common location-history questions
+
+### Can a new app recover a trip from before it was installed?
+
+A new iso.me installation cannot reconstruct GPS points it never recorded. Check the original recorder and any supported retained files. Photos or calendar entries can help you remember a day, but they are not a recovered GPS path.
+
+### Does a saved place prove that I visited it?
+
+No. In iso.me, a saved location is a reusable name and pin for future matching. It can exist without a visit. A manually added visit records the details you enter; it is separate from automatically recorded history. The [places reference](https://isome.isolated.tech/docs/places/) explains those records.
+
+### Does location permission mean every trip was recorded?
+
+Permission allows location requests; it does not establish what was saved. Check the day’s actual visits and route points. The [checked recording-state example](https://isome.isolated.tech/blog/private-location-journal-iphone/#first-recording) shows an outing with a running timer but no saved GPS points.
 
 ![Example iso.me map showing visit markers and recorded route points](https://isome.isolated.tech/screenshots/map-480.webp)
 
@@ -90,7 +122,7 @@ Try iso.me’s free recording, then review the route and visits on your iPhone.
 
 [Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
-Reviewed October 26, 2026 against Apple and Google documentation and iso.me’s product source. Platform instructions can vary by version and region. Written by iso.me’s developer; the screenshots are interface examples.
+Reviewed October 26, 2026 against the linked Apple iOS 26 and current Maps guidance, Google’s iPhone Timeline help, and iso.me’s verified release source. Apple and Google steps follow their linked help pages; menus may vary by version and region. The screenshot illustrates iso.me.
 
 ## Read next
 
