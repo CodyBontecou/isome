@@ -230,7 +230,7 @@ BODIES["export-import"] = """
 <tr><td><strong>OwnTracks</strong></td><td>OwnTracks-ecosystem tools (route points).</td></tr>
 <tr><td><strong>Overland</strong></td><td>Overland-ecosystem tools (route points).</td></tr>
 </table>
-<p>Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON).</p>
+<p>Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON). For receiver delivery, follow the <a href="/integrations/dawarich/">Dawarich Overland walkthrough</a> and verify the destination’s saved points.</p>
 
 <h2>What gets exported</h2>
 <ul>
@@ -330,7 +330,7 @@ BODIES["webhooks"] = """
 <tr><td>Other receiver</td><td>its documented HTTPS endpoint</td><td>Use its required schema and authentication</td></tr>
 </table>
 
-<p>iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check <a href="https://dawarich.app/docs/getting-started/track-your-location/">Dawarich's receiver documentation</a> and confirm actual imported points; a completed iso.me-to-Dawarich walkthrough is not yet verified here.</p>
+<p>iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check <a href="https://dawarich.app/docs/getting-started/track-your-location/">Dawarich's receiver documentation</a> and confirm actual imported points; the <a href="/integrations/dawarich/">checked Overland walkthrough</a> records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.</p>
 
 <h2>Configuration</h2>
 <ul>

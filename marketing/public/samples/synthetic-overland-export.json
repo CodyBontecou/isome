@@ -1,0 +1,72 @@
+{
+  "current" : {
+    "type" : "Feature",
+    "geometry" : {
+      "type" : "Point",
+      "coordinates" : [
+        2.0002,
+        1.0002
+      ]
+    },
+    "properties" : {
+      "altitude" : 2,
+      "speed" : 1,
+      "device_id" : "isome",
+      "timestamp" : "2000-01-01T12:02:00.000Z",
+      "horizontal_accuracy" : 5
+    }
+  },
+  "locations" : [
+    {
+      "properties" : {
+        "horizontal_accuracy" : 5,
+        "altitude" : 0,
+        "timestamp" : "2000-01-01T12:00:00.000Z",
+        "device_id" : "isome",
+        "speed" : 1
+      },
+      "type" : "Feature",
+      "geometry" : {
+        "coordinates" : [
+          2,
+          1
+        ],
+        "type" : "Point"
+      }
+    },
+    {
+      "properties" : {
+        "speed" : 1,
+        "device_id" : "isome",
+        "altitude" : 1,
+        "horizontal_accuracy" : 5,
+        "timestamp" : "2000-01-01T12:01:00.000Z"
+      },
+      "type" : "Feature",
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          2.0001,
+          1.0001
+        ]
+      }
+    },
+    {
+      "properties" : {
+        "horizontal_accuracy" : 5,
+        "device_id" : "isome",
+        "altitude" : 2,
+        "speed" : 1,
+        "timestamp" : "2000-01-01T12:02:00.000Z"
+      },
+      "type" : "Feature",
+      "geometry" : {
+        "coordinates" : [
+          2.0002,
+          1.0002
+        ],
+        "type" : "Point"
+      }
+    }
+  ]
+}

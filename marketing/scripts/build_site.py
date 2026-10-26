@@ -10,6 +10,7 @@ from check_site import BASE, PUBLIC, check, page_url
 SCRIPTS = Path(__file__).resolve().parent
 REVIEWED = "2026-10-26"
 UPDATED_PATHS = {
+    "/integrations/", "/integrations/dawarich/",
     "/", "/blog/", "/blog/private-location-journal-iphone/", "/privacy",
     "/docs/", "/docs/getting-started/", "/docs/tracking/",
     "/docs/export-import/", "/docs/privacy-data/", "/docs/siri-shortcuts/",

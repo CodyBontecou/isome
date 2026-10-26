@@ -158,7 +158,7 @@
           "name": "Does iso.me work with OwnTracks, Overland, or Dawarich?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "iso.me can POST records in OwnTracks or Overland formats to a configured receiver. Compatibility depends on that receiver’s payload schema and authentication. Verify the protocol before enabling delivery; the Dawarich workflow is not yet verified here. Webhooks require Pro and are off by default."
+            "text": "iso.me can POST GPS points to a configured receiver. An Overland batch sent by the released native webhook code was stored in Dawarich 1.18.0 and survived a receiver and database restart. Physical recording and unattended delivery remain separate checks. Webhooks require Pro and are off by default."
           }
         },
         {
@@ -1766,7 +1766,7 @@
           </details>
           <details>
             <summary>Does iso.me work with OwnTracks, Overland, or Dawarich?</summary>
-            <p>iso.me can POST records in OwnTracks or Overland formats to a configured receiver. Compatibility depends on that receiver’s payload schema and authentication. Verify the protocol before enabling delivery; the Dawarich workflow is not yet verified here. Webhooks require Pro and are off by default. <a href="/docs/webhooks/">Read the receiver requirements</a>.</p>
+            <p>iso.me can POST GPS points to a configured receiver. An Overland batch sent by the released native webhook code was stored in Dawarich 1.18.0 and survived a receiver and database restart. Physical recording and unattended delivery remain separate checks. Webhooks require Pro and are off by default. <a href="/integrations/dawarich/">Follow the checked Dawarich setup</a>, or <a href="/integrations/">choose another records workflow</a>.</p>
           </details>
           <details>
             <summary>What can Siri and Shortcuts do?</summary>

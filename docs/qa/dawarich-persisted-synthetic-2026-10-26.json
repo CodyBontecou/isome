@@ -1,0 +1,29 @@
+[
+  {
+    "timestamp": 946728000,
+    "latitude": 1.0,
+    "longitude": 2.0,
+    "altitude": "0.0",
+    "velocity": "1",
+    "accuracy": 5,
+    "tracker_id": "isome"
+  },
+  {
+    "timestamp": 946728060,
+    "latitude": 1.0001,
+    "longitude": 2.0001,
+    "altitude": "1.0",
+    "velocity": "1",
+    "accuracy": 5,
+    "tracker_id": "isome"
+  },
+  {
+    "timestamp": 946728120,
+    "latitude": 1.0002,
+    "longitude": 2.0002,
+    "altitude": "2.0",
+    "velocity": "1",
+    "accuracy": 5,
+    "tracker_id": "isome"
+  }
+]

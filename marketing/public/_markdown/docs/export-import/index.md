@@ -34,7 +34,7 @@ Free vs Pro. Building and previewing exports is free. Writing export files (from
 | OwnTracks | OwnTracks-ecosystem tools (route points).
 | Overland | Overland-ecosystem tools (route points).
 
-Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON).
+Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON). For receiver delivery, follow the [Dawarich Overland walkthrough](https://isome.isolated.tech/integrations/dawarich/) and verify the destination’s saved points.
 
 ## What gets exported
 

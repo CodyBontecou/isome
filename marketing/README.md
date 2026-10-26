@@ -73,11 +73,14 @@ existing `/docs/apple-watch/` reference. Backup and Watch instructions are
 reviewed against the current source; no new physical-device restore or Watch
 recording test is claimed. The article cluster contains the journal, history, GPX, backup, and battery guides; use the site checker for the current full-site page count.
 
-The Dawarich walkthrough remains unpublished pending an actual receiver test.
-See the [verification note](../docs/dawarich-guide-verification-2026-10-26.md) for
-the OwnTracks payload concern and the Overland candidate. Public webhook copy
-now explains receiver compatibility and that Test Connection may store a
-synthetic point.
+The Dawarich Overland walkthrough is published at `/integrations/dawarich/`,
+with `/integrations/` linking it and the existing manual Obsidian guide. A native
+release-source test delivered three invented points to Dawarich 1.18.0 and
+verified their database values after restarting the receiver and database.
+The page includes the exact synthetic payload and receiver screenshot. The
+OwnTracks shape concern remains; physical recording, settings UI, production
+HTTPS, and unattended background delivery are not newly verified. See the
+[receiver evidence](../docs/qa/seo-dawarich-receiver-2026-10-26.md).
 
 The battery guide at `/blog/iphone-location-tracking-battery/` covers battery
 reports, distance filters, stopping controls, and a comparison checklist. Apple

@@ -141,6 +141,14 @@ Check local dates, travel days, and gaps. Add a manual stay and understand the C
 
 [Review your country dates](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
 
+Checked receiver workflow
+
+### [Send iso.me GPS points to Dawarich](https://isome.isolated.tech/integrations/dawarich/)
+
+Match Overland to the batch endpoint, check saved points, and understand queue limits. Includes a native delivery and database persistence example.
+
+[Check the receiver workflow](https://isome.isolated.tech/integrations/dawarich/)
+
 Markdown journal workflow
 
 ### [Read your location journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)

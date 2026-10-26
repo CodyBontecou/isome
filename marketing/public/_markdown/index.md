@@ -419,7 +419,7 @@ The app is free to download; tracking, the timeline, the Watch app, widgets, and
 
 Does iso.me work with OwnTracks, Overland, or Dawarich?
 
-iso.me can POST records in OwnTracks or Overland formats to a configured receiver. Compatibility depends on that receiver’s payload schema and authentication. Verify the protocol before enabling delivery; the Dawarich workflow is not yet verified here. Webhooks require Pro and are off by default. [Read the receiver requirements](https://isome.isolated.tech/docs/webhooks/).
+iso.me can POST GPS points to a configured receiver. An Overland batch sent by the released native webhook code was stored in Dawarich 1.18.0 and survived a receiver and database restart. Physical recording and unattended delivery remain separate checks. Webhooks require Pro and are off by default. [Follow the checked Dawarich setup](https://isome.isolated.tech/integrations/dawarich/), or [choose another records workflow](https://isome.isolated.tech/integrations/).
 
 What can Siri and Shortcuts do?
 

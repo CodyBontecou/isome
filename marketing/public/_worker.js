@@ -26,6 +26,8 @@ const pages = {
   "/docs/tracking/": "/_markdown/docs/tracking/index.md",
   "/docs/webhooks/": "/_markdown/docs/webhooks/index.md",
   "/": "/_markdown/index.md",
+  "/integrations/dawarich/": "/_markdown/integrations/dawarich/index.md",
+  "/integrations/": "/_markdown/integrations/index.md",
   "/privacy": "/_markdown/privacy.md",
   "/terms": "/_markdown/terms.md"
 };

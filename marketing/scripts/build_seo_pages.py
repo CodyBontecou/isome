@@ -11,6 +11,27 @@ APP = "https://apps.apple.com/us/app/iso-me/id6761960794"
 REVIEWED = "2026-10-26"
 PAGES = [
     {
+        "path": "/integrations/",
+        "section": "Integrations", "section_path": "/integrations/",
+        "title": "Use Your iso.me Location History in Other Tools",
+        "headline": "Use your location records in another tool",
+        "description": "Choose a checked workflow for iso.me records: Markdown notes in Obsidian or optional Overland webhook batches to a Dawarich receiver.",
+        "lede": "Choose where your records go, check the result, and keep the original journal. File handoff and live delivery have different requirements.",
+        "source": "integrations.html",
+    },
+    {
+        "path": "/integrations/dawarich/",
+        "section": "Integrations", "section_path": "/integrations/", "breadcrumb": "Dawarich",
+        "type": "BlogPosting",
+        "title": "Send iso.me iPhone Location Points to Dawarich with Overland",
+        "headline": "Send iso.me location points to Dawarich",
+        "description": "Configure iso.me’s Overland webhook for Dawarich, check authentication and saved points, and understand why Test Connection does not prove storage.",
+        "lede": "Pair the Overland payload with Dawarich’s batch endpoint, then verify the points at the destination. Webhooks are optional, off by default, and require iso.me’s export unlock.",
+        "image": "/screenshots/dawarich-synthetic-points.png",
+        "image_alt": "Dawarich 1.18.0 displaying three invented points sent by iso.me’s native webhook code",
+        "source": "dawarich.html",
+    },
+    {
         "path": "/blog/track-days-in-country-iphone/",
         "section": "Guides", "section_path": "/blog/", "breadcrumb": "Country days",
         "type": "BlogPosting",
@@ -129,6 +150,7 @@ DRAFTS = [{
 
 # Keep next steps specific to the task on each page.
 RELATED = {
+ '/integrations/dawarich/': [('/docs/webhooks/', 'Review send modes and queue limits', 'Check realtime, batching, retries, and manual-send behavior.'), ('/blog/back-up-iphone-location-history/', 'Keep a separate backup', 'A receiver copy is different from a restorable iso.me journal.')],
  '/blog/track-days-in-country-iphone/': [
      ('/blog/private-location-journal-iphone/', 'Record your next trip',
       'Start a local journal before you leave.'),

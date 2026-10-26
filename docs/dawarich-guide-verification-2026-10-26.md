@@ -1,5 +1,14 @@
 # Dawarich guide: verification hold
 
+**Follow-up on October 26:** The Overland receiver gate below was subsequently
+tested with the released native webhook code and Dawarich 1.18.0. Three
+invented points were persisted and unchanged after receiver/database restart;
+the receiver UI also showed them. The limited, versioned walkthrough is now
+published. See [the receiver test record](qa/seo-dawarich-receiver-2026-10-26.md).
+OwnTracks compatibility, a physical recording, the complete settings UI,
+production HTTPS, and unattended background delivery remain separate checks.
+The notes below preserve the original investigation and hold.
+
 October 26, 2026. Internal preparation only; no indexed integration page was created.
 
 ## Finding

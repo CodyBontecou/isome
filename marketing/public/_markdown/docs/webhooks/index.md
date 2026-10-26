@@ -31,7 +31,7 @@ Webhooks deliver records to a receiver you choose, but the payload must match th
 | OwnTracks receiver | per your installation | Verify it accepts arrays of location messages
 | Other receiver | its documented HTTPS endpoint | Use its required schema and authentication
 
-iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check [Dawarich's receiver documentation](https://dawarich.app/docs/getting-started/track-your-location/) and confirm actual imported points; a completed iso.me-to-Dawarich walkthrough is not yet verified here.
+iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check [Dawarich's receiver documentation](https://dawarich.app/docs/getting-started/track-your-location/) and confirm actual imported points; the [checked Overland walkthrough](https://isome.isolated.tech/integrations/dawarich/) records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.
 
 ## Configuration
 

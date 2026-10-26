@@ -95,9 +95,17 @@ behavior, not a successful physical route. The duplicate adjacent download CTA
 was removed while retaining the campaign. Site checks and mobile/desktop
 Lighthouse pass. See [the recording-state evidence](qa/seo-journal-recording-state-2026-10-26.md).
 
+The Dawarich Overland receiver gate has now been checked with real native HTTP
+delivery and database persistence across receiver/database restart. Published
+the versioned `/integrations/dawarich/` walkthrough and a small integration
+directory, with a synthetic payload and receiver screenshot. Twenty-two native
+tests and five acquisition/privacy tests pass; all six changed pages pass
+mobile/desktop Lighthouse. The temporary receiver runtime and credentials were
+removed after evidence capture. See [the receiver record](qa/seo-dawarich-receiver-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
-3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.
+3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.
 4. Review relevant queries/indexation and acquisition counters after reporting lag. Choose further articles or a small localization pilot from meaningful demand evidence, not today's sparse sample.
 
 No app binary, pricing, account permissions, or scheduled automation was changed. The external changes in this batch are the website deployments, separate aggregate table, approved Apple campaign-link generation, and Google indexing request.
