@@ -249,7 +249,12 @@ The Country Days guide is generated at
 `/blog/track-days-in-country-iphone/` and linked from the homepage, guide hub,
 and Timeline reference. The public 1.7.16 build 46 includes this feature.
 Its screenshot is an iOS 26.5 simulator interface example, with no resolved
-country history. Counting examples are invented, not a physical travel test.
+country history. Its checked CSV example uses invented points with assigned country metadata
+and an overlapping manual stay. The released calculator produces four
+country/date rows across three distinct local date labels; the public file
+contains the exact native output. All 23 Country Days tests pass. See
+[the CSV evidence](../docs/qa/seo-country-day-csv-2026-10-26.md).
+No physical travel or live country-resolution accuracy was tested.
 
 The Google Timeline migration walkthrough is prepared in `content/` and
 listed in `DRAFTS` in `build_seo_pages.py`. It is intentionally absent from

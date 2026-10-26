@@ -15,3 +15,6 @@
 
 /samples/synthetic-saved-locations.csv
   Content-Disposition: attachment; filename="synthetic-saved-locations.csv"
+
+/samples/synthetic-country-days.csv
+  Content-Disposition: attachment; filename="synthetic-country-days.csv"

@@ -37,7 +37,7 @@ PAGES = [
         "type": "BlogPosting",
         "title": "Track Days Spent in Each Country on iPhone — iso.me",
         "headline": "How to track days spent in each country on iPhone",
-        "description": "Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.",
+        "description": "Track country dates from visits, GPS points, and manual stays in iso.me. Inspect a checked CSV example for travel days, timezones, overlaps, and gaps.",
         "lede": "Review country totals and the dates behind them, add missing stays, and keep a personal record without an iso.me account.",
         "source": "track-days-in-country-iphone.html",
     },

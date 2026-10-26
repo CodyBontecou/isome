@@ -58,7 +58,7 @@ If a recorded day looks incomplete, follow the [missing visits and route points 
 
 Timeline → Country Days counts local dates represented by visits, route points, and manual stays. Review this year, the last 365 days, or all time. A travel date can count in more than one country; gaps are not filled automatically. Viewing and manual stays are free; writing the country-date CSV uses the export purchase.
 
-See [how to track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details.
+See [how to track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details, including a [checked four-row CSV example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example).
 
 [← PreviousVisits, routes & battery](https://isome.isolated.tech/docs/tracking/) [Next →Save and edit places in your iPhone location journal](https://isome.isolated.tech/docs/places/)
 

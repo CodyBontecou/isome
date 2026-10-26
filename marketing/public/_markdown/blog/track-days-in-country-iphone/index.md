@@ -19,6 +19,7 @@ This guide covers Country Days in iso.me 1.7.16. It is a personal travel journal
 Build your country record
 - [Open your country totals](https://isome.isolated.tech/blog/track-days-in-country-iphone/#start)
 - [Understand travel days and timezones](https://isome.isolated.tech/blog/track-days-in-country-iphone/#rules)
+- [Inspect a checked counting example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example)
 - [Add a missing stay](https://isome.isolated.tech/blog/track-days-in-country-iphone/#manual)
 - [Identify countries in older records](https://isome.isolated.tech/blog/track-days-in-country-iphone/#privacy)
 - [Save a CSV copy](https://isome.isolated.tech/blog/track-days-in-country-iphone/#csv)
@@ -48,11 +49,27 @@ Presence dates, rather than a continuous travel guarantee
 | Unknown country, GPS outlier, or recording gap | No invented dates or automatic continuous stay.
 | Overlapping manual and recorded presence | The date counts once per country; the source flags can show both.
 
-### A simple border-crossing example
+## A checked example: four country dates across three dates
 
-Imagine a recorded point in Portugal on October 1 and another in Spain later that local date. Each country gets October 1. If a manual Portugal stay also includes October 1, Portugal still gets one day. If October 2 has no usable evidence or manual stay, the app does not fill it merely because you have records before and after it.
+We passed invented records through the country-day calculator included in iso.me 1.7.16 (46), then saved and read back its CSV output. Country labels and timezones were assigned directly for this test; no coordinates were sent for geocoding and no real trip was recorded.
 
-This is an invented example of the counting rules, not a captured trip. Review gaps with the [missing-records checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) before changing your journal.
+- Portugal: two points on October 1, plus an overlapping manual stay from October 1 through October 2.
+- Spain: a point later on October 1, using Europe/Madrid.
+- France: a point at 22:30 UTC on October 2, using Europe/Paris. Its local date is October 3.
+- Excluded: an October 4 point flagged as an outlier, and an October 5 point without a country or timezone.
+
+Exact rows from the synthetic calculator output
+| Country | Local date | Source
+| Spain (ES) | 2026-10-01 | recorded
+| France (FR) | 2026-10-03 | recorded
+| Portugal (PT) | 2026-10-01 | recorded+manual
+| Portugal (PT) | 2026-10-02 | manual
+
+Portugal has two days, Spain one, and France one. The sum is four country dates, but only three distinct local date labels appear. Portugal and Spain both include October 1. The repeated Portugal point and overlapping manual stay do not create extra Portugal rows, and the excluded records do not fill October 4 or 5.
+
+[Download the checked synthetic Country Days CSV](https://isome.isolated.tech/samples/synthetic-country-days.csv) and open it in a text viewer or spreadsheet. It has the exact four rows above and contains no personal history. The `recorded` source flag describes the input type; in this example those inputs are invented points.
+
+Checked October 26, 2026 in an isolated Debug simulator rebuild of release source 1.7.16 (46), iOS 26.5. All 23 selected Country Days tests passed. This verifies the calculator, CSV writer, and file bytes for these inputs, not physical travel, country lookup accuracy, the export purchase, or the sharing interface.
 
 ## 3. Add a stay that was not recorded
 
@@ -72,7 +89,7 @@ Analysis can identify a country for an existing coordinate. It cannot recover lo
 
 Use the export control in Country Days and save the CSV to a destination you choose. The file includes country codes, local dates, and recorded/manual source information. Viewing and editing your counts are free; writing this export requires the lifetime unlock. See [current pricing](https://isome.isolated.tech/#pricing).
 
-Check a known date and a travel day in the saved file. A country-date CSV is a summary, not a backup of every visit, route point, or manual stay. Keep your underlying records using the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/).
+The CSV uses `country_code`, `local_date`, and `source`. Source is `recorded`, `manual`, or `recorded+manual`; the last value still represents one country/date. Compare your file with the [checked four-row example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example) and inspect a known date and a travel day. A country-date CSV is a summary, not a backup of every visit, route point, or manual stay. Keep your underlying records using the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/).
 
 ## Remember the country.
 Keep the dates behind the count.
@@ -81,7 +98,7 @@ Start a free local journal and review Country Days on your iPhone.
 
 [Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
-Reviewed October 26, 2026 against the source used for App Store 1.7.16 build 46, including CountryDaysView, CountryDayCalculator, and CountryDayResolver. The examples are synthetic. They do not represent a new physical travel test.
+Reviewed October 26, 2026 against the source used for App Store 1.7.16 build 46, including CountryDaysView, CountryDayCalculator, and CountryDayResolver. The checked CSV is generated from invented inputs using the released calculator. It does not represent a physical travel test or verification of the geocoding service.
 
 ## Read next
 

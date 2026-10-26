@@ -173,6 +173,13 @@ mobile/desktop Lighthouse on the reference, docs hub, backup guide, and webhook
 neighbor. A narrow overflow region fixes the neighbor’s wide receiver table;
 live mobile checks confirm both documents fit at 390 px.
 
+The Country Days guide now has a checked counting example and native CSV
+download. Six invented points and an overlapping manual stay produce four
+country/date rows across three distinct local date labels. All 23 selected
+tests pass; exact CSV bytes are retained. Country codes/timezones were assigned
+in the fixture, so no country-lookup accuracy or physical trip is claimed. See
+[the country CSV record](qa/seo-country-day-csv-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.
