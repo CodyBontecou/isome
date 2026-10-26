@@ -13,7 +13,7 @@ UPDATED_PATHS = {
     "/integrations/", "/integrations/dawarich/",
     "/", "/blog/", "/blog/private-location-journal-iphone/", "/privacy",
     "/docs/", "/docs/getting-started/", "/docs/tracking/",
-    "/docs/export-import/", "/docs/privacy-data/", "/docs/siri-shortcuts/",
+    "/docs/export-import/", "/docs/privacy-data/", "/docs/siri-shortcuts/", "/docs/places/",
     "/compare/", "/compare/google-maps-timeline/",
     "/blog/view-location-history-iphone/", "/blog/record-iphone-route-gpx/",
     "/blog/iphone-location-journal-obsidian/",

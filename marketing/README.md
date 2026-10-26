@@ -139,6 +139,15 @@ and [verification record](../docs/qa/seo-shortcuts-reference-2026-10-26.md).
 The Markdown recipe is source-reviewed, not a new end-to-end Shortcuts editor
 or scheduled Save File test. The shared docs footer wraps on narrow screens.
 
+The places reference now documents Settings → Saved Locations → Manage
+Locations, direct coordinates, the released editor's radius range, and the
+separate locations CSV importer. `samples/synthetic-saved-locations.csv` contains
+two invented reusable places. It passed the released native parser, in-memory
+storage, and both duplicate policies while preserving a historical visit. The
+editor screenshot verifies available controls with location permission denied;
+it is not a completed on-device import. See the
+[places evidence](../docs/qa/seo-saved-locations-2026-10-26.md).
+
 ## Deploy
 
 `marketing/deploy.sh` builds and validates before its existing Cloudflare Pages

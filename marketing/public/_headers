@@ -12,3 +12,6 @@
 
 /samples/synthetic-overland-export.json
   Content-Disposition: attachment; filename="synthetic-overland-export.json"
+
+/samples/synthetic-saved-locations.csv
+  Content-Disposition: attachment; filename="synthetic-saved-locations.csv"

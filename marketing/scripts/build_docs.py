@@ -5,7 +5,7 @@ import pathlib, html
 OUT = pathlib.Path(__file__).resolve().parent.parent / "public" / "docs"
 BASE = "https://isome.isolated.tech/docs/"
 UPDATED = "October 26, 2026"
-REVIEWED = {"getting-started", "tracking", "export-import", "privacy-data", "apple-watch", "webhooks", "timeline-outings", "siri-shortcuts"}
+REVIEWED = {"getting-started", "tracking", "export-import", "privacy-data", "apple-watch", "webhooks", "timeline-outings", "siri-shortcuts", "places"}
 
 GUIDES = [
     # (slug, title, short, lede, platform, minutes, tag)
@@ -21,10 +21,10 @@ GUIDES = [
      "The daily timeline, inferred outings, route replay, and editing or deleting sessions.",
      "The Timeline tab merges visits and movement into one day view. Learn the difference between recorded and inferred outings, how replay works, and what deletion actually removes.",
      "iOS 17+", 4, None),
-    ("places", "Places, corrections & manual entries",
-     "Confirm or correct detected visits, save places, and add visits by hand.",
-     "Automatic detection is a starting point, not a verdict. Confirm visits, fix names with nearby-business suggestions, save places that name themselves in the future, and add past visits manually.",
-     "iOS 17+", 3, None),
+    ("places", "Save and edit places in your iPhone location journal",
+     "Manage saved locations, enter coordinates, import a places CSV, and distinguish reusable places from past visits in iso.me.",
+     "Save a reusable location for future visit names, correct an existing visit, or add a past stop. Choose the right action before changing your journal.",
+     "iOS 17+", 5, None),
     ("photos", "Photos on the map",
      "Optionally connect your Photos library to place pictures on your map and outings.",
      "An opt-in connection between your photo library and your location journal. Photo files never leave your library — iso.me only matches metadata.",
@@ -158,35 +158,61 @@ BODIES["timeline-outings"] = """
 """
 
 BODIES["places"] = """
-<h2>The visit lifecycle</h2>
-<p>Every visit carries a status: <strong>unconfirmed</strong> (as detected), <strong>confirmed</strong> (you approved it), or <strong>corrected</strong> (you changed the name, address, or location). iso.me never lets automatic geocoding overwrite a visit you've touched — your edits are final until you undo them.</p>
+<h2>Choose a place or a visit</h2>
+<p>A <strong>saved location</strong> is a reusable name, coordinate, optional address, and match radius. It helps name future automatic visits; creating one does not create a visit or record a GPS path. A <strong>visit</strong> is a journal entry with arrival and departure information.</p>
+<table>
+<caption>Choose the action for your task</caption>
+<tr><th scope="col">Your goal</th><th scope="col">Use</th></tr>
+<tr><th scope="row">Name a place you will revisit</th><td>Settings → Saved Locations → Manage Locations.</td></tr>
+<tr><th scope="row">Fix a stop already in your journal</th><td>Open that visit and confirm or correct it.</td></tr>
+<tr><th scope="row">Add a stop from an earlier day</th><td>Map → + → Add past visit.</td></tr>
+</table>
+<p>Recording, reviewing, and managing places are free. Saving an export file is a separate optional purchase; see <a href="/#pricing">current pricing</a>.</p>
 
-<h2>Confirming and correcting</h2>
+<h2 id="saved-locations">Manage reusable saved locations</h2>
+<ol>
+<li>Open <strong>Settings</strong>, scroll to <strong>Saved Locations</strong>, and choose <strong>Manage Locations</strong>.</li>
+<li>Choose <strong>Add Location</strong>. Enter a name and, optionally, an address.</li>
+<li>Use <strong>Choose Location</strong> to search or position a pin, or enter <strong>Latitude</strong> and <strong>Longitude</strong> directly. Latitude must be between −90 and 90; longitude between −180 and 180.</li>
+<li>Review the <strong>Match radius</strong>. The default is 150 metres; this editor accepts 25–10,000 metres. A larger radius can match a wider area, so choose one that fits the place.</li>
+<li>Save, then check the location in the list. Search the list or open an existing location to edit its name, coordinate, address, or radius.</li>
+</ol>
+<p>Nearby future automatic visits can use the saved name. Editing or deleting a location in this management screen keeps past visits unchanged. To fix an older visit, edit that visit itself. A place with the same name is not necessarily the same location; check the pin and radius.</p>
+<figure style="max-width:302px;margin:24px auto"><img src="/screenshots/saved-location-editor.png" width="302" height="656" style="height:auto" alt="iso.me Add Location editor with name, optional address, direct latitude and longitude fields, and a default 150 metre match radius" loading="lazy" decoding="async"><figcaption><p>The editor opened with location permission denied in an isolated Debug simulator rebuild of release 1.7.16, iOS 26.5, checked October 26, 2026. This confirms the available controls, not a completed save through this screen.</p></figcaption></figure>
+<p>Direct coordinate entry does not require the phone’s current GPS position. Map search and map previews use Apple services; disabling Location names does not turn those interactive map services into an offline feature. See the <a href="/docs/privacy-data/">network and storage reference</a>.</p>
+
+<h2 id="locations-csv">Import saved locations from CSV</h2>
+<p>In <strong>Manage Locations</strong>, choose <strong>Import Locations from CSV</strong>. This is separate from the general <strong>Import File</strong> control for visit and route-point history. A locations CSV defines reusable places, not visits.</p>
+<table>
+<caption>Saved-location CSV columns</caption>
+<tr><th scope="col">Column</th><th scope="col">Requirement</th></tr>
+<tr><th scope="row"><code>name</code></th><td>A nonempty location name.</td></tr>
+<tr><th scope="row"><code>latitude</code></th><td>A finite number from −90 through 90.</td></tr>
+<tr><th scope="row"><code>longitude</code></th><td>A finite number from −180 through 180.</td></tr>
+<tr><th scope="row"><code>address</code></th><td>Optional. Quote values containing commas.</td></tr>
+<tr><th scope="row"><code>radius_meters</code></th><td>Optional. Defaults to 150 when empty; otherwise use 25–10,000.</td></tr>
+</table>
+<p>Use UTF-8 CSV, up to 5 MB and 10,000 data rows. Review valid rows, invalid rows, and duplicates before importing. Invalid rows are skipped rather than repaired automatically.</p>
 <ul>
-<li>Tap a visit on the map or in the timeline to open its detail sheet, then <strong>Confirm place</strong> to accept the detected name.</li>
-<li>To fix a wrong name, edit it or pick from <strong>nearby business suggestions</strong> — real places found via Apple Maps around the visit's location, searchable in the sheet.</li>
-<li><strong>Undo correction</strong> restores the originally detected name, address, and position.</li>
-<li>Arrival and departure times are editable (with a “still here” toggle for ongoing visits), and notes can be attached to any visit.</li>
+<li><strong>Keep existing locations</strong> skips matching locations.</li>
+<li><strong>Update matching locations</strong> changes the reusable location’s values for future matching while keeping historical visits unchanged.</li>
 </ul>
+<p>Matching considers the name and nearby position, using match radii. Name case and surrounding whitespace are ignored. Review the summary and pin instead of assuming that equal names or slightly different coordinates will always create separate entries.</p>
+<p><a href="/samples/synthetic-saved-locations.csv" download>Download the synthetic saved-locations CSV</a>. Its two invented stops contain no personal history. Native tests against released 1.7.16 parsed and stored both, checked their coordinates and radii, then confirmed that a repeat import skips two under Keep existing and updates two under Update matching. The existing historical visit remained unchanged.</p>
+<p>Those are parser and in-memory storage checks. The file-picker handoff and a complete on-device CSV import have not been newly verified here. Try a small test file and review the preview before importing your own locations.</p>
 
-<h2>Saved places</h2>
-<p>Confirming or correcting a visit also <strong>saves the place</strong> — a name, position, and a match radius (default 150 m). From then on, any new visit inside that radius is automatically named from the saved place and marked confirmed. No more re-correcting “Home” every week.</p>
-<ul>
-<li>Saved places are manageable from the manual-entry sheet: select, swipe to delete, or create new ones with a radius of 50 / 100 / 150 / 250 m.</li>
-<li>Places with the same name at nearly the same spot update each other instead of piling up.</li>
-</ul>
+<h2>Confirm or correct an existing visit</h2>
+<p>Open the visit from Map or Timeline. <strong>Confirm place</strong> accepts the detected place; correcting a name, address, or position records your chosen values. Arrival, departure, and notes can also be edited. Nearby business suggestions use Apple Maps around the visit’s coordinate.</p>
+<p>Visits can be unconfirmed, confirmed, or corrected. Automatic geocoding does not overwrite a visit that is protected by its confirmation or correction state. <strong>Undo correction</strong> restores the original detected place information. Confirming or correcting a visit can also save reusable place knowledge; that is different from editing a saved location without changing a past visit.</p>
 
-<h2>Manual and past visits</h2>
-<p>The <strong>+</strong> menu on the map offers three ways to add history by hand:</p>
-<ul>
-<li><strong>Save current place</strong> — names where you are right now.</li>
-<li><strong>Add past visit</strong> — pick a place, an arrival, and a departure; the map then jumps to that day so you can see it in context.</li>
-<li><strong>Add place manually</strong> — search Apple Maps, drop a pin, pick a saved place, or use your current location; optionally save it as a reusable place.</li>
-</ul>
-<p>Locations can be chosen by searching Apple Maps, dropping a pin on a map, reusing a saved place, or using your current GPS position. Past visits require a departure time and never silently fall back to “here”.</p>
+<h2>Add a missing past visit</h2>
+<p>On the Map tab, open <strong>+</strong> and choose <strong>Add past visit</strong>. Select the location explicitly by search, pin, or saved place, then enter the arrival and departure times. Past visits do not silently use the phone’s current position when a location is missing.</p>
+<p>The same menu offers <strong>Save current place</strong> and <strong>Add place manually</strong> for other entry tasks. Current-position workflows depend on location access; choosing a known past place is a different task. A manual entry records what you enter. It cannot recreate missing GPS points or prove an automatic visit occurred.</p>
+<p>For a gap in recorded history, use the <a href="/blog/missing-location-history-iphone/">missing visits and routes checklist</a>. Keep a <a href="/blog/back-up-iphone-location-history/">separate backup</a> before making extensive journal edits.</p>
 
-<h2>The current-place suggestion</h2>
-<p>With <strong>Settings → Map display → Visit suggestions</strong> enabled (off by default), the map can offer a small card when you arrive somewhere new — suggesting the nearest saved place or a nearby business, with one tap to save. Dismissing a suggestion also silences it for that spot, so it doesn't nag.</p>
+<h2>Optional current-place suggestions</h2>
+<p><strong>Settings → Map display → Visit suggestions</strong> is off by default. When enabled, a nearby saved place or business can be offered as a Save Place prompt. This does not replace tracking permission or guarantee that every stop becomes a detected visit.</p>
+<p>Reviewed October 26, 2026 against released iso.me 1.7.16. The editor screenshot and native fixture tests have the limits described above; no new physical route or visit-detection test is claimed.</p>
 """
 
 BODIES["photos"] = """

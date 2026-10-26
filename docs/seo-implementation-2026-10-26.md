@@ -106,6 +106,15 @@ Production deployment `998d16ed` passes all 30 HTML/Markdown pairs, exact sample
 and screenshot checks, and all-100 mobile/desktop Lighthouse on both new pages.
 The new URLs are in the sitemap; no new Google indexation or ranking is claimed.
 
+The places reference now reflects released Saved Locations management, direct
+coordinate entry, 25–10,000 m radii, and the separate CSV importer. A synthetic
+two-place sample passes native parsing/storage and duplicate checks while
+preserving historical visits. The editor was checked with location permission
+denied; no complete UI save or file-picker import is claimed. All 29 selected
+native tests pass. See [the places evidence](qa/seo-saved-locations-2026-10-26.md).
+Apple's live lookup still reported 1.7.16 on this recheck, so the Google import
+article remains a draft; revisit its release gate when the public version changes.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

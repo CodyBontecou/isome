@@ -40,9 +40,9 @@ The daily timeline, inferred outings, route replay, and editing or deleting sess
 
 ](https://isome.isolated.tech/docs/timeline-outings/) [ Guide 04
 
-## Places, corrections & manual entries
+## Save and edit places in your iPhone location journal
 
-Confirm or correct detected visits, save places, and add visits by hand.
+Manage saved locations, enter coordinates, import a places CSV, and distinguish reusable places from past visits in iso.me.
 
 ](https://isome.isolated.tech/docs/places/) [ Guide 05
 

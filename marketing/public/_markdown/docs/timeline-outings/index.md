@@ -60,6 +60,6 @@ Timeline → Country Days counts local dates represented by visits, route points
 
 See [how to track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details.
 
-[← PreviousVisits, routes & battery](https://isome.isolated.tech/docs/tracking/) [Next →Places, corrections & manual entries](https://isome.isolated.tech/docs/places/)
+[← PreviousVisits, routes & battery](https://isome.isolated.tech/docs/tracking/) [Next →Save and edit places in your iPhone location journal](https://isome.isolated.tech/docs/places/)
 
 Source: https://isome.isolated.tech/docs/timeline-outings/
