@@ -58,3 +58,35 @@ Core Web Vitals, or ranking audit.
 Local Lighthouse 13.5.0 scores 100 in all four categories on the four changed
 references, mobile and desktop. Reports:
 `/private/tmp/isome-seo-mobile-tables-before/`.
+
+## Production scope and checks
+
+Implementation pushed on `main` as `12b81ac`. Pages deployment:
+`ab83f375`, https://ab83f375.spotted-8ez.pages.dev. Content-specific checks
+confirm all four references serve their new scroll regions.
+
+The live sitemap additionally lists `/zh-hans/`, which is not in this checkout
+or part of this change. Its response is HTML 200 with `lang="zh-Hans"` and a
+Chinese homepage title. No locale implementation or review is claimed here,
+and no subsequent deployment was made to replace that content. The live
+layout sweep includes it: **31 pages, 62 cases, zero document overflow**.
+Measurements are in [the production audit](../seo-mobile-layout-production-2026-10-26.json).
+The response checker remains scoped to this checkout's 30 HTML/Markdown pairs;
+all its cache, representation, 404, API, method, and asset checks pass.
+
+The production width sweep ran from the public product API document using
+same-origin sandboxed frames without scripts. This avoids executing child-page
+analytics. Direct Privacy inspection at 320 px confirms its table scrollLeft
+changes from 0 to 40 after ArrowRight, with a focused scroll region and the
+whole document still at 320 px. Mobile visual proof:
+`build/seo-evidence/mobile-tables-20261026/privacy-table-mobile-live.jpg`.
+
+The local preview was stopped. No native app/device, new campaign, Google
+indexing request, external message, scheduled task, or app submission was used.
+
+Production Lighthouse 13.5.0 scores 100 for performance, accessibility, best
+practices, and SEO on all four corrected references, mobile and desktop.
+Reports: `/private/tmp/isome-seo-mobile-tables-after/`. The live Tracking
+reference also measures a 390 px document with a 304 px scroll region
+containing its 372 px table. Additional visual proof:
+`build/seo-evidence/mobile-tables-20261026/tracking-table-mobile-live.jpg`.

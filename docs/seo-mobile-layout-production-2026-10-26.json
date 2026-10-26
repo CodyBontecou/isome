@@ -1,0 +1,374 @@
+[
+  {
+    "path": "/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/about",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/compare/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/contact",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/places/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/integrations/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/privacy",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/terms",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/zh-hans/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0
+  },
+  {
+    "path": "/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/about",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/compare/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/contact",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/places/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/integrations/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/privacy",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/terms",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  },
+  {
+    "path": "/zh-hans/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0
+  }
+]

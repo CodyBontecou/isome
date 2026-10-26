@@ -199,6 +199,10 @@ tables now use named, keyboard-focusable scroll regions. All 60 final cases
 fit, and a direct keyboard check scrolls the Privacy table without widening
 the page. No new content or search-result improvement is claimed. See
 [the mobile table record](qa/seo-mobile-table-reflow-2026-10-26.md).
+Deployment `ab83f375` is verified live. The production sitemap also has an
+additional `/zh-hans/` homepage outside this checkout; all 31 live pages fit
+both widths (62 cases). The checkout’s 30 representation pairs pass, as do
+all-100 mobile/desktop Lighthouse checks on the four corrected references.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
