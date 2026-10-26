@@ -18,7 +18,9 @@ existing SavedPlaceManagementTests file in the temporary release-source copy.
 No native production repository code or submitted binary changed. The test
 uses the documentation JSON records (same content, without the final newline),
 actual LocationViewModel.importData, actual ImportService/models, a new on-disk
-SwiftData container, and actual ExportService.render. No parser, persistence,
+SwiftData container, and actual ExportService.render. Compared ImportService, LocationViewModel, LocationManager, ExportService,
+Visit, and LocationPoint byte-for-byte against the release revision; all match.
+No parser, persistence,
 URL-security access, reconciliation, or serializer stubs were introduced.
 
 Tracking is disabled; network geocoding is disabled and its preference restored.
@@ -80,3 +82,29 @@ metadata, JSON-LD, IDs, sitemap coverage, and `git diff --check`.
 
 No search results, new indexation, file-picker success, complete phone restore,
 app-process restart, purchase flow, or cloud handoff is claimed.
+
+## Publication
+
+Implementation pushed on `main` as `de915d1`, after integrating the concurrent
+app-development commit `eacdf9e`. It did not overlap these website files.
+Production deployment: `f8001e05`, https://f8001e05.spotted-8ez.pages.dev.
+
+All 30 production HTML/Markdown pairs and response/API/asset checks pass.
+Content-specific checks confirm the new results and corrections on all three
+changed pages. The 390 px mobile page has no document overflow; the table
+scrolls inside its labelled region. Desktop visual proof is saved at
+`build/seo-evidence/backup-disk-20261026/backup-results-live.jpg`.
+
+Local Lighthouse 13.5.0 scores 100 in all four categories on all three pages,
+mobile and desktop. Reports: `/private/tmp/isome-seo-backup-disk-before/`.
+The first production audit was interrupted because some responses still served
+the previous deployment. Final production checks run only after confirming
+all three revised pages; their reports are in
+`/private/tmp/isome-seo-backup-disk-after-confirmed/`. All three pages score
+100 for performance, accessibility, best practices, and SEO on mobile and
+desktop. These lab results do not establish field or search performance.
+
+The local preview was stopped. Scoped Argent cleanup on the one used QA
+simulator found no remaining tool services. Other devices were not controlled.
+No Google indexing request, new campaign, scheduled task, or app submission
+was made.
