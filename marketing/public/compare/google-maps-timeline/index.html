@@ -150,6 +150,15 @@ pre code { overflow-wrap: normal; }
   <p>Google Timeline already keeps history on your device and offers encrypted backup. Choose based on the recording and export workflow you need. Starting iso.me does not move your old Timeline archive.</p>
 </section>
 
+<section aria-labelledby="decision">
+  <h2 id="decision">Start with the history you need to keep</h2>
+  <ul>
+    <li><strong>Find or move your existing Google history:</strong> keep its archive and check <a href="#preserve">Timeline export and backup</a> first. iso.me 1.7.16 cannot import Google Timeline files.</li>
+    <li><strong>Record future visits and routes without another account:</strong> <a href="#choose">try iso.me’s free recording</a>, then inspect the saved points before relying on it.</li>
+    <li><strong>Use new records in a map, notes, or your own server:</strong> review the <a href="#examples">checked export examples</a> before paying for exports. File compatibility and restoration are separate questions.</li>
+  </ul>
+</section>
+
 <section aria-labelledby="comparison">
   <h2 id="comparison">Compare the everyday workflow</h2>
   <div class="table-scroll" role="region" aria-label="iso.me and Google Timeline comparison" tabindex="0">
@@ -189,8 +198,26 @@ pre code { overflow-wrap: normal; }
 
 <section aria-labelledby="preserve">
   <h2 id="preserve">Preserve your existing history first</h2>
-  <p>Save Google’s exported archive separately before changing apps or devices. App Store 1.7.16 cannot import that archive. A future importer still cannot reconstruct records missing from the file.</p>
+  <p>Google’s downloadable archive and its device-transfer backup serve different purposes. Keep the archive before changing your setup; check backup separately if you need history on another device.</p>
+  <ol>
+    <li>In Google Maps on iPhone, open your profile picture or initial, then <strong>Settings → Location &amp; Privacy → Export Timeline data</strong>.</li>
+    <li>Choose <strong>Save to Files</strong>, select a destination, and save <code>location-history.json</code>. Keep that original file separately.</li>
+    <li>For Google’s device-transfer backup, open <strong>Your Timeline → cloud icon</strong> and check Backup. Google says backup requires auto-delete to be off and changes can take a few days to appear.</li>
+  </ol>
+  <p class="source-note">These steps follow <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&amp;hl=en">Google’s iPhone export and backup instructions</a>, checked October 26, 2026. Google notes that settings are being updated, so labels may differ. No Google device-transfer test is claimed here.</p>
+  <p>App Store 1.7.16 cannot import that Google archive. A future importer still cannot reconstruct records missing from the file. An exported file is not proof of a successful restore.</p>
   <p>For existing Apple or Google records, start with <a href="/blog/view-location-history-iphone/">the iPhone history guide</a>. For new iso.me routes, follow <a href="/blog/record-iphone-route-gpx/">the GPX export walkthrough</a> and check <a href="/docs/export-import/">export and restore compatibility</a>. A GPX file is useful for drawing a route elsewhere, but it cannot be imported into iso.me. Keep supported visit and point exports for records you want to restore later.</p>
+</section>
+
+<section aria-labelledby="examples">
+  <h2 id="examples">Check the output before choosing an export workflow</h2>
+  <p>These examples use invented location records. They show specific file and receiver behavior, with the remaining recording and transfer limits stated in each guide.</p>
+  <ul>
+    <li><a href="/blog/record-iphone-route-gpx/#sample">GPX in gpx.studio:</a> five points from iso.me’s serializer opened as two segments. This checks synthetic file compatibility, not a completed physical recording.</li>
+    <li><a href="/blog/iphone-location-journal-obsidian/">Markdown in Obsidian:</a> a native export with two invented visits opened in a temporary desktop vault. Mobile, plugins, and scheduled delivery need separate checks.</li>
+    <li><a href="/integrations/dawarich/">Overland delivery to Dawarich:</a> three invented points persisted after the local receiver and database restarted. Production HTTPS and unattended delivery remain unverified.</li>
+  </ul>
+  <p>For returning data to iso.me, read the <a href="/blog/back-up-iphone-location-history/">backup and restore guide</a>. In the checked 1.7.16 import, nearby visits reconciled while repeating the point file appended its points again. Keep the originals and verify destination counts before repeating an import.</p>
 </section>
 
 <section aria-labelledby="privacy">

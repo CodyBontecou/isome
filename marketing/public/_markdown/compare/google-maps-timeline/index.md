@@ -16,6 +16,12 @@ iso.me is an iPhone location journal for people who want to record their own vis
 
 Google Timeline already keeps history on your device and offers encrypted backup. Choose based on the recording and export workflow you need. Starting iso.me does not move your old Timeline archive.
 
+## Start with the history you need to keep
+
+- Find or move your existing Google history: keep its archive and check [Timeline export and backup](https://isome.isolated.tech/compare/google-maps-timeline/#preserve) first. iso.me 1.7.16 cannot import Google Timeline files.
+- Record future visits and routes without another account: [try iso.me’s free recording](https://isome.isolated.tech/compare/google-maps-timeline/#choose), then inspect the saved points before relying on it.
+- Use new records in a map, notes, or your own server: review the [checked export examples](https://isome.isolated.tech/compare/google-maps-timeline/#examples) before paying for exports. File compatibility and restoration are separate questions.
+
 ## Compare the everyday workflow
 
 iPhone location history: accounts, recording, and portability
@@ -48,9 +54,27 @@ If you want to try iso.me, record a short session and inspect it before relying 
 
 ## Preserve your existing history first
 
-Save Google’s exported archive separately before changing apps or devices. App Store 1.7.16 cannot import that archive. A future importer still cannot reconstruct records missing from the file.
+Google’s downloadable archive and its device-transfer backup serve different purposes. Keep the archive before changing your setup; check backup separately if you need history on another device.
+
+- In Google Maps on iPhone, open your profile picture or initial, then Settings → Location & Privacy → Export Timeline data.
+- Choose Save to Files, select a destination, and save `location-history.json`. Keep that original file separately.
+- For Google’s device-transfer backup, open Your Timeline → cloud icon and check Backup. Google says backup requires auto-delete to be off and changes can take a few days to appear.
+
+These steps follow [Google’s iPhone export and backup instructions](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en), checked October 26, 2026. Google notes that settings are being updated, so labels may differ. No Google device-transfer test is claimed here.
+
+App Store 1.7.16 cannot import that Google archive. A future importer still cannot reconstruct records missing from the file. An exported file is not proof of a successful restore.
 
 For existing Apple or Google records, start with [the iPhone history guide](https://isome.isolated.tech/blog/view-location-history-iphone/). For new iso.me routes, follow [the GPX export walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/) and check [export and restore compatibility](https://isome.isolated.tech/docs/export-import/). A GPX file is useful for drawing a route elsewhere, but it cannot be imported into iso.me. Keep supported visit and point exports for records you want to restore later.
+
+## Check the output before choosing an export workflow
+
+These examples use invented location records. They show specific file and receiver behavior, with the remaining recording and transfer limits stated in each guide.
+
+- [GPX in gpx.studio:](https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample) five points from iso.me’s serializer opened as two segments. This checks synthetic file compatibility, not a completed physical recording.
+- [Markdown in Obsidian:](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/) a native export with two invented visits opened in a temporary desktop vault. Mobile, plugins, and scheduled delivery need separate checks.
+- [Overland delivery to Dawarich:](https://isome.isolated.tech/integrations/dawarich/) three invented points persisted after the local receiver and database restarted. Production HTTPS and unattended delivery remain unverified.
+
+For returning data to iso.me, read the [backup and restore guide](https://isome.isolated.tech/blog/back-up-iphone-location-history/). In the checked 1.7.16 import, nearby visits reconciled while repeating the point file appended its points again. Keep the originals and verify destination counts before repeating an import.
 
 ## Understand what local storage means
 
