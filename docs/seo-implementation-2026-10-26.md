@@ -249,6 +249,13 @@ request with a daily-quota message. Dawarich remains pending a later authorized
 retry; no prior accepted request was repeated or automated retry scheduled.
 See [the discovery record](qa/seo-new-url-discovery-2026-10-26.md).
 
+The released iso.me Maps 0.7.15 Markdown parser now passes checks against the
+unchanged native two-visit sample, including zero coordinates, a missing-column
+control, and host-timezone behavior. Actual Obsidian map rendering is pending
+explicit approval to exit the temporary vault's Restricted mode and enable
+the staged plugin; no setting was changed or public promise extended. See
+[the plugin compatibility record](qa/seo-obsidian-maps-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.
