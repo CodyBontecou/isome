@@ -297,6 +297,7 @@ BODIES["export-import"] = """
 <tr><th scope="row">GPX / KML / GeoJSON</th><td>Mapping tools and route viewers</td><td>No</td></tr>
 <tr><th scope="row">OwnTracks / Overland</th><td>Compatible location tools</td><td>No</td></tr>
 </table>
+<p>If Preview is unexpectedly empty, follow the <a href="/blog/missing-location-history-iphone/#export">export filter diagnosis</a> before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.</p>
 <h2>Keep a copy and check it</h2>
 <ol>
 <li>Select visits or route points, JSON, and the dates you want to retain. Export each data type you need; keep all generated files.</li>

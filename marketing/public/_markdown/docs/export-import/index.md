@@ -77,6 +77,8 @@ Choose a file for the next task
 | GPX / KML / GeoJSON | Mapping tools and route viewers | No
 | OwnTracks / Overland | Compatible location tools | No
 
+If Preview is unexpectedly empty, follow the [export filter diagnosis](https://isome.isolated.tech/blog/missing-location-history-iphone/#export) before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.
+
 ## Keep a copy and check it
 
 - Select visits or route points, JSON, and the dates you want to retain. Export each data type you need; keep all generated files.

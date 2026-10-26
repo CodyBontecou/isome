@@ -22,7 +22,9 @@ Choose the symptom
 - [Inspect route points and filters](https://isome.isolated.tech/blog/missing-location-history-iphone/#points)
 - [Check visits and place names](https://isome.isolated.tech/blog/missing-location-history-iphone/#visits)
 - [Check Watch transfer](https://isome.isolated.tech/blog/missing-location-history-iphone/#watch)
+- [Check an empty export](https://isome.isolated.tech/blog/missing-location-history-iphone/#export)
 - [Preserve records and ask for help](https://isome.isolated.tech/blog/missing-location-history-iphone/#preserve)
+- [Common questions](https://isome.isolated.tech/blog/missing-location-history-iphone/#questions)
 
 ## Match the symptom before changing anything
 
@@ -46,7 +48,19 @@ Start enables GPS recording, visit monitoring, and significant location changes 
 - For a new short test, tap Start and confirm the recording state changes. After a permission prompt, check the state again rather than assuming the session began.
 - Finish the test with Stop, then inspect its route and times in Timeline.
 
+### A saved outing can contain zero route points
+
+In our isolated 1.7.16 release-source simulator check, Start changed to Stop and the timer ran. After stopping, Timeline saved an eight-second outing with zero distance and zero points. Its detail explicitly said No GPS points were saved for this outing yet. A running timer or an outing card alone does not confirm a route was captured.
+
+![iso.me outing detail showing eight seconds, zero distance, zero points, and no saved GPS points](https://isome.isolated.tech/screenshots/journal-empty-outing.png)
+
+Checked October 26, 2026 in a separate Debug simulator rebuild of 1.7.16 (46), iOS 26.5. This empty test journal contains no personal route. It does not establish why no points arrived or verify physical GPS recording.
+
+Open your outing and check Points and the path, then compare the expected time range. For the complete first-session checklist, see [the recording guide](https://isome.isolated.tech/blog/private-location-journal-iphone/#first-recording).
+
 Review the app’s permission under iPhone Settings → Privacy & Security → Location Services. iso.me offers Always access for background visit monitoring; an active manual session and automatic visit detection have different permission needs. Follow [Apple’s Location Services instructions](https://support.apple.com/en-us/102515) if the controls on your iOS version differ.
+
+For a new test, allow time to acquire a location and choose an open area with a clear view of the sky. Apple explains that GPS accuracy can improve over several minutes and that buildings, roofs, and terrain can obstruct signals. This is a future-recording check, not a way to recover earlier movement.
 
 Changing permission can help a future recording. It does not fill an earlier gap. See the [tracking reference](https://isome.isolated.tech/docs/tracking/) for the shared Start/Stop controls.
 
@@ -78,11 +92,23 @@ Sync queued means delivery is pending; it does not confirm the phone imported ev
 
 Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the [Watch recording and sync guide](https://isome.isolated.tech/docs/apple-watch/) for the detailed status checks.
 
+## 5. If history exists but the exported file is empty
+
+Inspect Export Preview before changing the journal. Preview is free; writing a file requires the optional export unlock. Work on one expected date and change one filter at a time.
+
+- Match the record type. Choose Points for a measured path or Visits for stops. A visit record does not supply the intervening GPS route.
+- Check dates and time of day. Use a range covering the expected record. Disable the time of day filter for the comparison. Visit selection uses arrival time; an overnight visit arriving before the selected range can be excluded even if you were still there the next morning.
+- For Points, check quality filters. Temporarily remove the maximum accuracy cap and compare with GPS glitch exclusion off. This can reveal saved records excluded by export settings; it cannot restore fixes rejected before saving. Restore your preferred filters after the comparison.
+- For Visits, check completion and duration. Turn off Only completed visits and remove the minimum duration for a comparison. An open visit or a short stop can otherwise be excluded.
+- Preview again. If the expected records now appear, the settings explain the difference. If they remain absent, return to the same date in Timeline and identify whether you actually have points, visits, or only an outing.
+
+For an example you can inspect without sharing your history, the [checked GPX example](https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample) contains five invented points from the released app’s serializer. It demonstrates a file and viewer result, not recovery of missing records. The [export reference](https://isome.isolated.tech/docs/export-import/) covers formats and field choices.
+
 ## Preserve what remains before retrying
 
 Do not clear history, delete the outing, or reinstall as an initial troubleshooting step. Deleting an outing can also delete its route points. Keep supported exports you already have, and use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) if you need a separate copy of the retained records.
 
-Import adds records without a duplicate check. Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
+In the verified public 1.7.16 (46) release, importing iso.me files adds records without a duplicate check. Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
 
 ### What to include when asking for help
 
@@ -93,6 +119,24 @@ Import adds records without a duplicate check. Repeatedly importing an overlappi
 
 Describe the symptom before sending a route file. You can [contact support](mailto:cody.bontecou@gmail.com) without including your coordinates or a full location archive.
 
+## Common questions
+
+### Why does my outing have a duration but no route?
+
+The session records its own start and stop times. It can finish with zero saved GPS points, as the checked example above shows. Inspect Points and the path before treating the timer as proof of a recorded journey.
+
+### Can I recover yesterday’s route by enabling location access today?
+
+Permission changes affect future collection. They do not recreate an earlier route. Check retained records, a pending Watch transfer, or a separate backup before deciding the history is gone.
+
+### Does a blank export mean my journal was deleted?
+
+No. The selected record type, date range, time of day, and quality filters can exclude retained records. Compare Preview with Timeline for the same date before deleting or importing anything.
+
+### Will a saved place fill an old gap?
+
+A saved place provides reusable location details. You can separately add a known past visit, but neither action recreates measured movement. Use the [saved places reference](https://isome.isolated.tech/docs/places/) for the distinction.
+
 ## Check a short route.
 Then trust a longer day.
 
@@ -100,7 +144,7 @@ Recording and reviewing history are free. Check one finished session before rely
 
 [Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
-Reviewed October 26, 2026 against iso.me’s recording, filtering, import, and Watch-sync source. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
+Reviewed October 26, 2026 against iso.me 1.7.16 (46) release-source recording and export filters, the checked empty-outing example, Watch-sync source, and Apple’s linked Location Services guidance. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
 
 ## Read next
 

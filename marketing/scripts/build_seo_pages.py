@@ -117,7 +117,7 @@ PAGES = [
         "type": "BlogPosting",
         "title": "Missing Visits or GPS Points in iso.me? iPhone Checks",
         "headline": "What to check when visits or route points are missing in iso.me",
-        "description": "Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying.",
+        "description": "Check an empty iso.me outing, missing GPS points, visits, Watch sync, or export filters. Includes a checked zero-point example and steps that preserve your journal.",
         "lede": "Check the date and recording state, then separate missing points, missing visits, pending Watch transfers, and export filters. Keep existing records while you investigate.",
         "source": "missing-location-history-iphone.html",
     },

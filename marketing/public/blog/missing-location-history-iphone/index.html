@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Missing Visits or GPS Points in iso.me? iPhone Checks</title>
-  <meta name="description" content="Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying.">
+  <meta name="description" content="Check an empty iso.me outing, missing GPS points, visits, Watch sync, or export filters. Includes a checked zero-point example and steps that preserve your journal.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/blog/missing-location-history-iphone/">
   <meta name="theme-color" content="#f5f4ef">
   <meta property="og:title" content="Missing Visits or GPS Points in iso.me? iPhone Checks">
-  <meta property="og:description" content="Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying.">
+  <meta property="og:description" content="Check an empty iso.me outing, missing GPS points, visits, Watch sync, or export filters. Includes a checked zero-point example and steps that preserve your journal.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://isome.isolated.tech/blog/missing-location-history-iphone/">
   <meta property="og:image" content="https://isome.isolated.tech/screenshots/map.png">
   <meta property="og:image:alt" content="iso.me map interface showing visits and route points">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Missing Visits or GPS Points in iso.me? iPhone Checks">
-  <meta name="twitter:description" content="Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying.">
+  <meta name="twitter:description" content="Check an empty iso.me outing, missing GPS points, visits, Watch sync, or export filters. Includes a checked zero-point example and steps that preserve your journal.">
   <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/map.png">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -99,7 +99,7 @@ pre code { overflow-wrap: normal; }
       "@id": "https://isome.isolated.tech/blog/missing-location-history-iphone/",
       "url": "https://isome.isolated.tech/blog/missing-location-history-iphone/",
       "name": "Missing Visits or GPS Points in iso.me? iPhone Checks",
-      "description": "Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying.",
+      "description": "Check an empty iso.me outing, missing GPS points, visits, Watch sync, or export filters. Includes a checked zero-point example and steps that preserve your journal.",
       "inLanguage": "en",
       "dateModified": "2026-10-26",
       "author": {
@@ -157,7 +157,7 @@ pre code { overflow-wrap: normal; }
   <h2 id="start-here">Find out which part is missing</h2>
   <p>If an iso.me day looks empty, check the selected date and recording state first. Then separate four different problems: missing route points, a missing visit, records still on Apple Watch, or an export that excluded records. Each needs a different check.</p>
   <p>This guide is for an existing iso.me journal. For Apple Maps or Google Timeline records, use <a href="/blog/view-location-history-iphone/">the iPhone location-history guide</a>. Installing iso.me cannot recover a route that another app never recorded.</p>
-  <nav class="article-toc" aria-label="In this guide"><strong>Choose the symptom</strong><ol><li><a href="#symptoms">Match what you see</a></li><li><a href="#recording">Check recording and permission</a></li><li><a href="#points">Inspect route points and filters</a></li><li><a href="#visits">Check visits and place names</a></li><li><a href="#watch">Check Watch transfer</a></li><li><a href="#preserve">Preserve records and ask for help</a></li></ol></nav>
+  <nav class="article-toc" aria-label="In this guide"><strong>Choose the symptom</strong><ol><li><a href="#symptoms">Match what you see</a></li><li><a href="#recording">Check recording and permission</a></li><li><a href="#points">Inspect route points and filters</a></li><li><a href="#visits">Check visits and place names</a></li><li><a href="#watch">Check Watch transfer</a></li><li><a href="#export">Check an empty export</a></li><li><a href="#preserve">Preserve records and ask for help</a></li><li><a href="#questions">Common questions</a></li></ol></nav>
 </section>
 
 <section aria-labelledby="symptoms">
@@ -186,7 +186,12 @@ pre code { overflow-wrap: normal; }
     <li>For a new short test, tap Start and confirm the recording state changes. After a permission prompt, check the state again rather than assuming the session began.</li>
     <li>Finish the test with Stop, then inspect its route and times in Timeline.</li>
   </ol>
+  <h3>A saved outing can contain zero route points</h3>
+  <p>In our isolated 1.7.16 release-source simulator check, Start changed to Stop and the timer ran. After stopping, Timeline saved an eight-second outing with zero distance and zero points. Its detail explicitly said <strong>No GPS points were saved for this outing yet</strong>. A running timer or an outing card alone does not confirm a route was captured.</p>
+  <figure class="product-example"><img src="/screenshots/journal-empty-outing.png" width="302" height="656" alt="iso.me outing detail showing eight seconds, zero distance, zero points, and no saved GPS points" loading="lazy" decoding="async"><figcaption>Checked October 26, 2026 in a separate Debug simulator rebuild of 1.7.16 (46), iOS 26.5. This empty test journal contains no personal route. It does not establish why no points arrived or verify physical GPS recording.</figcaption></figure>
+  <p>Open your outing and check <strong>Points</strong> and the path, then compare the expected time range. For the complete first-session checklist, see <a href="/blog/private-location-journal-iphone/#first-recording">the recording guide</a>.</p>
   <p>Review the app’s permission under <strong>iPhone Settings → Privacy &amp; Security → Location Services</strong>. iso.me offers Always access for background visit monitoring; an active manual session and automatic visit detection have different permission needs. Follow <a href="https://support.apple.com/en-us/102515">Apple’s Location Services instructions</a> if the controls on your iOS version differ.</p>
+  <p>For a new test, allow time to acquire a location and choose an open area with a clear view of the sky. Apple explains that GPS accuracy can improve over several minutes and that buildings, roofs, and terrain can obstruct signals. This is a future-recording check, not a way to recover earlier movement.</p>
   <p>Changing permission can help a future recording. It does not fill an earlier gap. See the <a href="/docs/tracking/">tracking reference</a> for the shared Start/Stop controls.</p>
 </section>
 
@@ -216,10 +221,23 @@ pre code { overflow-wrap: normal; }
   <p>Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the <a href="/docs/apple-watch/">Watch recording and sync guide</a> for the detailed status checks.</p>
 </section>
 
+<section aria-labelledby="export">
+  <h2 id="export">5. If history exists but the exported file is empty</h2>
+  <p>Inspect Export Preview before changing the journal. Preview is free; writing a file requires the optional export unlock. Work on one expected date and change one filter at a time.</p>
+  <ol>
+    <li><strong>Match the record type.</strong> Choose Points for a measured path or Visits for stops. A visit record does not supply the intervening GPS route.</li>
+    <li><strong>Check dates and time of day.</strong> Use a range covering the expected record. Disable the time of day filter for the comparison. Visit selection uses arrival time; an overnight visit arriving before the selected range can be excluded even if you were still there the next morning.</li>
+    <li><strong>For Points, check quality filters.</strong> Temporarily remove the maximum accuracy cap and compare with GPS glitch exclusion off. This can reveal saved records excluded by export settings; it cannot restore fixes rejected before saving. Restore your preferred filters after the comparison.</li>
+    <li><strong>For Visits, check completion and duration.</strong> Turn off Only completed visits and remove the minimum duration for a comparison. An open visit or a short stop can otherwise be excluded.</li>
+    <li><strong>Preview again.</strong> If the expected records now appear, the settings explain the difference. If they remain absent, return to the same date in Timeline and identify whether you actually have points, visits, or only an outing.</li>
+  </ol>
+  <p>For an example you can inspect without sharing your history, the <a href="/blog/record-iphone-route-gpx/#sample">checked GPX example</a> contains five invented points from the released app’s serializer. It demonstrates a file and viewer result, not recovery of missing records. The <a href="/docs/export-import/">export reference</a> covers formats and field choices.</p>
+</section>
+
 <section aria-labelledby="preserve">
   <h2 id="preserve">Preserve what remains before retrying</h2>
   <p>Do not clear history, delete the outing, or reinstall as an initial troubleshooting step. Deleting an outing can also delete its route points. Keep supported exports you already have, and use the <a href="/blog/back-up-iphone-location-history/">backup checklist</a> if you need a separate copy of the retained records.</p>
-  <p>Import adds records without a duplicate check. Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.</p>
+  <p>In the verified public 1.7.16 (46) release, importing iso.me files adds records without a duplicate check. Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.</p>
   <h3>What to include when asking for help</h3>
   <ul>
     <li>App and iOS versions, plus whether the recording came from iPhone or Watch.</li>
@@ -230,12 +248,24 @@ pre code { overflow-wrap: normal; }
   <p>Describe the symptom before sending a route file. You can <a href="mailto:cody.bontecou@gmail.com">contact support</a> without including your coordinates or a full location archive.</p>
 </section>
 
+<section aria-labelledby="questions">
+  <h2 id="questions">Common questions</h2>
+  <h3>Why does my outing have a duration but no route?</h3>
+  <p>The session records its own start and stop times. It can finish with zero saved GPS points, as the checked example above shows. Inspect Points and the path before treating the timer as proof of a recorded journey.</p>
+  <h3>Can I recover yesterday’s route by enabling location access today?</h3>
+  <p>Permission changes affect future collection. They do not recreate an earlier route. Check retained records, a pending Watch transfer, or a separate backup before deciding the history is gone.</p>
+  <h3>Does a blank export mean my journal was deleted?</h3>
+  <p>No. The selected record type, date range, time of day, and quality filters can exclude retained records. Compare Preview with Timeline for the same date before deleting or importing anything.</p>
+  <h3>Will a saved place fill an old gap?</h3>
+  <p>A saved place provides reusable location details. You can separately add a known past visit, but neither action recreates measured movement. Use the <a href="/docs/places/">saved places reference</a> for the distinction.</p>
+</section>
+
 <section class="closing" aria-labelledby="test-next-route">
   <h2 id="test-next-route">Check a short route.<br>Then trust a longer day.</h2>
   <p>Recording and reviewing history are free. Check one finished session before relying on a new setup for a long trip.</p>
   <a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free for iPhone</a>
 </section>
-<p class="source-note">Reviewed October 26, 2026 against iso.me’s recording, filtering, import, and Watch-sync source. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.</p>
+<p class="source-note">Reviewed October 26, 2026 against iso.me 1.7.16 (46) release-source recording and export filters, the checked empty-outing example, Watch-sync source, and Apple’s linked Location Services guidance. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.</p>
 
     </article>
     <nav class="article-toc" aria-labelledby="read-next-title"><h2 id="read-next-title">Read next</h2><ul><li><a href="/blog/back-up-iphone-location-history/">Preserve the records you have</a><p>Keep supported visit and point files before changing your setup.</p></li><li><a href="/docs/apple-watch/">Check Watch recording and sync</a><p>Read the status messages and verify the transferred day on your phone.</p></li></ul></nav>
