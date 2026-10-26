@@ -280,6 +280,9 @@ XML checks preserve the three coordinates/times and one segment. In a fresh
 gpx.studio context it displays 0.03 km and 02:00 / 02:00. This verifies the
 stored-record export path, not a real recording or purchase. See
 [the UI export record](qa/seo-gpx-ui-export-2026-10-26.md).
+Published from main commit `f08b2be` as deployment `ec5b64fc`; local and
+production mobile/desktop Lighthouse all 100, all 31 HTML/Markdown pairs pass,
+and exact production sample/image bytes and a fresh production viewer were checked.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.

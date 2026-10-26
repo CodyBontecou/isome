@@ -83,3 +83,24 @@ equality and XML inspection providing evidence beyond screenshots.
 Argent services were stopped only for this simulator after the native test.
 No app binary upload, Apple transaction, real recording, scheduled export,
 physical transfer, indexing request, or new campaign occurred.
+
+## Publication checks
+
+Content commit `f08b2be` was pushed directly to main and published to the existing
+production Pages project as deployment `ec5b64fc`. Local and production mobile
+and desktop Lighthouse scores were 100 for performance, accessibility, best
+practices, and SEO. The build validated 32 HTML pages, 1116 local targets,
+metadata, structured data, IDs, and sitemap coverage. Production response checks
+passed all 31 public HTML/Markdown pairs and the existing response/API contract.
+
+The new section fits at 320px and 390px without document overflow; both images
+loaded. Production sample and both image bytes equal the committed assets, and
+the sample returns the intended `https://gpx.studio` CORS origin. A fresh isolated
+production viewer context loaded only this file and showed the same line,
+0.03 km, 0.81 / 0.81 km/h, and 02:00 / 02:00. Saved live guide screenshot:
+`build/seo-evidence/gpx-ui-export-20261026/guide-live.png`.
+
+An initial default-Python-user-agent asset fetch returned HTTP 403; the existing
+site verification client headers succeeded and established byte equality. No
+site protection or access setting was changed. No search ranking, traffic, or
+conversion improvement is inferred from these publication checks.
