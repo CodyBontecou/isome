@@ -291,6 +291,9 @@ and free/paid boundaries are explicit. The existing campaign and collector
 placements are preserved. Local mobile/desktop Lighthouse scores are all 100
 and the section fits at 320/390 px. See
 [the homepage evidence record](qa/seo-homepage-checked-examples-2026-10-26.md).
+Published main commit `a624fca` as deployment `3dad0dbb`; live all-100
+mobile/desktop Lighthouse, all 31 response pairs, exact destination anchors,
+campaign placements, and both mobile widths pass.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.

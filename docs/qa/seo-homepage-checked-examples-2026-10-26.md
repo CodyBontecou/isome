@@ -36,3 +36,21 @@ desktop homepage Lighthouse scores are all 100. The new section fits at both
 
 This improves access to existing evidence; it does not establish a ranking,
 traffic, or conversion lift. Search-data and physical-workflow gates remain.
+
+## Publication
+
+Pushed content commit `a624fca` directly to main and published Pages deployment
+`3dad0dbb` to the existing production host. Production checks pass all 31
+HTML/Markdown pairs and the existing response/API contract. Live homepage
+mobile and desktop Lighthouse scores are 100 in all four categories.
+
+Browser checks fetched all three destination pages with HTTP 200 and found
+each intended anchor. Both download links in the section retain the `seo-home`
+campaign; their `qr`/`inline` placements match the existing collector contract.
+All five existing acquisition tests pass. Production 320px and 390px viewports
+have equal viewport/document widths, with one column for the section. The QR
+loads, and desktop rendering is checked at 1280 × 900. Screenshot:
+`build/seo-evidence/homepage-examples-20261026/live.png`.
+
+No additional Google indexing submission is needed for this existing homepage
+update. The local preview server was stopped after verification.
