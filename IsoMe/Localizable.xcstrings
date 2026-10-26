@@ -1,6 +1,76 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Location search is off. Enable Location Names in Settings, or choose a pin and enter a name manually.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location search is off. Enable Location Names in Settings, or choose a pin and enter a name manually."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La búsqueda de ubicaciones está desactivada. Activa Nombres de lugares en Ajustes, o elige un punto y escribe un nombre manualmente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La recherche de lieux est désactivée. Activez les noms de lieux dans Réglages, ou placez un repère et saisissez un nom manuellement."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A busca de locais está desativada. Ative Nomes de locais nos Ajustes ou escolha um ponto e digite um nome manualmente."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyszukiwanie miejsc jest wyłączone. Włącz nazwy miejsc w Ustawieniach lub wybierz punkt i wpisz nazwę ręcznie."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск мест отключён. Включите названия мест в настройках или выберите точку и введите название вручную."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点搜索已关闭。请在设置中启用地点名称，或选择一个标记并手动输入名称。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所の検索はオフです。設定で場所名を有効にするか、ピンを選んで名前を手動で入力してください。"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थान की खोज बंद है। सेटिंग्स में स्थान के नाम चालू करें, या पिन चुनकर नाम स्वयं दर्ज करें।"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "অবস্থান অনুসন্ধান বন্ধ আছে। সেটিংসে স্থানের নাম চালু করুন, অথবা একটি পিন বেছে নিয়ে নিজে নাম লিখুন।"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البحث عن المواقع متوقف. فعّل أسماء المواقع في الإعدادات، أو اختر دبوسًا وأدخل اسمًا يدويًا."
+          }
+        }
+      }
+    },
     "": {
       "localizations": {
         "ar": {

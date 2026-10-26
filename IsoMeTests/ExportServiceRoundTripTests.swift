@@ -64,6 +64,105 @@ final class ExportServiceRoundTripTests: XCTestCase {
         XCTAssertEqual(imported.placeDistanceMeters, 42)
     }
 
+    func testCSVPreservesCorrectionAuditCoordinates() throws {
+        let visit = Visit(latitude: 1, longitude: 2, arrivedAt: fixtureDate(hour: 9, minute: 0))
+        visit.preserveOriginalValuesIfNeeded()
+        visit.latitude = 3
+        visit.confirmationStatus = .corrected
+        let imported = try XCTUnwrap(ImportService.importFile(
+            data: ExportService.exportToCSV(visits: [visit]), format: .csv
+        ).visits.first)
+        XCTAssertEqual(imported.originalLatitude, 1)
+        XCTAssertEqual(imported.detectedLatitude, 1)
+    }
+
+    func testCorrectionAndManualMetadataRoundTripInEveryBackupFormat() throws {
+        for source in [VisitSource.automatic, .manual] {
+            let visit = Visit(latitude: 1.25, longitude: 2.5,
+                arrivedAt: fixtureDate(hour: 9, minute: 0), source: source)
+            visit.detectedLatitude = 1.25
+            visit.detectedLongitude = 2.5
+            visit.detectedLocationName = "Detected | \\\" café\n<br>"
+            visit.detectedAddress = "Old & <Address>"
+            visit.originalLatitude = 1.25
+            visit.originalLongitude = 2.5
+            visit.originalLocationName = visit.detectedLocationName
+            visit.originalAddress = visit.detectedAddress
+            visit.latitude = 3.75
+            visit.locationName = "New | Cafe"
+            visit.confirmationStatus = .corrected
+            visit.confirmedAt = fixtureDate(hour: 9, minute: 15)
+            visit.updatedAt = fixtureDate(hour: 9, minute: 30)
+            visit.placeSource = .appleMaps
+            visit.placeDistanceMeters = 42.5
+            for format in [ExportFormat.json, .csv, .markdown] {
+                var options = ExportOptions()
+                options.format = format
+                let data = try ExportService.render(visits: [visit], points: [], options: options).data
+                let restored = try XCTUnwrap(ImportService.importFile(data: data, format: format).visits.first)
+                XCTAssertEqual(restored.sourceRaw, source.rawValue, "\(format)")
+                XCTAssertEqual(restored.confirmationStatusRaw, "corrected")
+                XCTAssertEqual(restored.confirmedAt, visit.confirmedAt)
+                XCTAssertEqual(restored.updatedAt, visit.updatedAt)
+                XCTAssertEqual(restored.originalLatitude, 1.25)
+                XCTAssertEqual(restored.originalLongitude, 2.5)
+                XCTAssertEqual(restored.originalLocationName, visit.originalLocationName)
+                XCTAssertEqual(restored.originalAddress, visit.originalAddress)
+                XCTAssertEqual(restored.detectedLatitude, 1.25)
+                XCTAssertEqual(restored.detectedLongitude, 2.5)
+                XCTAssertEqual(restored.detectedLocationName, visit.detectedLocationName)
+                XCTAssertEqual(restored.detectedAddress, visit.detectedAddress)
+                XCTAssertEqual(restored.placeSourceRaw, "appleMaps")
+                XCTAssertEqual(restored.placeDistanceMeters, 42.5)
+            }
+        }
+    }
+
+    func testEveryVisitExportIncludesAuditAndHonorsRedaction() throws {
+        let visit = Visit(latitude: 1, longitude: 2, arrivedAt: fixtureDate(hour: 9, minute: 0),
+            locationName: "Effective Secret", address: "Effective Address")
+        visit.preserveOriginalValuesIfNeeded()
+        visit.originalLocationName = "Original Secret"
+        visit.detectedLocationName = "Detected Secret"
+        visit.originalAddress = "Original Address"
+        visit.detectedAddress = "Detected Address"
+        visit.confirmationStatus = .corrected
+        for format in [ExportFormat.json, .csv, .markdown, .geojson, .gpx, .kml] {
+            var options = ExportOptions()
+            options.format = format
+            let output = try ExportService.render(visits: [visit], points: [], options: options).data
+            let text = String(decoding: output, as: UTF8.self)
+            XCTAssertTrue(text.contains("originalLatitude"), "\(format)")
+            XCTAssertTrue(text.contains("detectedLatitude"), "\(format)")
+            XCTAssertTrue(text.contains("corrected"), "\(format)")
+            options.includeVisitLocationName = false
+            options.includeVisitAddress = false
+            let redacted = String(decoding: try ExportService.render(visits: [visit], points: [], options: options).data, as: UTF8.self)
+            for secret in ["Effective Secret", "Original Secret", "Detected Secret", "Effective Address", "Original Address", "Detected Address"] {
+                XCTAssertFalse(redacted.contains(secret), "\(format) leaked \(secret)")
+            }
+            options.includeVisitCoordinates = false
+            let noCoordinates = String(decoding: try ExportService.render(visits: [visit], points: [], options: options).data, as: UTF8.self)
+            XCTAssertFalse(noCoordinates.contains("originalLatitude"), "\(format)")
+            XCTAssertFalse(noCoordinates.contains("detectedLongitude"), "\(format)")
+        }
+    }
+
+    func testMarkdownAuditTripleHyphensDoNotDiscardVisits() throws {
+        let visits = ["Old---Cafe", "---", ":---:"].enumerated().map { index, name in
+            let visit = Visit(latitude: 1, longitude: 2, arrivedAt: fixtureDate(hour: 9 + index, minute: 0), locationName: "Current Cafe")
+            visit.originalLocationName = name
+            visit.detectedAddress = "Address---suffix"
+            visit.confirmationStatus = .corrected
+            return visit
+        }
+        let data = ExportService.exportToMarkdown(visits: visits)
+        let restored = try ImportService.importFile(data: data, format: .markdown).visits
+        XCTAssertEqual(restored.count, 3)
+        XCTAssertEqual(restored.map(\.originalLocationName), visits.map(\.originalLocationName))
+        XCTAssertTrue(restored.allSatisfy { $0.detectedAddress == "Address---suffix" })
+    }
+
     func testCSVRoundTripsVisitsAndLocationPoints() throws {
         let visits = makeVisits()
         let points = makeLocationPoints()

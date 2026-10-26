@@ -69,6 +69,62 @@ enum ExportFormat: CaseIterable, Hashable, Codable {
     }
 }
 
+/// Lossless audit payload shared by the human-readable and map export formats.
+/// Values are already filtered by the user's coordinate/name/address export options.
+struct VisitAuditMetadata: Codable {
+    let source: String?
+    let confirmationStatus: String?
+    let confirmedAt: String?
+    let updatedAt: String?
+    let originalLatitude: Double?
+    let originalLongitude: Double?
+    let originalLocationName: String?
+    let originalAddress: String?
+    let detectedLatitude: Double?
+    let detectedLongitude: Double?
+    let detectedLocationName: String?
+    let detectedAddress: String?
+    let placeSource: String?
+    let placeDistanceMeters: Double?
+
+    func json() -> String {
+        "{" + fields().map { Self.quote($0.0) + ":" + Self.quote($0.1) }.joined(separator: ",") + "}"
+    }
+
+    private static func quote(_ value: String) -> String {
+        let escaped = value.unicodeScalars.map { scalar -> String in
+            switch scalar.value {
+            case 34: return "\\\""
+            case 92: return "\\\\"
+            case 60: return "\\u003c"
+            case 0...31: return String(format: "\\u%04x", scalar.value)
+            default: return String(scalar)
+            }
+        }.joined()
+        return "\"" + escaped + "\""
+    }
+
+    func fields() -> [(String, String)] {
+        var result: [(String, String)] = []
+        if let source { result.append(("source", String(describing: source))) }
+        if let confirmationStatus { result.append(("confirmationStatus", String(describing: confirmationStatus))) }
+        if let confirmedAt { result.append(("confirmedAt", String(describing: confirmedAt))) }
+        if let updatedAt { result.append(("updatedAt", String(describing: updatedAt))) }
+        if let originalLatitude { result.append(("originalLatitude", String(describing: originalLatitude))) }
+        if let originalLongitude { result.append(("originalLongitude", String(describing: originalLongitude))) }
+        if let originalLocationName { result.append(("originalLocationName", String(describing: originalLocationName))) }
+        if let originalAddress { result.append(("originalAddress", String(describing: originalAddress))) }
+        if let detectedLatitude { result.append(("detectedLatitude", String(describing: detectedLatitude))) }
+        if let detectedLongitude { result.append(("detectedLongitude", String(describing: detectedLongitude))) }
+        if let detectedLocationName { result.append(("detectedLocationName", String(describing: detectedLocationName))) }
+        if let detectedAddress { result.append(("detectedAddress", String(describing: detectedAddress))) }
+        if let placeSource { result.append(("placeSource", String(describing: placeSource))) }
+        if let placeDistanceMeters { result.append(("placeDistanceMeters", String(describing: placeDistanceMeters))) }
+
+        return result
+    }
+}
+
 struct ExportService {
     private static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
@@ -135,6 +191,26 @@ struct ExportService {
         )
     }
 
+    private static func auditMetadata(_ visit: Visit, options: ExportOptions) -> VisitAuditMetadata {
+        let record = exportableVisit(visit, options: options)
+        return VisitAuditMetadata(
+            source: record.source,
+            confirmationStatus: record.confirmationStatus,
+            confirmedAt: record.confirmedAt,
+            updatedAt: record.updatedAt,
+            originalLatitude: record.originalLatitude,
+            originalLongitude: record.originalLongitude,
+            originalLocationName: record.originalLocationName,
+            originalAddress: record.originalAddress,
+            detectedLatitude: record.detectedLatitude,
+            detectedLongitude: record.detectedLongitude,
+            detectedLocationName: record.detectedLocationName,
+            detectedAddress: record.detectedAddress,
+            placeSource: record.placeSource,
+            placeDistanceMeters: record.placeDistanceMeters
+        )
+    }
+
     static func exportToJSON(visits: [Visit], options: ExportOptions = ExportOptions()) throws -> Data {
         let exportableVisits = visits.map { exportableVisit($0, options: options) }
 
@@ -165,6 +241,7 @@ struct ExportService {
         headers.append("confirmation_status")
         if options.includeVisitLocationName { headers.append("original_location_name") }
         if options.includeVisitAddress { headers.append("original_address") }
+        headers.append("visit_metadata")
 
         var csvString = headers.joined(separator: ",") + "\n"
 
@@ -196,6 +273,7 @@ struct ExportService {
             if options.includeVisitAddress {
                 fields.append(escapeCSVField(visit.originalAddress ?? ""))
             }
+            fields.append(escapeCSVField(auditMetadata(visit, options: options).json()))
             csvString.append(fields.joined(separator: ",") + "\n")
         }
 
@@ -242,7 +320,7 @@ struct ExportService {
         if options.includeVisitLocationName { headerCols.append("Location") }
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
-        headerCols.append(contentsOf: ["Source", "Status"])
+        headerCols.append(contentsOf: ["Source", "Status", "Visit Metadata"])
 
         for date in sortedDates {
             guard let dayVisits = grouped[date] else { continue }
@@ -279,8 +357,9 @@ struct ExportService {
                 if options.includeVisitNotes {
                     cells.append(escapeMarkdownTableCell(visit.notes))
                 }
-                cells.append(visit.source.displayName)
-                cells.append(visit.confirmationStatus.displayName)
+                cells.append(visit.source.rawValue)
+                cells.append(visit.confirmationStatus.rawValue)
+                cells.append(escapeMarkdownTableCell(auditMetadata(visit, options: options).json()))
                 md += "| " + cells.joined(separator: " | ") + " |\n"
             }
 
@@ -1241,6 +1320,7 @@ extension ExportService {
         if options.includeVisitAddress { headerCols.append("Address") }
         if options.includeVisitNotes { headerCols.append("Notes") }
 
+        headerCols.append("Visit Metadata")
         var md = "## Visits\n\n"
         md += "| " + headerCols.joined(separator: " | ") + " |\n"
         md += "|" + headerCols.map { _ in "------" }.joined(separator: "|") + "|\n"
@@ -1259,6 +1339,7 @@ extension ExportService {
             if options.includeVisitLocationName { cells.append(escapeMarkdownTableCell(visit.exportLocationName)) }
             if options.includeVisitAddress { cells.append(escapeMarkdownTableCell(visit.address)) }
             if options.includeVisitNotes { cells.append(escapeMarkdownTableCell(visit.notes)) }
+            cells.append(escapeMarkdownTableCell(auditMetadata(visit, options: options).json()))
             md += "| " + cells.joined(separator: " | ") + " |\n"
         }
 
@@ -1410,6 +1491,9 @@ extension ExportService {
         }
         if options.includeVisitDuration, let mins = visit.durationMinutes {
             ext += "      <isome:durationMinutes>\(gpxNumber(mins, decimals: 2))</isome:durationMinutes>\n"
+        }
+        for (key, value) in auditMetadata(visit, options: options).fields() {
+            ext += "      <isome:\(key)>\(escapeXML(value))</isome:\(key)>\n"
         }
         if !ext.isEmpty {
             xml += "    <extensions>\n\(ext)    </extensions>\n"
@@ -1585,6 +1669,9 @@ extension ExportService {
         if options.includeVisitNotes, let notes = visit.notes, !notes.isEmpty {
             extended += "        <Data name=\"notes\"><value>\(escapeXML(notes))</value></Data>\n"
         }
+        for (key, value) in auditMetadata(visit, options: options).fields() {
+            extended += "        <Data name=\"\(key)\"><value>\(escapeXML(value))</value></Data>\n"
+        }
         xml += "      <ExtendedData>\n\(extended)      </ExtendedData>\n"
         xml += "      <Point><coordinates>\(kmlCoordinate(lon: visit.longitude, lat: visit.latitude))</coordinates></Point>\n"
         xml += "    </Placemark>\n"
@@ -1714,6 +1801,23 @@ extension ExportService {
         let locationName: String?
         let address: String?
         let notes: String?
+        let audit: VisitAuditMetadata
+
+        private enum CodingKeys: String, CodingKey {
+            case kind, arrivedAt, departedAt, durationMinutes, locationName, address, notes
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(kind, forKey: .kind)
+            try container.encode(arrivedAt, forKey: .arrivedAt)
+            try container.encodeIfPresent(departedAt, forKey: .departedAt)
+            try container.encodeIfPresent(durationMinutes, forKey: .durationMinutes)
+            try container.encodeIfPresent(locationName, forKey: .locationName)
+            try container.encodeIfPresent(address, forKey: .address)
+            try container.encodeIfPresent(notes, forKey: .notes)
+            try audit.encode(to: encoder)
+        }
     }
 
     private struct PointProperties: Encodable {
@@ -1736,7 +1840,8 @@ extension ExportService {
             durationMinutes: options.includeVisitDuration ? visit.durationMinutes : nil,
             locationName: options.includeVisitLocationName ? visit.exportLocationName : nil,
             address: options.includeVisitAddress ? visit.address : nil,
-            notes: options.includeVisitNotes ? visit.notes : nil
+            notes: options.includeVisitNotes ? visit.notes : nil,
+            audit: auditMetadata(visit, options: options)
         )
 
         return GeoJSONFeature(

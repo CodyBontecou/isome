@@ -247,7 +247,7 @@ final class ExportRoundTripTests: XCTestCase {
 
             switch try XCTUnwrap(properties["kind"] as? String) {
             case "visit":
-                XCTAssertEqual(Set(properties.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "kind", "locationName", "notes"])
+                XCTAssertEqual(Set(properties.keys), ["address", "arrivedAt", "departedAt", "durationMinutes", "kind", "locationName", "notes", "source", "confirmationStatus", "detectedLatitude", "detectedLongitude", "detectedLocationName", "detectedAddress"])
                 visits.append(NormalizedVisit(
                     latitude: coordinates[1],
                     longitude: coordinates[0],
@@ -300,7 +300,8 @@ final class ExportRoundTripTests: XCTestCase {
             "source",
             "confirmation_status",
             "original_location_name",
-            "original_address"
+            "original_address",
+            "visit_metadata"
         ])
         XCTAssertEqual(pointHeaders, ["timestamp", "timestamp_unix", "latitude", "longitude", "altitude", "speed", "horizontal_accuracy", "is_outlier"])
 
@@ -346,7 +347,7 @@ final class ExportRoundTripTests: XCTestCase {
         let visitRows = markdownTableRows(in: visitSection)
         let pointRows = markdownTableRows(in: pointSection)
 
-        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes | Source | Status |")
+        XCTAssertEqual(visitRows.first, "| Arrived | Departed | Duration | Lat | Lon | Location | Address | Notes | Source | Status | Visit Metadata |")
         XCTAssertEqual(pointRows.first, "| Time | Lat | Lon | Speed | Altitude | Accuracy | Outlier |")
 
         return (
