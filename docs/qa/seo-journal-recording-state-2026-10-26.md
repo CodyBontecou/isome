@@ -55,3 +55,26 @@ only the empty test outing and no personal location history.
 
 This advances the journal's setup and diagnostic evidence. It does not close
 the backlog gate for a successful recording-to-route workflow.
+
+## Publication and checks
+
+Committed and pushed on `main` as `7d16364`. Production Pages deployment short
+ID `fce6b01f`: https://fce6b01f.spotted-8ez.pages.dev.
+
+- Static build: 29 HTML pages, 962 local targets, metadata, JSON-LD, IDs, and
+  sitemap coverage pass. `git diff --check` passes.
+- Pre-deployment and production Lighthouse 13.5.0: this article scores 100 for
+  performance, accessibility, best practices, and SEO, mobile and desktop.
+  These lab checks do not establish field Core Web Vitals or search results.
+- Production HTTP checker: all 28 HTML/Markdown pairs and cache, error, API,
+  method, representation, and asset checks pass.
+- Live mobile inspection: client and scroll width both 390 px; screenshot
+  loaded at 304 CSS px wide, with a natural width of 302 px. The checked
+  example is present and the single inline campaign CTA retains
+  `ct=seo-private-journal`.
+- Live screenshot returns 200 and matches the unchanged captured bytes:
+  SHA-256 `398115164acee2058b3d625a41aa0160be86b5d0c95de2e2ecaae5e41a4c9bb5`.
+- Local reports: `/private/tmp/isome-seo-journal-before/` and
+  `/private/tmp/isome-seo-journal-after/`.
+- Stopped Argent services scoped to the QA simulator; recording had already
+  been stopped in the app. Other devices and personal app journals were untouched.

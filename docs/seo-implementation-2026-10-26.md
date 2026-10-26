@@ -88,6 +88,13 @@ production HTTP checks and mobile/desktop Lighthouse checks pass. A shared docs
 footer overflow was also corrected. See
 [the Shortcuts verification record](qa/seo-shortcuts-reference-2026-10-26.md).
 
+The private-journal guide now has a checked Start/Stop/Timeline example showing
+an eight-second outing with zero points, plus a concrete Points/Path checklist
+and troubleshooting link. This verifies recording controls and empty-path
+behavior, not a successful physical route. The duplicate adjacent download CTA
+was removed while retaining the campaign. Site checks and mobile/desktop
+Lighthouse pass. See [the recording-state evidence](qa/seo-journal-recording-state-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.
