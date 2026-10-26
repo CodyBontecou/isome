@@ -69,7 +69,8 @@ class Markdown(HTMLParser):
             self.parts.append(f"\n\n![{attrs['alt']}]({urljoin(self.url, attrs.get('src', ''))})\n\n")
         elif tag == 'pre':
             self.pre = True
-            self.parts.append('\n\n```\n')
+            self.pre_fence_index = len(self.parts)
+            self.parts.append('')
         elif tag == 'code' and not self.pre:
             self.parts.append('`')
         elif tag == 'br':
@@ -91,7 +92,13 @@ class Markdown(HTMLParser):
         elif tag == 'a' and self.links:
             self.parts.append('](' + self.links.pop() + ')')
         elif tag == 'pre':
-            self.parts.append('\n```\n\n')
+            content = ''.join(self.parts[self.pre_fence_index + 1:])
+            # A displayed Markdown block can itself contain code fences.
+            # Its outer fence must be longer so consumers retain the example.
+            runs = [len(run) for run in re.findall(r'`+', content)]
+            fence = '`' * max(3, max(runs, default=0) + 1)
+            self.parts[self.pre_fence_index] = '\n\n' + fence + '\n'
+            self.parts.append('\n' + fence + '\n\n')
             self.pre = False
         elif tag == 'code' and not self.pre:
             self.parts.append('`')

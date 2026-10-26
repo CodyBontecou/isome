@@ -134,6 +134,13 @@ The exact app-generated file was also checked in a clean Obsidian 1.14.5 desktop
 vault, including navigation from a separate note's wiki-link. The guide includes
 the synthetic-only screenshot and explains horizontal scrolling for the wide table.
 
+The same guide now includes an optional iso.me Maps 0.7.15 desktop example,
+using that exact native Markdown file. Two markers and both visit popups were
+checked in Obsidian 1.14.5. The reproducible map note selects OpenTopoMap at
+zoom 17 after real default-provider and zoom failures were observed. Markdown
+host-timezone behavior is documented separately. Restricted mode was restored
+after the approved test. See [the Maps evidence](../docs/qa/seo-obsidian-maps-2026-10-26.md).
+
 Guide discovery is organized into finding history, recording routes, and keeping
 records. Generated articles use task-specific next links from `RELATED` in
 `build_seo_pages.py`; edit that map when changing an article’s next steps.

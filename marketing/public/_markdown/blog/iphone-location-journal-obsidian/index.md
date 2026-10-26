@@ -21,6 +21,7 @@ From location history to a readable note
 - [Export a Markdown file](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#export)
 - [Add the file to a desktop vault](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#vault)
 - [Try the synthetic example](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#sample)
+- [Try an optional desktop visit map](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#map-plugin)
 - [Keep updates separate from your writing](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#updates)
 - [Understand scheduling and mobile limits](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#schedule)
 
@@ -34,7 +35,7 @@ Match the file to the task
 | What you want | Choose | Check before saving
 | A list of places and stops | Visits → Markdown | Date range, names, notes, and the columns you need
 | Timestamped GPS rows | Points → Markdown | Point count, accuracy filters, and file size
-| A route for a map viewer | Points → GPX | Use the [GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/); this guide does not add a map plugin
+| A route for a map viewer | Points → GPX | Use the [GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/); the optional map below checks visit markers from Markdown
 | A copy for restoring supported records | Separate Visits and Points JSON files | Use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) alongside your readable notes
 
 ## 1. Export the date range as Markdown
@@ -94,6 +95,45 @@ We copied this exact file into a clean desktop vault and checked it in Obsidian 
 ![Obsidian Reading view displaying the app-generated synthetic export, with two invented visits, their times, coordinates, names, and notes](https://isome.isolated.tech/screenshots/obsidian-synthetic-export.png)
 
 The unchanged synthetic app export in Obsidian 1.14.5, checked October 26, 2026. The table continues horizontally. This verifies desktop file rendering and a vault link; iPhone transfer and scheduled delivery remain untested.
+
+## Optional: show the sample visits on a desktop map
+
+The separate [iso.me Maps plugin](https://github.com/CodyBontecou/isome-maps) renders an `iso-me` code block from files already in your vault. It does not copy files from your iPhone or set up sync. The plain Markdown workflow above works without it.
+
+- In a separate test vault, install and enable [iso.me Maps 0.7.15](https://github.com/CodyBontecou/isome-maps/releases/tag/0.7.15) using its published installation instructions. The plugin requires Obsidian 1.12.0 or newer. Community plugins execute code on your device; enable them only if you trust the plugin.
+- Copy the unchanged [native synthetic export](https://isome.isolated.tech/samples/synthetic-obsidian-export.md) into `Location/`. Keep its Lat and Lon columns: removing them left zero plottable visits in the checked parser.
+- Add the code block below to a separate note, or [download the synthetic map note](https://isome.isolated.tech/samples/synthetic-obsidian-map.md). Open it in Reading view.
+
+````
+```iso-me
+source: Location/synthetic-obsidian-export.md
+title: Two invented visits
+height: 500
+show_visits: true
+show_routes: false
+show_stats: true
+tile_provider: opentopomap
+auto_fit: false
+center: 0.0001, 0.00005
+zoom: 17
+```
+````
+
+This center and zoom are for the invented sample near (0, 0). In Obsidian 1.14.5 on desktop, the plugin showed two visits and two markers. Both popups contained the expected names, clock times, notes, and 15-minute durations. No route is expected from this visits-only file.
+
+![Obsidian showing two invented visits with OpenTopoMap ocean tiles and a Synthetic stop B popup containing its times, 15-minute duration, and sample-data note](https://isome.isolated.tech/screenshots/obsidian-maps-synthetic.png)
+
+The unchanged native Markdown sample in iso.me Maps 0.7.15. All coordinates and visits are invented. This verifies desktop file rendering and marker popups, not mobile transfer or scheduled delivery.
+
+### If markers appear but the background does not
+
+The default CARTO provider displayed API KEY REQUIRED during this check. OpenTopoMap returned a maximum-zoom message above zoom 17; the explicit configuration above rendered its ocean tiles at 17. A blank background or provider message does not by itself mean your visits failed to parse. Check the visit count, provider, and zoom separately.
+
+Map tiles involve network requests. The selected provider receives tile coordinates for the displayed area and ordinary request metadata. Review the plugin’s [network disclosure](https://github.com/CodyBontecou/isome-maps/blob/0.7.15/SECURITY.md) before mapping personal records.
+
+### Keep clock times and archive timestamps separate
+
+This Markdown contains clock times without a timezone offset. The checked plugin parser interprets them in the computer’s local timezone: the same 11:45 AM arrival became 11:45 UTC on a UTC host and 15:45 UTC on a Puerto Rico host. Keep original timestamped exports separately when comparing records across timezones. This test does not establish equivalent behavior for other formats or localized date headings.
 
 ## Keep your writing outside generated files
 

@@ -71,7 +71,7 @@ For existing Apple or Google records, start with [the iPhone history guide](http
 These examples use invented location records. They show specific file and receiver behavior, with the remaining recording and transfer limits stated in each guide.
 
 - [GPX in gpx.studio:](https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample) five points from iso.me’s serializer opened as two segments. This checks synthetic file compatibility, not a completed physical recording.
-- [Markdown in Obsidian:](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/) a native export with two invented visits opened in a temporary desktop vault. Mobile, plugins, and scheduled delivery need separate checks.
+- [Markdown in Obsidian:](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/) a native export with two invented visits opened in a temporary desktop vault, with an optional checked Maps plugin example. Mobile and scheduled delivery need separate checks.
 - [Overland delivery to Dawarich:](https://isome.isolated.tech/integrations/dawarich/) three invented points persisted after the local receiver and database restarted. Production HTTPS and unattended delivery remain unverified.
 
 For returning data to iso.me, read the [backup and restore guide](https://isome.isolated.tech/blog/back-up-iphone-location-history/). In the checked 1.7.16 import, nearby visits reconciled while repeating the point file appended its points again. Keep the originals and verify destination counts before repeating an import.

@@ -1,7 +1,7 @@
-# Obsidian Maps compatibility: released parser and pending UI check
+# Obsidian Maps compatibility: released parser and desktop UI
 
 October 26, 2026. Follow-up to the existing manual Markdown guide. No new
-integration page or public compatibility promise has been published.
+integration page is needed; the existing manual Markdown guide owns this task.
 
 ## Released plugin and exact fixture
 
@@ -20,7 +20,8 @@ match GitHub's published SHA-256 digests:
 | manifest.json | c8a479f6844e457986888694942828c1e43ed8c4e620c54a72f18b96c7c84016 |
 | styles.css | b6ad46e58606f4977d47038ca990c5efe02bc218926b23238121c1b5d1fe30d7 |
 
-No release asset has been installed or enabled in a vault yet.
+These exact release assets were installed only in the approved synthetic vault
+for the desktop test below; Restricted mode was restored afterward.
 
 The exact existing native 1.7.16 Markdown sample remains unchanged:
 `marketing/public/samples/synthetic-obsidian-export.md`, SHA-256
@@ -61,27 +62,67 @@ The plugin's date-heading parser recognizes English month names; no localized
 native export was tested. Neither parsing success nor mobile-capable metadata
 establishes that the plugin renders correctly inside Obsidian.
 
-## UI gate and next action
+## Approved desktop test
 
 Obsidian 1.14.5 is still open in the previously approved temporary vault
 `/private/tmp/isome-seo-obsidian-actual-export-20261026`. Its existing synthetic
-native Markdown note is visible in Reading view. The Community plugins screen
-shows **Exit Restricted mode**, explaining that plugins can execute arbitrary
-code. No protection setting was changed.
+native Markdown note was visible in Reading view. Before approval, the
+Community plugins screen showed **Exit Restricted mode**, explaining that
+plugins can execute arbitrary code. No protection setting was changed before
+approval.
 
-The owner was asked for explicit approval to exit Restricted mode, enable
+The owner was asked for, and explicitly granted, approval to exit Restricted mode, enable
 only iso.me Maps 0.7.15 in that test vault, and restore Restricted mode after
 testing. This approval is required by the computer-use policy for changing
 that execution protection, beyond the prior approval merely to open the vault.
-Screenshot: `build/seo-evidence/obsidian-maps-20261026/restricted-mode.png`.
+Initial gate screenshot: `build/seo-evidence/obsidian-maps-20261026/restricted-mode.png`.
 
-Pending approval: install the staged matching release assets in the temporary
-vault; point an `iso-me` code block at the unchanged two-visit Markdown sample;
-inspect actual map/stat/marker output; save synthetic-only evidence; restore
-Restricted mode. The plugin's tile provider can receive tile coordinates and
-standard request metadata. Only invented coordinates would be used. Mobile,
-cloud transfer, scheduled delivery, real recording, and arbitrary locales
-remain outside this test.
+Installed the staged release, reloaded the plugin list, and enabled iso.me
+Maps 0.7.15. A separate `Synthetic map check.md` points to the exact native
+Markdown file through `source: Location/synthetic-obsidian-export.md`.
 
-If permission is declined, keep the existing manual handoff guide and record
-only these parser-level findings. No restricted-mode workaround is intended.
+Observed real provider failures before choosing the final example:
+
+- Default CARTO tiles rendered **API KEY REQUIRED**, with both visit markers
+  still visible. The native screenshot is retained as `default-carto.png`.
+- Esri World Imagery returned **Map data not yet available** at the automatically
+  selected close zoom over the synthetic ocean coordinates. This does not
+  establish a general provider outage or failure at other locations/zooms.
+- OpenTopoMap returned **max zoom layer = 17** above its supported zoom.
+  Explicit center, `auto_fit: false`, and `zoom: 17` rendered ocean tiles.
+
+The final block includes `show_stats: true`, `show_visits: true`, and
+`show_routes: false`. Reading view showed **MD, 2 visits, Jan 1, 2000 → Jan 1,
+2000** and two circle markers. Each marker was clicked separately. Stop A
+showed 11:45 AM → 12:00 PM; Stop B showed 12:02 PM → 12:17 PM. Both displayed
+15-minute durations and the exact invented-data note. No route was expected.
+The stats bar's rounded `0h` is retained in the screenshot; it is not used as
+evidence of precise elapsed-time behavior.
+
+`samples/synthetic-obsidian-map.md` is an exact copy of the tested map note.
+`screenshots/obsidian-maps-synthetic.png` is the unchanged native screenshot
+of the two-visit count, map, and Stop B popup. The coordinate fixture itself
+remains byte-identical. No personal records or vault were accessed.
+
+The test selected **Turn on and reload** after collecting evidence. Obsidian
+reloaded the note as a plain code block. The Community plugins screen again
+showed **Exit Restricted mode** and offered to restore the one previously
+installed plugin, confirming execution protection was restored. State and
+screenshot are retained as `restored-restricted.txt` and `.png` in the local
+evidence folder. Plugin assets remain only in the disposable test vault.
+
+The guide adds the optional tested desktop block, sample download, screenshot,
+coordinate requirement, timezone behavior, and provider failures. It does not
+promise iPhone transfer, mobile rendering, scheduled delivery, arbitrary date
+locales, or a timezone-preserving Markdown archive. The provider receives tile
+coordinates and request metadata; only invented coordinates were used here.
+
+The negotiated Markdown build initially wrapped the displayed code block in an
+equally long fence, corrupting the nested example. The converter now chooses
+an outer fence longer than any run inside the content. Three regression tests
+pass for ordinary, triple-nested, and longer fences; other page output retains
+its existing fence when no longer fence is needed.
+
+The build passes 32 HTML pages (31 public) and 1,109 local targets. Both changed
+pages pass all-100 mobile/desktop Lighthouse locally. Publication verification
+is recorded below after deployment.

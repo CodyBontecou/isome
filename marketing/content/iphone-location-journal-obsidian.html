@@ -2,7 +2,7 @@
   <h2 id="quick-answer">Export a note, then place it in your vault</h2>
   <p>To read iso.me location history in Obsidian, export <strong>Visits</strong> as <strong>Markdown</strong>, save the <code>.md</code> file, and copy it into a folder inside your Obsidian vault. Open the note and check the dates and visit table. No iso.me-specific Obsidian plugin is needed for this manual file workflow.</p>
   <p>This guide covers a manual handoff to an existing desktop vault. Recording and export preview are free; writing the Markdown file requires iso.me’s optional unlock. It does not set up automatic iPhone-to-vault sync.</p>
-  <nav class="article-toc" aria-label="In this guide"><strong>From location history to a readable note</strong><ol><li><a href="#choose">Choose visits or route points</a></li><li><a href="#export">Export a Markdown file</a></li><li><a href="#vault">Add the file to a desktop vault</a></li><li><a href="#sample">Try the synthetic example</a></li><li><a href="#updates">Keep updates separate from your writing</a></li><li><a href="#schedule">Understand scheduling and mobile limits</a></li></ol></nav>
+  <nav class="article-toc" aria-label="In this guide"><strong>From location history to a readable note</strong><ol><li><a href="#choose">Choose visits or route points</a></li><li><a href="#export">Export a Markdown file</a></li><li><a href="#vault">Add the file to a desktop vault</a></li><li><a href="#sample">Try the synthetic example</a></li><li><a href="#map-plugin">Try an optional desktop visit map</a></li><li><a href="#updates">Keep updates separate from your writing</a></li><li><a href="#schedule">Understand scheduling and mobile limits</a></li></ol></nav>
 </section>
 
 <section aria-labelledby="choose">
@@ -15,7 +15,7 @@
     <tbody>
       <tr><th scope="row">A list of places and stops</th><td>Visits → Markdown</td><td>Date range, names, notes, and the columns you need</td></tr>
       <tr><th scope="row">Timestamped GPS rows</th><td>Points → Markdown</td><td>Point count, accuracy filters, and file size</td></tr>
-      <tr><th scope="row">A route for a map viewer</th><td>Points → GPX</td><td>Use the <a href="/blog/record-iphone-route-gpx/">GPX walkthrough</a>; this guide does not add a map plugin</td></tr>
+      <tr><th scope="row">A route for a map viewer</th><td>Points → GPX</td><td>Use the <a href="/blog/record-iphone-route-gpx/">GPX walkthrough</a>; the optional map below checks visit markers from Markdown</td></tr>
       <tr><th scope="row">A copy for restoring supported records</th><td>Separate Visits and Points JSON files</td><td>Use the <a href="/blog/back-up-iphone-location-history/">backup checklist</a> alongside your readable notes</td></tr>
     </tbody>
   </table></div>
@@ -65,6 +65,35 @@
   <p>The native export test also parsed this Markdown back through iso.me’s importer and checked the two visits, names, coordinates, and arrival times. That is a file-format check, not a test of restoring data on another phone.</p>
   <p>We copied this exact file into a clean desktop vault and checked it in Obsidian 1.14.5. Both visit rows rendered in Reading view, and a link from a separate <code>Trip reflections</code> note opened the export. The nine-column table is wider than Obsidian’s default reading area; scroll horizontally to see Source and Status, or choose fewer columns before exporting.</p>
   <figure class="route-example"><img src="/screenshots/obsidian-synthetic-export.png" width="2048" height="1600" alt="Obsidian Reading view displaying the app-generated synthetic export, with two invented visits, their times, coordinates, names, and notes" loading="lazy" decoding="async"><figcaption>The unchanged synthetic app export in Obsidian 1.14.5, checked October 26, 2026. The table continues horizontally. This verifies desktop file rendering and a vault link; iPhone transfer and scheduled delivery remain untested.</figcaption></figure>
+</section>
+
+<section aria-labelledby="map-plugin">
+  <h2 id="map-plugin">Optional: show the sample visits on a desktop map</h2>
+  <p>The separate <a href="https://github.com/CodyBontecou/isome-maps">iso.me Maps plugin</a> renders an <code>iso-me</code> code block from files already in your vault. It does not copy files from your iPhone or set up sync. The plain Markdown workflow above works without it.</p>
+  <ol>
+    <li>In a separate test vault, install and enable <a href="https://github.com/CodyBontecou/isome-maps/releases/tag/0.7.15">iso.me Maps 0.7.15</a> using its published installation instructions. The plugin requires Obsidian 1.12.0 or newer. Community plugins execute code on your device; enable them only if you trust the plugin.</li>
+    <li>Copy the unchanged <a href="/samples/synthetic-obsidian-export.md" download>native synthetic export</a> into <code>Location/</code>. Keep its Lat and Lon columns: removing them left zero plottable visits in the checked parser.</li>
+    <li>Add the code block below to a separate note, or <a href="/samples/synthetic-obsidian-map.md" download>download the synthetic map note</a>. Open it in Reading view.</li>
+  </ol>
+  <pre aria-label="Tested synthetic visit map configuration"><code>```iso-me
+source: Location/synthetic-obsidian-export.md
+title: Two invented visits
+height: 500
+show_visits: true
+show_routes: false
+show_stats: true
+tile_provider: opentopomap
+auto_fit: false
+center: 0.0001, 0.00005
+zoom: 17
+```</code></pre>
+  <p>This center and zoom are for the invented sample near (0, 0). In Obsidian 1.14.5 on desktop, the plugin showed two visits and two markers. Both popups contained the expected names, clock times, notes, and 15-minute durations. No route is expected from this visits-only file.</p>
+  <figure class="route-example"><img src="/screenshots/obsidian-maps-synthetic.png" width="2048" height="1600" alt="Obsidian showing two invented visits with OpenTopoMap ocean tiles and a Synthetic stop B popup containing its times, 15-minute duration, and sample-data note" loading="lazy" decoding="async"><figcaption>The unchanged native Markdown sample in iso.me Maps 0.7.15. All coordinates and visits are invented. This verifies desktop file rendering and marker popups, not mobile transfer or scheduled delivery.</figcaption></figure>
+  <h3>If markers appear but the background does not</h3>
+  <p>The default CARTO provider displayed <strong>API KEY REQUIRED</strong> during this check. OpenTopoMap returned a maximum-zoom message above zoom 17; the explicit configuration above rendered its ocean tiles at 17. A blank background or provider message does not by itself mean your visits failed to parse. Check the visit count, provider, and zoom separately.</p>
+  <p>Map tiles involve network requests. The selected provider receives tile coordinates for the displayed area and ordinary request metadata. Review the plugin’s <a href="https://github.com/CodyBontecou/isome-maps/blob/0.7.15/SECURITY.md">network disclosure</a> before mapping personal records.</p>
+  <h3>Keep clock times and archive timestamps separate</h3>
+  <p>This Markdown contains clock times without a timezone offset. The checked plugin parser interprets them in the computer’s local timezone: the same 11:45 AM arrival became 11:45 UTC on a UTC host and 15:45 UTC on a Puerto Rico host. Keep original timestamped exports separately when comparing records across timezones. This test does not establish equivalent behavior for other formats or localized date headings.</p>
 </section>
 
 <section aria-labelledby="updates">

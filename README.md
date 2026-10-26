@@ -72,7 +72,7 @@ Duplicate detection always skips matches within the file and against stored reco
 
 #### Markdown handoff to Obsidian
 
-For a checked desktop file workflow, use the [Markdown handoff guide](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). The separate [iso.me Maps Obsidian plugin repository](https://github.com/CodyBontecou/obsidian-iso-me-maps) describes its map features; plugin compatibility, mobile transfer, and scheduled vault delivery have not been verified by that guide.
+For a checked desktop file workflow, use the [Markdown handoff guide](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). Its optional [iso.me Maps example](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#map-plugin) checks plugin 0.7.15 with two invented native-export visits in Obsidian 1.14.5, including marker popups, tile-provider limits, and Markdown timezone behavior. Mobile transfer and scheduled vault delivery remain unverified.
 
 ### Watch App
 The companion watchOS app records GPS points without the iPhone nearby and queues them for later transfer through WatchConnectivity. Check the phone copy after reconnecting; follow the [Watch recording and sync reference](https://isome.isolated.tech/docs/apple-watch/). App Groups support local shared data, not transport between the two devices.

@@ -129,7 +129,7 @@ PAGES = [
         "type": "BlogPosting",
         "title": "Export an iPhone Location Journal to Obsidian — iso.me",
         "headline": "Read your iPhone location journal in Obsidian",
-        "description": "Export iso.me visits as Markdown, copy the note into an Obsidian desktop vault, and keep your writing separate. Includes a synthetic sample and sync limits.",
+        "description": "Export iso.me visits as Markdown for Obsidian. Includes checked desktop notes and Maps plugin examples, synthetic downloads, and timezone and sync limits.",
         "lede": "Export visits as a Markdown file, copy it into your desktop vault, and check the rendered table. Keep your own writing separate from generated location notes.",
         "source": "iphone-location-journal-obsidian.html",
     },

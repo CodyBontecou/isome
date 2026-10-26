@@ -251,9 +251,11 @@ See [the discovery record](qa/seo-new-url-discovery-2026-10-26.md).
 
 The released iso.me Maps 0.7.15 Markdown parser now passes checks against the
 unchanged native two-visit sample, including zero coordinates, a missing-column
-control, and host-timezone behavior. Actual Obsidian map rendering is pending
-explicit approval to exit the temporary vault's Restricted mode and enable
-the staged plugin; no setting was changed or public promise extended. See
+control, and host-timezone behavior. With explicit owner approval, the released
+plugin was enabled in the temporary vault: two visit markers and both popups
+were verified in Obsidian 1.14.5. The guide now includes the exact tested block,
+sample, screenshot, and observed provider/zoom failures. Restricted mode was
+restored and verified afterward. Mobile and scheduled delivery remain open. See
 [the plugin compatibility record](qa/seo-obsidian-maps-2026-10-26.md).
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
