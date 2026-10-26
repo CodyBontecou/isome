@@ -68,6 +68,11 @@ screenshot showing both segments. See [the GPX evidence record](qa/seo-gpx-viewe
 This advances file/viewer evidence; the physical recording and sharing checks
 below remain open.
 
+The backup guide now has verified Safari sample-download behavior and a
+destination verification checklist. The isolated 1.7.16 simulator rebuild did
+not present its file picker, so no clean-destination restore or persistence
+success is claimed. See [the restore attempt](qa/seo-restore-verification-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich receiver persistence before extending integration promises. No receiver or user data was sent to a third party in this batch.

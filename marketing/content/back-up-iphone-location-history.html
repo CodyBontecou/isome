@@ -57,6 +57,7 @@
     <li><a href="/samples/synthetic-visits.json" download>Download the synthetic Visits JSON</a>: two named stops with arrival and departure times.</li>
     <li><a href="/samples/synthetic-points.json" download>Download the synthetic Points JSON</a>: three timestamped locations matching the <a href="/samples/synthetic-route.gpx" download>synthetic GPX example</a>.</li>
   </ul>
+  <p>In iPhone Safari, the sample links download JSON files. If your browser opens the JSON as text instead, return to this page, touch and hold the link, and choose <strong>Download Linked File</strong>. Find the saved file in Files before opening iso.me’s importer. Saving a screenshot or a copy of this article does not save the JSON records.</p>
   <pre aria-label="Minimal iso.me visit JSON structure"><code>{
   "visits": [{
     "latitude": 0.0,
@@ -77,9 +78,18 @@
     <li>Open iso.me, then choose <strong>Settings → Import file</strong>.</li>
     <li>Select a supported iso.me file and read the import result. Repeat for the other data type and any additional dated files.</li>
     <li>Check several dates on Map and Timeline. Look for both visits and route points, including the earliest and most recent records you expected.</li>
+    <li>Close and reopen iso.me, then check the same dates again. Confirm the imported records remain before erasing or retiring the original phone.</li>
     <li>Keep your originals until you have checked the result. An import cannot restore records that were excluded from the export.</li>
   </ol>
   <p>In App Store 1.7.16, import adds records without the newer preview and duplicate checks. Do not assume overlapping files are merged. Import each intended file once and inspect the result before retrying. If a file fails, retain it and read the reported format or field error before editing it. A JSON archive from Google Timeline has a different structure and is not a supported iso.me restore file.</p>
+  <h3>Check the destination against the original files</h3>
+  <ul>
+    <li><strong>Before importing:</strong> note the visit and point totals in Settings → Data. A phone that already has records is a merge situation, not a clean destination.</li>
+    <li><strong>After each file:</strong> read the import result and check the matching record type. A successful Visits import does not prove that Points were restored.</li>
+    <li><strong>Check details:</strong> compare names, notes, dates, and coordinates for a few records with the saved JSON. A total alone cannot show that the right date range was selected.</li>
+    <li><strong>Check the display range:</strong> an imported record outside Today will not appear in a Today view. Select its actual date or an all-history view before importing again.</li>
+  </ul>
+  <p>For the documentation fixtures, an empty test journal should gain two visits named <strong>Synthetic stop A</strong> and <strong>Synthetic stop B</strong>, plus three points dated January 1, 2000. These are expected values from the files, not a completed device-restore test. Keep invented records out of your everyday journal.</p>
   <p><strong>Restore Purchases is separate.</strong> It restores an eligible paid entitlement through the App Store; it does not download a copy of your location history. iso.me does not provide an account-based server archive or built-in iCloud journal sync.</p>
 </section>
 

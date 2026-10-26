@@ -93,6 +93,13 @@ without the newer preview and duplicate checks. Current development source
 includes Google import and duplicate handling; distinguish it from the
 publicly distributed binary.
 
+The two synthetic JSON downloads use attachment response headers in `_headers`
+so iPhone Safari offers the named file instead of opening a text page. The
+backup guide includes the touch-and-hold fallback and a destination verification
+checklist. A release-source simulator restore attempt remains incomplete because
+the test copy did not present its file picker; see the
+[verification record](../docs/qa/seo-restore-verification-2026-10-26.md).
+
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
 existing iso.me recordings; the broader history guide handles locating Apple,
 Google, or existing journal records. Keep those search intents distinct.

@@ -1,2 +1,8 @@
 /samples/synthetic-app-export.gpx
   Access-Control-Allow-Origin: https://gpx.studio
+
+/samples/synthetic-visits.json
+  Content-Disposition: attachment; filename="synthetic-visits.json"
+
+/samples/synthetic-points.json
+  Content-Disposition: attachment; filename="synthetic-points.json"
