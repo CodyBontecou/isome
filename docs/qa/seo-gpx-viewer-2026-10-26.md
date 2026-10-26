@@ -54,3 +54,15 @@ Local guide verification: site checker passed 29 HTML pages and 952 local
 targets; all five acquisition tests passed. At a 390-pixel viewport the page
 width was 390 pixels, the viewer screenshot was 358 pixels wide, and no images
 were broken. The table and screenshot were visually inspected on mobile.
+
+## Publication
+
+Committed on `main` as `7404198` and pushed to origin. Production deployment:
+`2851d1df` (<https://2851d1df.spotted-8ez.pages.dev>). The live guide is
+<https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample>.
+
+The production HTTP checker passed all 28 HTML/Markdown pairs, cache separation,
+error recovery, API contracts, methods, and existing asset integrity. Additional
+checks confirmed byte equality for the new GPX and screenshot and the sample's
+viewer CORS header. gpx.studio loaded the production sample successfully with
+the same displayed distance and segment time as the preview.
