@@ -295,6 +295,13 @@ Published main commit `a624fca` as deployment `3dad0dbb`; live all-100
 mobile/desktop Lighthouse, all 31 response pairs, exact destination anchors,
 campaign placements, and both mobile widths pass.
 
+The guide hub's structured list omitted the already-visible Country Days
+article. The build now synchronizes all eight published blog identities and
+rejects missing reader links or stale inventory; non-public drafts remain
+excluded. Hub and integration summaries now reflect the completed synthetic
+GPX, restart, and desktop Maps checks. All 12 Python marketing tests pass. See
+[the hub consistency record](qa/seo-hub-inventory-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
 3. Verify Obsidian mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Obsidian desktop plugin is checked with synthetic data; the Dawarich native batch/persistence test used only invented data and a local receiver.

@@ -19,7 +19,7 @@ Use iso.me’s optional Overland webhook with a matching Dawarich batch endpoint
 
 ### [Obsidian: read visits as a Markdown note](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
 
-Export a Markdown visit table and copy it into a desktop vault. The guide includes an actual exporter-generated sample, checked rendering, and navigation from a separate note. Mobile transfer, plugins, and scheduled vault delivery remain separate checks.
+Export a Markdown visit table and copy it into a desktop vault. The guide includes a native exporter sample, checked note rendering, and a [desktop Maps plugin check with two synthetic visit markers](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#map-plugin). Mobile transfer and scheduled vault delivery remain unverified.
 
 ## Keep a copy you can verify
 

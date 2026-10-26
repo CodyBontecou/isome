@@ -16,7 +16,11 @@ descriptions, JSON-LD, and unresolved template tokens. Python 3.9+ is sufficient
 no package installation is needed. A repeated build produces the same output.
 
 The homepage, blog hub, and original private-journal article remain directly
-editable HTML. Keep generated HTML in version control. Change documentation in
+editable HTML. The hub's `Blog.blogPost` list is synchronized from published
+blog pages by `scripts/blog_inventory.py`; keep its visible guide links current.
+The build checker rejects missing reader links or a stale structured article list.
+Release-gated drafts and integration articles are not added to that blog list.
+Keep generated HTML in version control. Change documentation in
 its generator. Edit the newer articles and comparison in `content/`, with their
 metadata in `scripts/build_seo_pages.py`, then rebuild. Do not patch only the
 generated versions.

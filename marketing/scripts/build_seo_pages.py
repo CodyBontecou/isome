@@ -295,6 +295,8 @@ def build():
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(render(page))
         print(f"wrote {output.relative_to(PUBLIC)}")
+    from blog_inventory import sync
+    sync(PUBLIC)
 
 
 if __name__ == "__main__":

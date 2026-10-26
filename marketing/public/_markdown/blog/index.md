@@ -99,7 +99,7 @@ Recording and export guide
 
 ### [How to record an iPhone route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
 
-Go from a new recording to a saved route file, with free preview, paid-export details, and a synthetic example.
+Follow recording and export steps, then inspect the checked synthetic app export saved through Files and opened in gpx.studio.
 
 [Follow the GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
 
@@ -129,7 +129,7 @@ Backup and restore guide
 
 ### [Back up and restore your location history](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
 
-Keep separate visit and point files, verify what was saved, and understand what a scheduled copy preserves.
+Keep separate visit and point files. See the synthetic file-picker import, saved counts after restart, and remaining physical restore checks.
 
 [Follow the backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
 
@@ -153,7 +153,7 @@ Markdown journal workflow
 
 ### [Read your location journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
 
-Copy a Markdown visit export into a desktop vault, inspect the table, and keep personal writing separate from generated files.
+Inspect the native Markdown sample in a desktop vault and the checked Maps plugin with two synthetic visit markers. Mobile and scheduled delivery remain unverified.
 
 [Follow the manual Markdown workflow](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
 
