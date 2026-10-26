@@ -86,3 +86,27 @@ These lab checks do not establish field performance or search outcomes.
 A narrow `.gitattributes` entry preserves this one native CSV's exact bytes
 and recognizes CRLF row endings for whitespace checks. Other whitespace
 checks remain enabled. The original native output is not normalized to LF.
+
+## Publication
+
+Implementation pushed on `main` as `19fc0da`. Production deployment:
+`57ae769d`, https://57ae769d.spotted-8ez.pages.dev.
+
+Content-specific checks confirm the new guide section and Timeline link.
+The live CSV returns the intended attachment filename and exactly 133 bytes
+matching the native output and recorded SHA-256. Both documents were current
+before starting the final production Lighthouse checks.
+
+Live browser inspection confirms four table rows, the download link, and a
+390 px document/viewport with no horizontal page overflow. Desktop proof:
+`build/seo-evidence/country-csv-20261026/country-days-example-live.jpg`.
+
+The local preview was stopped. Scoped Argent cleanup of the one QA simulator
+used found no remaining services. No new campaign, Google indexing request,
+external message, scheduled task, or app submission was made.
+
+Production HTTP verification passes all 30 HTML/Markdown pairs and response,
+cache, API, method, and asset checks. Lighthouse 13.5.0 scores 100 in all four
+categories on both changed pages, mobile and desktop. Final reports:
+`/private/tmp/isome-seo-country-csv-after/`. No new field performance,
+indexation, ranking, or conversion result is claimed.
