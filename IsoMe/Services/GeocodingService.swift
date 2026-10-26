@@ -2,6 +2,25 @@ import Foundation
 import CoreLocation
 import MapKit
 
+/// Shared by every Apple-backed place lookup, including manual search and pin lookup.
+enum NetworkGeocodingPolicy {
+    static var isAllowed: Bool {
+        let defaults = UserDefaults.standard
+        return defaults.object(forKey: "allowNetworkGeocoding") == nil || defaults.bool(forKey: "allowNetworkGeocoding")
+    }
+
+    static func requirePermission() throws {
+        guard isAllowed else { throw LookupError.disabled }
+    }
+
+    enum LookupError: LocalizedError {
+        case disabled
+        var errorDescription: String? {
+            String(localized: "Location search is off. Enable Location Names in Settings, or choose a pin and enter a name manually.")
+        }
+    }
+}
+
 struct GeocodingResult {
     let name: String?
     let address: String?
@@ -26,6 +45,7 @@ actor GeocodingService {
     }
 
     func reverseGeocode(location: CLLocation) async throws -> GeocodingResult {
+        try NetworkGeocodingPolicy.requirePermission()
         let key = cacheKey(for: location)
 
         // Check cache first
@@ -50,7 +70,9 @@ actor GeocodingService {
 
             lastRequestTime = Date()
 
+            try NetworkGeocodingPolicy.requirePermission()
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
+            try NetworkGeocodingPolicy.requirePermission()
 
             guard let placemark = placemarks.first else {
                 let result = GeocodingResult(name: nil, address: nil)
@@ -197,6 +219,7 @@ actor NearbyPlaceSearchService {
         radius: CLLocationDistance? = nil,
         limit: Int = 8
     ) async throws -> [NearbyPlaceSuggestion] {
+        try NetworkGeocodingPolicy.requirePermission()
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("--seed-screenshot-data") {
             return Array(Self.demoSuggestions(near: coordinate).prefix(limit))
@@ -318,7 +341,9 @@ actor NearbyPlaceSearchService {
     ) async throws -> [MKMapItem] {
         let request = MKLocalPointsOfInterestRequest(center: coordinate, radius: radius)
         request.pointOfInterestFilter = pointOfInterestFilter
+        try NetworkGeocodingPolicy.requirePermission()
         let response = try await MKLocalSearch(request: request).start()
+        try NetworkGeocodingPolicy.requirePermission()
         return response.mapItems
     }
 
@@ -335,11 +360,13 @@ actor NearbyPlaceSearchService {
             longitudinalMeters: radius * 2
         )
         request.resultTypes = .pointOfInterest
+        try NetworkGeocodingPolicy.requirePermission()
         let response = try await MKLocalSearch(request: request).start()
+        try NetworkGeocodingPolicy.requirePermission()
         return response.mapItems
     }
 
-    private static func makeSuggestions(
+    static func makeSuggestions(
         from mapItems: [MKMapItem],
         origin: CLLocation,
         radius: CLLocationDistance

@@ -1,6 +1,6 @@
 # Manual visit completion — issue #57
 
-Implemented against main `6ae78e6` on October 25, 2026. These changes are local and have not been merged or released.
+The core completion patch was implemented against `6ae78e6` on October 25, 2026 and merged in PR #77. The final acceptance audit and follow-up implementation are documented in [issue-57-closure.md](issue-57-closure.md).
 
 ## Behavior
 
@@ -34,4 +34,4 @@ The live walkthrough passed by accessibility inspection and screenshots. The att
 
 ## Remaining epic scope
 
-Watch commands and Check In / Check Out App Intents/deep links are separate follow-ups. Migration smoke testing, comprehensive place-search/offline policy validation, and metadata coverage across every export format still need explicit verification before closing the entire epic. No schema changes are introduced by this patch.
+Watch commands remain tracked in #75. Check In / Check Out App Intents and deep links shipped through PR #80. The remaining migration, search privacy, marker states, map refresh, and export metadata acceptance work is covered by the follow-up described in [issue-57-closure.md](issue-57-closure.md). Neither patch adds persisted model fields.

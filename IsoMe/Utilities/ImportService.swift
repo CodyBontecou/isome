@@ -95,6 +95,33 @@ struct ImportedVisit: Sendable {
     }
 }
 
+extension ImportedVisit {
+    func applyingAuditJSON(_ json: String?) throws -> ImportedVisit {
+        guard let json, !json.isEmpty, json != "-" else { return self }
+        let metadata = try JSONDecoder().decode([String: String].self, from: Data(json.utf8))
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return ImportedVisit(
+            latitude: latitude, longitude: longitude, arrivedAt: arrivedAt, departedAt: departedAt,
+            customName: customName, locationName: locationName, address: address, notes: notes,
+            sourceRaw: metadata["source"] ?? sourceRaw,
+            confirmationStatusRaw: metadata["confirmationStatus"] ?? confirmationStatusRaw,
+            confirmedAt: metadata["confirmedAt"].flatMap { formatter.date(from: $0) },
+            updatedAt: metadata["updatedAt"].flatMap { formatter.date(from: $0) },
+            originalLatitude: metadata["originalLatitude"].flatMap(Double.init),
+            originalLongitude: metadata["originalLongitude"].flatMap(Double.init),
+            originalLocationName: metadata["originalLocationName"],
+            originalAddress: metadata["originalAddress"],
+            detectedLatitude: metadata["detectedLatitude"].flatMap(Double.init),
+            detectedLongitude: metadata["detectedLongitude"].flatMap(Double.init),
+            detectedLocationName: metadata["detectedLocationName"],
+            detectedAddress: metadata["detectedAddress"],
+            placeSourceRaw: metadata["placeSource"],
+            placeDistanceMeters: metadata["placeDistanceMeters"].flatMap(Double.init)
+        )
+    }
+}
+
 struct ImportedLocationPoint: Sendable {
     let latitude: Double
     let longitude: Double
@@ -392,7 +419,7 @@ struct ImportService {
             let originalLocationName = colIndex["original_location_name"].flatMap { optionalCSVField(fields[$0]) }
             let originalAddress = colIndex["original_address"].flatMap { optionalCSVField(fields[$0]) }
 
-            return ImportedVisit(
+            return try ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
                 arrivedAt: arrivedAt,
@@ -404,7 +431,7 @@ struct ImportService {
                 confirmationStatusRaw: confirmationStatusRaw,
                 originalLocationName: originalLocationName,
                 originalAddress: originalAddress
-            )
+            ).applyingAuditJSON(colIndex["visit_metadata"].flatMap { optionalCSVField(fields[$0]) })
         }
     }
 
@@ -651,7 +678,7 @@ struct ImportService {
                 return combineDateAndTime(date: date, time: time)
             }
 
-            visits.append(ImportedVisit(
+            visits.append(try ImportedVisit(
                 latitude: latitude,
                 longitude: longitude,
                 arrivedAt: combineDateAndTime(date: date, time: arrivalTime),
@@ -661,7 +688,7 @@ struct ImportService {
                 notes: optionalMarkdownCell(colIndex["Notes"].map { cells[$0] }),
                 sourceRaw: optionalMarkdownCell(colIndex["Source"].map { cells[$0] })?.lowercased(),
                 confirmationStatusRaw: optionalMarkdownCell(colIndex["Status"].map { cells[$0] })?.lowercased()
-            ))
+            ).applyingAuditJSON(optionalMarkdownCell(colIndex["Visit Metadata"].map { cells[$0] })))
         }
 
         if visits.isEmpty {
@@ -776,15 +803,28 @@ struct ImportService {
     }
 
     private static func parseMarkdownTableCells(_ line: String) -> [String] {
-        line.split(separator: "|", omittingEmptySubsequences: false)
-            .dropFirst()
-            .dropLast()
-            .map { cell in
-                cell.trimmingCharacters(in: .whitespaces)
-                    .replacingOccurrences(of: "\\|", with: "|")
-                    .replacingOccurrences(of: "<br>", with: "\n")
-                    .replacingOccurrences(of: "\\\\", with: "\\")
+        var cells: [String] = []
+        var cell = ""
+        var escaped = false
+        for character in line {
+            if escaped {
+                if character != "|" && character != "\\" { cell.append("\\") }
+                cell.append(character)
+                escaped = false
+            } else if character == "\\" {
+                escaped = true
+            } else if character == "|" {
+                cells.append(cell)
+                cell = ""
+            } else {
+                cell.append(character)
             }
+        }
+        if escaped { cell.append("\\") }
+        cells.append(cell)
+        return cells.dropFirst().dropLast().map {
+            $0.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "<br>", with: "\n")
+        }
     }
 
     private static func optionalCSVField(_ value: String) -> String? {
