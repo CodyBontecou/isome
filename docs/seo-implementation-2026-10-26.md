@@ -204,6 +204,15 @@ additional `/zh-hans/` homepage outside this checkout; all 31 live pages fit
 both widths (62 cases). The checkout’s 30 representation pairs pass, as do
 all-100 mobile/desktop Lighthouse checks on the four corrected references.
 
+The already-live Chinese homepage is now reconciled into main instead of
+remaining only in the preserved checkout. Both homepages have reciprocal
+English/zh-Hans/x-default tags and reader language links. The normal build
+now retains all 31 public pages and Markdown representations, and rejects
+missing locales or broken home-language links. Four isolated failure checks
+and all five acquisition tests pass. This preserves an existing URL, rather
+than choosing a new locale from unmeasured demand. See
+[the locale preservation record](qa/seo-home-locale-preservation-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

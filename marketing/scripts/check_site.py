@@ -19,6 +19,9 @@ class Page(HTMLParser):
         self.ids = []
         self.targets = []
         self.canonicals = []
+        self.languages = []
+        self.language_alternates = []
+        self.language_switches = []
         self.descriptions = []
         self.h1s = 0
         self.title = ""
@@ -29,6 +32,12 @@ class Page(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "html":
+            self.languages.append(attrs.get("lang", ""))
+        if tag == "link" and "alternate" in attrs.get("rel", "").split() and attrs.get("hreflang"):
+            self.language_alternates.append((attrs["hreflang"], attrs.get("href", "")))
+        if tag == "a" and attrs.get("hreflang"):
+            self.language_switches.append((attrs["hreflang"], attrs.get("href", "")))
         if "id" in attrs:
             self.ids.append(attrs["id"])
         if tag == "h1":
@@ -103,6 +112,8 @@ def check():
         pages[path] = page
         if re.search(r"__[A-Z][A-Z_]+__", source):
             page.errors.append("unresolved template placeholder")
+        if len(page.languages) != 1 or not re.fullmatch(r"[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*", page.languages[0]):
+            page.errors.append(f"expected one valid HTML language, found {page.languages}")
         if page.h1s != 1:
             page.errors.append(f"expected one H1, found {page.h1s}")
         if not page.title.strip():
@@ -114,6 +125,28 @@ def check():
         duplicates = [id_ for id_, count in Counter(page.ids).items() if count > 1]
         if duplicates:
             page.errors.append(f"duplicate IDs: {duplicates}")
+
+    # Keep the already-published home-language pair in every release. A missing
+    # locale or one-way alternate must fail the same build that deploy.sh uses.
+    home_languages = {"/": "en", "/zh-hans/": "zh-Hans"}
+    expected_alternates = {language: BASE + path for path, language in home_languages.items()}
+    expected_alternates["x-default"] = BASE + "/"
+    for public_path, language in home_languages.items():
+        local_path = resolve_local(public_path)
+        page = pages.get(local_path)
+        if page is None:
+            errors.append(f"home languages: missing required page {public_path}")
+            continue
+        if page.languages != [language]:
+            page.errors.append(f"expected home language {language}")
+        if len(page.language_alternates) != len(expected_alternates) or dict(page.language_alternates) != expected_alternates:
+            page.errors.append("home languages: incomplete or nonreciprocal hreflang cluster")
+        for other_path, other_language in home_languages.items():
+            if other_path != public_path and not any(
+                tag == other_language and urljoin(page_url(local_path), href) == BASE + other_path
+                for tag, href in page.language_switches
+            ):
+                page.errors.append(f"home languages: missing reader language link to {other_path}")
 
     checked_links = 0
     from campaign_links import app_url, CONFIG

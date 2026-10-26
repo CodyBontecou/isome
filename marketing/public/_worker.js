@@ -29,7 +29,8 @@ const pages = {
   "/integrations/dawarich/": "/_markdown/integrations/dawarich/index.md",
   "/integrations/": "/_markdown/integrations/index.md",
   "/privacy": "/_markdown/privacy.md",
-  "/terms": "/_markdown/terms.md"
+  "/terms": "/_markdown/terms.md",
+  "/zh-hans/": "/_markdown/zh-hans/index.md"
 };
 
 async function acquisition(request, env) {

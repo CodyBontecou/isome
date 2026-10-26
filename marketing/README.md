@@ -249,6 +249,18 @@ HTTP response is not proof that Google indexed a page.
 See [Apple's campaign-link documentation](https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links)
 and [the refreshed SEO priorities](../docs/isome-seo-priorities-2026-10-26.md).
 
+## Homepage languages
+
+The English homepage `/` and existing Simplified Chinese introduction
+`/zh-hans/` are both tracked in this checkout. The build generates both
+Markdown versions and sitemap entries. Do not deploy an older checkout that
+omits the Chinese page. Detailed guides and legal pages remain in English.
+
+The site checker requires both pages, the same complete `en` / `zh-Hans` /
+`x-default` alternate set on each, their self-canonicals, and reader language
+links. This preserves a published URL; it does not establish demand for more
+locales, translated documentation, app language, or regional availability.
+
 ## Release-aware articles
 
 The Country Days guide is generated at
