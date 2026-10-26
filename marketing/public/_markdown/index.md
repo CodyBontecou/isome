@@ -94,7 +94,7 @@ Export visits, points, and outings as JSON, CSV, Markdown, GeoJSON, GPX, KML, Ow
 
 ### [Record with Apple Watch](https://isome.isolated.tech/docs/apple-watch/)
 
-The Watch app records routes on its own — even without your phone nearby — while Live Activity with a live map snapshot, Dynamic Island, watch complications, and nine Shortcuts actions keep status glanceable.
+The Watch app records routes on its own — even without your phone nearby — while Live Activity with a live map snapshot, Dynamic Island, watch complications, and Shortcuts actions keep status glanceable.
 
 ● iOS
 
@@ -315,7 +315,7 @@ Independent Apple Watch trackingIncluded
 
 Watch complications — four familiesIncluded
 
-Siri & Shortcuts — nine actionsIncluded
+Siri & Shortcuts actionsIncluded
 
 Import a prior exportFree
 
@@ -423,7 +423,7 @@ iso.me can POST records in OwnTracks or Overland formats to a configured receive
 
 What can Siri and Shortcuts do?
 
-iso.me exposes nine actions: start and stop tracking, rename the current outing, ask for today's distance, tracking duration, or visit count, and export today's or yesterday's data as a file. They work in the Shortcuts app, from Siri, and from automations such as the Action Button.
+Start and stop tracking, read saved visits and outings, rename journal records, ask for today's stats, or export a chosen date range as a file. Use iso.me actions in Shortcuts; built-in Siri phrases cover recording, stats, renaming, and Export Data. Test a shortcut manually before scheduling it. See the [action list and export recipe](https://isome.isolated.tech/docs/siri-shortcuts/).
 
 Can exports run automatically?
 

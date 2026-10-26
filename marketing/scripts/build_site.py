@@ -12,7 +12,7 @@ REVIEWED = "2026-10-26"
 UPDATED_PATHS = {
     "/", "/blog/", "/blog/private-location-journal-iphone/", "/privacy",
     "/docs/", "/docs/getting-started/", "/docs/tracking/",
-    "/docs/export-import/", "/docs/privacy-data/",
+    "/docs/export-import/", "/docs/privacy-data/", "/docs/siri-shortcuts/",
     "/compare/", "/compare/google-maps-timeline/",
     "/blog/view-location-history-iphone/", "/blog/record-iphone-route-gpx/",
     "/blog/iphone-location-journal-obsidian/",

@@ -122,6 +122,14 @@ Guide discovery is organized into finding history, recording routes, and keeping
 records. Generated articles use task-specific next links from `RELATED` in
 `build_seo_pages.py`; edit that map when changing an article’s next steps.
 
+The Siri and Shortcuts reference is reconciled with released 1.7.16 (46): twelve
+App Intents, nine built-in phrase registrations, and one configurable Export
+Data action. The homepage FAQ matches the reference. See the
+[released action catalog](../docs/seo-shortcuts-release-catalog-2026-10-26.json)
+and [verification record](../docs/qa/seo-shortcuts-reference-2026-10-26.md).
+The Markdown recipe is source-reviewed, not a new end-to-end Shortcuts editor
+or scheduled Save File test. The shared docs footer wraps on narrow screens.
+
 ## Deploy
 
 `marketing/deploy.sh` builds and validates before its existing Cloudflare Pages

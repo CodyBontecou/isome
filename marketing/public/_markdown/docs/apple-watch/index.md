@@ -72,6 +72,6 @@ Once the route is visible on the phone, follow [the GPX walkthrough](https://iso
 
 If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) before deleting records or retrying an import.
 
-[← PreviousSiri & Shortcuts](https://isome.isolated.tech/docs/siri-shortcuts/) [Next →Privacy & your data](https://isome.isolated.tech/docs/privacy-data/)
+[← PreviousSiri & Shortcuts for iPhone location tracking](https://isome.isolated.tech/docs/siri-shortcuts/) [Next →Privacy & your data](https://isome.isolated.tech/docs/privacy-data/)
 
 Source: https://isome.isolated.tech/docs/apple-watch/

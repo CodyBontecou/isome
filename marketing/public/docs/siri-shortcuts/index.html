@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Siri &amp; Shortcuts — iso.me Docs</title>
-  <meta name="description" content="Nine actions for tracking, stats, renaming, and exports.">
+  <title>Siri &amp; Shortcuts for iPhone location tracking — iso.me Docs</title>
+  <meta name="description" content="Start and stop tracking, read saved visits, rename outings, and export a chosen date range with iso.me Shortcuts actions.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/docs/siri-shortcuts/">
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -291,7 +291,7 @@ footer {
   color: var(--mute); display: flex; align-items: center; gap: 10px;
 }
 .footer-brand .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lcd); }
-.footer-links { display: flex; gap: 22px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 22px; }
 .footer-links a {
   font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--mute);
@@ -342,41 +342,76 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
   <header class="doc-head">
     <span class="eyebrow">§ Docs · Guide 9 of 11</span>
-    <h1>Siri &amp; Shortcuts</h1>
-    <p class="lede">iso.me exposes nine App Intents that work in the Shortcuts app, from Siri, and from automations like the Action Button — including exports handed straight to other apps.</p>
+    <h1>Siri &amp; Shortcuts for iPhone location tracking</h1>
+    <p class="lede">Build shortcuts for recording, reading your journal, renaming stops, and exporting files. Choose the dates and data you need, then check the result before adding an automation.</p>
     <div class="meta-strip">
       <div><div class="k">Platform</div><div class="v">iOS 17+</div></div>
-      <div><div class="k">Updated</div><div class="v">August 22, 2026</div></div>
-      <div><div class="k">Reading</div><div class="v">3 min</div></div>
+      <div><div class="k">Updated</div><div class="v">October 26, 2026</div></div>
+      <div><div class="k">Reading</div><div class="v">5 min</div></div>
       <div><div class="k">Back to</div><div class="v"><a href="/docs/">All docs</a></div></div>
     </div>
   </header>
 
   <div class="content">
     <div class="doc-card">
-<h2>Nine actions</h2>
-<p>Every action runs without opening the app. Find them in the Shortcuts app under iso.me, or just talk to Siri.</p>
+<h2>Find iso.me actions in Shortcuts</h2>
+<p>Open Apple’s Shortcuts app, create a shortcut, and search for iso.me when adding an action. The verified iso.me 1.7.16 release defines twelve actions. Nine have built-in Siri phrases; the three additional read actions can be added to a custom shortcut. Use the action names below when an older recipe shows different labels.</p>
+<p>Set up location permission in iso.me before using <strong>Start Tracking</strong>. These actions are designed to run without opening iso.me, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
+
+<h2>Recording and today’s stats</h2>
 <table>
-<tr><th>Action</th><th>What it does</th><th>Siri phrase example</th></tr>
-<tr><td><strong>Start Tracking</strong></td><td>Begins a recording session.</td><td>“Start iso.me”</td></tr>
-<tr><td><strong>Stop Tracking</strong></td><td>Ends the session — even if the app isn't running.</td><td>“Stop tracking with iso.me”</td></tr>
-<tr><td><strong>Rename Current Outing</strong></td><td>Sets the active outing's name (parameter: name).</td><td>“Name my iso.me outing”</td></tr>
-<tr><td><strong>Today's Distance</strong></td><td>Returns how far you've moved today.</td><td>“How far have I gone with iso.me?”</td></tr>
-<tr><td><strong>Today's Tracking Duration</strong></td><td>Returns how long the session has run.</td><td>“iso.me tracking duration”</td></tr>
-<tr><td><strong>Today's Visits</strong></td><td>Returns today's visit count.</td><td>“How many visits today in iso.me?”</td></tr>
-<tr><td><strong>Export Today's Data</strong></td><td>Produces a file of today's visits and route (parameter: format, default JSON).</td><td>“Export today's data from iso.me”</td></tr>
-<tr><td><strong>Export Today's Outings</strong></td><td>Same, for outings.</td><td>“Export today's iso.me outings”</td></tr>
-<tr><td><strong>Export Yesterday's Data</strong></td><td>Yesterday's visits and route as a file.</td><td>“Export yesterday's iso.me tracks”</td></tr>
+<caption>Recording controls and snapshot values</caption>
+<tr><th scope="col">Action</th><th scope="col">What it does</th><th scope="col">Built-in Siri phrase example</th></tr>
+<tr><th scope="row">Start Tracking</th><td>Starts recording with the app’s location permission.</td><td>“Start iso.me”</td></tr>
+<tr><th scope="row">Stop Tracking</th><td>Stops recording. If iso.me is not running, closes the saved active session.</td><td>“Stop tracking with iso.me”</td></tr>
+<tr><th scope="row">Rename Current Outing</th><td>Names the active outing. Requires a nonempty Name and an active outing.</td><td>“Name my iso.me outing”</td></tr>
+<tr><th scope="row">Today’s Distance</th><td>Returns today’s distance from the latest shared app snapshot.</td><td>“How far have I gone with iso.me”</td></tr>
+<tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“iso.me tracking duration”</td></tr>
+<tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in iso.me”</td></tr>
 </table>
 
-<h2>Automation ideas</h2>
+<h2>Read and rename saved records</h2>
+<table>
+<caption>Journal actions for a custom shortcut</caption>
+<tr><th scope="col">Action</th><th scope="col">Inputs and result</th><th scope="col">Siri setup</th></tr>
+<tr><th scope="row">Get Current Outing Name</th><td>Returns the active outing’s name, or its start date if unnamed. Reports an error if there is no active outing.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Get Visits</th><td>Optional Start Date and End Date. Returns visits whose arrival falls in the range.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Get Movements</th><td>Optional Start Date and End Date. Returns recorded outings whose start falls in the range; “Movement” is the action’s label for an outing.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in iso.me”</td></tr>
+<tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in iso.me”</td></tr>
+</table>
+<p>For a rename workflow, get the visits or movements, choose the intended result, and pass it to the matching rename action. Check the date and item before running: renaming changes the saved journal. These actions do not create missing GPS points or visits.</p>
+
+<h2 id="export-data">Export a chosen date range</h2>
+<p><strong>Export Data</strong> is the single configurable export action in this release. It returns a file for the next Shortcuts action. Its built-in Siri phrases include “Export iso.me data” and “Export data from iso.me”.</p>
+<table>
+<caption>Export Data parameters</caption>
+<tr><th scope="col">Parameter</th><th scope="col">Choices or default</th></tr>
+<tr><th scope="row">Start Date</th><td>Defaults to the start of today in the device’s calendar.</td></tr>
+<tr><th scope="row">End Date</th><td>Defaults to the time the action runs.</td></tr>
+<tr><th scope="row">Data Kind</th><td>Visits, Points, Outings, or All Data. Defaults to All Data.</td></tr>
+<tr><th scope="row">Format</th><td>JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, or Overland. Defaults to JSON.</td></tr>
+</table>
+<p>For yesterday or any past period, set <strong>both</strong> dates. Leaving Start Date empty while setting yesterday’s End Date creates an inverted range and returns an error. An end before the start is invalid. Export formats organize records differently; consult the <a href="/docs/export-import/">export reference</a> before choosing a file for another app.</p>
+
+<h2 id="markdown-recipe">Recipe: save today’s visits as Markdown</h2>
+<ol>
+<li>Create a shortcut in Apple’s Shortcuts app and add iso.me’s <strong>Export Data</strong> action.</li>
+<li>Set <strong>Data Kind</strong> to <strong>Visits</strong> and <strong>Format</strong> to <strong>Markdown</strong>. Leave both date parameters empty for today up to the run time.</li>
+<li>Add Apple’s <strong>Save File</strong> action after Export Data, using the returned file as its input. For the first run, choose a test folder you control.</li>
+<li>Run the shortcut manually. Confirm the saved file has the expected date heading and visits. A successful action is not proof that you recorded every stop.</li>
+<li>For a desktop vault, follow the <a href="/blog/iphone-location-journal-obsidian/">Obsidian file handoff</a>. Keep personal writing separate from generated exports.</li>
+</ol>
+<p>This recipe follows the released action’s parameters and Apple’s documented file actions. The export logic is covered by native tests; the complete Shortcuts editor, Save File destination, and unattended delivery have not been newly verified here. Apple explains <a href="https://support.apple.com/guide/shortcuts/create-a-custom-shortcut-apd84c576f8c/ios">creating a custom shortcut</a> and <a href="https://support.apple.com/guide/shortcuts/share-actions-apdaf74d75a5/ios">passing files to sharing actions</a>.</p>
+
+<h2>Check a shortcut before scheduling it</h2>
 <ul>
-<li>Bind <strong>Start Tracking</strong> to the <strong>Action Button</strong> for one-press recording.</li>
-<li>An automation that runs <strong>Export Today's Data</strong> every evening and hands the file to another shortcut — your own export pipeline.</li>
-<li>Ask Siri for <strong>Today's Visits</strong> or <strong>Distance</strong> as a daily digest.</li>
-<li>Rename an outing mid-hike: “Name my iso.me outing Ridge Trail.”</li>
+<li>If an old shortcut shows <strong>Export Today’s Data</strong>, <strong>Export Today’s Outings</strong>, or <strong>Export Yesterday’s Data</strong>, rebuild that step with <strong>Export Data</strong> and set its dates, data kind, and format explicitly.</li>
+<li>If a result is empty, check the date range and whether the app actually recorded the intended data. Read actions match visit arrival or outing start; a record overlapping the period can start outside it.</li>
+<li>If a file was returned but is missing from Files, check the following Save File action and destination. Export Data does not itself configure a recurring vault sync.</li>
+<li>For iso.me’s own folder scheduler, use the separate <a href="/docs/automatic-exports/">automatic export reference</a>. For missing journal entries, use the <a href="/blog/missing-location-history-iphone/">recording checklist</a>.</li>
 </ul>
-<p>Export actions produce a file in your chosen format that Shortcuts can save, message, or pass to other apps.</p>
+<p>Reviewed October 26, 2026 against the released iso.me 1.7.16 action definitions. Siri wording and the Shortcuts editor can vary by language and iOS version.</p>
     </div>
     <nav class="pager" aria-label="Guides">
       <a class="prev" href="/docs/webhooks/"><span class="dir">← Previous</span><span class="title">Webhooks &amp; self-hosting</span></a>

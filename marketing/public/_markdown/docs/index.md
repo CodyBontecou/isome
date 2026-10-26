@@ -70,9 +70,9 @@ Configure optional delivery and verify your receiver’s payload and authenticat
 
 ](https://isome.isolated.tech/docs/webhooks/) [ Guide 09
 
-## Siri & Shortcuts
+## Siri & Shortcuts for iPhone location tracking
 
-Nine actions for tracking, stats, renaming, and exports.
+Start and stop tracking, read saved visits, rename outings, and export a chosen date range with iso.me Shortcuts actions.
 
 ](https://isome.isolated.tech/docs/siri-shortcuts/) [ Guide 10
 
