@@ -42,3 +42,9 @@ xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe \
 ```
 
 Use a simulator test host with location permission denied, as in the existing manual-visit QA setup, so real location delivery cannot contaminate count fixtures. The migration test uses a separate temporary store and deletes it afterward.
+
+## Pre-merge revalidation
+
+Main was integrated after the initial PR run; the README retains its distinction between development controls and the verified public release. Automated review identified that a `---` substring in audit metadata could be mistaken for a Markdown table separator and discard the whole visit. A three-visit regression reproduced this before the fix. Separator detection now requires every cell to be a Markdown rule (hyphens with optional alignment colons), preserving those audit values.
+
+The updated full simulator suite passed **341 tests, zero failures, zero skipped**, with successful command exit. Result bundle: `~/Library/Developer/XcodeBuildMCP/workspaces/iso.me-b28a86da2136/result-bundles/test_sim_2026-10-26T19-55-41-470Z_pid32373_51c8f168.xcresult`.

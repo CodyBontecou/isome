@@ -148,6 +148,21 @@ final class ExportServiceRoundTripTests: XCTestCase {
         }
     }
 
+    func testMarkdownAuditTripleHyphensDoNotDiscardVisits() throws {
+        let visits = ["Old---Cafe", "---", ":---:"].enumerated().map { index, name in
+            let visit = Visit(latitude: 1, longitude: 2, arrivedAt: fixtureDate(hour: 9 + index, minute: 0), locationName: "Current Cafe")
+            visit.originalLocationName = name
+            visit.detectedAddress = "Address---suffix"
+            visit.confirmationStatus = .corrected
+            return visit
+        }
+        let data = ExportService.exportToMarkdown(visits: visits)
+        let restored = try ImportService.importFile(data: data, format: .markdown).visits
+        XCTAssertEqual(restored.count, 3)
+        XCTAssertEqual(restored.map(\.originalLocationName), visits.map(\.originalLocationName))
+        XCTAssertTrue(restored.allSatisfy { $0.detectedAddress == "Address---suffix" })
+    }
+
     func testCSVRoundTripsVisitsAndLocationPoints() throws {
         let visits = makeVisits()
         let points = makeLocationPoints()

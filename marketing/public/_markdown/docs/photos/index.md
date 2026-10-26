@@ -47,6 +47,6 @@ Photo files never leave your Photos library. iso.me stores only each photo's loc
 
 If a photo disappears from your library (with full access), iso.me cleans up its record automatically.
 
-[← PreviousPlaces, corrections & manual entries](https://isome.isolated.tech/docs/places/) [Next →Export and restore location history](https://isome.isolated.tech/docs/export-import/)
+[← PreviousSave and edit places in your iPhone location journal](https://isome.isolated.tech/docs/places/) [Next →Export and restore location history](https://isome.isolated.tech/docs/export-import/)
 
 Source: https://isome.isolated.tech/docs/photos/

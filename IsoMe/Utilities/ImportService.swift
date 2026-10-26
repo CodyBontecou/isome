@@ -647,9 +647,13 @@ struct ImportService {
             }
 
             guard trimmed.hasPrefix("|") else { continue }
-            if trimmed.contains("---") { continue }
-
             let cells = parseMarkdownTableCells(trimmed)
+            // A rule row contains only hyphens and optional alignment colons in
+            // every cell. Hyphens inside a visit name or audit JSON are data.
+            if !cells.isEmpty && cells.allSatisfy({ cell in
+                let rule = cell.trimmingCharacters(in: CharacterSet(charactersIn: ":"))
+                return rule.count >= 3 && rule.allSatisfy { $0 == "-" }
+            }) { continue }
             if cells.first == "Arrived" {
                 header = cells
                 continue
