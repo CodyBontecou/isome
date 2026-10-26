@@ -1,0 +1,177 @@
+{
+  "source_commit": "ac20d78",
+  "measurement_type": "single Lighthouse navigation per page; lab data, not real-user Core Web Vitals",
+  "pages": [
+    {
+      "url": "https://isome.isolated.tech/blog/private-location-journal-iphone/",
+      "fetch_time": "2026-10-26T17:49:35.635Z",
+      "lighthouse_version": "13.5.0",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 930.433,
+        "largest-contentful-paint": 930.433,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 942.6502259920358
+      },
+      "transfer_bytes": 205591,
+      "run_warnings": [],
+      "settings": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      }
+    },
+    {
+      "url": "https://isome.isolated.tech/blog/record-iphone-route-gpx/",
+      "fetch_time": "2026-10-26T17:49:46.914Z",
+      "lighthouse_version": "13.5.0",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 921.4835,
+        "largest-contentful-paint": 921.4835,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 921.4835
+      },
+      "transfer_bytes": 41568,
+      "run_warnings": [],
+      "settings": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      }
+    },
+    {
+      "url": "https://isome.isolated.tech/compare/google-maps-timeline/",
+      "fetch_time": "2026-10-26T17:49:57.954Z",
+      "lighthouse_version": "13.5.0",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 898.6610000000001,
+        "largest-contentful-paint": 898.6610000000001,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 898.6610000000001
+      },
+      "transfer_bytes": 17248,
+      "run_warnings": [],
+      "settings": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      }
+    },
+    {
+      "url": "https://isome.isolated.tech/",
+      "fetch_time": "2026-10-26T17:49:24.315Z",
+      "lighthouse_version": "13.5.0",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1073.7215,
+        "largest-contentful-paint": 1073.7215,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 1073.7215
+      },
+      "transfer_bytes": 114091,
+      "run_warnings": [],
+      "settings": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      }
+    }
+  ],
+  "homepage_devtools_trace": {
+    "viewport": "390x844, DPR 3",
+    "network": "Slow 4G",
+    "cpu_slowdown": 4,
+    "ignore_cache": true,
+    "lcp_ms": 665,
+    "cls": 0,
+    "ttfb_ms": 237,
+    "render_delay_ms": 428,
+    "crux_available": false,
+    "image_estimated_savings_bytes": 116800,
+    "image_estimated_lcp_savings_ms": 0,
+    "network_dependency_estimated_savings": "none",
+    "third_party_estimated_savings": "none"
+  }
+}

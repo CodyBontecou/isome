@@ -1,0 +1,79 @@
+{
+  "reviewed": "2026-10-26",
+  "releasedVersion": "1.7.16 (46)",
+  "sourceRevision": "6ae78e622c72ee051e6f14113082556c398d926a",
+  "actions": [
+    {
+      "type": "ExportDataIntent",
+      "title": "Export Data",
+      "source": "IsoMe/Services/IsoMeExportIntents.swift"
+    },
+    {
+      "type": "StartTrackingIntent",
+      "title": "Start Tracking",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "StopTrackingIntent",
+      "title": "Stop Tracking",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "RenameCurrentOutingIntent",
+      "title": "Rename Current Outing",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "TodayDistanceIntent",
+      "title": "Today's Distance",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "TodayTrackingDurationIntent",
+      "title": "Today's Tracking Duration",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "TodayVisitCountIntent",
+      "title": "Today's Visits",
+      "source": "IsoMe/Services/IsoMeIntents.swift"
+    },
+    {
+      "type": "GetCurrentOutingNameIntent",
+      "title": "Get Current Outing Name",
+      "source": "IsoMe/Services/IsoMeReadIntents.swift"
+    },
+    {
+      "type": "GetVisitsIntent",
+      "title": "Get Visits",
+      "source": "IsoMe/Services/IsoMeReadIntents.swift"
+    },
+    {
+      "type": "GetMovementsIntent",
+      "title": "Get Movements",
+      "source": "IsoMe/Services/IsoMeReadIntents.swift"
+    },
+    {
+      "type": "RenameVisitIntent",
+      "title": "Rename Visit",
+      "source": "IsoMe/Services/IsoMeRenameIntents.swift"
+    },
+    {
+      "type": "RenameMovementIntent",
+      "title": "Rename Movement",
+      "source": "IsoMe/Services/IsoMeRenameIntents.swift"
+    }
+  ],
+  "builtInPhraseIntentTypes": [
+    "StartTrackingIntent",
+    "StopTrackingIntent",
+    "RenameCurrentOutingIntent",
+    "TodayDistanceIntent",
+    "TodayTrackingDurationIntent",
+    "TodayVisitCountIntent",
+    "ExportDataIntent",
+    "RenameVisitIntent",
+    "RenameMovementIntent"
+  ],
+  "verification": "Released-source metadata audit; not a Siri or Shortcuts editor interaction test."
+}

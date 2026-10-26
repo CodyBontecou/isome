@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send iso.me iPhone Location Points to Dawarich with Overland</title>
+  <meta name="description" content="Configure iso.me’s Overland webhook for Dawarich, check authentication and saved points, and understand why Test Connection does not prove storage.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://isome.isolated.tech/integrations/dawarich/">
+  <meta name="theme-color" content="#f5f4ef">
+  <meta property="og:title" content="Send iso.me iPhone Location Points to Dawarich with Overland">
+  <meta property="og:description" content="Configure iso.me’s Overland webhook for Dawarich, check authentication and saved points, and understand why Test Connection does not prove storage.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://isome.isolated.tech/integrations/dawarich/">
+  <meta property="og:image" content="https://isome.isolated.tech/screenshots/dawarich-synthetic-points.png">
+  <meta property="og:image:alt" content="Dawarich 1.18.0 displaying three invented points sent by iso.me’s native webhook code">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Send iso.me iPhone Location Points to Dawarich with Overland">
+  <meta name="twitter:description" content="Configure iso.me’s Overland webhook for Dawarich, check authentication and saved points, and understand why Test Connection does not prove storage.">
+  <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/dawarich-synthetic-points.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>:root {
+  color-scheme: light;
+  --paper: #f5f4ef;
+  --ink: #1f1f1f;
+  --muted: #5f5d59;
+  --rule: #d2cfca;
+  --accent: #1c57ca;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: "Geist", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+a { color: var(--accent); text-underline-offset: 4px; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.skip-link { position: absolute; left: 16px; top: -80px; padding: 12px; background: white; z-index: 10; }
+.skip-link:focus { top: 16px; }
+.site-nav, .site-footer { max-width: 1120px; margin: auto; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-weight: 700; text-decoration: none; }
+.brand img { border-radius: 4px; }
+.nav-links, .footer-links { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.nav-links a, .footer-links a { font-size: 14px; line-height: 20px; }
+.button { display: inline-flex; justify-content: center; align-items: center; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: white; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; }
+.button:hover { background: #1748a8; text-decoration: none; }
+.button:active { transform: translateY(1px); }
+main { max-width: 960px; margin: auto; padding: 32px 24px 64px; }
+.breadcrumbs { font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 32px; }
+.breadcrumbs ol { padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.breadcrumbs li + li::before { content: "/"; margin-right: 8px; }
+.eyebrow, .byline, .source-note { color: var(--muted); font-size: 14px; line-height: 20px; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.025em; }
+h1 { max-width: 680px; font-size: 48px; line-height: 1; margin: 16px 0 24px; font-weight: 600; background: linear-gradient(to right, #000, #666); color: transparent; background-clip: text; -webkit-background-clip: text; }
+h2 { font-size: 30px; line-height: 36px; font-weight: 600; margin: 0 0 16px; }
+h3 { font-size: 20px; line-height: 28px; margin: 0 0 12px; }
+p { text-wrap: pretty; margin: 0 0 16px; }
+.lede { max-width: 680px; font-size: 20px; line-height: 28px; }
+header { padding-bottom: 40px; }
+section { margin-top: 48px; }
+li { margin-bottom: 12px; }
+ul, ol { padding-left: 24px; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+caption { text-align: left; font-weight: 600; padding: 16px; }
+th, td { text-align: left; vertical-align: top; padding: 16px; border: 1px solid var(--rule); min-width: 160px; }
+thead { background: #ecebe4; }
+.product-example { margin: 48px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+.product-example img { width: 240px; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--rule); }
+.route-example { margin: 48px 0; }
+.route-example img { display: block; width: 100%; height: auto; border-radius: 16px; }
+.route-example figcaption { max-width: none; margin-top: 12px; }
+figcaption { max-width: 320px; color: var(--muted); font-size: 14px; line-height: 20px; }
+.closing { padding: 32px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.closing h2 { font-size: 36px; line-height: 40px; }
+.card { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.site-footer { border-top: 1px solid var(--rule); }
+.article-toc { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: white; margin-top: 24px; }
+.article-toc ol { margin-bottom: 0; }
+pre { padding: 16px; border: 1px solid var(--rule); border-radius: 8px; background: white; overflow-x: auto; font-size: 14px; line-height: 20px; }
+code { overflow-wrap: anywhere; }
+pre code { overflow-wrap: normal; }
+@media (max-width: 640px) {
+  .site-nav, .site-footer { padding: 16px; gap: 16px; }
+  .nav-links { gap: 12px; }
+  .nav-links a:not(.button) { display: none; }
+  main { padding: 24px 16px 48px; }
+  h1 { font-size: 36px; line-height: 40px; }
+  h2 { font-size: 24px; line-height: 32px; }
+  .lede { font-size: 18px; line-height: 28px; }
+  .closing { padding: 24px; }
+  .closing h2 { font-size: 30px; line-height: 36px; }
+  .product-example { flex-direction: column; align-items: flex-start; }
+}
+</style>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://isome.isolated.tech/integrations/dawarich/",
+      "url": "https://isome.isolated.tech/integrations/dawarich/",
+      "name": "Send iso.me iPhone Location Points to Dawarich with Overland",
+      "description": "Configure iso.me’s Overland webhook for Dawarich, check authentication and saved points, and understand why Test Connection does not prove storage.",
+      "inLanguage": "en",
+      "dateModified": "2026-10-26",
+      "author": {
+        "@type": "Person",
+        "name": "Cody Bontecou",
+        "url": "https://isolated.tech"
+      },
+      "headline": "Send iso.me location points to Dawarich",
+      "datePublished": "2026-10-26",
+      "mainEntityOfPage": "https://isome.isolated.tech/integrations/dawarich/",
+      "image": "https://isome.isolated.tech/screenshots/dawarich-synthetic-points.png",
+      "publisher": {
+        "@type": "Organization",
+        "name": "isolated.tech",
+        "url": "https://isolated.tech"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "iso.me",
+          "item": "https://isome.isolated.tech/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Integrations",
+          "item": "https://isome.isolated.tech/integrations/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Dawarich",
+          "item": "https://isome.isolated.tech/integrations/dawarich/"
+        }
+      ]
+    }
+  ]
+}</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="/"><img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" width="28" height="28" alt="">ISO.ME</a>
+    <div class="nav-links"><a href="/blog/">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/#pricing">Pricing</a><a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free</a></div>
+  </nav>
+  <main id="main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">iso.me</a></li><li><a href="/integrations/">Integrations</a></li><li>Dawarich</li></ol></nav>
+    <article aria-labelledby="article-title">
+    <header><p class="eyebrow">Practical iPhone guides</p><h1 id="article-title">Send iso.me location points to Dawarich</h1><p class="lede">Pair the Overland payload with Dawarich’s batch endpoint, then verify the points at the destination. Webhooks are optional, off by default, and require iso.me’s export unlock.</p><p class="byline">By <a href="https://isolated.tech">Cody Bontecou</a>, iso.me’s developer · Reviewed <time datetime="2026-10-26">October 26, 2026</time></p></header>
+    <section aria-labelledby="quick-answer">
+  <h2 id="quick-answer">Use Overland with the batch endpoint</h2>
+  <p>For a Dawarich receiver, configure iso.me’s webhook format as <strong>Overland</strong> and use <code>https://your-dawarich-host/api/v1/overland/batches</code>. Authenticate with your instance’s API key. Check actual saved points after a small test; an HTTP success response alone does not establish that locations were stored.</p>
+  <p>This workflow is for keeping an iPhone journal in iso.me while optionally sending GPS points to a receiver you control. Dawarich also has its own tracking app; see its <a href="https://dawarich.app/docs/getting-started/track-your-location/">official tracker instructions</a> if you want that workflow.</p>
+  <nav class="article-toc" aria-label="In this guide"><h2>From native delivery to stored points</h2><ol><li><a href="#tested">What was tested</a></li><li><a href="#configure">Configure the receiver connection</a></li><li><a href="#verify">Verify points at the destination</a></li><li><a href="#limits">Understand delivery limits</a></li></ol></nav>
+</section>
+<section aria-labelledby="tested">
+  <h2 id="tested">A checked three-point batch</h2>
+  <p>On October 26, 2026, iso.me’s unchanged native webhook code from release source <strong>1.7.16 (46)</strong> sent three invented points to an isolated <strong>Dawarich 1.18.0</strong> receiver. All three were stored with the expected timestamps, coordinates, altitude, speed, accuracy, and tracker ID. The values remained unchanged after restarting both the receiver and its database.</p>
+  <div class="table-scroll" role="region" aria-label="Synthetic receiver verification" tabindex="0"><table><caption>Invented fixture, January 1, 2000, UTC</caption><thead><tr><th scope="col">Time</th><th scope="col">Latitude</th><th scope="col">Longitude</th><th scope="col">Stored result</th></tr></thead><tbody><tr><th scope="row">12:00:00</th><td>1.000000</td><td>2.000000</td><td>Present after restart</td></tr><tr><th scope="row">12:01:00</th><td>1.000100</td><td>2.000100</td><td>Present after restart</td></tr><tr><th scope="row">12:02:00</th><td>1.000200</td><td>2.000200</td><td>Present after restart</td></tr></tbody></table></div>
+  <figure class="route-example"><img src="/screenshots/dawarich-synthetic-points.png" width="1280" height="720" alt="Dawarich 1.18.0 Points screen showing all three invented points, their coordinates, and January 1, 2000 timestamps" loading="lazy" decoding="async"><figcaption>The receiver’s Points screen after the restart check. The locations and dates are invented. The payload’s speed of 1 metre per second appears as 3.6 kilometres per hour in this view.</figcaption></figure>
+  <p><a href="/samples/synthetic-overland-export.json" download>Download the exact synthetic Overland payload</a>. It was generated by the released serializer and contains no personal history or credentials. It is a request-body example, not an iso.me restore file. Posting it to a receiver can create records there.</p>
+  <p>The check used a Debug simulator rebuild of the release source and a native test calling the real batch-flush path. The receiver was local, reached through a loopback tunnel, and isolated from outbound internet access. This verifies native serialization, authentication, transmission, and receiver persistence. It does not verify a physical recording, the complete settings workflow, production HTTPS, or unattended iOS background delivery.</p>
+</section>
+<section aria-labelledby="configure">
+  <h2 id="configure">Configure a small test before sending history</h2>
+  <ol>
+    <li>Prepare your own Dawarich instance and obtain its API key from the account’s API access settings. Use an HTTPS address reachable from the iPhone.</li>
+    <li>In iso.me, open the <strong>Export</strong> tab and its <strong>Webhook</strong> settings. Webhooks require the optional export unlock. Review the warning that records will leave the device before enabling delivery.</li>
+    <li>Set the endpoint to your instance’s <code>/api/v1/overland/batches</code> path and select <strong>Overland</strong> as the format. Do not pair this payload with the OwnTracks endpoint.</li>
+    <li>Choose <strong>API Key (Query)</strong> authentication, set the key name to <code>api_key</code>, and enter your instance’s key as the value. Keep the key out of screenshots and shared URLs.</li>
+    <li>For an initial recording test, choose <strong>By Count</strong> batching. Review the queue count and use <strong>Flush queue</strong> if points are waiting. Check the result in Dawarich before relying on ongoing delivery.</li>
+  </ol>
+  <p>These settings follow the released app’s controls; the native test above exercised batch delivery directly. Use a dedicated test journal or destination when experimenting. <strong>Send now</strong> is different from flushing the queue: it reads all saved points, rather than just a short selected date range.</p>
+  <p>iso.me stores webhook credentials in the iOS Keychain. Once requests reach a receiver, its access controls and logs apply. Query parameters can appear in server or proxy logs; configure that destination accordingly.</p>
+</section>
+<section aria-labelledby="verify">
+  <h2 id="verify">Check stored points, not just “Connected”</h2>
+  <p>The native <strong>Test Connection</strong> check returned HTTP 201 in this receiver test. Its synthetic point at 0,0 was not among the stored records. Dawarich 1.18.0 filters points within five kilometres of 0,0, so a successful connection can leave no visible test point. Other receivers can behave differently.</p>
+  <ol><li>Open Dawarich’s <strong>Points</strong> view and select the date and time range you actually sent. Its default recent-date filter would hide the January 1, 2000 sample.</li><li>Compare the number of points, coordinates, and timestamps. For the sample, expect three rows from 12:00 through 12:02 UTC; check your display timezone.</li><li>Review optional fields and units separately. A matching point count does not establish that every field or inferred visit transferred.</li><li>Reopen the destination later and confirm the records remain. Keep the original journal and any backup until you have checked the receiver copy.</li></ol>
+  <p>An invalid key returned HTTP 401 in the native test. Fix the endpoint and credentials before retrying. iso.me’s OwnTracks export is an array of messages; it is a different shape from Dawarich’s individual OwnTracks point receiver. The Overland result above does not establish OwnTracks compatibility.</p>
+</section>
+<section aria-labelledby="limits">
+  <h2 id="limits">Plan for delivery gaps</h2>
+  <p>Overland carries GPS points, not a complete copy of iso.me’s visits, names, notes, settings, or outing edits. The webhook queue is held in memory; queued points can be lost when iOS terminates the app. Do not treat it as a durable offline archive or assume every historical point will be resent automatically.</p>
+  <p>The native regression suite covers successful queue clearing, failed-send retention, transient retries, and authentication errors using controlled responses. That is separate from the live receiver persistence check and does not establish long-term background reliability. See the <a href="/docs/webhooks/">send modes and retry reference</a> and keep a <a href="/blog/back-up-iphone-location-history/">separate backup</a>.</p>
+</section>
+<section class="answer-box"><h2>Keep the local journal.<br>Choose its destination.</h2><p>Recording and review are free. Webhook delivery requires the optional unlock; see <a href="/#pricing">current pricing</a>.</p><p><a class="button" data-placement="inline" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free for iPhone</a></p></section>
+
+    </article>
+    <nav class="article-toc" aria-labelledby="read-next-title"><h2 id="read-next-title">Read next</h2><ul><li><a href="/docs/webhooks/">Review send modes and queue limits</a><p>Check realtime, batching, retries, and manual-send behavior.</p></li><li><a href="/blog/back-up-iphone-location-history/">Keep a separate backup</a><p>A receiver copy is different from a restorable iso.me journal.</p></li></ul></nav>
+  </main>
+  <footer class="site-footer"><a class="brand" href="/">ISO.ME · isolated.tech</a><div class="footer-links"><a href="/blog/">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:cody.bontecou@gmail.com">Support</a></div></footer>
+  <!-- Cloudflare Web Analytics -->
+<script>
+(function () {
+  var productionHosts = {
+    'instareply.isolated.tech': true,
+    'voxboard.isolated.tech': true,
+    'healthmd.isolated.tech': true,
+    'isome.isolated.tech': true,
+    'gitsyncmd.isolated.tech': true,
+    'timemd.isolated.tech': true,
+    'imghost.isolated.tech': true
+  };
+
+  if (!productionHosts[window.location.hostname]) {
+    return;
+  }
+
+  function loadCloudflareBeacon() {
+    if (document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')) {
+      return;
+    }
+
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    script.setAttribute('data-cf-beacon', '{"token":"090f363070334cddad5c5cc1509b8807"}');
+    document.head.appendChild(script);
+  }
+
+  fetch('https://img-host.costream.workers.dev/analytics-gate', {
+    cache: 'no-store',
+    mode: 'cors',
+    credentials: 'omit'
+  })
+    .then(function (response) {
+      return response.ok ? response.json() : { track: false };
+    })
+    .then(function (gate) {
+      if (gate && gate.track) {
+        loadCloudflareBeacon();
+      }
+    })
+    .catch(function () {
+      // Fail closed so excluded IPs are not accidentally tracked.
+    });
+})();
+</script>
+<!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
+</body>
+</html>

@@ -5,6 +5,96 @@ import MapKit
 
 @MainActor
 final class RemotePastVisitTests: XCTestCase {
+    func testNetworkOptOutBlocksAllPlaceLookupServicesAndViewModel() async throws {
+        let previous = UserDefaults.standard.object(forKey: "allowNetworkGeocoding")
+        defer { UserDefaults.standard.set(previous, forKey: "allowNetworkGeocoding") }
+        UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
+        let stub = PlaceSearchStub()
+        let model = PlaceSearchViewModel(service: stub, debounceNanoseconds: 0)
+        model.query = "Cafe"
+        model.submit(region: nil)
+        XCTAssertTrue(stub.queries.isEmpty)
+        XCTAssertTrue(model.results.isEmpty)
+        XCTAssertNotNil(model.errorMessage)
+        do {
+            _ = try await PlaceSearchService().search(query: "Cafe")
+            XCTFail("Text search ignored opt-out")
+        } catch { XCTAssertTrue(error is NetworkGeocodingPolicy.LookupError) }
+        do {
+            _ = try await NearbyPlaceSearchService().suggestions(near: CLLocationCoordinate2D(latitude: 1, longitude: 2))
+            XCTFail("Nearby search ignored opt-out")
+        } catch { XCTAssertTrue(error is NetworkGeocodingPolicy.LookupError) }
+        do {
+            _ = try await GeocodingService().reverseGeocode(location: CLLocation(latitude: 1, longitude: 2))
+            XCTFail("Pin lookup ignored opt-out")
+        } catch { XCTAssertTrue(error is NetworkGeocodingPolicy.LookupError) }
+    }
+
+    func testDisablingNetworkDuringSearchDiscardsTheResponse() async throws {
+        let previous = UserDefaults.standard.object(forKey: "allowNetworkGeocoding")
+        defer { UserDefaults.standard.set(previous, forKey: "allowNetworkGeocoding") }
+        UserDefaults.standard.set(true, forKey: "allowNetworkGeocoding")
+        let started = expectation(description: "Search started")
+        let stub = PlaceSearchStub(onSlowRequestStarted: { started.fulfill() })
+        let model = PlaceSearchViewModel(service: stub, debounceNanoseconds: 0)
+        model.query = "slow"
+        model.submit(region: nil)
+        await fulfillment(of: [started], timeout: 1)
+        UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
+        try await Task.sleep(for: .milliseconds(250))
+        XCTAssertTrue(model.results.isEmpty)
+        XCTAssertFalse(model.isSearching)
+        XCTAssertNotNil(model.errorMessage)
+    }
+
+    func testSavedCurrentVisitExtendsExpiredMapRange() {
+        let start = Date(timeIntervalSince1970: 1000)
+        let previousEnd = start.addingTimeInterval(60)
+        let savedArrival = previousEnd.addingTimeInterval(30)
+        let range = LocationMapView.rangeIncludingSavedVisit(savedArrival, in: start...previousEnd)
+        XCTAssertTrue(range.contains(savedArrival))
+        XCTAssertEqual(range.lowerBound, start)
+        XCTAssertEqual(range.upperBound, savedArrival)
+        XCTAssertEqual(LocationMapView.rangeIncludingSavedVisit(start, in: range), range)
+    }
+
+    func testVisitMarkerStatesDistinguishManualAndCorrectionStatus() {
+        let visit = Visit(latitude: 1, longitude: 2, arrivedAt: Date())
+        XCTAssertEqual(VisitMarkerState(visit: visit), .unconfirmed)
+        visit.confirmationStatus = .confirmed
+        XCTAssertEqual(VisitMarkerState(visit: visit), .confirmed)
+        visit.confirmationStatus = .corrected
+        XCTAssertEqual(VisitMarkerState(visit: visit), .corrected)
+        visit.source = .manual
+        XCTAssertEqual(VisitMarkerState(visit: visit), .manual)
+        XCTAssertEqual(Set(VisitMarkerState.allCases.map(\.symbol)).count, 4)
+    }
+
+    func testNearbyRankingIsDeterministicAndRemovesDuplicatePlaces() {
+        let origin = CLLocation(latitude: 1, longitude: 2)
+        func item(_ name: String, _ latitude: Double) -> MKMapItem {
+            let item = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: 2)))
+            item.name = name
+            return item
+        }
+        let items = [item("Far", 1.001), item("Zulu", 1), item("Alpha", 1), item("Alpha", 1), item("Outside", 2)]
+        let results = NearbyPlaceSearchService.makeSuggestions(from: items, origin: origin, radius: 200)
+        XCTAssertEqual(results.map(\.name), ["Alpha", "Zulu", "Far"])
+    }
+
+    func testTextSearchRanksNameCategoryAndDistanceDeterministically() {
+        func item(_ name: String, _ latitude: Double, category: MKPointOfInterestCategory? = nil) -> MKMapItem {
+            let item = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: 2)))
+            item.name = name
+            item.pointOfInterestCategory = category
+            return item
+        }
+        let items = [item("Other", 1), item("Far Cafe", 1.002), item("Near Cafe", 1.001),
+                     item("Cafe", 1.003), item("Bakery", 1, category: .cafe)]
+        let results = PlaceSearchService.makeResults(from: items, query: "cafe", center: CLLocationCoordinate2D(latitude: 1, longitude: 2))
+        XCTAssertEqual(results.map(\.name), ["Cafe", "Near Cafe", "Far Cafe", "Bakery", "Other"])
+    }
+
     func testPastVisitNeverFallsBackToCurrentLocation() throws {
         let currentLocation = CLLocation(latitude: 37.7749, longitude: -122.4194)
 

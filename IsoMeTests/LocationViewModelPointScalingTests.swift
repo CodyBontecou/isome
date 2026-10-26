@@ -454,6 +454,32 @@ final class LocationViewModelPointScalingTests: XCTestCase {
         assertCoordinate(visit.coordinate, equals: originalCoordinate)
     }
 
+    func testCorrectedOpenVisitReceivesDepartureAtDetectedCoordinate() async throws {
+        let previous = UserDefaults.standard.object(forKey: "allowNetworkGeocoding")
+        UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
+        defer { UserDefaults.standard.set(previous, forKey: "allowNetworkGeocoding") }
+        let container = try makeInMemoryContainer()
+        let manager = LocationManager()
+        manager.setModelContext(container.mainContext)
+        let arrival = Date().addingTimeInterval(-1800)
+        let visit = Visit(latitude: 18.4, longitude: -66.1, arrivedAt: arrival)
+        container.mainContext.insert(visit)
+        visit.preserveOriginalValuesIfNeeded()
+        visit.latitude = 18.5
+        visit.longitude = -66.2
+        visit.confirmationStatus = .corrected
+        try container.mainContext.save()
+        let departure = Date().addingTimeInterval(-60)
+        manager.locationManager(CLLocationManager(), didVisit: DepartureFixture(
+            coordinate: CLLocationCoordinate2D(latitude: 18.4, longitude: -66.1),
+            arrival: arrival, departure: departure))
+        try await waitUntil { visit.departedAt != nil }
+        XCTAssertEqual(visit.departedAt, departure)
+        XCTAssertEqual(visit.latitude, 18.5)
+        XCTAssertEqual(visit.confirmationStatus, .corrected)
+        XCTAssertEqual(try container.mainContext.fetchCount(FetchDescriptor<Visit>()), 1)
+    }
+
     func testLiveBatchAppendAddsEveryPointToMapAndSessionCaches() async throws {
         UserDefaults.standard.set(false, forKey: "allowNetworkGeocoding")
         let container = try makeInMemoryContainer()
@@ -1076,4 +1102,103 @@ final class MapPointMarkerSamplerTests: XCTestCase {
         let coordinate = projected.coordinate
         return LocationPoint(latitude: coordinate.latitude, longitude: coordinate.longitude, timestamp: Date(timeIntervalSince1970: 1_790_000_000), horizontalAccuracy: 5)
     }
+}
+
+// The persisted Visit fields immediately before correction metadata was introduced (38da646^).
+private enum PreCorrectionSchema {
+    @Model
+    final class Visit {
+        var id: UUID
+        var latitude: Double
+        var longitude: Double
+        var arrivedAt: Date
+        var departedAt: Date?
+        var customName: String?
+        var locationName: String?
+        var address: String?
+        var notes: String?
+        var geocodingCompleted: Bool
+
+        init(id: UUID, departure: Date?) {
+            self.id = id
+            latitude = 18.4
+            longitude = -66.1
+            arrivedAt = Date(timeIntervalSince1970: 1_700_000_000)
+            departedAt = departure
+            customName = "Legacy name"
+            locationName = "Detected name"
+            address = "Legacy address"
+            notes = "Preserve this"
+            geocodingCompleted = true
+        }
+    }
+}
+
+@MainActor
+final class VisitMigrationTests: XCTestCase {
+    func testPreCorrectionDiskStoreMigratesAndReopensWithoutDataLoss() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("legacy.store")
+        let openID = UUID()
+        let completedID = UUID()
+        let departure = Date(timeIntervalSince1970: 1_700_003_600)
+        try autoreleasepool {
+            let oldSchema = Schema([PreCorrectionSchema.Visit.self])
+            let old = try ModelContainer(for: oldSchema, configurations: ModelConfiguration(schema: oldSchema, url: url))
+            let context = ModelContext(old)
+            context.insert(PreCorrectionSchema.Visit(id: openID, departure: nil))
+            context.insert(PreCorrectionSchema.Visit(id: completedID, departure: departure))
+            try context.save()
+        }
+        let current = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self])
+        try autoreleasepool {
+            let migrated = try ModelContainer(for: current, configurations: ModelConfiguration(schema: current, url: url))
+            let context = ModelContext(migrated)
+            let visits = try context.fetch(FetchDescriptor<Visit>())
+            XCTAssertEqual(visits.count, 2)
+            for visit in visits {
+                XCTAssertEqual(visit.source, .automatic)
+                XCTAssertEqual(visit.confirmationStatus, .unconfirmed)
+                XCTAssertEqual(visit.customName, "Legacy name")
+                XCTAssertEqual(visit.locationName, "Detected name")
+                XCTAssertEqual(visit.address, "Legacy address")
+                XCTAssertEqual(visit.notes, "Preserve this")
+                XCTAssertEqual(visit.latitude, 18.4)
+                XCTAssertTrue(visit.geocodingCompleted)
+            }
+            XCTAssertNil(visits.first { $0.id == openID }?.departedAt)
+            XCTAssertEqual(visits.first { $0.id == completedID }?.departedAt, departure)
+            let open = try XCTUnwrap(visits.first { $0.id == openID })
+            open.preserveOriginalValuesIfNeeded()
+            open.confirmationStatus = .corrected
+            open.latitude = 19
+            try context.save()
+        }
+        let reopened = try ModelContainer(for: current, configurations: ModelConfiguration(schema: current, url: url))
+        let visits = try ModelContext(reopened).fetch(FetchDescriptor<Visit>())
+        let corrected = try XCTUnwrap(visits.first { $0.id == openID })
+        XCTAssertEqual(corrected.confirmationStatus, .corrected)
+        XCTAssertEqual(corrected.originalLatitude, 18.4)
+        XCTAssertEqual(corrected.latitude, 19)
+        XCTAssertEqual(visits.count, 2)
+    }
+}
+
+private final class DepartureFixture: CLVisit {
+    private let point: CLLocationCoordinate2D
+    private let arrival: Date
+    private let departure: Date
+    init(coordinate: CLLocationCoordinate2D, arrival: Date, departure: Date) {
+        point = coordinate
+        self.arrival = arrival
+        self.departure = departure
+        super.init()
+    }
+    required init?(coder: NSCoder) { fatalError("Not used") }
+    override var coordinate: CLLocationCoordinate2D { point }
+    override var arrivalDate: Date { arrival }
+    override var departureDate: Date { departure }
+    override var horizontalAccuracy: CLLocationAccuracy { 10 }
 }

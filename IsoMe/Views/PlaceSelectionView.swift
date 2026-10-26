@@ -102,6 +102,7 @@ struct ManualLocationSelection {
 struct PlaceSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var searchModel: PlaceSearchViewModel
+    @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
 
     private let initialRegion: MKCoordinateRegion?
     private let geocodingService: GeocodingService
@@ -187,6 +188,13 @@ struct PlaceSelectionView: View {
                     .accessibilityLabel("Use This Location")
                 }
             }
+            .onChange(of: allowNetworkGeocoding) { _, allowed in
+                if !allowed {
+                    searchModel.clear()
+                    reverseGeocodingTask?.cancel()
+                    isReverseGeocoding = false
+                }
+            }
             .onDisappear {
                 searchModel.clear()
                 reverseGeocodingTask?.cancel()
@@ -235,7 +243,11 @@ struct PlaceSelectionView: View {
     private var searchStateContent: some View {
         let trimmedQuery = searchModel.query.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        if searchModel.isSearching {
+        if !allowNetworkGeocoding {
+            Section {
+                Text(NetworkGeocodingPolicy.LookupError.disabled.localizedDescription)
+            }
+        } else if searchModel.isSearching {
             Section {
                 HStack(spacing: 12) {
                     ProgressView()
@@ -355,13 +367,17 @@ struct PlaceSelectionView: View {
             visitPlaceSource: .userEntered
         )
 
+        guard allowNetworkGeocoding else {
+            isReverseGeocoding = false
+            return
+        }
         isReverseGeocoding = true
         let requestedLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         reverseGeocodingTask = Task {
             do {
                 let result = try await geocodingService.reverseGeocode(location: requestedLocation)
                 try Task.checkCancellation()
-                guard let currentSelection = selection,
+                guard allowNetworkGeocoding, let currentSelection = selection,
                       Self.coordinatesMatch(currentSelection.coordinate, coordinate) else {
                     return
                 }

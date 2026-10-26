@@ -258,8 +258,9 @@ final class WatchLocationTracker: NSObject, ObservableObject {
 
 extension WatchLocationTracker: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let authorizationStatus = manager.authorizationStatus
         DispatchQueue.main.async { [weak self] in
-            self?.handleAuthorizationChange(manager.authorizationStatus)
+            self?.handleAuthorizationChange(authorizationStatus)
         }
     }
 

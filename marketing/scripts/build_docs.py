@@ -4,7 +4,8 @@ import pathlib, html
 
 OUT = pathlib.Path(__file__).resolve().parent.parent / "public" / "docs"
 BASE = "https://isome.isolated.tech/docs/"
-UPDATED = "August 22, 2026"
+UPDATED = "October 26, 2026"
+REVIEWED = {"getting-started", "tracking", "export-import", "privacy-data", "apple-watch", "webhooks", "timeline-outings", "siri-shortcuts", "places"}
 
 GUIDES = [
     # (slug, title, short, lede, platform, minutes, tag)
@@ -14,39 +15,39 @@ GUIDES = [
      "iOS 17+", 3, None),
     ("tracking", "Visits, routes & battery",
      "How automatic visit detection and route recording work, and the settings that control them.",
-     "iso.me records two kinds of history: places you visit automatically, and routes you record deliberately. Here is how each works and how to tune accuracy, battery, and auto-stop.",
+     "Start records GPS routes and monitors visits together. Learn the shared controls, permissions, distance filter, and auto-stop timer.",
      "iOS 17+", 4, None),
     ("timeline-outings", "Timeline & outings",
      "The daily timeline, inferred outings, route replay, and editing or deleting sessions.",
      "The Timeline tab merges visits and movement into one day view. Learn the difference between recorded and inferred outings, how replay works, and what deletion actually removes.",
      "iOS 17+", 4, None),
-    ("places", "Places, corrections & manual entries",
-     "Confirm or correct detected visits, save places, and add visits by hand.",
-     "Automatic detection is a starting point, not a verdict. Confirm visits, fix names with nearby-business suggestions, save places that name themselves in the future, and add past visits manually.",
-     "iOS 17+", 3, None),
+    ("places", "Save and edit places in your iPhone location journal",
+     "Manage saved locations, enter coordinates, import a places CSV, and distinguish reusable places from past visits in iso.me.",
+     "Save a reusable location for future visit names, correct an existing visit, or add a past stop. Choose the right action before changing your journal.",
+     "iOS 17+", 5, None),
     ("photos", "Photos on the map",
      "Optionally connect your Photos library to place pictures on your map and outings.",
      "An opt-in connection between your photo library and your location journal. Photo files never leave your library — iso.me only matches metadata.",
      "iOS 17+", 2, None),
-    ("export-import", "Export & import",
+    ("export-import", "Export and restore location history",
      "Eight export formats, filters, filename templates, and free import for restores.",
-     "Your journal is yours. Export visits, points, and outings in eight formats with precise filtering, split per-day files and templated names — then import a prior export back, for free.",
+     "Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported iso.me visit and point files for free.",
      "iOS 17+", 5, "PRO"),
     ("automatic-exports", "Automatic exports",
      "Schedule exports once a day or every few hours, keeping one file per day.",
      "Auto Export writes your day to a folder you choose, on a schedule you choose — daily or as often as every hour — with rewrite and append modes that keep each day's file consistent.",
      "iOS 17+", 4, "PRO"),
     ("webhooks", "Webhooks & self-hosting",
-     "Stream points and visits to OwnTracks, Overland, Dawarich, or any endpoint.",
+     "Configure optional delivery and verify your receiver’s payload and authentication requirements.",
      "The optional webhook feature posts your data, in your chosen format, to a server you control. Off by default, fully configurable, and nothing is sent until you set it up.",
      "iOS 17+", 4, "PRO"),
-    ("siri-shortcuts", "Siri & Shortcuts",
-     "Nine actions for tracking, stats, renaming, and exports.",
-     "iso.me exposes nine App Intents that work in the Shortcuts app, from Siri, and from automations like the Action Button — including exports handed straight to other apps.",
-     "iOS 17+", 3, None),
-    ("apple-watch", "Apple Watch",
+    ("siri-shortcuts", "Siri & Shortcuts for iPhone location tracking",
+     "Start and stop tracking, read saved visits, rename outings, and export a chosen date range with iso.me Shortcuts actions.",
+     "Build shortcuts for recording, reading your journal, renaming stops, and exporting files. Choose the dates and data you need, then check the result before adding an automation.",
+     "iOS 17+", 5, None),
+    ("apple-watch", "Record Apple Watch GPS routes without your iPhone",
      "Independent watch tracking, offline sync, and complications.",
-     "The Watch app records routes with its own GPS session — no iPhone required — and syncs them back automatically. Complications keep today's stats on your watch face.",
+     "Start a route on Apple Watch, record without your iPhone nearby, then check the transfer back to your phone. Learn the recording controls, sync status, and recovery checks.",
      "watchOS 10+", 3, None),
     ("privacy-data", "Privacy & your data",
      "What stays on your device, what can leave it, and how deletion works.",
@@ -70,7 +71,7 @@ BODIES["getting-started"] = """
 </ol>
 
 <h2>After onboarding</h2>
-<p>You land on the <strong>Map</strong> tab. The other tabs are <strong>Timeline</strong> (your day, visit by visit), <strong>Export</strong>, and <strong>Settings</strong>. The floating pill on the map starts and stops route recording; visits are detected automatically whenever <em>Always</em> location permission is granted and tracking is on.</p>
+<p>You land on the <strong>Map</strong> tab. The other tabs are <strong>Timeline</strong> (your day, visit by visit), <strong>Export</strong>, and <strong>Settings</strong>. The floating pill on the map starts and stops both GPS recording and visit monitoring. With <em>Always</em> permission, recording can continue in the background. Installing the app does not reconstruct earlier history.</p>
 
 <h2>Your first day</h2>
 <ul>
@@ -87,7 +88,7 @@ BODIES["getting-started"] = """
 
 BODIES["tracking"] = """
 <h2>Two kinds of history</h2>
-<p>iso.me records <strong>visits</strong> (places you arrive at and depart from — automatic) and <strong>routes</strong> (continuous GPS paths — recorded while tracking is on). Both run from a single Start button.</p>
+<p>iso.me records <strong>visits</strong> (arrivals and departures) and <strong>routes</strong> (GPS paths). <strong>Start enables visit monitoring, significant location changes, and detailed GPS together; Stop ends all three.</strong> There is no separate passive visit-only recording mode. Always location permission allows background recording.</p>
 
 <h2>Starting and stopping</h2>
 <ul>
@@ -96,6 +97,7 @@ BODIES["tracking"] = """
 <li><strong>Siri / Shortcuts</strong> — “Start iso.me” and “Stop tracking with iso.me” phrases work hands-free.</li>
 <li><strong>Auto-stop timer</strong> — optional safety net that ends tracking automatically.</li>
 </ul>
+<p>For a walkthrough, see <a href="/blog/private-location-journal-iphone/">how to keep a private location journal</a> or <a href="/blog/record-iphone-route-gpx/">record an iPhone route and export GPX</a>.</p>
 <p>Tracking state survives relaunches: if iso.me was recording when you last used your phone, it resumes when you open it again. If iOS relaunches the app in the background for a location event, recording continues without you touching anything.</p>
 
 <h2>Visit detection</h2>
@@ -111,14 +113,16 @@ BODIES["tracking"] = """
 <h2>Tracking settings reference</h2>
 <table>
 <tr><th>Setting</th><th>Options</th><th>Default</th><th>What it does</th></tr>
-<tr><td><strong>Distance filter</strong></td><td>5 / 10 / 25 / 50 / 100 / 200 m</td><td>5 m</td><td>How far you must move before a new route point is recorded. Higher values save battery and shrink files.</td></tr>
+<tr><td><strong>Distance filter</strong></td><td>5 / 10 / 25 / 50 / 100 / 200 m</td><td>5 m</td><td>Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active.</td></tr>
 <tr><td><strong>Stop after</strong></td><td>Never / 1 / 2 / 4 / 8 / 12 h</td><td>Never</td><td>Automatically ends tracking after this long, so a forgotten session can't run all day.</td></tr>
 <tr><td><strong>Location names</strong></td><td>On / Off</td><td>On</td><td>Whether coordinates are sent to Apple's geocoding service to name visits.</td></tr>
 <tr><td><strong>Live Activity</strong></td><td>On / Off</td><td>On</td><td>Lock screen / Dynamic Island status while tracking.</td></tr>
 <tr><td><strong>Units</strong></td><td>Metric / US</td><td>Metric</td><td>Applies everywhere: app, widgets, Live Activity, watch.</td></tr>
 </table>
 
-<div class="callout"><p><strong>Battery.</strong> High-accuracy route recording uses real GPS and costs real battery — that's why it's a deliberate Start/Stop action rather than always-on. Visit detection alone is comparatively light. For long days, consider a 25–50 m distance filter and the auto-stop timer.</p></div>
+<div class="callout"><p><strong>Battery.</strong> Tracking includes detailed GPS as well as visit monitoring, so it uses battery for as long as recording stays on. Stop when you finish, consider a 25–50 m distance filter, and set an auto-stop timer. Check the resulting route before relying on a larger filter; no battery duration is guaranteed. Follow the <a href="/blog/iphone-location-tracking-battery/">battery-use comparison checklist</a> to check the tradeoff on your own phone.</p></div>
+<p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>
+
 """
 
 BODIES["timeline-outings"] = """
@@ -149,38 +153,66 @@ BODIES["timeline-outings"] = """
 
 <h2>Sorting</h2>
 <p>Outing lists can be sorted by newest, oldest, longest duration, distance, or point count.</p>
+<p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>
+
 """
 
 BODIES["places"] = """
-<h2>The visit lifecycle</h2>
-<p>Every visit carries a status: <strong>unconfirmed</strong> (as detected), <strong>confirmed</strong> (you approved it), or <strong>corrected</strong> (you changed the name, address, or location). iso.me never lets automatic geocoding overwrite a visit you've touched — your edits are final until you undo them.</p>
+<h2>Choose a place or a visit</h2>
+<p>A <strong>saved location</strong> is a reusable name, coordinate, optional address, and match radius. It helps name future automatic visits; creating one does not create a visit or record a GPS path. A <strong>visit</strong> is a journal entry with arrival and departure information.</p>
+<table>
+<caption>Choose the action for your task</caption>
+<tr><th scope="col">Your goal</th><th scope="col">Use</th></tr>
+<tr><th scope="row">Name a place you will revisit</th><td>Settings → Saved Locations → Manage Locations.</td></tr>
+<tr><th scope="row">Fix a stop already in your journal</th><td>Open that visit and confirm or correct it.</td></tr>
+<tr><th scope="row">Add a stop from an earlier day</th><td>Map → + → Add past visit.</td></tr>
+</table>
+<p>Recording, reviewing, and managing places are free. Saving an export file is a separate optional purchase; see <a href="/#pricing">current pricing</a>.</p>
 
-<h2>Confirming and correcting</h2>
+<h2 id="saved-locations">Manage reusable saved locations</h2>
+<ol>
+<li>Open <strong>Settings</strong>, scroll to <strong>Saved Locations</strong>, and choose <strong>Manage Locations</strong>.</li>
+<li>Choose <strong>Add Location</strong>. Enter a name and, optionally, an address.</li>
+<li>Use <strong>Choose Location</strong> to search or position a pin, or enter <strong>Latitude</strong> and <strong>Longitude</strong> directly. Latitude must be between −90 and 90; longitude between −180 and 180.</li>
+<li>Review the <strong>Match radius</strong>. The default is 150 metres; this editor accepts 25–10,000 metres. A larger radius can match a wider area, so choose one that fits the place.</li>
+<li>Save, then check the location in the list. Search the list or open an existing location to edit its name, coordinate, address, or radius.</li>
+</ol>
+<p>Nearby future automatic visits can use the saved name. Editing or deleting a location in this management screen keeps past visits unchanged. To fix an older visit, edit that visit itself. A place with the same name is not necessarily the same location; check the pin and radius.</p>
+<figure style="max-width:302px;margin:24px auto"><img src="/screenshots/saved-location-editor.png" width="302" height="656" style="height:auto" alt="iso.me Add Location editor with name, optional address, direct latitude and longitude fields, and a default 150 metre match radius" loading="lazy" decoding="async"><figcaption><p>The editor opened with location permission denied in an isolated Debug simulator rebuild of release 1.7.16, iOS 26.5, checked October 26, 2026. This confirms the available controls, not a completed save through this screen.</p></figcaption></figure>
+<p>Direct coordinate entry does not require the phone’s current GPS position. Map search and map previews use Apple services; disabling Location names does not turn those interactive map services into an offline feature. See the <a href="/docs/privacy-data/">network and storage reference</a>.</p>
+
+<h2 id="locations-csv">Import saved locations from CSV</h2>
+<p>In <strong>Manage Locations</strong>, choose <strong>Import Locations from CSV</strong>. This is separate from the general <strong>Import File</strong> control for visit and route-point history. A locations CSV defines reusable places, not visits.</p>
+<table>
+<caption>Saved-location CSV columns</caption>
+<tr><th scope="col">Column</th><th scope="col">Requirement</th></tr>
+<tr><th scope="row"><code>name</code></th><td>A nonempty location name.</td></tr>
+<tr><th scope="row"><code>latitude</code></th><td>A finite number from −90 through 90.</td></tr>
+<tr><th scope="row"><code>longitude</code></th><td>A finite number from −180 through 180.</td></tr>
+<tr><th scope="row"><code>address</code></th><td>Optional. Quote values containing commas.</td></tr>
+<tr><th scope="row"><code>radius_meters</code></th><td>Optional. Defaults to 150 when empty; otherwise use 25–10,000.</td></tr>
+</table>
+<p>Use UTF-8 CSV, up to 5 MB and 10,000 data rows. Review valid rows, invalid rows, and duplicates before importing. Invalid rows are skipped rather than repaired automatically.</p>
 <ul>
-<li>Tap a visit on the map or in the timeline to open its detail sheet, then <strong>Confirm place</strong> to accept the detected name.</li>
-<li>To fix a wrong name, edit it or pick from <strong>nearby business suggestions</strong> — real places found via Apple Maps around the visit's location, searchable in the sheet.</li>
-<li><strong>Undo correction</strong> restores the originally detected name, address, and position.</li>
-<li>Arrival and departure times are editable (with a “still here” toggle for ongoing visits), and notes can be attached to any visit.</li>
+<li><strong>Keep existing locations</strong> skips matching locations.</li>
+<li><strong>Update matching locations</strong> changes the reusable location’s values for future matching while keeping historical visits unchanged.</li>
 </ul>
+<p>Matching considers the name and nearby position, using match radii. Name case and surrounding whitespace are ignored. Review the summary and pin instead of assuming that equal names or slightly different coordinates will always create separate entries.</p>
+<p><a href="/samples/synthetic-saved-locations.csv" download>Download the synthetic saved-locations CSV</a>. Its two invented stops contain no personal history. Native tests against released 1.7.16 parsed and stored both, checked their coordinates and radii, then confirmed that a repeat import skips two under Keep existing and updates two under Update matching. The existing historical visit remained unchanged.</p>
+<p>Those are parser and in-memory storage checks. The file-picker handoff and a complete on-device CSV import have not been newly verified here. Try a small test file and review the preview before importing your own locations.</p>
 
-<h2>Saved places</h2>
-<p>Confirming or correcting a visit also <strong>saves the place</strong> — a name, position, and a match radius (default 150 m). From then on, any new visit inside that radius is automatically named from the saved place and marked confirmed. No more re-correcting “Home” every week.</p>
-<ul>
-<li>Saved places are manageable from the manual-entry sheet: select, swipe to delete, or create new ones with a radius of 50 / 100 / 150 / 250 m.</li>
-<li>Places with the same name at nearly the same spot update each other instead of piling up.</li>
-</ul>
+<h2>Confirm or correct an existing visit</h2>
+<p>Open the visit from Map or Timeline. <strong>Confirm place</strong> accepts the detected place; correcting a name, address, or position records your chosen values. Arrival, departure, and notes can also be edited. Nearby business suggestions use Apple Maps around the visit’s coordinate.</p>
+<p>Visits can be unconfirmed, confirmed, or corrected. Automatic geocoding does not overwrite a visit that is protected by its confirmation or correction state. <strong>Undo correction</strong> restores the original detected place information. Confirming or correcting a visit can also save reusable place knowledge; that is different from editing a saved location without changing a past visit.</p>
 
-<h2>Manual and past visits</h2>
-<p>The <strong>+</strong> menu on the map offers three ways to add history by hand:</p>
-<ul>
-<li><strong>Save current place</strong> — names where you are right now.</li>
-<li><strong>Add past visit</strong> — pick a place, an arrival, and a departure; the map then jumps to that day so you can see it in context.</li>
-<li><strong>Add place manually</strong> — search Apple Maps, drop a pin, pick a saved place, or use your current location; optionally save it as a reusable place.</li>
-</ul>
-<p>Locations can be chosen by searching Apple Maps, dropping a pin on a map, reusing a saved place, or using your current GPS position. Past visits require a departure time and never silently fall back to “here”.</p>
+<h2>Add a missing past visit</h2>
+<p>On the Map tab, open <strong>+</strong> and choose <strong>Add past visit</strong>. Select the location explicitly by search, pin, or saved place, then enter the arrival and departure times. Past visits do not silently use the phone’s current position when a location is missing.</p>
+<p>The same menu offers <strong>Save current place</strong> and <strong>Add place manually</strong> for other entry tasks. Current-position workflows depend on location access; choosing a known past place is a different task. A manual entry records what you enter. It cannot recreate missing GPS points or prove an automatic visit occurred.</p>
+<p>For a gap in recorded history, use the <a href="/blog/missing-location-history-iphone/">missing visits and routes checklist</a>. Keep a <a href="/blog/back-up-iphone-location-history/">separate backup</a> before making extensive journal edits.</p>
 
-<h2>The current-place suggestion</h2>
-<p>With <strong>Settings → Map display → Visit suggestions</strong> enabled (off by default), the map can offer a small card when you arrive somewhere new — suggesting the nearest saved place or a nearby business, with one tap to save. Dismissing a suggestion also silences it for that spot, so it doesn't nag.</p>
+<h2>Optional current-place suggestions</h2>
+<p><strong>Settings → Map display → Visit suggestions</strong> is off by default. When enabled, a nearby saved place or business can be offered as a Save Place prompt. This does not replace tracking permission or guarantee that every stop becomes a detected visit.</p>
+<p>Reviewed October 26, 2026 against released iso.me 1.7.16. The editor screenshot and native fixture tests have the limits described above; no new physical route or visit-detection test is claimed.</p>
 """
 
 BODIES["photos"] = """
@@ -215,7 +247,7 @@ BODIES["export-import"] = """
 <h2>Eight formats</h2>
 <table>
 <tr><th>Format</th><th>Best for</th></tr>
-<tr><td><strong>JSON</strong></td><td>Lossless backups, scripts, and tooling.</td></tr>
+<tr><td><strong>JSON</strong></td><td>Structured visit and point records, scripts, and tooling.</td></tr>
 <tr><td><strong>CSV</strong></td><td>Spreadsheets and analysis.</td></tr>
 <tr><td><strong>Markdown</strong></td><td>Human-readable journals — single outings export as a front-matter page with visits and route points.</td></tr>
 <tr><td><strong>GeoJSON</strong></td><td>Mapping tools and GIS.</td></tr>
@@ -224,7 +256,7 @@ BODIES["export-import"] = """
 <tr><td><strong>OwnTracks</strong></td><td>OwnTracks-ecosystem tools (route points).</td></tr>
 <tr><td><strong>Overland</strong></td><td>Overland-ecosystem tools (route points).</td></tr>
 </table>
-<p>Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON).</p>
+<p>Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON). For receiver delivery, follow the <a href="/integrations/dawarich/">Dawarich Overland walkthrough</a> and verify the destination’s saved points.</p>
 
 <h2>What gets exported</h2>
 <ul>
@@ -256,7 +288,27 @@ BODIES["export-import"] = """
 <p>Pick a <strong>default folder</strong> (with auto-save on by default) and exports land there silently with a confirmation toast; otherwise the standard share sheet appears. The <strong>Preview</strong> button renders everything without writing — free, and a good way to sanity-check filters. Single outings can also be exported straight from their detail page.</p>
 
 <h2>Import</h2>
-<p>Settings → <strong>Import file</strong> restores a prior export. JSON, CSV, and Markdown round-trip fully, including correction history and glitch flags. GPX, KML, and GeoJSON are one-way <em>map</em> formats and can't be imported. Importing is free.</p>
+<p>Settings → <strong>Import file</strong> accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.</p>
+<table>
+<caption>Choose a file for the next task</caption>
+<tr><th scope="col">Format</th><th scope="col">Useful for</th><th scope="col">Import into iso.me</th></tr>
+<tr><th scope="row">iso.me JSON</th><td>Structured visit or point records</td><td>Supported visit and point exports</td></tr>
+<tr><th scope="row">iso.me CSV / Markdown</th><td>Spreadsheets / readable records</td><td>Supported visit and point exports; required fields must remain</td></tr>
+<tr><th scope="row">GPX / KML / GeoJSON</th><td>Mapping tools and route viewers</td><td>No</td></tr>
+<tr><th scope="row">OwnTracks / Overland</th><td>Compatible location tools</td><td>No</td></tr>
+</table>
+<p>If Preview is unexpectedly empty, follow the <a href="/blog/missing-location-history-iphone/#export">export filter diagnosis</a> before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.</p>
+<h2>Keep a copy and check it</h2>
+<ol>
+<li>Select visits or route points, JSON, and the dates you want to retain. Export each data type you need; keep all generated files.</li>
+<li>Preview the result. Check that filters, field choices, and dates have not excluded required records.</li>
+<li>Export to a folder you control and confirm the files exist in Files before deleting or replacing anything.</li>
+<li>When importing later, keep the originals and inspect several dates, visits, and points after the import. Do not assume every setting, photo association, or edited outing is restored.</li>
+</ol>
+<p><a href="/docs/automatic-exports/">Automatic exports</a> can keep scheduled copies, subject to iOS background execution. For the recording workflow, see <a href="/blog/private-location-journal-iphone/">the private location journal guide</a>. For a route file, follow <a href="/blog/record-iphone-route-gpx/">the GPX recording walkthrough</a>. For restorable records, use <a href="/blog/back-up-iphone-location-history/">the backup and restore checklist</a>. Comparing apps? Read <a href="/compare/google-maps-timeline/">iso.me and Google Timeline</a>.</p>
+<p>Import adds supported records. In the checked 1.7.16 release-source example, post-import visit reconciliation combined two nearby visits into one, while importing the point file again added repeated points. The import result is not necessarily the final stored visit count. See the <a href="/blog/back-up-iphone-location-history/#checked-import">checked disk import and JSON re-export</a>. Import each intended file once, then check individual records before retrying. The <a href="/blog/back-up-iphone-location-history/#sample">synthetic JSON examples</a> show the visit and point structures without using private history.</p>
+<p>For a readable note in a desktop vault, follow the <a href="/blog/iphone-location-journal-obsidian/">Markdown-to-Obsidian workflow</a>. It covers manual file placement and keeps generated notes separate from personal writing.</p>
+
 """
 
 BODIES["automatic-exports"] = """
@@ -297,14 +349,15 @@ BODIES["webhooks"] = """
 <div class="callout pro"><p><strong>Pro feature, off by default.</strong> Webhooks can send your location data off your device — to a server <em>you</em> choose. Nothing is sent until you configure an endpoint, and the settings screen leads with a prominent warning card.</p></div>
 
 <h2>What it's for</h2>
-<p>If you run your own location infrastructure — <a href="https://dawarich.app" rel="noopener">Dawarich</a>, an OwnTracks recorder, Traccar, or anything that accepts HTTP posts — webhooks turn iso.me into a source for it. Known-good endpoint patterns:</p>
+<p>Webhooks deliver records to a receiver you choose, but the payload must match that receiver's API. An endpoint accepting HTTP POST is not enough to establish compatibility. Verify a dedicated test destination before enabling delivery of your history.</p>
 <table>
 <tr><th>Service</th><th>Endpoint shape</th><th>Format</th></tr>
-<tr><td>Dawarich</td><td><code>…/api/v1/owntracks/points</code></td><td>OwnTracks</td></tr>
-<tr><td>OwnTracks recorder</td><td><code>…/pub</code></td><td>OwnTracks</td></tr>
-<tr><td>Traccar</td><td>per your installation</td><td>JSON / OwnTracks</td></tr>
-<tr><td>Anything else</td><td>any HTTPS URL</td><td>any of the 8 formats</td></tr>
+<tr><td>Dawarich batch receiver</td><td><code>…/api/v1/overland/batches</code></td><td>Overland; verify against your instance before use</td></tr>
+<tr><td>OwnTracks receiver</td><td>per your installation</td><td>Verify it accepts arrays of location messages</td></tr>
+<tr><td>Other receiver</td><td>its documented HTTPS endpoint</td><td>Use its required schema and authentication</td></tr>
 </table>
+
+<p>iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check <a href="https://dawarich.app/docs/getting-started/track-your-location/">Dawarich's receiver documentation</a> and confirm actual imported points; the <a href="/integrations/dawarich/">checked Overland walkthrough</a> records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.</p>
 
 <h2>Configuration</h2>
 <ul>
@@ -321,65 +374,127 @@ BODIES["webhooks"] = """
 <tr><td><strong>By time</strong></td><td>Queued points flush every 1–60 minutes.</td></tr>
 <tr><td><strong>Manual</strong></td><td>Nothing sends automatically; <strong>Send now</strong> posts your entire saved history (visits and points).</td></tr>
 </table>
-<p>Batch modes show a live queue count with a <strong>Flush queue</strong> button. Failed sends retry automatically with backoff on network errors and server hiccups (5xx, timeouts, rate limits); authentication failures don't retry — they surface as an error. <strong>Test connection</strong> posts a single harmless sample point so you can verify an endpoint before committing.</p>
+<p>Batch modes show a live queue count with a <strong>Flush queue</strong> button. Failed sends retry automatically with backoff on network errors and server hiccups (5xx, timeouts, rate limits); authentication failures don't retry — they surface as an error. <strong>Test connection</strong> POSTs a synthetic point at latitude 0, longitude 0, with a current timestamp. A receiver can store it. A successful HTTP response confirms acceptance of that request, not that a real route was correctly imported.</p>
 
 <div class="callout warn"><p><strong>Know your destination.</strong> This is the one feature that transmits your location data off-device. Use endpoints you trust (ideally your own servers), and remember queued-but-unsent points in batch modes are lost if iOS terminates the app before a flush.</p></div>
 """
 
 BODIES["siri-shortcuts"] = """
-<h2>Nine actions</h2>
-<p>Every action runs without opening the app. Find them in the Shortcuts app under iso.me, or just talk to Siri.</p>
+<h2>Find iso.me actions in Shortcuts</h2>
+<p>Open Apple’s Shortcuts app, create a shortcut, and search for iso.me when adding an action. The verified iso.me 1.7.16 release defines twelve actions. Nine have built-in Siri phrases; the three additional read actions can be added to a custom shortcut. Use the action names below when an older recipe shows different labels.</p>
+<p>Set up location permission in iso.me before using <strong>Start Tracking</strong>. These actions are designed to run without opening iso.me, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
+
+<h2>Recording and today’s stats</h2>
 <table>
-<tr><th>Action</th><th>What it does</th><th>Siri phrase example</th></tr>
-<tr><td><strong>Start Tracking</strong></td><td>Begins a recording session.</td><td>“Start iso.me”</td></tr>
-<tr><td><strong>Stop Tracking</strong></td><td>Ends the session — even if the app isn't running.</td><td>“Stop tracking with iso.me”</td></tr>
-<tr><td><strong>Rename Current Outing</strong></td><td>Sets the active outing's name (parameter: name).</td><td>“Name my iso.me outing”</td></tr>
-<tr><td><strong>Today's Distance</strong></td><td>Returns how far you've moved today.</td><td>“How far have I gone with iso.me?”</td></tr>
-<tr><td><strong>Today's Tracking Duration</strong></td><td>Returns how long the session has run.</td><td>“iso.me tracking duration”</td></tr>
-<tr><td><strong>Today's Visits</strong></td><td>Returns today's visit count.</td><td>“How many visits today in iso.me?”</td></tr>
-<tr><td><strong>Export Today's Data</strong></td><td>Produces a file of today's visits and route (parameter: format, default JSON).</td><td>“Export today's data from iso.me”</td></tr>
-<tr><td><strong>Export Today's Outings</strong></td><td>Same, for outings.</td><td>“Export today's iso.me outings”</td></tr>
-<tr><td><strong>Export Yesterday's Data</strong></td><td>Yesterday's visits and route as a file.</td><td>“Export yesterday's iso.me tracks”</td></tr>
+<caption>Recording controls and snapshot values</caption>
+<tr><th scope="col">Action</th><th scope="col">What it does</th><th scope="col">Built-in Siri phrase example</th></tr>
+<tr><th scope="row">Start Tracking</th><td>Starts recording with the app’s location permission.</td><td>“Start iso.me”</td></tr>
+<tr><th scope="row">Stop Tracking</th><td>Stops recording. If iso.me is not running, closes the saved active session.</td><td>“Stop tracking with iso.me”</td></tr>
+<tr><th scope="row">Rename Current Outing</th><td>Names the active outing. Requires a nonempty Name and an active outing.</td><td>“Name my iso.me outing”</td></tr>
+<tr><th scope="row">Today’s Distance</th><td>Returns today’s distance from the latest shared app snapshot.</td><td>“How far have I gone with iso.me”</td></tr>
+<tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“iso.me tracking duration”</td></tr>
+<tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in iso.me”</td></tr>
 </table>
 
-<h2>Automation ideas</h2>
+<h2>Read and rename saved records</h2>
+<table>
+<caption>Journal actions for a custom shortcut</caption>
+<tr><th scope="col">Action</th><th scope="col">Inputs and result</th><th scope="col">Siri setup</th></tr>
+<tr><th scope="row">Get Current Outing Name</th><td>Returns the active outing’s name, or its start date if unnamed. Reports an error if there is no active outing.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Get Visits</th><td>Optional Start Date and End Date. Returns visits whose arrival falls in the range.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Get Movements</th><td>Optional Start Date and End Date. Returns recorded outings whose start falls in the range; “Movement” is the action’s label for an outing.</td><td>Add to a custom shortcut.</td></tr>
+<tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in iso.me”</td></tr>
+<tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in iso.me”</td></tr>
+</table>
+<p>For a rename workflow, get the visits or movements, choose the intended result, and pass it to the matching rename action. Check the date and item before running: renaming changes the saved journal. These actions do not create missing GPS points or visits.</p>
+
+<h2 id="export-data">Export a chosen date range</h2>
+<p><strong>Export Data</strong> is the single configurable export action in this release. It returns a file for the next Shortcuts action. Its built-in Siri phrases include “Export iso.me data” and “Export data from iso.me”.</p>
+<table>
+<caption>Export Data parameters</caption>
+<tr><th scope="col">Parameter</th><th scope="col">Choices or default</th></tr>
+<tr><th scope="row">Start Date</th><td>Defaults to the start of today in the device’s calendar.</td></tr>
+<tr><th scope="row">End Date</th><td>Defaults to the time the action runs.</td></tr>
+<tr><th scope="row">Data Kind</th><td>Visits, Points, Outings, or All Data. Defaults to All Data.</td></tr>
+<tr><th scope="row">Format</th><td>JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, or Overland. Defaults to JSON.</td></tr>
+</table>
+<p>For yesterday or any past period, set <strong>both</strong> dates. Leaving Start Date empty while setting yesterday’s End Date creates an inverted range and returns an error. An end before the start is invalid. Export formats organize records differently; consult the <a href="/docs/export-import/">export reference</a> before choosing a file for another app.</p>
+
+<h2 id="markdown-recipe">Recipe: save today’s visits as Markdown</h2>
+<ol>
+<li>Create a shortcut in Apple’s Shortcuts app and add iso.me’s <strong>Export Data</strong> action.</li>
+<li>Set <strong>Data Kind</strong> to <strong>Visits</strong> and <strong>Format</strong> to <strong>Markdown</strong>. Leave both date parameters empty for today up to the run time.</li>
+<li>Add Apple’s <strong>Save File</strong> action after Export Data, using the returned file as its input. For the first run, choose a test folder you control.</li>
+<li>Run the shortcut manually. Confirm the saved file has the expected date heading and visits. A successful action is not proof that you recorded every stop.</li>
+<li>For a desktop vault, follow the <a href="/blog/iphone-location-journal-obsidian/">Obsidian file handoff</a>. Keep personal writing separate from generated exports.</li>
+</ol>
+<p>This recipe follows the released action’s parameters and Apple’s documented file actions. The export logic is covered by native tests; the complete Shortcuts editor, Save File destination, and unattended delivery have not been newly verified here. Apple explains <a href="https://support.apple.com/guide/shortcuts/create-a-custom-shortcut-apd84c576f8c/ios">creating a custom shortcut</a> and <a href="https://support.apple.com/guide/shortcuts/share-actions-apdaf74d75a5/ios">passing files to sharing actions</a>.</p>
+
+<h2>Check a shortcut before scheduling it</h2>
 <ul>
-<li>Bind <strong>Start Tracking</strong> to the <strong>Action Button</strong> for one-press recording.</li>
-<li>An automation that runs <strong>Export Today's Data</strong> every evening and hands the file to another shortcut — your own export pipeline.</li>
-<li>Ask Siri for <strong>Today's Visits</strong> or <strong>Distance</strong> as a daily digest.</li>
-<li>Rename an outing mid-hike: “Name my iso.me outing Ridge Trail.”</li>
+<li>If an old shortcut shows <strong>Export Today’s Data</strong>, <strong>Export Today’s Outings</strong>, or <strong>Export Yesterday’s Data</strong>, rebuild that step with <strong>Export Data</strong> and set its dates, data kind, and format explicitly.</li>
+<li>If a result is empty, check the date range and whether the app actually recorded the intended data. Read actions match visit arrival or outing start; a record overlapping the period can start outside it.</li>
+<li>If a file was returned but is missing from Files, check the following Save File action and destination. Export Data does not itself configure a recurring vault sync.</li>
+<li>For iso.me’s own folder scheduler, use the separate <a href="/docs/automatic-exports/">automatic export reference</a>. For missing journal entries, use the <a href="/blog/missing-location-history-iphone/">recording checklist</a>.</li>
 </ul>
-<p>Export actions produce a file in your chosen format that Shortcuts can save, message, or pass to other apps.</p>
+<p>Reviewed October 26, 2026 against the released iso.me 1.7.16 action definitions. Siri wording and the Shortcuts editor can vary by language and iOS version.</p>
 """
 
 BODIES["apple-watch"] = """
-<h2>An independent recorder</h2>
-<p>The iso.me Watch app isn't a remote control — it's a full tracker with its own GPS session. It installs and runs on its own (no iPhone required nearby), records routes with fitness-grade accuracy, and queues everything <strong>offline</strong> until it can sync.</p>
+<h2>Record on the Watch, then check the phone copy</h2>
+<p>iso.me can record GPS points on Apple Watch without the iPhone nearby. The Watch keeps a local queue for transfer to the companion iPhone. Recording and reviewing history are free; writing export files on the phone requires the optional unlock.</p>
+<p>Install the Watch app and allow its location request. The phone app is needed to review transferred records in its journal and use its export workflow. Controls can vary by version; if a control described below is missing, check the available app update.</p>
 
-<h2>On the watch</h2>
-<ul>
-<li><strong>Start / Stop</strong> — one button; permission is requested on first start.</li>
-<li><strong>Status card</strong> — live elapsed timer (plus remaining auto-stop time when one is set from the phone).</li>
-<li><strong>Today card</strong> — visits, distance, and points recorded today, with a <strong>Reset today</strong> button for a fresh start.</li>
-<li><strong>Location card</strong> — current coordinates and last update time.</li>
-</ul>
-<p>Watch-recorded distance uses sensible heuristics: fixes must be accurate (≤ 100 m), movement under 10 m doesn't accumulate, and a new “visit” is counted after about 100 m of displacement. Day counters roll over automatically at local midnight.</p>
+<h2>Before your first route</h2>
+<ol>
+<li>Open iso.me on the Watch. If it asks for location access, respond to the permission prompt. If access was denied, review the Watch's location settings.</li>
+<li>Tap <strong>Start</strong> and confirm the status changes from standby to tracking. After an initial permission request, check the state rather than assuming a recording began.</li>
+<li>Try a short route first. Look for the elapsed time and point count to change before relying on a longer session.</li>
+<li>When finished, tap <strong>Stop</strong> on the Watch. Confirm it has left the tracking state.</li>
+</ol>
+<p>Recording away from the phone is separate from syncing to it. You do not need an active phone connection for the Watch to collect points, but the phone must be available later for transfer. GPS conditions, permission, battery, and watchOS behavior can affect the recording.</p>
 
-<h2>Sync back to the iPhone</h2>
-<p>Recorded points are queued durably on the watch and transferred automatically — every 25 points, at session start and end, and whenever the phone is reachable — then merged into your iPhone history. The merge is idempotent: re-syncing never duplicates anything, and the phone reverse-geocodes the imported visits so they get proper names. Recording works fully offline; sync catches up whenever it can.</p>
-
-<h2>Complications</h2>
-<p>Four watch-face families show today's status at a glance:</p>
+<h2>Sync and verify the result</h2>
+<ol>
+<li>Bring the paired Watch and iPhone together and open iso.me on the iPhone.</li>
+<li>Open iso.me on the Watch. If available in your version, tap <strong>Sync Now</strong> and read the status.</li>
+<li>In the phone app, open Timeline for the day of the recording. Check the outing and use its map to inspect the expected points and times.</li>
+<li>Check both route points and visits. A transferred route is not proof that every stop was detected or named correctly.</li>
+</ol>
 <table>
-<tr><th>Family</th><th>Shows</th></tr>
-<tr><td><strong>Circular</strong></td><td>Tracking status icon + today's visit count.</td></tr>
-<tr><td><strong>Rectangular</strong></td><td>Status, current place, visits, distance, auto-off time remaining.</td></tr>
-<tr><td><strong>Inline</strong></td><td>One line: “N visits • distance” or “Tracking Off”.</td></tr>
-<tr><td><strong>Corner</strong></td><td>Status icon with a visit-count label.</td></tr>
+<caption>Read the sync state before retrying</caption>
+<tr><th scope="col">Watch status</th><th scope="col">What to do next</th></tr>
+<tr><th scope="row">Connecting to iPhone</th><td>Keep the paired devices available and open the phone app.</td></tr>
+<tr><th scope="row">Sync queued</th><td>The request is queued. Check the phone result; this is not confirmation that every record is imported.</td></tr>
+<tr><th scope="row">Synced with iPhone</th><td>The phone acknowledged the delivered data. Still check the intended day and route.</td></tr>
+<tr><th scope="row">Nothing to sync</th><td>Check the phone's existing history and the selected day. An empty pending queue is not a full history report.</td></tr>
 </table>
-<p>Complication data refreshes about every 5 minutes while tracking and 15 minutes otherwise, and immediately after each sync.</p>
+<p>Completed transfers are acknowledged by the phone; points remain in the Watch queue until acknowledged. This helps retry delivery, but the queue is not a full backup of history already transferred. Do not uninstall the Watch app as a first troubleshooting step.</p>
 
-<div class="callout"><p><strong>Units:</strong> the watch follows your iPhone's Metric / US setting where available; on its own it derives units from the watch's locale.</p></div>
+<h2>If the route is missing or incomplete</h2>
+<ul>
+<li><strong>Nothing recorded:</strong> check the Watch's location permission, tracking state, and whether the point count advanced during the session.</li>
+<li><strong>Watch has data, phone looks empty:</strong> check the recording date, open both apps, and read the Watch sync status before starting another route.</li>
+<li><strong>Points arrived but visits differ:</strong> Watch visits are derived from recorded movement and are not identical to the iPhone's automatic visit detection. Check the route itself and correct places where needed.</li>
+<li><strong>Older app version:</strong> an update can change sync behavior, but cannot recreate every record that is no longer retained. Keep existing data while diagnosing a gap.</li>
+</ul>
+<p>If a retry does not resolve it, contact support with the app versions, recording date, and exact sync message. You can describe the missing period without sending your private route.</p>
+
+<h2>Daily counters and complications</h2>
+<p>The Watch shows tracking state, elapsed time, coordinates, distance, points, and a movement-based visit count. Its visit counter is not a count of named places confirmed by the iPhone. <strong>Reset today</strong> resets the Watch's daily counters; it does not restore missing records or delete the iPhone's imported history.</p>
+<p>Circular, rectangular, inline, and corner complications offer glanceable status. A complication is a snapshot, so open the Watch app to inspect the current recording and sync state.</p>
+
+<h2>Keep a portable copy after syncing</h2>
+<p>Once the route is visible on the phone, follow <a href="/blog/record-iphone-route-gpx/">the GPX walkthrough</a> to open it in another route tool, or <a href="/blog/back-up-iphone-location-history/">back up supported visits and points</a> for later import. See <a href="/docs/timeline-outings/">Timeline and outings</a> for reviewing the transferred day.</p>
+<p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>
+
+"""
+
+# Country Days is present in verified public 1.7.16 build 46.
+BODIES["timeline-outings"] += """
+<h2>Country Days</h2>
+<p>Timeline → <strong>Country Days</strong> counts local dates represented by visits, route points, and manual stays. Review this year, the last 365 days, or all time. A travel date can count in more than one country; gaps are not filled automatically. Viewing and manual stays are free; writing the country-date CSV uses the export purchase.</p>
+<p>See <a href="/blog/track-days-in-country-iphone/">how to track days spent in each country</a> for timezone, network-geocoding, and counting details.</p>
 """
 
 BODIES["privacy-data"] = """
@@ -407,7 +522,7 @@ BODIES["privacy-data"] = """
 </ul>
 
 <h2>Backups are your job (by design)</h2>
-<p>Because nothing is synced to a cloud, there is no server copy to fall back on. Export regularly — JSON round-trips losslessly through import, and Auto Export can do it for you every day. See <a href="/docs/export-import">Export &amp; import</a>.</p>
+<p>Because nothing is synced to a cloud, there is no server copy to fall back on. Export regularly — supported iso.me JSON files can restore visit and point records, and Auto Export can do it for you every day. See <a href="/docs/export-import">Export &amp; import</a>.</p>
 
 <h2>Permissions iso.me requests</h2>
 <table>
@@ -432,27 +547,30 @@ SHELL = """<!DOCTYPE html>
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/docs/docs.css">
+  <style>__DOCS_CSS__</style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="top" aria-label="Primary navigation">
     <div class="nav-inner">
       <a href="/" class="brand" aria-label="iso.me home">
-        <img src="/app-icon-28.png" srcset="/app-icon-28.png 1x, /app-icon-84.png 3x" alt="" width="26" height="26">
+        <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
         <span class="brand-dot" aria-hidden="true"></span>
         ISO.ME
       </a>
       <div class="nav-links">
         <a href="/#features">Features</a>
         <a href="/#pricing">Pricing</a>
-        <a href="/docs/"__DOCS_CURRENT__>Docs</a>
+        <a href="/docs/" aria-current="page">Docs</a>
         <a href="/terms">Terms</a>
         <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn">Download</a>
       </div>
     </div>
   </nav>
 
+<main id="main">
 __BODY__
+  </main>
 
   <footer>
     <div class="footer-inner">
@@ -461,6 +579,8 @@ __BODY__
         © 2026 ISO.ME · BUILT WITH CARE
       </div>
       <div class="footer-links">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
         <a href="/">Home</a>
         <a href="/docs/">Docs</a>
         <a href="/privacy">Privacy</a>
@@ -519,6 +639,8 @@ __BODY__
 </body>
 </html>
 """
+
+SHELL = SHELL.replace("__DOCS_CSS__", (OUT / "docs.css").read_text())
 
 GUIDE_PAGE = """
   <header class="doc-head">
@@ -589,7 +711,7 @@ def build():
         body = body.replace("__TITLE__", html.escape(title))
         body = body.replace("__LEDE__", html.escape(lede))
         body = body.replace("__PLATFORM__", html.escape(platform))
-        body = body.replace("__UPDATED__", UPDATED)
+        body = body.replace("__UPDATED__", UPDATED if slug in REVIEWED else "August 22, 2026")
         body = body.replace("__MINUTES__", str(minutes))
         body = body.replace("__CONTENT__", BODIES[slug].strip())
         body = body.replace("__PREV__", pager_link("prev", prev_g))
@@ -599,8 +721,7 @@ def build():
                 .replace("__TITLE__", html.escape(title))
                 .replace("__DESC__", html.escape(short))
                 .replace("__CANONICAL__", BASE + slug + "/")
-                .replace("__BODY__", body)
-                .replace(' href="/docs/"', ' href="/docs/" aria-current="page"'))
+                .replace("__BODY__", body))
         (OUT / slug).mkdir(exist_ok=True)
         (OUT / slug / "index.html").write_text(page)
         print(f"wrote docs/{slug}/index.html")
@@ -613,7 +734,7 @@ def build():
             f'      <a class="guide-card" href="/docs/{slug}/">\n'
             f'        {tag_html}\n'
             f'        <span class="num">{"%02d" % (i + 1)}</span>\n'
-            f'        <h3>{html.escape(title)}</h3>\n'
+            f'        <h2>{html.escape(title)}</h2>\n'
             f'        <p>{html.escape(short)}</p>\n'
             f'      </a>')
     index = (SHELL
@@ -624,8 +745,7 @@ def build():
                       INDEX_PAGE
                       .replace("__TOTAL__", str(total))
                       .replace("__UPDATED__", UPDATED)
-                      .replace("__CARDS__", "\n".join(cards)))
-             .replace(' href="/docs/"', ' href="/docs/" aria-current="page"'))
+                      .replace("__CARDS__", "\n".join(cards))))
     (OUT / "index.html").write_text(index)
     print("wrote docs/index.html")
 

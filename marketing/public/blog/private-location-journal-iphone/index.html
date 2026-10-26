@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>How to Keep a Private Location Journal on iPhone — iso.me</title>
-  <meta name="description" content="A practical guide to keeping a private iPhone location journal with on-device history, local review, open-format exports, and carefully optional webhooks.">
+  <meta name="description" content="Record a private iPhone location journal, check saved GPS points and visits, and keep portable copies of your on-device history.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/blog/private-location-journal-iphone/">
   <meta name="theme-color" content="#f5f4ef">
@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://isome.isolated.tech/blog/private-location-journal-iphone/">
   <meta property="og:site_name" content="iso.me">
   <meta property="article:published_time" content="2026-06-13T00:00:00-10:00">
-  <meta property="article:modified_time" content="2026-10-25T00:00:00-04:00">
+  <meta property="article:modified_time" content="2026-10-26T00:00:00-04:00">
   <meta property="article:author" content="Cody Bontecou">
   <meta property="article:section" content="Guides">
   <meta property="article:tag" content="Private location journal">
@@ -46,14 +46,14 @@
         "@type": "BlogPosting",
         "@id": "https://isome.isolated.tech/blog/private-location-journal-iphone/#article",
         "headline": "How to Keep a Private Location Journal on iPhone",
-        "description": "A practical guide to keeping a private iPhone location journal with on-device history, local review, open-format exports, and carefully optional webhooks.",
+        "description": "Record a private iPhone location journal, check saved GPS points and visits, and keep portable copies of your on-device history.",
         "image": [
           "https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/map.png",
           "https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/export.png",
           "https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/settings.png"
         ],
         "datePublished": "2026-06-13T00:00:00-10:00",
-        "dateModified": "2026-10-25T00:00:00-04:00",
+        "dateModified": "2026-10-26T00:00:00-04:00",
         "author": {
           "@type": "Person",
           "name": "Cody Bontecou",
@@ -527,6 +527,9 @@
       line-height: 1.5;
     }
 
+    .recording-example { max-width: 320px; margin: 24px auto; }
+    .recording-example img { display: block; width: 100%; height: auto; }
+
     .checklist-box {
       margin: 34px 0;
       border: 1px solid var(--rule);
@@ -662,7 +665,7 @@
   <nav class="top" aria-label="Primary navigation">
     <div class="nav-inner">
       <a href="/" class="brand" aria-label="iso.me home">
-        <img src="/app-icon-28.png" srcset="/app-icon-28.png 1x, /app-icon-84.png 3x" alt="" width="26" height="26">
+        <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
         <span class="brand-dot" aria-hidden="true"></span>
         ISO.ME
       </a>
@@ -672,7 +675,7 @@
         <a href="/blog/" aria-current="page">Blog</a>
         <a href="/docs/">Docs</a>
         <a href="/#faq">FAQ</a>
-        <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn btn-primary">Download</a>
+        <a href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-private-journal&amp;mt=8" class="btn btn-primary">Download</a>
       </div>
     </div>
   </nav>
@@ -681,14 +684,14 @@
     <header class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">Guide · June 2026</span>
-          <h1>How to keep a <span class="accent">private location journal</span> on iPhone.</h1>
+          <span class="eyebrow">Guide · Reviewed October 26, 2026</span>
+          <h1 id="post-title">How to keep a <span class="accent">private location journal</span> on iPhone.</h1>
           <p class="lede">
-            Location history can be genuinely useful: remembering a trailhead, finding the cafe you visited last month, reconstructing a trip, or keeping a personal archive of the places that shaped a season. The important part is keeping that history under your control.
+            To keep a private location journal on iPhone, enable recording in iso.me, check a short route in Timeline, and keep supported exports for records you want to restore later. Your visits and routes stay on your phone unless you export or configure delivery elsewhere.
           </p>
           <div class="hero-actions">
             <a href="#setup" class="btn btn-primary">Start the checklist</a>
-            <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn btn-ghost">Get iso.me</a>
+            <a href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-private-journal&amp;mt=8" class="btn btn-ghost">Get iso.me</a>
           </div>
         </div>
 
@@ -762,15 +765,16 @@
       <article class="post" aria-labelledby="post-title">
         <div class="article-body">
           <p>
-            A private location journal is a personal record of places and routes that stays useful without becoming a social feed, an ad profile, or a cloud archive you never meant to create. On iPhone, the safest pattern is simple: keep the working copy on-device, review it locally, export portable files when you need them, and only send data elsewhere when you make that choice on purpose.
+            iso.me records your own location history while tracking is enabled. Start recording before the part of the day you want to keep, then review the map and Timeline. Installing the app cannot recover routes from before you recorded them. If you already use Google Timeline, <a href="/compare/google-maps-timeline/">compare the two workflows</a> before switching.
           </p>
 
-          <div class="screenshot-set" aria-label="Fresh iso.me screenshots">
+          <p>These interface examples illustrate the app’s screens; they are not a newly recorded trip. See the <a href="#first-recording">checked recording-state example</a> below for what to verify.</p>
+          <div class="screenshot-set" aria-label="iso.me interface examples">
             <figure class="shot">
               <div class="phone-frame">
                 <picture>
-                  <source srcset="screenshots/map.webp" type="image/webp">
-                  <img src="screenshots/map.png" alt="iso.me map showing visits and recorded route points in San Francisco" width="1206" height="2622" loading="eager" decoding="async">
+                  <source srcset="screenshots/map-480.webp 480w, screenshots/map-720.webp 720w, screenshots/map.webp 1206w" sizes="(max-width: 480px) calc(100vw - 94px), (max-width: 980px) 404px, 220px" type="image/webp">
+                  <img src="screenshots/map.png" alt="iso.me map showing visits and recorded route points in San Francisco" width="1206" height="2622" loading="lazy" decoding="async">
                 </picture>
               </div>
               <figcaption>Map view: visits, route dots, and route lines stay in a private timeline.</figcaption>
@@ -778,7 +782,7 @@
             <figure class="shot">
               <div class="phone-frame">
                 <picture>
-                  <source srcset="screenshots/export.webp" type="image/webp">
+                  <source srcset="screenshots/export-480.webp 480w, screenshots/export-720.webp 720w, screenshots/export.webp 1206w" sizes="(max-width: 480px) calc(100vw - 94px), (max-width: 980px) 404px, 220px" type="image/webp">
                   <img src="screenshots/export.png" alt="iso.me export screen showing JSON CSV Markdown GPX KML GeoJSON and webhook options" width="1206" height="2622" loading="lazy" decoding="async">
                 </picture>
               </div>
@@ -787,7 +791,7 @@
             <figure class="shot">
               <div class="phone-frame">
                 <picture>
-                  <source srcset="screenshots/settings.webp" type="image/webp">
+                  <source srcset="screenshots/settings-480.webp 480w, screenshots/settings-720.webp 720w, screenshots/settings.webp 1206w" sizes="(max-width: 480px) calc(100vw - 94px), (max-width: 980px) 404px, 220px" type="image/webp">
                   <img src="screenshots/settings.png" alt="iso.me settings screen with tracking permission distance filter stop after and location names controls" width="1206" height="2622" loading="lazy" decoding="async">
                 </picture>
               </div>
@@ -803,7 +807,7 @@
             That distinction matters because location data is sensitive. A timeline can reveal your home, routines, work patterns, health visits, travel, religious practice, relationships, and habits. Before turning on any location recorder, ask two questions: who stores the data, and how do I leave with a copy?
           </p>
           <p>
-            iso.me is built around the local-first answer. Your visits and routes are stored on your iPhone for core tracking. There is no iso.me account requirement and no iso.me server-side location archive for your everyday journal. If you enable features that talk to the network, such as readable place-name lookup through Apple's geocoding service or optional webhooks that you configure, treat those as explicit choices rather than the default mental model.
+            iso.me is built around the local-first answer. Your visits and routes are stored on your iPhone for core tracking. There is no iso.me account requirement and no iso.me server-side location archive for your everyday journal. If you enable features that talk to the network, such as readable place-name lookup through Apple's geocoding service or optional webhooks that you configure, review their boundaries. First-party onboarding and purchase telemetry is on by default and excludes location records; <a href="/privacy">the privacy policy lists network requests</a>.
           </p>
 
           <div class="checklist-box" id="setup">
@@ -815,7 +819,7 @@
               </div>
               <div class="checkitem">
                 <span class="k">Tracking mode</span>
-                <span class="v">Use passive visit history for the background record and high-accuracy sessions when a route matters.</span>
+                <span class="v">Start enables both visit monitoring and GPS recording. Stop ends both; there is no separate passive visit-only switch.</span>
               </div>
               <div class="checkitem">
                 <span class="k">Names</span>
@@ -836,37 +840,43 @@
             </div>
           </div>
 
-          <h3>Verify your first recording</h3>
+          <h3 id="first-recording">Verify your first recording</h3>
           <ol>
-            <li>Open iso.me and finish setup. Choose While Using for manual sessions, or Always if you want automatic visits in the background. You can revisit this in iOS Settings.</li>
-            <li>On the Map tab, start a short route with the recording control. Stop it when you finish.</li>
-            <li>Open Timeline and check the date, route, and start/end times. Automatic visits need time at a place; do not expect every brief stop to appear immediately.</li>
+            <li>Open iso.me and finish setup. Choose Always if you want GPS and visit monitoring to continue in the background; While Using limits when the app can obtain locations. You can revisit this in iOS Settings.</li>
+            <li>On the Map tab, tap the play control to start recording. Check that it changes to a red Stop control and that the elapsed time advances. Stop when you finish.</li>
+            <li>Open Timeline, select the day, and open the outing. Check its start and end times, Points count, and Path. A timer or an outing row alone does not prove GPS locations were saved.</li>
+            <li>For a route you walked, check that its path follows the expected places. Check visits separately: automatic visits need time at a place, so a brief stop may not appear immediately.</li>
             <li>If the result is empty, check location permission, tracking state, and the selected day before relying on a longer recording.</li>
           </ol>
+          <h3>A saved outing can still have no route</h3>
+          <p>In a checked simulator example, Start changed to Stop and the timer advanced. After stopping, Timeline listed one eight-second outing, zero visits, and zero distance. Opening it showed <strong>0 points</strong> and <strong>“No GPS points were saved for this outing yet.”</strong> This verifies the controls and empty-path state, not a successful route recording.</p>
+          <figure class="recording-example"><img src="/screenshots/journal-empty-outing.png" width="302" height="656" alt="iso.me outing detail with an eight-second duration, zero distance, zero points, and the message that no GPS points were saved" loading="lazy" decoding="async"><figcaption>Checked October 26, 2026 in an isolated Debug simulator rebuild of the 1.7.16 release source, on iOS 26.5. No GPS points were saved during this session. This is not a physical outing or a battery test.</figcaption></figure>
+          <p>If you see this state, check location permission, the selected date, and whether tracking was on when you moved. Try another short recording where the phone can obtain a location, then inspect the saved points again. A manual visit can add a stop to your journal, but it cannot recreate the missing GPS path. Use the <a href="/blog/missing-location-history-iphone/">missing-recording checklist</a> for the next checks.</p>
           <p>Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See <a href="/#pricing">current pricing</a> and the <a href="/docs/getting-started/">setup reference</a>.</p>
+          <p><a class="btn btn-primary" data-placement="inline" href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-private-journal&amp;mt=8">Record your first day free</a></p>
 
           <h2 id="capture">Capture visits and routes without turning your life into a feed</h2>
           <p>
             A good location journal has two layers: places and paths. Places are the stops you care about: a restaurant, hotel, trailhead, client site, beach, school, or errand. Paths are the routes between them: a hike, commute, road trip, city walk, bike ride, or site visit.
           </p>
           <p>
-            iso.me can record visits automatically and can record detailed routes when tracking is enabled. Use those modes differently. Passive visit history is good for the ordinary shape of a day. High-accuracy route recording is better for intentional sessions where the path itself matters. That distinction helps with battery life and keeps the journal calmer.
+            Visits and route points describe different parts of your day, but they share the same recording controls. Start enables visit monitoring, significant location changes, and detailed GPS recording together. Stop ends all three. Always location permission allows recording in the background; visits can arrive later than the route points around them.
           </p>
           <ul>
-            <li>For everyday recall, let the app collect visits and significant movement quietly.</li>
-            <li>For a trail, photo walk, road trip, or inspection route, start a more intentional tracking session.</li>
+            <li>Start tracking before the period you want to remember. Leaving the app installed alone does not record a day.</li>
+            <li>Open Timeline after recording to check the date, route, and detected visits. Add or correct a visit if needed.</li>
             <li>Use auto-stop settings as a safety net so precise tracking does not run longer than intended.</li>
           </ul>
 
           <h2 id="battery">Choose a battery tradeoff</h2>
-          <p>Use automatic visits for everyday recall and start detailed route recording when you need the path. High-accuracy GPS uses more power; there is no universal battery-life promise.</p>
+          <p>Visit monitoring and detailed GPS run together while tracking is on. Stop recording when you finish, or choose an auto-stop timer. High-accuracy GPS uses battery; there is no universal battery-life promise.</p>
           <ul>
             <li>For a walk or trip, start a route deliberately and stop it when finished.</li>
             <li>Try a 25–50 meter distance filter for a longer day, then inspect a short test route. A larger filter can reduce detail; choose it for your use case rather than assuming maximum precision is always better.</li>
             <li>Set an auto-stop timer as a fallback. Check that the timer will not end before a route you intend to keep.</li>
             <li>If history has gaps, check permission and recording state. Battery-saving settings cannot recover points that were never captured.</li>
           </ul>
-          <p>The <a href="/docs/tracking/">tracking reference</a> explains visits, routes, distance filters, and auto-stop.</p>
+          <p>Use the <a href="/blog/iphone-location-tracking-battery/">battery-use checklist</a> to compare settings on your phone. The <a href="/docs/tracking/">tracking reference</a> lists the available controls.</p>
 
           <h2 id="review">Review your map locally first</h2>
           <p>
@@ -877,8 +887,8 @@
           </p>
 
           <div class="callout">
-            <strong>Privacy principle</strong>
-            <p>Use names when they make your journal useful, but do not confuse readable labels with privacy magic. The private default is local storage; exports, geocoding, and webhooks are actions you choose.</p>
+            <strong>Storage and network requests</strong>
+            <p>Your journal is stored locally. Apple services can receive coordinates for place names and map features, and optional webhooks deliver records to your endpoint. Check the <a href="/privacy">privacy policy</a> before choosing a workflow.</p>
           </div>
 
           <h2 id="export">Export without locking your memory inside one app</h2>
@@ -898,16 +908,17 @@
             Exported files are powerful because they leave the app boundary. Store them deliberately. If you put them in cloud storage, email them, or import them into another service, that copy follows the privacy rules of the place you sent it.
           </p>
 
+          <p>For a travel summary, <a href="/blog/track-days-in-country-iphone/">Country Days shows the local dates behind each country total</a>, including manual stays for gaps.</p>
           <h2 id="backup">Keep a backup you can restore</h2>
-          <p>Use iso.me JSON when your goal is a restorable copy. GPX and KML are useful for map viewers, but a map file is not a substitute for a journal backup.</p>
+          <p>Export visits and route points as iso.me JSON when your goal is to import those records later. Keep each generated file. GPX and KML are useful for map viewers, but cannot be imported back into iso.me. Do not assume that a file preserves every app setting or outing edit.</p>
           <ol>
-            <li>In Export, choose JSON, include the data types you need, and select the date range. For a full-history backup, use all available history and review any filters that would exclude records.</li>
+            <li>In Export, choose visits, JSON, and the date range you need; export that file. Repeat for route points and keep both files. Review filters and field choices that might exclude required records.</li>
             <li>Use Preview to check the result, then export to a folder you control. Writing the file requires export access; Preview is free.</li>
             <li>Open Files and confirm the JSON exists and contains the expected date range. Keep a separate copy before replacing your phone or deleting iso.me.</li>
             <li>To restore a prior export, open Settings → Import file and select your saved JSON. Review the import result, then check several dates in Timeline and the map before treating recovery as complete.</li>
           </ol>
-          <p>Keep your original backup during recovery. A filtered export contains only the selected data, and import cannot restore records absent from that file. See <a href="/docs/export-import/">export and import</a> for supported formats and <a href="/docs/automatic-exports/">automatic exports</a> for scheduled copies.</p>
-          <p>Content reviewed October 25, 2026 against the published product documentation. Existing screenshots show the workflow; labels can vary by app version.</p>
+          <p>Keep your original backup during recovery. A filtered export contains only the selected data, and import cannot restore records absent from that file. Follow <a href="/blog/back-up-iphone-location-history/">the full backup and restore checklist</a>, or see <a href="/docs/export-import/">export and import</a> for supported formats and <a href="/docs/automatic-exports/">automatic exports</a> for scheduled copies.</p>
+          <p>Content reviewed October 26, 2026 against the product source and documentation. Screenshots illustrate the interface and may show sample data or earlier labels.</p>
 
           <h2 id="webhooks">Use optional webhooks carefully</h2>
           <p>
@@ -922,6 +933,9 @@
             <li>Send only the data type you need, not everything by default.</li>
             <li>Check the receiving service's backups, logs, and retention policy.</li>
           </ul>
+
+          <h2 id="related-guides">Choose your next task</h2>
+          <ul><li>Looking for an earlier visit? <a href="/blog/view-location-history-iphone/">Check existing iPhone location history</a> before starting a new recording.</li><li>Need a portable path? <a href="/blog/record-iphone-route-gpx/">Record a route and export GPX</a>, with a sample file and troubleshooting.</li></ul>
 
           <h2 id="habits">Build habits that keep the journal useful</h2>
           <p>
@@ -939,7 +953,7 @@
               <h2>Start with a local journal.</h2>
               <p>Download iso.me, keep your working location history on your iPhone, and export when you need a portable copy.</p>
             </div>
-            <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn btn-primary">Get iso.me</a>
+            <a href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-private-journal&amp;mt=8" class="btn btn-primary">Get iso.me</a>
           </div>
         </div>
       </article>
@@ -958,7 +972,7 @@
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
         <a href="mailto:cody.bontecou@gmail.com">Support</a>
-        <a href="https://apps.apple.com/us/app/iso-me/id6761960794">App Store</a>
+        <a href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-private-journal&amp;mt=8">App Store</a>
       </div>
     </div>
   </footer>
@@ -1010,5 +1024,6 @@
 })();
 </script>
 <!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
 </body>
 </html>

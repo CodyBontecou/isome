@@ -809,15 +809,19 @@ struct LocationMapView: View {
     }
 
     private func handleManualVisitSaved(_ visit: Visit, mode: ManualVisitMode) {
-        guard mode == .addPastVisit else { return }
+        let range: ClosedRange<Date>
+        if mode == .addPastVisit {
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: visit.arrivedAt)
+            let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? visit.arrivedAt
+            let endOfDay = Date(timeIntervalSinceReferenceDate: startOfNextDay.timeIntervalSinceReferenceDate.nextDown)
+            range = startOfDay...endOfDay
+            activePreset = nil
+        } else {
+            range = Self.rangeIncludingSavedVisit(visit.arrivedAt, in: viewModel.mapDateRange)
+            if activePreset == .yesterday { activePreset = nil }
+        }
 
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: visit.arrivedAt)
-        let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? visit.arrivedAt
-        let endOfDay = Date(timeIntervalSinceReferenceDate: startOfNextDay.timeIntervalSinceReferenceDate.nextDown)
-        let range = startOfDay...endOfDay
-
-        activePreset = nil
         showVisitMarkers = true
         viewModel.mapDateRange = range
         viewModel.loadMapLocationPoints(in: range)
@@ -828,6 +832,10 @@ struct LocationMapView: View {
             latitudinalMeters: 1_000,
             longitudinalMeters: 1_000
         ))
+    }
+
+    static func rangeIncludingSavedVisit(_ arrival: Date, in range: ClosedRange<Date>) -> ClosedRange<Date> {
+        min(range.lowerBound, arrival)...max(range.upperBound, arrival)
     }
 
     private func savedPlaceSuggestion(near location: CLLocation) -> NearbyPlaceSuggestion? {
@@ -1373,28 +1381,68 @@ struct MapAutoOffPill: View {
     }
 }
 
+enum VisitMarkerState: CaseIterable {
+    case unconfirmed, confirmed, corrected, manual
+
+    init(visit: Visit) {
+        if visit.source == .manual { self = .manual }
+        else {
+            switch visit.confirmationStatus {
+            case .unconfirmed: self = .unconfirmed
+            case .confirmed: self = .confirmed
+            case .corrected: self = .corrected
+            }
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .unconfirmed: "questionmark"
+        case .confirmed: "checkmark"
+        case .corrected: "pencil"
+        case .manual: "hand.point.up.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .unconfirmed: .orange
+        case .confirmed: .green
+        case .corrected: .blue
+        case .manual: .purple
+        }
+    }
+}
+
 struct VisitMarker: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let visit: Visit
     let isSelected: Bool
     let isCurrentVisit: Bool
 
+    private var state: VisitMarkerState { VisitMarkerState(visit: visit) }
+
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(isCurrentVisit ? .blue : .red)
+                    .fill(state.color)
                     .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
+                    .overlay {
+                        if isCurrentVisit {
+                            Circle().stroke(.blue, lineWidth: 3).padding(-4)
+                        }
+                    }
                     .accessibilityHidden(true)
 
-                Image(systemName: "mappin")
+                Image(systemName: state.symbol)
                     .font(isSelected ? .title3 : .callout)
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)
             }
 
             Triangle()
-                .fill(isCurrentVisit ? .blue : .red)
+                .fill(state.color)
                 .frame(width: 10, height: 8)
                 .accessibilityHidden(true)
         }
@@ -1402,7 +1450,7 @@ struct VisitMarker: View {
         .animation(reduceMotion ? nil : .spring(duration: 0.2), value: isSelected)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(isCurrentVisit ? "Current visit at \(visit.displayName)" : "Visit at \(visit.displayName)")
-        .accessibilityValue(visit.accessibilityValue)
+        .accessibilityValue([visit.confirmationStatus.displayName, visit.source.displayName, visit.accessibilityValue].joined(separator: ". "))
         .accessibilityHint(visit.accessibilityHint)
         .accessibilityAddTraits(.isButton)
     }

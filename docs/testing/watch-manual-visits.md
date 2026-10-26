@@ -1,5 +1,7 @@
 # Watch manual visits (#75)
 
+Status: implementation prepared for review. Keep #75 open until the physical paired Watch/iPhone acceptance checklist below is completed.
+
 The Watch dashboard's **Check In / Out** button opens Manual Visits. The phone supplies saved places and open visits with their source and confirmation status. Saved places work without Watch location permission; Current location requests a fresh one-shot location without starting route recording. Check Out always targets the selected manual visit. Automatic and imported visits cannot be checked out through these controls.
 
 Check In rejects overlaps unless the user enables Allow Overlap. A failed command stays failed; changing the choice creates a new command rather than silently changing a retry. Multiple open manual visits require a selection. Missing/deleted places, missing or inaccurate locations, invalid times and missing/closed visits produce visible errors.
@@ -36,3 +38,20 @@ On a physical paired Watch and iPhone, verify:
 5. Verify existing Watch route recording and subsequent sync still work, and automatic/imported visits retain their metadata.
 
 Do not mark paired hardware acceptance complete solely from simulator replay.
+
+## Integration verification — October 26, 2026
+
+Merged current main into `codex/watch-manual-visits` without conflicts. The full signed iOS 26.5 simulator suite completed successfully: **358 passed, 0 failed, 0 skipped**. This builds the phone, Watch and widget targets and includes the Watch command processor, queue, legacy payload, migration and existing recording/sync regression coverage. A Watch authorization callback now captures the authorization value before dispatching to the main queue rather than sending the non-Sendable location manager into that closure.
+
+Result bundle: `~/Library/Developer/XcodeBuildMCP/workspaces/iso.me-b28a86da2136/result-bundles/test_sim_2026-10-26T20-18-39-106Z_pid32373_4f4b91ea.xcresult`.
+
+Reproduce with:
+
+```sh
+xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe \
+  -destination 'platform=iOS Simulator,id=BF9F9B4E-43B7-4888-BC70-31CA40ADA914' \
+  -derivedDataPath /private/tmp/isome-watch75-derived \
+  -parallel-testing-enabled NO
+```
+
+No new paired hardware test was performed in this integration run. The hardware checklist remains open; simulator success does not complete issue #75.

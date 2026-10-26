@@ -1,0 +1,9 @@
+{
+  "providerToken": "126424970",
+  "campaigns": {
+    "/": "seo-home",
+    "/blog/private-location-journal-iphone/": "seo-private-journal",
+    "/compare/google-maps-timeline/": "seo-google-timeline",
+    "/blog/record-iphone-route-gpx/": "seo-gpx"
+  }
+}

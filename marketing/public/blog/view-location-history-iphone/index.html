@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to See Your Location History on iPhone — iso.me</title>
+  <meta name="description" content="Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://isome.isolated.tech/blog/view-location-history-iphone/">
+  <meta name="theme-color" content="#f5f4ef">
+  <meta property="og:title" content="How to See Your Location History on iPhone — iso.me">
+  <meta property="og:description" content="Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://isome.isolated.tech/blog/view-location-history-iphone/">
+  <meta property="og:image" content="https://isome.isolated.tech/screenshots/map.png">
+  <meta property="og:image:alt" content="iso.me map interface showing visits and route points">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to See Your Location History on iPhone — iso.me">
+  <meta name="twitter:description" content="Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.">
+  <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/map.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>:root {
+  color-scheme: light;
+  --paper: #f5f4ef;
+  --ink: #1f1f1f;
+  --muted: #5f5d59;
+  --rule: #d2cfca;
+  --accent: #1c57ca;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: "Geist", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+a { color: var(--accent); text-underline-offset: 4px; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.skip-link { position: absolute; left: 16px; top: -80px; padding: 12px; background: white; z-index: 10; }
+.skip-link:focus { top: 16px; }
+.site-nav, .site-footer { max-width: 1120px; margin: auto; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-weight: 700; text-decoration: none; }
+.brand img { border-radius: 4px; }
+.nav-links, .footer-links { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.nav-links a, .footer-links a { font-size: 14px; line-height: 20px; }
+.button { display: inline-flex; justify-content: center; align-items: center; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: white; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; }
+.button:hover { background: #1748a8; text-decoration: none; }
+.button:active { transform: translateY(1px); }
+main { max-width: 960px; margin: auto; padding: 32px 24px 64px; }
+.breadcrumbs { font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 32px; }
+.breadcrumbs ol { padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.breadcrumbs li + li::before { content: "/"; margin-right: 8px; }
+.eyebrow, .byline, .source-note { color: var(--muted); font-size: 14px; line-height: 20px; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.025em; }
+h1 { max-width: 680px; font-size: 48px; line-height: 1; margin: 16px 0 24px; font-weight: 600; background: linear-gradient(to right, #000, #666); color: transparent; background-clip: text; -webkit-background-clip: text; }
+h2 { font-size: 30px; line-height: 36px; font-weight: 600; margin: 0 0 16px; }
+h3 { font-size: 20px; line-height: 28px; margin: 0 0 12px; }
+p { text-wrap: pretty; margin: 0 0 16px; }
+.lede { max-width: 680px; font-size: 20px; line-height: 28px; }
+header { padding-bottom: 40px; }
+section { margin-top: 48px; }
+li { margin-bottom: 12px; }
+ul, ol { padding-left: 24px; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+caption { text-align: left; font-weight: 600; padding: 16px; }
+th, td { text-align: left; vertical-align: top; padding: 16px; border: 1px solid var(--rule); min-width: 160px; }
+thead { background: #ecebe4; }
+.product-example { margin: 48px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+.product-example img { width: 240px; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--rule); }
+.route-example { margin: 48px 0; }
+.route-example img { display: block; width: 100%; height: auto; border-radius: 16px; }
+.route-example figcaption { max-width: none; margin-top: 12px; }
+figcaption { max-width: 320px; color: var(--muted); font-size: 14px; line-height: 20px; }
+.closing { padding: 32px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.closing h2 { font-size: 36px; line-height: 40px; }
+.card { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.site-footer { border-top: 1px solid var(--rule); }
+.article-toc { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: white; margin-top: 24px; }
+.article-toc ol { margin-bottom: 0; }
+pre { padding: 16px; border: 1px solid var(--rule); border-radius: 8px; background: white; overflow-x: auto; font-size: 14px; line-height: 20px; }
+code { overflow-wrap: anywhere; }
+pre code { overflow-wrap: normal; }
+@media (max-width: 640px) {
+  .site-nav, .site-footer { padding: 16px; gap: 16px; }
+  .nav-links { gap: 12px; }
+  .nav-links a:not(.button) { display: none; }
+  main { padding: 24px 16px 48px; }
+  h1 { font-size: 36px; line-height: 40px; }
+  h2 { font-size: 24px; line-height: 32px; }
+  .lede { font-size: 18px; line-height: 28px; }
+  .closing { padding: 24px; }
+  .closing h2 { font-size: 30px; line-height: 36px; }
+  .product-example { flex-direction: column; align-items: flex-start; }
+}
+</style>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://isome.isolated.tech/blog/view-location-history-iphone/",
+      "url": "https://isome.isolated.tech/blog/view-location-history-iphone/",
+      "name": "How to See Your Location History on iPhone — iso.me",
+      "description": "Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.",
+      "inLanguage": "en",
+      "dateModified": "2026-10-26",
+      "author": {
+        "@type": "Person",
+        "name": "Cody Bontecou",
+        "url": "https://isolated.tech"
+      },
+      "headline": "How to see your location history on iPhone",
+      "datePublished": "2026-10-26",
+      "mainEntityOfPage": "https://isome.isolated.tech/blog/view-location-history-iphone/",
+      "image": "https://isome.isolated.tech/screenshots/map.png",
+      "publisher": {
+        "@type": "Organization",
+        "name": "isolated.tech",
+        "url": "https://isolated.tech"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "iso.me",
+          "item": "https://isome.isolated.tech/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://isome.isolated.tech/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "View location history",
+          "item": "https://isome.isolated.tech/blog/view-location-history-iphone/"
+        }
+      ]
+    }
+  ]
+}</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="/"><img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" width="28" height="28" alt="">ISO.ME</a>
+    <div class="nav-links"><a href="/blog/" aria-current="true">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/#pricing">Pricing</a><a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free</a></div>
+  </nav>
+  <main id="main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">iso.me</a></li><li><a href="/blog/">Guides</a></li><li>View location history</li></ol></nav>
+    <article aria-labelledby="article-title">
+    <header><p class="eyebrow">Practical iPhone guides</p><h1 id="article-title">How to see your location history on iPhone</h1><p class="lede">Find the app and date that hold your saved visits, distinguish iPhone location settings from recorded history, and check existing copies before changing your setup.</p><p class="byline">By <a href="https://isolated.tech">Cody Bontecou</a>, iso.me’s developer · Reviewed <time datetime="2026-10-26">October 26, 2026</time></p></header>
+    <section aria-labelledby="quick-answer">
+  <h2 id="quick-answer">Check the recorder you already used</h2>
+  <p>For saved iPhone location history, open <strong>Maps → Places → Visited Places</strong>, where available, or <strong>Google Maps → profile picture → Your Timeline</strong> and select a date. In iso.me, open <strong>Timeline</strong>. Start with the app that recorded the day; these histories are separate.</p>
+  <p>This guide covers your own visits and routes. If you want a record of future trips, you can start one in iso.me, but installing it cannot reconstruct earlier movement.</p>
+  <nav class="article-toc" aria-label="In this guide"><strong>Choose your next step</strong><ol><li><a href="#apple">Look for Apple’s visited places</a></li><li><a href="#significant">Find Significant Locations in Settings</a></li><li><a href="#google">Open your Google Timeline</a></li><li><a href="#preserve">Keep existing records before making changes</a></li><li><a href="#missing">Check why a day is missing</a></li><li><a href="#future">Record future visits and routes</a></li></ol></nav>
+</section>
+
+<section aria-labelledby="which-history">
+  <h2 id="which-history">Which history are you looking for?</h2>
+  <div class="table-scroll" role="region" aria-label="Ways to view your own iPhone location history" tabindex="0"><table>
+    <caption>Start with the service that recorded the day</caption>
+    <thead><tr><th scope="col">What you used</th><th scope="col">Where to look</th><th scope="col">What to check</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Apple Maps</th><td>Places → Visited Places, where available</td><td>Whether the feature was enabled and the visit is retained</td></tr>
+      <tr><th scope="row">Significant Locations setting</th><td>Settings → Privacy &amp; Security → Location Services → System Services</td><td>A location-related Maps setting; check the recorder for the history you need</td></tr>
+      <tr><th scope="row">Google Maps</th><td>Profile picture → Your Timeline</td><td>The account, selected device history, and date</td></tr>
+      <tr><th scope="row">iso.me</th><td>Timeline or the date range on Map</td><td>Whether tracking was enabled for that period</td></tr>
+      <tr><th scope="row">No enabled recorder</th><td>There may be no route record to open</td><td>Start a new recording before the next trip</td></tr>
+    </tbody>
+  </table></div>
+  <p>Directions you requested, places you searched for, and a recorded visit are different kinds of information. A search for a restaurant does not by itself establish when you arrived or how you travelled there.</p>
+</section>
+
+<section aria-labelledby="apple">
+  <h2 id="apple">Find visited places in Apple Maps</h2>
+  <ol>
+    <li>Open Maps, then open <strong>Places</strong>.</li>
+    <li>Choose <strong>Visited Places</strong>, if it is available.</li>
+    <li>Search for a place or filter by date, category, or city. Use <strong>All Visits</strong> to browse.</li>
+  </ol>
+  <p>Visited Places depends on prior setup and regional availability. In Apple’s iOS 26 instructions, check <strong>Settings → Apps → Maps → Location</strong> for Precise Location and Visited Places. Also check Location Services and Significant Locations &amp; Routes under System Services. Follow <a href="https://support.apple.com/guide/iphone/view-and-manage-visited-places-iph0c2597c4f/26/ios/26">Apple’s versioned instructions</a> when labels differ.</p>
+  <p>For older entries, review <strong>Keep Visits</strong> at the bottom of Visited Places. A retention choice may explain a missing date; changing it does not establish that an older visit still exists.</p>
+</section>
+
+<section aria-labelledby="significant">
+  <h2 id="significant">Find Significant Locations in iPhone Settings</h2>
+  <p>Open <strong>Settings → Privacy &amp; Security → Location Services → System Services → Significant Locations &amp; Routes</strong>. Some versions use the shorter label <strong>Significant Locations</strong>.</p>
+  <p>Apple documents this as a setting used for location-related Maps features. It is separate from the Visited Places list. For the records in this guide, return to the app that saved them. See <a href="https://support.apple.com/guide/iphone/set-up-maps-iph10d7bdf26/ios">Apple’s Maps location settings</a>.</p>
+</section>
+
+<section aria-labelledby="google">
+  <h2 id="google">Open Google Maps Timeline</h2>
+  <ol>
+    <li>Open Google Maps → profile picture or initial → <strong>Your Timeline</strong>.</li>
+    <li>Use the calendar to select the day. Confirm the account and device whose history you need.</li>
+  </ol>
+  <p>Google’s iPhone guide describes optional encrypted backup and a device selector under Timeline’s cloud icon. A backup can be imported into Google Maps on another device; inspect that device’s date range afterwards. Recent changes can take days to reach a backup.</p>
+  <p>For an independent file, use <strong>Settings → Location &amp; Privacy → Export Timeline data → Save to Files</strong>. Google names the export <code>location-history.json</code>. Follow <a href="https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&amp;hl=en">Google’s current iPhone instructions</a> if menus differ.</p>
+  <p>Keep the archive separately. The verified App Store 1.7.16 build of iso.me does not import Google Timeline files; see the <a href="/compare/google-maps-timeline/">Google Timeline comparison</a> before switching.</p>
+</section>
+
+<section class="card" aria-labelledby="preserve">
+  <h2 id="preserve">Keep the records before changing the setup</h2>
+  <ul>
+    <li>Check the old device and the date you need before moving to a different phone or account.</li>
+    <li>Review retention and backup settings before clearing history. Google warns that deleting Maps or factory-resetting the phone removes device Timeline data; verify an available backup or export first.</li>
+    <li>Keep the original archive until you have checked the destination’s actual records. A backup switch or a successful file download is not proof of a complete copy.</li>
+  </ul>
+  <p>For iso.me records, follow the <a href="/blog/back-up-iphone-location-history/">backup and restore checklist</a>. Each app’s backup belongs to that app’s workflow; similarly named files are not automatically interchangeable.</p>
+</section>
+
+<section aria-labelledby="missing">
+  <h2 id="missing">Why a day can be empty</h2>
+  <p>First check the date, account, and app rather than assuming the history is gone. A map showing today may simply be the wrong view for last month’s trip. In iso.me, use Timeline’s date controls or change the Map date range.</p>
+  <ul>
+    <li><strong>Recording was off.</strong> A location permission lets an app request locations; it is not proof that the app recorded that day.</li>
+    <li><strong>The record was removed.</strong> Look for retained files or supported backups before clearing more data or replacing a device.</li>
+    <li><strong>The device missed part of the trip.</strong> Permission changes, a stopped session, GPS conditions, or a flat battery can leave gaps.</li>
+    <li><strong>A visit has not appeared.</strong> Detected arrivals and departures are not an immediate check-in at every stop. A route can contain points even when a visit is missing.</li>
+  </ul>
+  <p>For an incomplete iso.me day, use the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> to distinguish recording, display, Watch sync, and export issues.</p>
+  <p>Photos, receipts, and calendar entries may help you remember a day, but they are not a recovered GPS trace. A newly installed recorder cannot recreate coordinates it never captured.</p>
+</section>
+
+<section aria-labelledby="future">
+  <h2 id="future">Record your next day with iso.me</h2>
+  <p>If you want a separate journal without an iso.me account, try a short recording before a longer trip:</p>
+  <ol>
+    <li>Install iso.me and complete permission setup. Always location access allows recording in the background.</li>
+    <li>On Map, tap the recording control before you leave. Start enables GPS recording and visit monitoring together.</li>
+    <li>Stop when you finish. Open Timeline, choose the day, and open the outing. Check its Points count, Path, and times; a saved outing alone does not prove a GPS route was captured.</li>
+    <li>If you need a portable route file, follow <a href="/blog/record-iphone-route-gpx/">the iPhone route and GPX guide</a>.</li>
+  </ol>
+  <p>Recording and reviewing your journal are free. Writing export files requires the optional one-time unlock; preview is free. Read <a href="/blog/private-location-journal-iphone/">the setup walkthrough</a> for permissions, battery controls, and keeping supported copies.</p>
+  <p>Core records are stored on your phone. Apple services supply place names and map features; default-on first-party onboarding telemetry excludes location records. Optional webhooks send records to your chosen endpoint. The <a href="/privacy">privacy policy</a> explains those boundaries.</p>
+</section>
+
+<section aria-labelledby="history-questions">
+  <h2 id="history-questions">Common location-history questions</h2>
+  <h3>Can a new app recover a trip from before it was installed?</h3>
+  <p>A new iso.me installation cannot reconstruct GPS points it never recorded. Check the original recorder and any supported retained files. Photos or calendar entries can help you remember a day, but they are not a recovered GPS path.</p>
+  <h3>Does a saved place prove that I visited it?</h3>
+  <p>No. In iso.me, a saved location is a reusable name and pin for future matching. It can exist without a visit. A manually added visit records the details you enter; it is separate from automatically recorded history. The <a href="/docs/places/">places reference</a> explains those records.</p>
+  <h3>Does location permission mean every trip was recorded?</h3>
+  <p>Permission allows location requests; it does not establish what was saved. Check the day’s actual visits and route points. The <a href="/blog/private-location-journal-iphone/#first-recording">checked recording-state example</a> shows an outing with a running timer but no saved GPS points.</p>
+</section>
+
+<figure class="product-example"><img src="/screenshots/map-480.webp" srcset="/screenshots/map-480.webp 480w, /screenshots/map-720.webp 720w, /screenshots/map.webp 900w" sizes="240px" width="1206" height="2622" alt="Example iso.me map showing visit markers and recorded route points" loading="lazy" decoding="async"><figcaption>iso.me’s map interface. This illustrative screenshot may contain sample data or earlier labels.</figcaption></figure>
+
+<section class="closing" aria-labelledby="next-day">
+  <h2 id="next-day">Remember your next trip.<br>Start recording before you go.</h2>
+  <p>Try iso.me’s free recording, then review the route and visits on your iPhone.</p>
+  <a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free for iPhone</a>
+</section>
+
+<p class="source-note">Reviewed October 26, 2026 against the linked Apple iOS 26 and current Maps guidance, Google’s iPhone Timeline help, and iso.me’s verified release source. Apple and Google steps follow their linked help pages; menus may vary by version and region. The screenshot illustrates iso.me.</p>
+
+    </article>
+    <nav class="article-toc" aria-labelledby="read-next-title"><h2 id="read-next-title">Read next</h2><ul><li><a href="/blog/missing-location-history-iphone/">Check missing iso.me records</a><p>Diagnose recording gaps, hidden points, Watch transfers, and export filters.</p></li><li><a href="/blog/private-location-journal-iphone/">Start a journal for future trips</a><p>Set up recording before the next trip you want to remember.</p></li></ul></nav>
+  </main>
+  <footer class="site-footer"><a class="brand" href="/">ISO.ME · isolated.tech</a><div class="footer-links"><a href="/blog/">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:cody.bontecou@gmail.com">Support</a></div></footer>
+  <!-- Cloudflare Web Analytics -->
+<script>
+(function () {
+  var productionHosts = {
+    'instareply.isolated.tech': true,
+    'voxboard.isolated.tech': true,
+    'healthmd.isolated.tech': true,
+    'isome.isolated.tech': true,
+    'gitsyncmd.isolated.tech': true,
+    'timemd.isolated.tech': true,
+    'imghost.isolated.tech': true
+  };
+
+  if (!productionHosts[window.location.hostname]) {
+    return;
+  }
+
+  function loadCloudflareBeacon() {
+    if (document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')) {
+      return;
+    }
+
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    script.setAttribute('data-cf-beacon', '{"token":"090f363070334cddad5c5cc1509b8807"}');
+    document.head.appendChild(script);
+  }
+
+  fetch('https://img-host.costream.workers.dev/analytics-gate', {
+    cache: 'no-store',
+    mode: 'cors',
+    credentials: 'omit'
+  })
+    .then(function (response) {
+      return response.ok ? response.json() : { track: false };
+    })
+    .then(function (gate) {
+      if (gate && gate.track) {
+        loadCloudflareBeacon();
+      }
+    })
+    .catch(function () {
+      // Fail closed so excluded IPs are not accidentally tracked.
+    });
+})();
+</script>
+<!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
+</body>
+</html>

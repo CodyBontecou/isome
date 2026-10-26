@@ -1,0 +1,3 @@
+name,latitude,longitude,address,radius_meters
+Synthetic stop A,1,2,"Invented example, not a real location",500
+Synthetic stop B,1.01,2.01,,

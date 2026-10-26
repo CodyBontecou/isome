@@ -29,6 +29,7 @@ actor PlaceSearchService: PlaceSearchServicing {
         region: MKCoordinateRegion? = nil,
         limit: Int = 10
     ) async throws -> [PlaceSearchResult] {
+        try NetworkGeocodingPolicy.requirePermission()
         let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard normalizedQuery.count >= 2 else { return [] }
 
@@ -59,6 +60,7 @@ actor PlaceSearchService: PlaceSearchServicing {
         activeSearch = search
 
         do {
+            try NetworkGeocodingPolicy.requirePermission()
             let response = try await withTaskCancellationHandler {
                 try await search.start()
             } onCancel: {
@@ -66,8 +68,9 @@ actor PlaceSearchService: PlaceSearchServicing {
             }
 
             guard !Task.isCancelled else { throw CancellationError() }
+            try NetworkGeocodingPolicy.requirePermission()
 
-            let results = Self.makeResults(from: response.mapItems)
+            let results = Self.makeResults(from: response.mapItems, query: normalizedQuery, center: region?.center)
             cache[key] = results
             if activeSearch === search {
                 activeSearch = nil
@@ -95,10 +98,33 @@ actor PlaceSearchService: PlaceSearchServicing {
         return "\(normalized)|\(latitude),\(longitude)"
     }
 
-    private static func makeResults(from mapItems: [MKMapItem]) -> [PlaceSearchResult] {
+    static func makeResults(from mapItems: [MKMapItem], query: String, center: CLLocationCoordinate2D?) -> [PlaceSearchResult] {
         var seen = Set<String>()
 
-        return mapItems.compactMap { mapItem in
+        let query = query.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
+        func matchRank(_ item: MKMapItem) -> Int {
+            let name = (item.name ?? "").folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
+            if name == query { return 0 }
+            if name.contains(query) { return 1 }
+            if item.pointOfInterestCategory?.rawValue.localizedCaseInsensitiveContains(query) == true { return 2 }
+            return 3
+        }
+        let origin = center.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
+        let ranked = mapItems.filter {
+            let coordinate = $0.placemark.coordinate
+            return CLLocationCoordinate2DIsValid(coordinate) && coordinate.latitude.isFinite && coordinate.longitude.isFinite
+        }.sorted { lhs, rhs in
+            let leftRank = matchRank(lhs), rightRank = matchRank(rhs)
+            if leftRank != rightRank { return leftRank < rightRank }
+            if let origin {
+                let leftDistance = origin.distance(from: CLLocation(latitude: lhs.placemark.coordinate.latitude, longitude: lhs.placemark.coordinate.longitude))
+                let rightDistance = origin.distance(from: CLLocation(latitude: rhs.placemark.coordinate.latitude, longitude: rhs.placemark.coordinate.longitude))
+                if leftDistance != rightDistance { return leftDistance < rightDistance }
+            }
+            return (lhs.name ?? "", lhs.placemark.coordinate.latitude, lhs.placemark.coordinate.longitude)
+                < (rhs.name ?? "", rhs.placemark.coordinate.latitude, rhs.placemark.coordinate.longitude)
+        }
+        return ranked.compactMap { mapItem in
             let coordinate = mapItem.placemark.coordinate
             guard CLLocationCoordinate2DIsValid(coordinate),
                   coordinate.latitude.isFinite,
@@ -230,6 +256,12 @@ final class PlaceSearchViewModel: ObservableObject {
         searchTask?.cancel()
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard NetworkGeocodingPolicy.isAllowed else {
+            results = []
+            isSearching = false
+            errorMessage = NetworkGeocodingPolicy.LookupError.disabled.localizedDescription
+            return
+        }
         guard trimmedQuery.count >= 2 else {
             results = []
             errorMessage = nil
@@ -254,6 +286,7 @@ final class PlaceSearchViewModel: ObservableObject {
                 )
                 try Task.checkCancellation()
                 guard generation == requestGeneration else { return }
+                try NetworkGeocodingPolicy.requirePermission()
                 results = newResults
                 isSearching = false
             } catch is CancellationError {
@@ -262,7 +295,8 @@ final class PlaceSearchViewModel: ObservableObject {
                 guard generation == requestGeneration else { return }
                 results = []
                 isSearching = false
-                errorMessage = String(localized: "Apple Maps search is unavailable right now. Please try again.")
+                errorMessage = (error as? NetworkGeocodingPolicy.LookupError)?.localizedDescription
+                    ?? String(localized: "Apple Maps search is unavailable right now. Please try again.")
             }
         }
     }

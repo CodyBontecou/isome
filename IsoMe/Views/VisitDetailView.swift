@@ -519,6 +519,7 @@ struct NearbyVisitNameSuggestionSection: View {
     let visit: Visit
     let onSelect: (NearbyPlaceSuggestion) -> Void
 
+    @AppStorage("allowNetworkGeocoding") private var allowNetworkGeocoding = true
     @State private var suggestions: [NearbyPlaceSuggestion] = []
     @State private var isLoading = false
     @State private var hasSearched = false
@@ -540,7 +541,7 @@ struct NearbyVisitNameSuggestionSection: View {
     }
 
     private var suggestionTaskKey: String {
-        String(format: "%@-%.5f-%.5f", visit.id.uuidString, visit.latitude, visit.longitude)
+        String(format: "%@-%.5f-%.5f-%d", visit.id.uuidString, visit.latitude, visit.longitude, allowNetworkGeocoding ? 1 : 0)
     }
 
     var body: some View {
@@ -563,7 +564,11 @@ struct NearbyVisitNameSuggestionSection: View {
                 .disabled(suggestions.isEmpty)
                 .opacity(suggestions.isEmpty ? 0.65 : 1)
 
-            if suggestions.isEmpty {
+            if !allowNetworkGeocoding {
+                Text(NetworkGeocodingPolicy.LookupError.disabled.localizedDescription)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else if suggestions.isEmpty {
                 emptyState
             } else if filteredSuggestions.isEmpty {
                 filteredEmptyState
@@ -695,6 +700,12 @@ struct NearbyVisitNameSuggestionSection: View {
 
     @MainActor
     private func loadSuggestions(force: Bool = false) async {
+        guard allowNetworkGeocoding else {
+            suggestions = []
+            hasSearched = false
+            isLoading = false
+            return
+        }
         guard force || (!isLoading && !hasSearched) else { return }
 
         let coordinate = visit.coordinate
@@ -717,6 +728,7 @@ struct NearbyVisitNameSuggestionSection: View {
             )
 
             guard !Task.isCancelled else { return }
+            guard allowNetworkGeocoding else { return }
             suggestions = nearbySuggestions
         } catch is CancellationError {
             // Ignore cancellation from SwiftUI task lifecycle changes.

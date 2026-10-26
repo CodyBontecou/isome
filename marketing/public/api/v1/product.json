@@ -1,0 +1,69 @@
+{
+  "name": "iso.me",
+  "summary": "An open source location journal for iPhone and Apple Watch, with on-device visits, GPS routes, and optional portable export.",
+  "homepage": "https://isome.isolated.tech/",
+  "appStore": "https://apps.apple.com/us/app/iso-me/id6761960794",
+  "sourceRepository": "https://github.com/CodyBontecou/isome",
+  "platforms": [
+    "iOS 17 or later",
+    "watchOS 10 or later"
+  ],
+  "capabilities": [
+    "Visit detection during tracking",
+    "GPS route recording",
+    "Timeline and outings",
+    "Independent Apple Watch recording",
+    "Portable export",
+    "Supported iso.me file import (App Store 1.7.16)",
+    "Country Days and manual stays",
+    "Siri and Shortcuts",
+    "Optional outbound webhooks"
+  ],
+  "exportFormats": [
+    "JSON",
+    "CSV",
+    "Markdown",
+    "GeoJSON",
+    "GPX",
+    "KML",
+    "OwnTracks",
+    "Overland"
+  ],
+  "pricingURL": "https://isome.isolated.tech/#pricing",
+  "privacyURL": "https://isome.isolated.tech/privacy",
+  "privateJournalAPI": false,
+  "documentation": [
+    {
+      "title": "Getting started",
+      "url": "https://isome.isolated.tech/docs/getting-started/"
+    },
+    {
+      "title": "Tracking",
+      "url": "https://isome.isolated.tech/docs/tracking/"
+    },
+    {
+      "title": "Export and import",
+      "url": "https://isome.isolated.tech/docs/export-import/"
+    },
+    {
+      "title": "Automatic exports",
+      "url": "https://isome.isolated.tech/docs/automatic-exports/"
+    },
+    {
+      "title": "Webhooks",
+      "url": "https://isome.isolated.tech/docs/webhooks/"
+    },
+    {
+      "title": "Siri and Shortcuts",
+      "url": "https://isome.isolated.tech/docs/siri-shortcuts/"
+    },
+    {
+      "title": "Apple Watch",
+      "url": "https://isome.isolated.tech/docs/apple-watch/"
+    },
+    {
+      "title": "Privacy and data",
+      "url": "https://isome.isolated.tech/docs/privacy-data/"
+    }
+  ]
+}
