@@ -860,3 +860,7 @@ Replace the existing 90 screenshots with the 90 PNG files under `screenshots/whe
 ## Release handling
 
 Use Whereday 1.7.17 build 48. Save the approved fields and assets to the editable version; this approval does not submit the version to Apple for review.
+
+## Subsequent human direction
+
+The human approved this metadata revision and saving its changes to the release draft. They then accepted the newer five English iPhone images named `Whereday-01-places.png` through `Whereday-05-export.png` and requested regenerated iPad images. The replacement iPad set shows five real feature views per locale in the Whereday field-notes design, replacing the four onboarding captures. See `screenshots/whereday/ipad-v2/review/` for previews and `screenshots/whereday/ipad-v2/manifest.json` for generated checksums. The intended total is 99 images. Listing text and ASO revision remain unchanged.
