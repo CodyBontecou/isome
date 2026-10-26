@@ -1,0 +1,21 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://isome.isolated.tech/",
+      "service-desc": [
+        {
+          "href": "https://isome.isolated.tech/openapi.json",
+          "type": "application/vnd.oai.openapi+json",
+          "title": "iso.me public product metadata API"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://isome.isolated.tech/docs/",
+          "type": "text/html",
+          "title": "Native app documentation"
+        }
+      ]
+    }
+  ]
+}
