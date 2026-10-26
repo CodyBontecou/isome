@@ -189,6 +189,9 @@ queue and phone stores reopened from disk. Retrying the unacknowledged first
 the final batch produces 503 saved points, two visits, and one outing. All 15
 selected tests pass. Real Watch recording and paired-device transport remain
 unverified. See [the queue disk record](qa/seo-watch-queue-disk-2026-10-26.md).
+Production deployment `9ac1b824` passes all 30 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse on all three changed pages. Live mobile inspection
+confirms the checked table and no document overflow at 390 px.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.

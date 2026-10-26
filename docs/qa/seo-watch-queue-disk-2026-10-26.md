@@ -82,3 +82,25 @@ Local Lighthouse 13.5.0 scores 100 in all four categories for the Watch guide,
 docs hub, and missing-history article on mobile and desktop. Reports:
 `/private/tmp/isome-seo-watch-queue-before/`. These are lab checks, not search
 performance or field Core Web Vitals.
+
+## Publication
+
+Implementation pushed on `main` as `6b9c03a`. Production deployment:
+`9ac1b824`, https://9ac1b824.spotted-8ez.pages.dev.
+
+Content-specific checks confirmed all three production pages were current
+before starting final Lighthouse checks. The live Watch reference has the
+checked stage table and three questions; mobile document/viewport are both
+390 px, with the table in its named region. Desktop proof:
+`build/seo-evidence/watch-queue-20261026/watch-queue-example-live.jpg`.
+
+The local preview was stopped. Scoped Argent cleanup on the one used QA
+simulator found no remaining services. Other devices were not controlled.
+No new campaign, Google indexing request, message, scheduled task, or app
+submission was made.
+
+Production HTTP verification passes all 30 HTML/Markdown pairs and response,
+cache, 404, API, method, and asset checks. Final Lighthouse 13.5.0 scores 100
+in all four categories on all three changed pages, mobile and desktop.
+Reports: `/private/tmp/isome-seo-watch-queue-after/`. No new field performance,
+indexation, ranking, or conversion result is claimed.
