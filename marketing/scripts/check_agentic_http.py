@@ -14,7 +14,7 @@ def main():
     args = parser.parse_args()
 
     def fetch(path, accept='text/html', method='GET'):
-        request = Request(args.base_url.rstrip('/') + path, headers={'Accept': accept, 'User-Agent': 'iso.me-site-verification/1.0'}, method=method)
+        request = Request(args.base_url.rstrip('/') + path, headers={'Accept': accept, 'User-Agent': 'Whereday-site-verification/1.0'}, method=method)
         try:
             response = urlopen(request, timeout=30)
         except HTTPError as error:
@@ -34,7 +34,7 @@ def main():
             assert 'no-store' in headers.get('Cache-Control', ''), (path, 'cache separation')
             if media == 'text/markdown':
                 assert b'<html' not in body and b'<script' not in body, path
-                assert b'Source: https://isome.isolated.tech' in body, path
+                assert b'Source: https://whereday.com' in body, path
     for accept, media in [('text/html', 'text/html'), ('text/markdown', 'text/markdown'), ('application/json', 'application/problem+json')]:
         status, headers, body = fetch('/a-page-that-does-not-exist-agentic-check', accept)
         assert status == 404 and headers.get_content_type() == media, (accept, status, headers)

@@ -18,15 +18,15 @@ Reading
 
 Back to
 
-[All docs](https://isome.isolated.tech/docs/)
+[All docs](https://whereday.com/docs/)
 
 ## The day view
 
-The Timeline tab shows one day at a time: visits and movement sessions interleaved in order, with a day summary of moves, visits, and total distance. Step through days with the arrows, jump straight to Today, or pick any date. If today is empty, iso.me automatically opens your most recent day with data.
+The Timeline tab shows one day at a time: visits and movement sessions interleaved in order, with a day summary of moves, visits, and total distance. Step through days with the arrows, jump straight to Today, or pick any date. If today is empty, Whereday automatically opens your most recent day with data.
 
 ## Recorded vs inferred outings
 
-A movement session (outing) is recorded when you pressed Start, and inferred when iso.me notices a stretch of GPS points that clearly forms a trip — including older data recorded before outings existed, or imported from your Watch. Inferred outings wear an `INFERRED` badge; the live one wears `LIVE`.
+A movement session (outing) is recorded when you pressed Start, and inferred when Whereday notices a stretch of GPS points that clearly forms a trip — including older data recorded before outings existed, or imported from your Watch. Inferred outings wear an `INFERRED` badge; the live one wears `LIVE`.
 
 Inference is configurable in Settings → Inferred outings:
 
@@ -52,14 +52,14 @@ Both the map (for a whole day) and the outing detail page (for one outing) offer
 
 Outing lists can be sorted by newest, oldest, longest duration, distance, or point count.
 
-If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) before deleting records or retrying an import.
+If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://whereday.com/blog/missing-location-history-iphone/) before deleting records or retrying an import.
 
 ## Country Days
 
 Timeline → Country Days counts local dates represented by visits, route points, and manual stays. Review this year, the last 365 days, or all time. A travel date can count in more than one country; gaps are not filled automatically. Viewing and manual stays are free; writing the country-date CSV uses the export purchase.
 
-See [how to track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details, including a [checked four-row CSV example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example).
+See [how to track days spent in each country](https://whereday.com/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details, including a [checked four-row CSV example](https://whereday.com/blog/track-days-in-country-iphone/#checked-example).
 
-[← PreviousVisits, routes & battery](https://isome.isolated.tech/docs/tracking/) [Next →Save and edit places in your iPhone location journal](https://isome.isolated.tech/docs/places/)
+[← PreviousVisits, routes & battery](https://whereday.com/docs/tracking/) [Next →Save and edit places in your iPhone location journal](https://whereday.com/docs/places/)
 
-Source: https://isome.isolated.tech/docs/timeline-outings/
+Source: https://whereday.com/docs/timeline-outings/

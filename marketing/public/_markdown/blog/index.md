@@ -1,10 +1,10 @@
-Practical guides · iso.me
+Practical guides · Whereday
 
 # Keep a useful location history on iPhone.
 
 Choose how to record your own visits and routes, keep portable files, and understand what stays on your phone. Start with a setup guide or compare the tools before changing your workflow.
 
-[Set up your journal](https://isome.isolated.tech/blog/private-location-journal-iphone/) [Compare Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/)
+[Set up your journal](https://whereday.com/blog/private-location-journal-iphone/) [Compare Google Timeline](https://whereday.com/compare/google-maps-timeline/)
 
 What do you need?
 
@@ -12,7 +12,7 @@ Start here
 
 01
 
-## [Find your existing history](https://isome.isolated.tech/blog/view-location-history-iphone/)
+## [Find your existing history](https://whereday.com/blog/view-location-history-iphone/)
 
 Check Apple Maps, Google Timeline, or the recorder you already used.
 
@@ -20,7 +20,7 @@ Guide
 
 02
 
-## [Record a route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
+## [Record a route and export GPX](https://whereday.com/blog/record-iphone-route-gpx/)
 
 Record new GPS points, preview the file, and check what you saved.
 
@@ -28,7 +28,7 @@ Read
 
 03
 
-## [Compare Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/)
+## [Compare Google Timeline](https://whereday.com/compare/google-maps-timeline/)
 
 Compare accounts, recording, backups, export formats, and migration limits.
 
@@ -45,9 +45,9 @@ Private location history
 
 Published guide
 
-## [How to Keep a Private Location Journal on iPhone](https://isome.isolated.tech/blog/private-location-journal-iphone/)
+## [How to Keep a Private Location Journal on iPhone](https://whereday.com/blog/private-location-journal-iphone/)
 
-A practical walkthrough for using iso.me as a local-first place and route journal: what to record, how to review the map, when to export JSON, CSV, Markdown, GPX, KML, or GeoJSON, and how to treat optional webhooks as an explicit privacy boundary.
+A practical walkthrough for using Whereday as a local-first place and route journal: what to record, how to review the map, when to export JSON, CSV, Markdown, GPX, KML, or GeoJSON, and how to treat optional webhooks as an explicit privacy boundary.
 
 Status Published
 
@@ -59,11 +59,11 @@ On-device Route history Open exports Optional automation
 
 Compare your options
 
-### [Google Timeline alternative for iPhone](https://isome.isolated.tech/compare/google-maps-timeline/)
+### [Google Timeline alternative for iPhone](https://whereday.com/compare/google-maps-timeline/)
 
-Google Timeline already offers device history and encrypted backup. See where iso.me differs in accounts, recording controls, file exports, and pricing.
+Google Timeline already offers device history and encrypted backup. See where Whereday differs in accounts, recording controls, file exports, and pricing.
 
-[Read the comparison](https://isome.isolated.tech/compare/google-maps-timeline/)
+[Read the comparison](https://whereday.com/compare/google-maps-timeline/)
 
 Step by step · 1 of 3
 
@@ -71,23 +71,23 @@ Step by step · 1 of 3
 
 Look up an existing record or diagnose a day that looks incomplete.
 
-[Find history](https://isome.isolated.tech/blog/#find-history)[Record routes](https://isome.isolated.tech/blog/#record-routes)[Keep records](https://isome.isolated.tech/blog/#keep-history)
+[Find history](https://whereday.com/blog/#find-history)[Record routes](https://whereday.com/blog/#record-routes)[Keep records](https://whereday.com/blog/#keep-history)
 
 Location history guide
 
-### [How to see your location history on iPhone](https://isome.isolated.tech/blog/view-location-history-iphone/)
+### [How to see your location history on iPhone](https://whereday.com/blog/view-location-history-iphone/)
 
 Find existing Apple or Google records, check why a day is empty, and understand what a new recorder can capture.
 
-[Find your recorded history](https://isome.isolated.tech/blog/view-location-history-iphone/)
+[Find your recorded history](https://whereday.com/blog/view-location-history-iphone/)
 
 Troubleshooting guide
 
-### [Check missing visits and route points](https://isome.isolated.tech/blog/missing-location-history-iphone/)
+### [Check missing visits and route points](https://whereday.com/blog/missing-location-history-iphone/)
 
 Separate recording gaps, hidden points, delayed Watch transfers, and export filters while keeping existing history.
 
-[Find the right diagnostic check](https://isome.isolated.tech/blog/missing-location-history-iphone/)
+[Find the right diagnostic check](https://whereday.com/blog/missing-location-history-iphone/)
 
 Step by step · 2 of 3
 
@@ -97,27 +97,27 @@ Choose recording settings, check your Watch workflow, or save a finished path.
 
 Recording and export guide
 
-### [How to record an iPhone route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
+### [How to record an iPhone route and export GPX](https://whereday.com/blog/record-iphone-route-gpx/)
 
 Go from a new recording to a saved route file, with free preview, paid-export details, and a synthetic example.
 
-[Follow the GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
+[Follow the GPX walkthrough](https://whereday.com/blog/record-iphone-route-gpx/)
 
 Battery and recording guide
 
-### [Manage battery use while recording routes](https://isome.isolated.tech/blog/iphone-location-tracking-battery/)
+### [Manage battery use while recording routes](https://whereday.com/blog/iphone-location-tracking-battery/)
 
 Check the battery report, compare distance filters, and understand what auto-stop changes before a longer trip.
 
-[Compare your recording settings](https://isome.isolated.tech/blog/iphone-location-tracking-battery/)
+[Compare your recording settings](https://whereday.com/blog/iphone-location-tracking-battery/)
 
 Apple Watch reference
 
-### [Record on Apple Watch without your iPhone nearby](https://isome.isolated.tech/docs/apple-watch/)
+### [Record on Apple Watch without your iPhone nearby](https://whereday.com/docs/apple-watch/)
 
 Check recording state, bring the devices together, read sync status, and verify the imported day.
 
-[Read the Watch recording guide](https://isome.isolated.tech/docs/apple-watch/)
+[Read the Watch recording guide](https://whereday.com/docs/apple-watch/)
 
 Step by step · 3 of 3
 
@@ -127,35 +127,35 @@ Make a restorable copy or turn your visits into a readable note.
 
 Backup and restore guide
 
-### [Back up and restore your location history](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
+### [Back up and restore your location history](https://whereday.com/blog/back-up-iphone-location-history/)
 
 Keep separate visit and point files, verify what was saved, and understand what a scheduled copy preserves.
 
-[Follow the backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
+[Follow the backup checklist](https://whereday.com/blog/back-up-iphone-location-history/)
 
 Travel journal guide
 
-### [Track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
+### [Track days spent in each country](https://whereday.com/blog/track-days-in-country-iphone/)
 
 Check local dates, travel days, and gaps. Add a manual stay and understand the CSV export.
 
-[Review your country dates](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
+[Review your country dates](https://whereday.com/blog/track-days-in-country-iphone/)
 
 Checked receiver workflow
 
-### [Send iso.me GPS points to Dawarich](https://isome.isolated.tech/integrations/dawarich/)
+### [Send Whereday GPS points to Dawarich](https://whereday.com/integrations/dawarich/)
 
 Match Overland to the batch endpoint, check saved points, and understand queue limits. Includes a native delivery and database persistence example.
 
-[Check the receiver workflow](https://isome.isolated.tech/integrations/dawarich/)
+[Check the receiver workflow](https://whereday.com/integrations/dawarich/)
 
 Markdown journal workflow
 
-### [Read your location journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
+### [Read your location journal in Obsidian](https://whereday.com/blog/iphone-location-journal-obsidian/)
 
 Copy a Markdown visit export into a desktop vault, inspect the table, and keep personal writing separate from generated files.
 
-[Follow the manual Markdown workflow](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
+[Follow the manual Markdown workflow](https://whereday.com/blog/iphone-location-journal-obsidian/)
 
 § 02 Export and connect
 
@@ -167,20 +167,20 @@ Apple Watch
 
 01
 
-### [Export and restore compatible files](https://isome.isolated.tech/docs/export-import/)
+### [Export and restore compatible files](https://whereday.com/docs/export-import/)
 
 Preview is free. Writing files requires the one-time unlock. Check the format and field requirements before relying on a restore.
 
 02
 
-### [Control recording and battery use](https://isome.isolated.tech/docs/tracking/)
+### [Control recording and battery use](https://whereday.com/docs/tracking/)
 
 Start and Stop control GPS and visit monitoring together. Learn about background permissions, distance filters, and auto-stop.
 
 03
 
-### [Record with your Apple Watch](https://isome.isolated.tech/docs/apple-watch/)
+### [Record with your Apple Watch](https://whereday.com/docs/apple-watch/)
 
 Record a route without your iPhone nearby, then let the Watch transfer queued points when it reconnects.
 
-Source: https://isome.isolated.tech/blog/
+Source: https://whereday.com/blog/

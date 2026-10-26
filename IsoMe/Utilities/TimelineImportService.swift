@@ -7,9 +7,9 @@ enum ImportSourceFormat: String, Sendable {
 
     var displayName: String {
         switch self {
-        case .isoMeJSON: return "iso.me JSON"
-        case .isoMeCSV: return "iso.me CSV"
-        case .isoMeMarkdown: return "iso.me Markdown"
+        case .isoMeJSON: return "Whereday JSON"
+        case .isoMeCSV: return "Whereday CSV"
+        case .isoMeMarkdown: return "Whereday Markdown"
         case .googleRaw: return String(localized: "Google Location History")
         case .googleSemantic: return String(localized: "Google Semantic Timeline")
         case .googleDevice: return String(localized: "Google Device Timeline")

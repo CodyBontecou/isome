@@ -8,7 +8,7 @@ enum ImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return String(localized: "Unsupported file format. Import supports Google Timeline JSON and iso.me JSON, CSV, or Markdown files. KML, GPX, and GeoJSON exports are one-way map files.")
+            return String(localized: "Unsupported file format. Import supports Google Timeline JSON and Whereday JSON, CSV, or Markdown files. KML, GPX, and GeoJSON exports are one-way map files.")
         case .invalidData(let detail):
             return String(format: String(localized: "Invalid data: %@"), detail)
         case .parsingFailed(let detail):
@@ -200,8 +200,8 @@ struct ImportService {
             }
         case .markdown:
             if let text = String(data: data, encoding: .utf8) {
-                if text.contains("# iso.me Location Points Export") { return .locationPoints }
-                if text.contains("# iso.me Export") { return .visits }
+                if (text.contains("# Whereday Location Points Export") || text.contains("# iso.me Location Points Export")) { return .locationPoints }
+                if (text.contains("# Whereday Export") || text.contains("# iso.me Export")) { return .visits }
             }
         case .owntracks, .overland, .gpx, .kml, .geojson:
             return .locationPoints

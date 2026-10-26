@@ -9,7 +9,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 import xml.etree.ElementTree as ET
 
 PUBLIC = Path(__file__).resolve().parent.parent / "public"
-BASE = "https://isome.isolated.tech"
+BASE = "https://whereday.com"
 
 
 class Page(HTMLParser):

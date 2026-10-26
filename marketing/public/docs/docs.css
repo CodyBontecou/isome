@@ -1,4 +1,4 @@
-/* iso.me docs — shared styles (adapted from the site's doc template) */
+/* Whereday docs — shared styles (adapted from the site's doc template) */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --paper: #f5f4ef;

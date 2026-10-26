@@ -83,7 +83,7 @@ struct IsoMeApp: App {
     }
     
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "isome" else { return }
+        guard let scheme = url.scheme, ["isome", "whereday"].contains(scheme) else { return }
 
         if url.host == "myself", url.path == "/claim", url.user == nil,
            url.password == nil, url.port == nil, url.query == nil, url.fragment == nil {

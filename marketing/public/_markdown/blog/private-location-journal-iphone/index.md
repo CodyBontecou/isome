@@ -2,9 +2,9 @@ Guide · Reviewed October 26, 2026
 
 # How to keep a private location journal on iPhone.
 
-To keep a private location journal on iPhone, enable recording in iso.me, check a short route in Timeline, and keep supported exports for records you want to restore later. Your visits and routes stay on your phone unless you export or configure delivery elsewhere.
+To keep a private location journal on iPhone, enable recording in Whereday, check a short route in Timeline, and keep supported exports for records you want to restore later. Your visits and routes stay on your phone unless you export or configure delivery elsewhere.
 
-[Start the checklist](https://isome.isolated.tech/blog/private-location-journal-iphone/#setup) [Get iso.me](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
+[Start the checklist](https://whereday.com/blog/private-location-journal-iphone/#setup) [Get Whereday](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
 Private journal setup
 
@@ -14,7 +14,7 @@ Local-first
 
 ## Keep the working copy on your iPhone.
 
-iso.me stores visits and routes locally, with no account required for core tracking.
+Whereday stores visits and routes locally, with no account required for core tracking.
 
 02
 
@@ -34,33 +34,33 @@ Reading time 7 minutes
 
 Topic Private location history
 
-App iso.me for iPhone
+App Whereday for iPhone
 
 ## In this guide
 
-- [Why keep it private?](https://isome.isolated.tech/blog/private-location-journal-iphone/#why-private)
-- [A simple setup checklist](https://isome.isolated.tech/blog/private-location-journal-iphone/#setup)
-- [Capture visits and routes](https://isome.isolated.tech/blog/private-location-journal-iphone/#capture)
-- [Choose a battery tradeoff](https://isome.isolated.tech/blog/private-location-journal-iphone/#battery)
-- [Review the map locally](https://isome.isolated.tech/blog/private-location-journal-iphone/#review)
-- [Export without lock-in](https://isome.isolated.tech/blog/private-location-journal-iphone/#export)
-- [Back up and restore](https://isome.isolated.tech/blog/private-location-journal-iphone/#backup)
-- [Use webhooks carefully](https://isome.isolated.tech/blog/private-location-journal-iphone/#webhooks)
-- [Build durable habits](https://isome.isolated.tech/blog/private-location-journal-iphone/#habits)
+- [Why keep it private?](https://whereday.com/blog/private-location-journal-iphone/#why-private)
+- [A simple setup checklist](https://whereday.com/blog/private-location-journal-iphone/#setup)
+- [Capture visits and routes](https://whereday.com/blog/private-location-journal-iphone/#capture)
+- [Choose a battery tradeoff](https://whereday.com/blog/private-location-journal-iphone/#battery)
+- [Review the map locally](https://whereday.com/blog/private-location-journal-iphone/#review)
+- [Export without lock-in](https://whereday.com/blog/private-location-journal-iphone/#export)
+- [Back up and restore](https://whereday.com/blog/private-location-journal-iphone/#backup)
+- [Use webhooks carefully](https://whereday.com/blog/private-location-journal-iphone/#webhooks)
+- [Build durable habits](https://whereday.com/blog/private-location-journal-iphone/#habits)
 
-iso.me records your own location history while tracking is enabled. Start recording before the part of the day you want to keep, then review the map and Timeline. Installing the app cannot recover routes from before you recorded them. If you already use Google Timeline, [compare the two workflows](https://isome.isolated.tech/compare/google-maps-timeline/) before switching.
+Whereday records your own location history while tracking is enabled. Start recording before the part of the day you want to keep, then review the map and Timeline. Installing the app cannot recover routes from before you recorded them. If you already use Google Timeline, [compare the two workflows](https://whereday.com/compare/google-maps-timeline/) before switching.
 
-These interface examples illustrate the app’s screens; they are not a newly recorded trip. See the [checked recording-state example](https://isome.isolated.tech/blog/private-location-journal-iphone/#first-recording) below for what to verify.
+These interface examples illustrate the app’s screens; they are not a newly recorded trip. See the [checked recording-state example](https://whereday.com/blog/private-location-journal-iphone/#first-recording) below for what to verify.
 
-![iso.me map showing visits and recorded route points in San Francisco](https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/map.png)
+![Whereday map showing visits and recorded route points in San Francisco](https://whereday.com/blog/private-location-journal-iphone/screenshots/map.png)
 
 Map view: visits, route dots, and route lines stay in a private timeline.
 
-![iso.me export screen showing JSON CSV Markdown GPX KML GeoJSON and webhook options](https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/export.png)
+![Whereday export screen showing JSON CSV Markdown GPX KML GeoJSON and webhook options](https://whereday.com/blog/private-location-journal-iphone/screenshots/export.png)
 
 Export view: choose formats, data types, folders, and optional webhook destinations.
 
-![iso.me settings screen with tracking permission distance filter stop after and location names controls](https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/settings.png)
+![Whereday settings screen with tracking permission distance filter stop after and location names controls](https://whereday.com/blog/private-location-journal-iphone/screenshots/settings.png)
 
 Settings view: control tracking, permission state, distance filters, auto-stop, and naming.
 
@@ -70,7 +70,7 @@ Most people do not need location history because they want another dashboard. Th
 
 That distinction matters because location data is sensitive. A timeline can reveal your home, routines, work patterns, health visits, travel, religious practice, relationships, and habits. Before turning on any location recorder, ask two questions: who stores the data, and how do I leave with a copy?
 
-iso.me is built around the local-first answer. Your visits and routes are stored on your iPhone for core tracking. There is no iso.me account requirement and no iso.me server-side location archive for your everyday journal. If you enable features that talk to the network, such as readable place-name lookup through Apple's geocoding service or optional webhooks that you configure, review their boundaries. First-party onboarding and purchase telemetry is on by default and excludes location records; [the privacy policy lists network requests](https://isome.isolated.tech/privacy).
+Whereday is built around the local-first answer. Your visits and routes are stored on your iPhone for core tracking. There is no Whereday account requirement and no Whereday server-side location archive for your everyday journal. If you enable features that talk to the network, such as readable place-name lookup through Apple's geocoding service or optional webhooks that you configure, review their boundaries. First-party onboarding and purchase telemetry is on by default and excludes location records; [the privacy policy lists network requests](https://whereday.com/privacy).
 
 ## A simple private-journal checklist
 
@@ -88,7 +88,7 @@ Deletion Know how to remove local history and remember that deleting an app can 
 
 ### Verify your first recording
 
-- Open iso.me and finish setup. Choose Always if you want GPS and visit monitoring to continue in the background; While Using limits when the app can obtain locations. You can revisit this in iOS Settings.
+- Open Whereday and finish setup. Choose Always if you want GPS and visit monitoring to continue in the background; While Using limits when the app can obtain locations. You can revisit this in iOS Settings.
 - On the Map tab, tap the play control to start recording. Check that it changes to a red Stop control and that the elapsed time advances. Stop when you finish.
 - Open Timeline, select the day, and open the outing. Check its start and end times, Points count, and Path. A timer or an outing row alone does not prove GPS locations were saved.
 - For a route you walked, check that its path follows the expected places. Check visits separately: automatic visits need time at a place, so a brief stop may not appear immediately.
@@ -98,13 +98,13 @@ Deletion Know how to remove local history and remember that deleting an app can 
 
 In a checked simulator example, Start changed to Stop and the timer advanced. After stopping, Timeline listed one eight-second outing, zero visits, and zero distance. Opening it showed 0 points and “No GPS points were saved for this outing yet.” This verifies the controls and empty-path state, not a successful route recording.
 
-![iso.me outing detail with an eight-second duration, zero distance, zero points, and the message that no GPS points were saved](https://isome.isolated.tech/screenshots/journal-empty-outing.png)
+![Whereday outing detail with an eight-second duration, zero distance, zero points, and the message that no GPS points were saved](https://whereday.com/screenshots/journal-empty-outing.png)
 
 Checked October 26, 2026 in an isolated Debug simulator rebuild of the 1.7.16 release source, on iOS 26.5. No GPS points were saved during this session. This is not a physical outing or a battery test.
 
-If you see this state, check location permission, the selected date, and whether tracking was on when you moved. Try another short recording where the phone can obtain a location, then inspect the saved points again. A manual visit can add a stop to your journal, but it cannot recreate the missing GPS path. Use the [missing-recording checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) for the next checks.
+If you see this state, check location permission, the selected date, and whether tracking was on when you moved. Try another short recording where the phone can obtain a location, then inspect the saved points again. A manual visit can add a stop to your journal, but it cannot recreate the missing GPS path. Use the [missing-recording checklist](https://whereday.com/blog/missing-location-history-iphone/) for the next checks.
 
-Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See [current pricing](https://isome.isolated.tech/#pricing) and the [setup reference](https://isome.isolated.tech/docs/getting-started/).
+Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See [current pricing](https://whereday.com/#pricing) and the [setup reference](https://whereday.com/docs/getting-started/).
 
 [Record your first day free](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
@@ -127,21 +127,21 @@ Visit monitoring and detailed GPS run together while tracking is on. Stop record
 - Set an auto-stop timer as a fallback. Check that the timer will not end before a route you intend to keep.
 - If history has gaps, check permission and recording state. Battery-saving settings cannot recover points that were never captured.
 
-Use the [battery-use checklist](https://isome.isolated.tech/blog/iphone-location-tracking-battery/) to compare settings on your phone. The [tracking reference](https://isome.isolated.tech/docs/tracking/) lists the available controls.
+Use the [battery-use checklist](https://whereday.com/blog/iphone-location-tracking-battery/) to compare settings on your phone. The [tracking reference](https://whereday.com/docs/tracking/) lists the available controls.
 
 ## Review your map locally first
 
 The map is the fastest way to make the journal feel real. You can scan where you stopped, see route lines, and connect points to the day they happened. This is useful even when you never export anything. The app becomes a private memory instrument: open it, answer a question, close it.
 
-When readable place names help, iso.me can use Apple's geocoding service to turn coordinates into names or addresses. That makes the timeline easier to read, but it is still worth understanding the boundary: coordinate-to-place lookup is a network service governed by Apple's policies, not an iso.me location database.
+When readable place names help, Whereday can use Apple's geocoding service to turn coordinates into names or addresses. That makes the timeline easier to read, but it is still worth understanding the boundary: coordinate-to-place lookup is a network service governed by Apple's policies, not an Whereday location database.
 
 Storage and network requests
 
-Your journal is stored locally. Apple services can receive coordinates for place names and map features, and optional webhooks deliver records to your endpoint. Check the [privacy policy](https://isome.isolated.tech/privacy) before choosing a workflow.
+Your journal is stored locally. Apple services can receive coordinates for place names and map features, and optional webhooks deliver records to your endpoint. Check the [privacy policy](https://whereday.com/privacy) before choosing a workflow.
 
 ## Export without locking your memory inside one app
 
-A private journal is only truly yours if you can leave with a copy. iso.me's export workflow is designed for that: visits, route points, or both can be prepared as files you understand and can keep elsewhere.
+A private journal is only truly yours if you can leave with a copy. Whereday's export workflow is designed for that: visits, route points, or both can be prepared as files you understand and can keep elsewhere.
 
 The most human-readable path is Markdown. The most spreadsheet-friendly path is CSV. The most tool-friendly path is JSON. For maps and location tools, formats such as GPX, KML, and GeoJSON are useful because other software already knows how to draw or process them. The current app also exposes location-history formats such as OwnTracks and Overland for people who already use those ecosystems.
 
@@ -152,24 +152,24 @@ The most human-readable path is Markdown. The most spreadsheet-friendly path is 
 
 Exported files are powerful because they leave the app boundary. Store them deliberately. If you put them in cloud storage, email them, or import them into another service, that copy follows the privacy rules of the place you sent it.
 
-For a travel summary, [Country Days shows the local dates behind each country total](https://isome.isolated.tech/blog/track-days-in-country-iphone/), including manual stays for gaps.
+For a travel summary, [Country Days shows the local dates behind each country total](https://whereday.com/blog/track-days-in-country-iphone/), including manual stays for gaps.
 
 ## Keep a backup you can restore
 
-Export visits and route points as iso.me JSON when your goal is to import those records later. Keep each generated file. GPX and KML are useful for map viewers, but cannot be imported back into iso.me. Do not assume that a file preserves every app setting or outing edit.
+Export visits and route points as Whereday JSON when your goal is to import those records later. Keep each generated file. GPX and KML are useful for map viewers, but cannot be imported back into Whereday. Do not assume that a file preserves every app setting or outing edit.
 
 - In Export, choose visits, JSON, and the date range you need; export that file. Repeat for route points and keep both files. Review filters and field choices that might exclude required records.
 - Use Preview to check the result, then export to a folder you control. Writing the file requires export access; Preview is free.
-- Open Files and confirm the JSON exists and contains the expected date range. Keep a separate copy before replacing your phone or deleting iso.me.
+- Open Files and confirm the JSON exists and contains the expected date range. Keep a separate copy before replacing your phone or deleting Whereday.
 - To restore a prior export, open Settings → Import file and select your saved JSON. Review the import result, then check several dates in Timeline and the map before treating recovery as complete.
 
-Keep your original backup during recovery. A filtered export contains only the selected data, and import cannot restore records absent from that file. Follow [the full backup and restore checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/), or see [export and import](https://isome.isolated.tech/docs/export-import/) for supported formats and [automatic exports](https://isome.isolated.tech/docs/automatic-exports/) for scheduled copies.
+Keep your original backup during recovery. A filtered export contains only the selected data, and import cannot restore records absent from that file. Follow [the full backup and restore checklist](https://whereday.com/blog/back-up-iphone-location-history/), or see [export and import](https://whereday.com/docs/export-import/) for supported formats and [automatic exports](https://whereday.com/docs/automatic-exports/) for scheduled copies.
 
 Content reviewed October 26, 2026 against the product source and documentation. Screenshots illustrate the interface and may show sample data or earlier labels.
 
 ## Use optional webhooks carefully
 
-Some people want a private journal that also feeds a self-hosted archive, a home server, or a custom automation. iso.me includes webhook settings for users who want to post selected location data to an HTTP endpoint in real time or batches.
+Some people want a private journal that also feeds a self-hosted archive, a home server, or a custom automation. Whereday includes webhook settings for users who want to post selected location data to an HTTP endpoint in real time or batches.
 
 This is intentionally an advanced feature. A webhook changes the privacy model because data leaves the phone and lands wherever the endpoint is hosted. That can be exactly what you want if you run the server, understand the logs, and control retention. It is not the same as keeping everything only on the device.
 
@@ -180,8 +180,8 @@ This is intentionally an advanced feature. A webhook changes the privacy model b
 
 ## Choose your next task
 
-- Looking for an earlier visit? [Check existing iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/) before starting a new recording.
-- Need a portable path? [Record a route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/), with a sample file and troubleshooting.
+- Looking for an earlier visit? [Check existing iPhone location history](https://whereday.com/blog/view-location-history-iphone/) before starting a new recording.
+- Need a portable path? [Record a route and export GPX](https://whereday.com/blog/record-iphone-route-gpx/), with a sample file and troubleshooting.
 
 ## Build habits that keep the journal useful
 
@@ -193,8 +193,8 @@ Used that way, a private location journal is quietly valuable. It gives you the 
 
 ## Start with a local journal.
 
-Download iso.me, keep your working location history on your iPhone, and export when you need a portable copy.
+Download Whereday, keep your working location history on your iPhone, and export when you need a portable copy.
 
-[Get iso.me](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
+[Get Whereday](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
-Source: https://isome.isolated.tech/blog/private-location-journal-iphone/
+Source: https://whereday.com/blog/private-location-journal-iphone/

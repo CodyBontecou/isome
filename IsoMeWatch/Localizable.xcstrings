@@ -41,12 +41,12 @@
         }
       }
     },
-    "Sync queued. Open iso.me on your iPhone.": {
+    "Sync queued. Open Whereday on your iPhone.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sync queued. Open iso.me on your iPhone."
+            "value": "Sync queued. Open Whereday on your iPhone."
           }
         }
       }
@@ -781,142 +781,142 @@
         }
       }
     },
-    "iso.me": {
+    "Whereday": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "iso.me"
+            "value": "Whereday"
           }
         }
       }
     },
-    "ISO.ME": {
+    "WHEREDAY": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "ISO.ME"
+            "value": "WHEREDAY"
           }
         }
       }

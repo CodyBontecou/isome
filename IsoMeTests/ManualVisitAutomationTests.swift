@@ -203,14 +203,17 @@ struct ManualVisitAutomationTests {
         "isome://check-in/extra", "isome://check-in#fragment"
     ])
     func rejectsMalformedLinks(_ raw: String) throws {
-        let url = try #require(URL(string: raw))
-        #expect(throws: ManualVisitRoute.RouteError.self) { try ManualVisitRoute.parse(url) }
+        for scheme in ["isome", "whereday"] {
+            let url = try #require(URL(string: raw.replacingOccurrences(of: "isome:", with: "\(scheme):")))
+            #expect(throws: ManualVisitRoute.RouteError.self) { try ManualVisitRoute.parse(url) }
+        }
     }
 
-    @Test func validLinksProduceDraftsAndDetailsOnly() throws {
+    @Test(arguments: ["isome", "whereday"])
+    func validLinksProduceDraftsAndDetailsOnly(_ scheme: String) throws {
         let id = UUID()
-        #expect(try ManualVisitRoute.parse(#require(URL(string: "isome://visit/\(id)"))) == .visit(id))
-        #expect(try ManualVisitRoute.parse(#require(URL(string: "isome://check-in?name=Coffee%20Shop&latitude=18&longitude=-67"))) == .checkIn(name: "Coffee Shop", latitude: 18, longitude: -67, arrival: nil))
-        #expect(try ManualVisitRoute.parse(#require(URL(string: "isome://log-visit"))) == .pastVisit(name: nil, latitude: nil, longitude: nil, arrival: nil, departure: nil))
+        #expect(try ManualVisitRoute.parse(#require(URL(string: "\(scheme)://visit/\(id)"))) == .visit(id))
+        #expect(try ManualVisitRoute.parse(#require(URL(string: "\(scheme)://check-in?name=Coffee%20Shop&latitude=18&longitude=-67"))) == .checkIn(name: "Coffee Shop", latitude: 18, longitude: -67, arrival: nil))
+        #expect(try ManualVisitRoute.parse(#require(URL(string: "\(scheme)://log-visit"))) == .pastVisit(name: nil, latitude: nil, longitude: nil, arrival: nil, departure: nil))
     }
 }

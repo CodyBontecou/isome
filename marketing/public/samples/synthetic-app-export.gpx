@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="iso.me" xmlns="http://www.topografix.com/GPX/1/1" xmlns:isome="https://isome.isolated.tech/gpx/1.0">
+<gpx version="1.1" creator="Whereday" xmlns="http://www.topografix.com/GPX/1/1" xmlns:isome="https://isome.isolated.tech/gpx/1.0">
   <metadata>
-    <name>iso.me export</name>
-    <time>2026-10-26T17:26:36.461Z</time>
+    <name>Whereday export</name>
+    <time>2026-10-26T23:01:17.443Z</time>
   </metadata>
   <trk>
-    <name>iso.me track</name>
+    <name>Whereday track</name>
     <trkseg>
       <trkpt lat="0.0000000" lon="0.0000000">
         <ele>0.00</ele>

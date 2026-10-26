@@ -18,7 +18,7 @@ Reading
 
 Back to
 
-[All docs](https://isome.isolated.tech/docs/)
+[All docs](https://whereday.com/docs/)
 
 Pro feature, off by default. Webhooks can send your location data off your device — to a server you choose. Nothing is sent until you configure an endpoint, and the settings screen leads with a prominent warning card.
 
@@ -31,7 +31,7 @@ Webhooks deliver records to a receiver you choose, but the payload must match th
 | OwnTracks receiver | per your installation | Verify it accepts arrays of location messages
 | Other receiver | its documented HTTPS endpoint | Use its required schema and authentication
 
-iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check [Dawarich's receiver documentation](https://dawarich.app/docs/getting-started/track-your-location/) and confirm actual imported points; the [checked Overland walkthrough](https://isome.isolated.tech/integrations/dawarich/) records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.
+Whereday encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check [Dawarich's receiver documentation](https://dawarich.app/docs/getting-started/track-your-location/) and confirm actual imported points; the [checked Overland walkthrough](https://whereday.com/integrations/dawarich/) records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.
 
 ## Configuration
 
@@ -51,6 +51,6 @@ Batch modes show a live queue count with a Flush queue button. Failed sends retr
 
 Know your destination. This is the one feature that transmits your location data off-device. Use endpoints you trust (ideally your own servers), and remember queued-but-unsent points in batch modes are lost if iOS terminates the app before a flush.
 
-[← PreviousAutomatically export iPhone location history to a folder](https://isome.isolated.tech/docs/automatic-exports/) [Next →Siri & Shortcuts for iPhone location tracking](https://isome.isolated.tech/docs/siri-shortcuts/)
+[← PreviousAutomatically export iPhone location history to a folder](https://whereday.com/docs/automatic-exports/) [Next →Siri & Shortcuts for iPhone location tracking](https://whereday.com/docs/siri-shortcuts/)
 
-Source: https://isome.isolated.tech/docs/webhooks/
+Source: https://whereday.com/docs/webhooks/

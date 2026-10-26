@@ -1,4 +1,4 @@
-# iso.me Feature Baseline
+# Whereday Feature Baseline
 
 > **Status: canonical feature inventory — generated from a full source audit (all Swift/TS sources, 4 app targets + worker), Aug 2026.**
 > **Purpose:** single source of truth for every feature the app supports, used to structure and manage documentation. Every entry cites implementation files so docs can be traced back to code.
@@ -131,7 +131,7 @@
 
 **EXP-3 Filename templates** — paid
 - 14 tokens: `{date} {year} {month} {dayNumber} {weekday} {monthName} {quarter} {datetime} {time} {day} {type} {title} {name} {format}`; `/` builds subfolders; extension auto-added; sanitization + path-traversal rejection.
-- Presets: READABLE `iso.me - {day} {date} - {type}` (default), COMPACT, DATED `{year}/{year}-{month}/Daily Track - {date}`.
+- Presets: READABLE `Whereday - {day} {date} - {type}` (default), COMPACT, DATED `{year}/{year}-{month}/Daily Track - {date}`.
 - Day-stable normalization for scheduled exports guarantees one filename per local day.
 
 **EXP-4 Output modes** — paid

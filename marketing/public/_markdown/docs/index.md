@@ -1,8 +1,8 @@
-§ Docs · iso.me handbook
+§ Docs · Whereday handbook
 
 # Documentation
 
-Practical guides for every corner of iso.me — tracking, timelines, exports, automation, the Watch app, and privacy. Written against the shipping app, updated with it.
+Practical guides for every corner of Whereday — tracking, timelines, exports, automation, the Watch app, and privacy. Written against the shipping app, updated with it.
 
 Guides
 
@@ -14,7 +14,7 @@ October 26, 2026
 
 Covers
 
-iso.me 1.7 · iOS 17+ · watchOS 10+
+Whereday 1.7 · iOS 17+ · watchOS 10+
 
 Questions
 
@@ -26,66 +26,66 @@ Questions
 
 Install, onboarding, permissions, and your first tracking session.
 
-](https://isome.isolated.tech/docs/getting-started/) [ Guide 02
+](https://whereday.com/docs/getting-started/) [ Guide 02
 
 ## Visits, routes & battery
 
 How automatic visit detection and route recording work, and the settings that control them.
 
-](https://isome.isolated.tech/docs/tracking/) [ Guide 03
+](https://whereday.com/docs/tracking/) [ Guide 03
 
 ## Timeline & outings
 
 The daily timeline, inferred outings, route replay, and editing or deleting sessions.
 
-](https://isome.isolated.tech/docs/timeline-outings/) [ Guide 04
+](https://whereday.com/docs/timeline-outings/) [ Guide 04
 
 ## Save and edit places in your iPhone location journal
 
-Manage saved locations, enter coordinates, import a places CSV, and distinguish reusable places from past visits in iso.me.
+Manage saved locations, enter coordinates, import a places CSV, and distinguish reusable places from past visits in Whereday.
 
-](https://isome.isolated.tech/docs/places/) [ Guide 05
+](https://whereday.com/docs/places/) [ Guide 05
 
 ## Photos on the map
 
 Optionally connect your Photos library to place pictures on your map and outings.
 
-](https://isome.isolated.tech/docs/photos/) [ Pro 06
+](https://whereday.com/docs/photos/) [ Pro 06
 
 ## Export and restore location history
 
 Eight export formats, filters, filename templates, and free import for restores.
 
-](https://isome.isolated.tech/docs/export-import/) [ Pro 07
+](https://whereday.com/docs/export-import/) [ Pro 07
 
 ## Automatically export iPhone location history to a folder
 
-Set up daily or interval exports, check rewrite and append behavior, and verify saved files in iso.me.
+Set up daily or interval exports, check rewrite and append behavior, and verify saved files in Whereday.
 
-](https://isome.isolated.tech/docs/automatic-exports/) [ Pro 08
+](https://whereday.com/docs/automatic-exports/) [ Pro 08
 
 ## Webhooks & self-hosting
 
 Configure optional delivery and verify your receiver’s payload and authentication requirements.
 
-](https://isome.isolated.tech/docs/webhooks/) [ Guide 09
+](https://whereday.com/docs/webhooks/) [ Guide 09
 
 ## Siri & Shortcuts for iPhone location tracking
 
-Start and stop tracking, read saved visits, rename outings, and export a chosen date range with iso.me Shortcuts actions.
+Start and stop tracking, read saved visits, rename outings, and export a chosen date range with Whereday Shortcuts actions.
 
-](https://isome.isolated.tech/docs/siri-shortcuts/) [ Guide 10
+](https://whereday.com/docs/siri-shortcuts/) [ Guide 10
 
 ## Record Apple Watch GPS routes without your iPhone
 
 Record on Apple Watch, check transfer status, and verify the phone copy with a checked offline-queue example.
 
-](https://isome.isolated.tech/docs/apple-watch/) [ Guide 11
+](https://whereday.com/docs/apple-watch/) [ Guide 11
 
 ## Privacy & your data
 
 What stays on your device, what can leave it, and how deletion works.
 
-](https://isome.isolated.tech/docs/privacy-data/)
+](https://whereday.com/docs/privacy-data/)
 
-Source: https://isome.isolated.tech/docs/
+Source: https://whereday.com/docs/

@@ -125,7 +125,7 @@ final class WatchLocationSyncClient: NSObject, ObservableObject {
         state.registerTransfer(payload)
         saveState()
 
-        syncStatus = String(localized: "Sync queued. Open iso.me on your iPhone.")
+        syncStatus = String(localized: "Sync queued. Open Whereday on your iPhone.")
         session.transferUserInfo([
             WatchLocationSyncTransport.payloadUserInfoKey: payloadData
         ])

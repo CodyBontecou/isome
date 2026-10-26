@@ -2,7 +2,7 @@
 
 # Export and restore location history
 
-Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported iso.me visit and point files for free.
+Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported Whereday visit and point files for free.
 
 Platform
 
@@ -18,7 +18,7 @@ Reading
 
 Back to
 
-[All docs](https://isome.isolated.tech/docs/)
+[All docs](https://whereday.com/docs/)
 
 Free vs Pro. Building and previewing exports is free. Writing export files (from the app's Export tab or an outing's page) is the Pro unlock, along with automatic exports and webhooks. Importing a prior export is free.
 
@@ -34,7 +34,7 @@ Free vs Pro. Building and previewing exports is free. Writing export files (from
 | OwnTracks | OwnTracks-ecosystem tools (route points).
 | Overland | Overland-ecosystem tools (route points).
 
-Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON). For receiver delivery, follow the [Dawarich Overland walkthrough](https://isome.isolated.tech/integrations/dawarich/) and verify the destination’s saved points.
+Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON). For receiver delivery, follow the [Dawarich Overland walkthrough](https://whereday.com/integrations/dawarich/) and verify the destination’s saved points.
 
 ## What gets exported
 
@@ -53,7 +53,7 @@ File names come from a template you control. These tokens are available:
 `{date}` `{year}` `{month}` `{dayNumber}` `{weekday}` `{monthName}` `{quarter}` `{datetime}` `{time}` `{day}` `{type}` `{title}` `{name}` `{format}`
 
 - Use `/` in a template to build dated subfolders.
-- Built-in presets: Readable (default) `iso.me - {day} {date} - {type}`, Compact, and Dated `{year}/{year}-{month}/Daily Track - {date}`.
+- Built-in presets: Readable (default) `Whereday - {day} {date} - {type}`, Compact, and Dated `{year}/{year}-{month}/Daily Track - {date}`.
 - A live preview shows the resolved path as you type.
 
 ## Output layout
@@ -68,16 +68,16 @@ Pick a default folder (with auto-save on by default) and exports land there sile
 
 ## Import
 
-Settings → Import file accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.
+Settings → Import file accepts visit and point files exported from Whereday as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.
 
 Choose a file for the next task
-| Format | Useful for | Import into iso.me
-| iso.me JSON | Structured visit or point records | Supported visit and point exports
-| iso.me CSV / Markdown | Spreadsheets / readable records | Supported visit and point exports; required fields must remain
+| Format | Useful for | Import into Whereday
+| Whereday JSON | Structured visit or point records | Supported visit and point exports
+| Whereday CSV / Markdown | Spreadsheets / readable records | Supported visit and point exports; required fields must remain
 | GPX / KML / GeoJSON | Mapping tools and route viewers | No
 | OwnTracks / Overland | Compatible location tools | No
 
-If Preview is unexpectedly empty, follow the [export filter diagnosis](https://isome.isolated.tech/blog/missing-location-history-iphone/#export) before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.
+If Preview is unexpectedly empty, follow the [export filter diagnosis](https://whereday.com/blog/missing-location-history-iphone/#export) before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.
 
 ## Keep a copy and check it
 
@@ -86,12 +86,12 @@ If Preview is unexpectedly empty, follow the [export filter diagnosis](https://i
 - Export to a folder you control and confirm the files exist in Files before deleting or replacing anything.
 - When importing later, keep the originals and inspect several dates, visits, and points after the import. Do not assume every setting, photo association, or edited outing is restored.
 
-[Automatic exports](https://isome.isolated.tech/docs/automatic-exports/) can keep scheduled copies, subject to iOS background execution. For the recording workflow, see [the private location journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/). For a route file, follow [the GPX recording walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/). For restorable records, use [the backup and restore checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/). Comparing apps? Read [iso.me and Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/).
+[Automatic exports](https://whereday.com/docs/automatic-exports/) can keep scheduled copies, subject to iOS background execution. For the recording workflow, see [the private location journal guide](https://whereday.com/blog/private-location-journal-iphone/). For a route file, follow [the GPX recording walkthrough](https://whereday.com/blog/record-iphone-route-gpx/). For restorable records, use [the backup and restore checklist](https://whereday.com/blog/back-up-iphone-location-history/). Comparing apps? Read [Whereday and Google Timeline](https://whereday.com/compare/google-maps-timeline/).
 
-Import adds supported records. In the checked 1.7.16 release-source example, post-import visit reconciliation combined two nearby visits into one, while importing the point file again added repeated points. The import result is not necessarily the final stored visit count. See the [checked disk import and JSON re-export](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import). Import each intended file once, then check individual records before retrying. The [synthetic JSON examples](https://isome.isolated.tech/blog/back-up-iphone-location-history/#sample) show the visit and point structures without using private history.
+Import adds supported records. In the checked 1.7.16 release-source example, post-import visit reconciliation combined two nearby visits into one, while importing the point file again added repeated points. The import result is not necessarily the final stored visit count. See the [checked disk import and JSON re-export](https://whereday.com/blog/back-up-iphone-location-history/#checked-import). Import each intended file once, then check individual records before retrying. The [synthetic JSON examples](https://whereday.com/blog/back-up-iphone-location-history/#sample) show the visit and point structures without using private history.
 
-For a readable note in a desktop vault, follow the [Markdown-to-Obsidian workflow](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). It covers manual file placement and keeps generated notes separate from personal writing.
+For a readable note in a desktop vault, follow the [Markdown-to-Obsidian workflow](https://whereday.com/blog/iphone-location-journal-obsidian/). It covers manual file placement and keeps generated notes separate from personal writing.
 
-[← PreviousPhotos on the map](https://isome.isolated.tech/docs/photos/) [Next →Automatically export iPhone location history to a folder](https://isome.isolated.tech/docs/automatic-exports/)
+[← PreviousPhotos on the map](https://whereday.com/docs/photos/) [Next →Automatically export iPhone location history to a folder](https://whereday.com/docs/automatic-exports/)
 
-Source: https://isome.isolated.tech/docs/export-import/
+Source: https://whereday.com/docs/export-import/

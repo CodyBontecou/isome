@@ -9,7 +9,7 @@ enum ManualVisitRoute: Equatable {
 
     static func parse(_ url: URL, now: Date = Date()) throws -> ManualVisitRoute {
         guard let parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              parts.scheme == "isome", parts.user == nil, parts.password == nil,
+              let scheme = parts.scheme, ["isome", "whereday"].contains(scheme), parts.user == nil, parts.password == nil,
               parts.port == nil, parts.fragment == nil else { throw RouteError.invalid }
         if parts.host == "visit" {
             guard parts.query == nil, let id = UUID(uuidString: String(parts.path.dropFirst())),

@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Siri &amp; Shortcuts for iPhone location tracking — iso.me Docs</title>
-  <meta name="description" content="Start and stop tracking, read saved visits, rename outings, and export a chosen date range with iso.me Shortcuts actions.">
+  <title>Siri &amp; Shortcuts for iPhone location tracking — Whereday Docs</title>
+  <meta name="description" content="Start and stop tracking, read saved visits, rename outings, and export a chosen date range with Whereday Shortcuts actions.">
   <meta name="robots" content="index,follow">
-  <link rel="canonical" href="https://isome.isolated.tech/docs/siri-shortcuts/">
+  <link rel="canonical" href="https://whereday.com/docs/siri-shortcuts/">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <style>/* iso.me docs — shared styles (adapted from the site's doc template) */
+  <style>/* Whereday docs — shared styles (adapted from the site's doc template) */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --paper: #f5f4ef;
@@ -323,10 +323,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   <a class="skip-link" href="#main">Skip to content</a>
   <nav class="top" aria-label="Primary navigation">
     <div class="nav-inner">
-      <a href="/" class="brand" aria-label="iso.me home">
+      <a href="/" class="brand" aria-label="Whereday home">
         <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
         <span class="brand-dot" aria-hidden="true"></span>
-        ISO.ME
+        WHEREDAY
       </a>
       <div class="nav-links">
         <a href="/#features">Features</a>
@@ -354,21 +354,21 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
   <div class="content">
     <div class="doc-card">
-<h2>Find iso.me actions in Shortcuts</h2>
-<p>Open Apple’s Shortcuts app, create a shortcut, and search for iso.me when adding an action. The verified iso.me 1.7.16 release defines twelve actions. Nine have built-in Siri phrases; the three additional read actions can be added to a custom shortcut. Use the action names below when an older recipe shows different labels.</p>
-<p>Set up location permission in iso.me before using <strong>Start Tracking</strong>. These actions are designed to run without opening iso.me, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
+<h2>Find Whereday actions in Shortcuts</h2>
+<p>Open Apple’s Shortcuts app, create a shortcut, and search for Whereday when adding an action. The verified Whereday 1.7.16 release defines twelve actions. Nine have built-in Siri phrases; the three additional read actions can be added to a custom shortcut. Use the action names below when an older recipe shows different labels.</p>
+<p>Set up location permission in Whereday before using <strong>Start Tracking</strong>. These actions are designed to run without opening Whereday, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
 
 <h2>Recording and today’s stats</h2>
 <div role="region" aria-label="Released Siri and Shortcuts actions" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Recording controls and snapshot values</caption>
 <tr><th scope="col">Action</th><th scope="col">What it does</th><th scope="col">Built-in Siri phrase example</th></tr>
-<tr><th scope="row">Start Tracking</th><td>Starts recording with the app’s location permission.</td><td>“Start iso.me”</td></tr>
-<tr><th scope="row">Stop Tracking</th><td>Stops recording. If iso.me is not running, closes the saved active session.</td><td>“Stop tracking with iso.me”</td></tr>
-<tr><th scope="row">Rename Current Outing</th><td>Names the active outing. Requires a nonempty Name and an active outing.</td><td>“Name my iso.me outing”</td></tr>
-<tr><th scope="row">Today’s Distance</th><td>Returns today’s distance from the latest shared app snapshot.</td><td>“How far have I gone with iso.me”</td></tr>
-<tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“iso.me tracking duration”</td></tr>
-<tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in iso.me”</td></tr>
+<tr><th scope="row">Start Tracking</th><td>Starts recording with the app’s location permission.</td><td>“Start Whereday”</td></tr>
+<tr><th scope="row">Stop Tracking</th><td>Stops recording. If Whereday is not running, closes the saved active session.</td><td>“Stop tracking with Whereday”</td></tr>
+<tr><th scope="row">Rename Current Outing</th><td>Names the active outing. Requires a nonempty Name and an active outing.</td><td>“Name my Whereday outing”</td></tr>
+<tr><th scope="row">Today’s Distance</th><td>Returns today’s distance from the latest shared app snapshot.</td><td>“How far have I gone with Whereday”</td></tr>
+<tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“Whereday tracking duration”</td></tr>
+<tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in Whereday”</td></tr>
 </table>
 </div>
 
@@ -380,14 +380,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <tr><th scope="row">Get Current Outing Name</th><td>Returns the active outing’s name, or its start date if unnamed. Reports an error if there is no active outing.</td><td>Add to a custom shortcut.</td></tr>
 <tr><th scope="row">Get Visits</th><td>Optional Start Date and End Date. Returns visits whose arrival falls in the range.</td><td>Add to a custom shortcut.</td></tr>
 <tr><th scope="row">Get Movements</th><td>Optional Start Date and End Date. Returns recorded outings whose start falls in the range; “Movement” is the action’s label for an outing.</td><td>Add to a custom shortcut.</td></tr>
-<tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in iso.me”</td></tr>
-<tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in iso.me”</td></tr>
+<tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in Whereday”</td></tr>
+<tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in Whereday”</td></tr>
 </table>
 </div>
 <p>For a rename workflow, get the visits or movements, choose the intended result, and pass it to the matching rename action. Check the date and item before running: renaming changes the saved journal. These actions do not create missing GPS points or visits.</p>
 
 <h2 id="export-data">Export a chosen date range</h2>
-<p><strong>Export Data</strong> is the single configurable export action in this release. It returns a file for the next Shortcuts action. Its built-in Siri phrases include “Export iso.me data” and “Export data from iso.me”.</p>
+<p><strong>Export Data</strong> is the single configurable export action in this release. It returns a file for the next Shortcuts action. Its built-in Siri phrases include “Export Whereday data” and “Export data from Whereday”.</p>
 <table>
 <caption>Export Data parameters</caption>
 <tr><th scope="col">Parameter</th><th scope="col">Choices or default</th></tr>
@@ -400,7 +400,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 <h2 id="markdown-recipe">Recipe: save today’s visits as Markdown</h2>
 <ol>
-<li>Create a shortcut in Apple’s Shortcuts app and add iso.me’s <strong>Export Data</strong> action.</li>
+<li>Create a shortcut in Apple’s Shortcuts app and add Whereday’s <strong>Export Data</strong> action.</li>
 <li>Set <strong>Data Kind</strong> to <strong>Visits</strong> and <strong>Format</strong> to <strong>Markdown</strong>. Leave both date parameters empty for today up to the run time.</li>
 <li>Add Apple’s <strong>Save File</strong> action after Export Data, using the returned file as its input. For the first run, choose a test folder you control.</li>
 <li>Run the shortcut manually. Confirm the saved file has the expected date heading and visits. A successful action is not proof that you recorded every stop.</li>
@@ -413,9 +413,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <li>If an old shortcut shows <strong>Export Today’s Data</strong>, <strong>Export Today’s Outings</strong>, or <strong>Export Yesterday’s Data</strong>, rebuild that step with <strong>Export Data</strong> and set its dates, data kind, and format explicitly.</li>
 <li>If a result is empty, check the date range and whether the app actually recorded the intended data. Read actions match visit arrival or outing start; a record overlapping the period can start outside it.</li>
 <li>If a file was returned but is missing from Files, check the following Save File action and destination. Export Data does not itself configure a recurring vault sync.</li>
-<li>For iso.me’s own folder scheduler, use the separate <a href="/docs/automatic-exports/">automatic export reference</a>. For missing journal entries, use the <a href="/blog/missing-location-history-iphone/">recording checklist</a>.</li>
+<li>For Whereday’s own folder scheduler, use the separate <a href="/docs/automatic-exports/">automatic export reference</a>. For missing journal entries, use the <a href="/blog/missing-location-history-iphone/">recording checklist</a>.</li>
 </ul>
-<p>Reviewed October 26, 2026 against the released iso.me 1.7.16 action definitions. Siri wording and the Shortcuts editor can vary by language and iOS version.</p>
+<p>Reviewed October 26, 2026 against the released Whereday 1.7.16 action definitions. Siri wording and the Shortcuts editor can vary by language and iOS version.</p>
     </div>
     <nav class="pager" aria-label="Guides">
       <a class="prev" href="/docs/webhooks/"><span class="dir">← Previous</span><span class="title">Webhooks &amp; self-hosting</span></a>
@@ -429,7 +429,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     <div class="footer-inner">
       <div class="footer-brand">
         <span class="dot"></span>
-        © 2026 ISO.ME · BUILT WITH CARE
+        © 2026 WHEREDAY · BUILT WITH CARE
       </div>
       <div class="footer-links">
         <a href="/about">About</a>
@@ -448,7 +448,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     'instareply.isolated.tech': true,
     'voxboard.isolated.tech': true,
     'healthmd.isolated.tech': true,
-    'isome.isolated.tech': true,
+    'whereday.com': true,
     'gitsyncmd.isolated.tech': true,
     'timemd.isolated.tech': true,
     'imghost.isolated.tech': true

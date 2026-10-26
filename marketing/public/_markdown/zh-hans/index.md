@@ -4,13 +4,13 @@ iPhone · Apple Watch · 位置日记
 把旅程留在
 自己的手机里。
 
-开始追踪后，记录路线并检测到访地点，在 iPhone 上回顾每天的行程。无需账户，iso.me 不运营存储你位置历史的服务器。
+开始追踪后，记录路线并检测到访地点，在 iPhone 上回顾每天的行程。无需账户，Whereday 不运营存储你位置历史的服务器。
 
-[在 App Store 查看](https://apps.apple.com/us/app/iso-me/id6761960794)[阅读使用指南（英文）](https://isome.isolated.tech/docs/)
+[在 App Store 查看](https://apps.apple.com/us/app/iso-me/id6761960794)[阅读使用指南（英文）](https://whereday.com/docs/)
 
 下载和追踪免费。导出功能提供可选的终身购买。
 
-![iso.me 在地图上展示地点与路线的界面，界面语言为英语](https://isome.isolated.tech/screenshots/map-480.webp)
+![Whereday 在地图上展示地点与路线的界面，界面语言为英语](https://whereday.com/screenshots/map-480.webp)
 
 产品界面预览，具体界面与可用功能以当前版本为准。
 
@@ -60,7 +60,7 @@ iPhone · Apple Watch · 位置日记
 
 是否需要 Google 账户？
 
-不需要。iso.me 记录你自行开启追踪后的地点和路线；它不会导入 Google 时间线存档。
+不需要。Whereday 记录你自行开启追踪后的地点和路线；它不会导入 Google 时间线存档。
 
 ## 在 App Store 查看
 
@@ -70,4 +70,4 @@ iPhone · Apple Watch · 位置日记
 
 本页为简体中文产品介绍，功能说明按已核实的 1.7.16 版本编写。详细文档和隐私政策目前提供英文版本；应用语言与地区可用性请查看各产品的商店页面或发行说明。
 
-Source: https://isome.isolated.tech/zh-hans/
+Source: https://whereday.com/zh-hans/

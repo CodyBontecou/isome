@@ -1,38 +1,38 @@
-- [iso.me](https://isome.isolated.tech/)
-- [Guides](https://isome.isolated.tech/blog/)
+- [Whereday](https://whereday.com/)
+- [Guides](https://whereday.com/blog/)
 - Record and export GPX
 
 Practical iPhone guides
 
 # How to record an iPhone route and export a GPX file
 
-Start tracking in iso.me, stop after your trip, then select Points and GPX in Export. Recording and preview are free; saving the file requires the optional unlock.
+Start tracking in Whereday, stop after your trip, then select Points and GPX in Export. Recording and preview are free; saving the file requires the optional unlock.
 
-By [Cody Bontecou](https://isolated.tech), iso.me’s developer · Reviewed October 26, 2026
+By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed October 26, 2026
 
 ## Record first, then export the points
 
-To record an iPhone route as GPX with iso.me, start tracking before your trip, stop when you finish, then choose Points and GPX in Export. Select the right date range, preview the result, and save the file to Files or share it with a compatible route viewer.
+To record an iPhone route as GPX with Whereday, start tracking before your trip, stop when you finish, then choose Points and GPX in Export. Select the right date range, preview the result, and save the file to Files or share it with a compatible route viewer.
 
-Recording is free. Previewing the export is free. Writing the GPX file requires the optional one-time unlock. This workflow exports a route recorded in iso.me; it does not extract old Apple Maps or Google Timeline history.
+Recording is free. Previewing the export is free. Writing the GPX file requires the optional one-time unlock. This workflow exports a route recorded in Whereday; it does not extract old Apple Maps or Google Timeline history.
 
 From recording to file
-- [Record and check a route](https://isome.isolated.tech/blog/record-iphone-route-gpx/#record)
-- [Select points and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/#export)
-- [Check the saved file](https://isome.isolated.tech/blog/record-iphone-route-gpx/#verify)
-- [Inspect a synthetic GPX example](https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample)
-- [Fix an empty or incomplete export](https://isome.isolated.tech/blog/record-iphone-route-gpx/#problems)
+- [Record and check a route](https://whereday.com/blog/record-iphone-route-gpx/#record)
+- [Select points and export GPX](https://whereday.com/blog/record-iphone-route-gpx/#export)
+- [Check the saved file](https://whereday.com/blog/record-iphone-route-gpx/#verify)
+- [Inspect a synthetic GPX example](https://whereday.com/blog/record-iphone-route-gpx/#sample)
+- [Fix an empty or incomplete export](https://whereday.com/blog/record-iphone-route-gpx/#problems)
 
 ## 1. Record a short route
 
-- Open iso.me and complete permission setup. Choose Always location access if you want recording to continue in the background.
+- Open Whereday and complete permission setup. Choose Always location access if you want recording to continue in the background.
 - On the Map tab, start recording before you leave. Start enables GPS recording, visit monitoring, and significant location changes together.
 - After a short walk or trip, stop recording. Stop ends both GPS and visit monitoring.
 - Open Timeline and check the outing’s date, start and end times, and map. Confirm that it contains the part of the trip you intend to export.
 
-Try this with a short session before relying on it for a full day. GPS can be noisy or unavailable, and permission changes or a stopped session can leave gaps. There is no separate passive visit-only switch. The [recording reference](https://isome.isolated.tech/docs/tracking/) explains distance filtering and auto-stop.
+Try this with a short session before relying on it for a full day. GPS can be noisy or unavailable, and permission changes or a stopped session can leave gaps. There is no separate passive visit-only switch. The [recording reference](https://whereday.com/docs/tracking/) explains distance filtering and auto-stop.
 
-For a longer trip, choose an auto-stop duration that will not end early. Stop when you finish. Detailed GPS uses battery, and a larger distance filter trades route detail for fewer captured points; check the result before settling on a setting. Use the [battery comparison checklist](https://isome.isolated.tech/blog/iphone-location-tracking-battery/) to compare your own recordings.
+For a longer trip, choose an auto-stop duration that will not end early. Stop when you finish. Detailed GPS uses battery, and a larger distance filter trades route detail for fewer captured points; check the result before settling on a setting. Use the [battery comparison checklist](https://whereday.com/blog/iphone-location-tracking-battery/) to compare your own recordings.
 
 ## 2. Choose Points and GPX
 
@@ -42,7 +42,7 @@ For a longer trip, choose an auto-stop duration that will not end early. Stop wh
 - Open Preview. Check the intended date and file contents before paying for or writing an export.
 - Export. With a default folder configured, look there for the saved file; otherwise use the share sheet to save it in Files.
 
-You can also open a specific outing in Timeline and use its Export action with GPX selected. For a full reference on filenames, date filters, and saving destinations, see [export and restore compatibility](https://isome.isolated.tech/docs/export-import/).
+You can also open a specific outing in Timeline and use its Export action with GPX selected. For a full reference on filenames, date filters, and saving destinations, see [export and restore compatibility](https://whereday.com/docs/export-import/).
 
 Choose the data you actually need
 | Choice | GPX result | Use it for
@@ -52,7 +52,7 @@ Choose the data you actually need
 
 A GPX export with only visits can be valid but show pins instead of a line. Pick Points or an outing if the path is the part you want to keep.
 
-![Example iso.me export interface with data types and file format choices](https://isome.isolated.tech/screenshots/export-480.webp)
+![Example Whereday export interface with data types and file format choices](https://whereday.com/screenshots/export-480.webp)
 
 The export interface. This screenshot illustrates the workflow and may show sample data or earlier labels.
 
@@ -67,7 +67,7 @@ Find the exported `.gpx` file in the folder you chose. Confirm the filename and 
 
 GPX describes geographic data; it does not include a street map or guarantee that every app offers the same display. Files preview may show text or a file icon rather than drawing a route. A viewer that supports waypoints alone may not display a track.
 
-iso.me exports recorded points. Do not assume the file follows the same road-matched line shown in a map preview. When consecutive points are more than ten minutes apart, the current exporter starts a new GPX track segment.
+Whereday exports recorded points. Do not assume the file follows the same road-matched line shown in a map preview. When consecutive points are more than ten minutes apart, the current exporter starts a new GPX track segment.
 
 ### Open a track in gpx.studio
 
@@ -77,7 +77,7 @@ Try the synthetic example below before opening your own location file. A map lin
 
 ## What a GPX track looks like
 
-[Download a synthetic GPX example](https://isome.isolated.tech/samples/synthetic-route.gpx) to inspect before sharing your own data. It contains three invented points near latitude zero and longitude zero, with fixed example timestamps. It is not a real trip or a captured iso.me export.
+[Download a synthetic GPX example](https://whereday.com/samples/synthetic-route.gpx) to inspect before sharing your own data. It contains three invented points near latitude zero and longitude zero, with fixed example timestamps. It is not a real trip or a captured Whereday export.
 
 ```
 <trkpt lat="0.0001000" lon="0.0001000">
@@ -85,11 +85,11 @@ Try the synthetic example below before opening your own location file. A map lin
 </trkpt>
 ```
 
-The coordinates identify a point. Its time helps a viewer place it in sequence; `Z` denotes UTC. Track points sit inside a track segment. For the same invented coordinates in iso.me’s importable JSON structure, see the [backup file examples](https://isome.isolated.tech/blog/back-up-iphone-location-history/#sample). The sample uses the [GPX 1.1 format](https://www.topografix.com/GPX/1/1/), but does not include every optional extension iso.me can export.
+The coordinates identify a point. Its time helps a viewer place it in sequence; `Z` denotes UTC. Track points sit inside a track segment. For the same invented coordinates in Whereday’s importable JSON structure, see the [backup file examples](https://whereday.com/blog/back-up-iphone-location-history/#sample). The sample uses the [GPX 1.1 format](https://www.topografix.com/GPX/1/1/), but does not include every optional extension Whereday can export.
 
-### A sample made by iso.me’s GPX serializer
+### A sample made by Whereday’s GPX serializer
 
-[Download the five-point synthetic app export](https://isome.isolated.tech/samples/synthetic-app-export.gpx). We passed invented records through the same GPX serializer included in public version 1.7.16. The input was deliberately out of order; the resulting points are sorted by time. This is a serializer check, not a walk recorded with an iPhone or a test of the purchase and sharing screens.
+[Download the five-point synthetic app export](https://whereday.com/samples/synthetic-app-export.gpx). We passed invented records through the same GPX serializer included in public version 1.7.16. The input was deliberately out of order; the resulting points are sorted by time. This is a serializer check, not a walk recorded with an iPhone or a test of the purchase and sharing screens.
 
 What to check in the synthetic app export
 | Item | Expected value
@@ -98,17 +98,17 @@ What to check in the synthetic app export
 | Track segments | Two: three points, then two points after an eleven-minute gap
 | Visits | None; this file demonstrates Points export
 
-The metadata time records when the file was generated; it is separate from the invented point times. Preserve both segments when comparing viewers. A program may display them differently or omit iso.me’s optional speed and accuracy extensions.
+The metadata time records when the file was generated; it is separate from the invented point times. Preserve both segments when comparing viewers. A program may display them differently or omit Whereday’s optional speed and accuracy extensions.
 
-[Open this public synthetic sample in gpx.studio](https://gpx.studio/app?files=%5B%22https%3A%2F%2Fisome.isolated.tech%2Fsamples%2Fsynthetic-app-export.gpx%22%5D). This link loads only the example hosted on this website. It does not read your journal.
+[Open this public synthetic sample in gpx.studio](https://gpx.studio/app?files=%5B%22https%3A%2F%2Fwhereday.com%2Fsamples%2Fsynthetic-app-export.gpx%22%5D). This link loads only the example hosted on this website. It does not read your journal.
 
-![gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2](https://isome.isolated.tech/screenshots/gpx-studio-synthetic.png)
+![gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2](https://whereday.com/screenshots/gpx-studio-synthetic.png)
 
 Checked October 26, 2026 in gpx.studio on desktop. The synthetic export appears as two segments. The viewer reports 03:00 of segment time; the first and last timestamps span fourteen minutes because the eleven-minute gap is excluded. This is not a real recorded journey.
 
 ## If the export is empty or the line looks wrong
 
-For an incomplete iso.me day, use the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) to distinguish recording, display, Watch sync, and export issues.
+For an incomplete Whereday day, use the [missing visits and route points checklist](https://whereday.com/blog/missing-location-history-iphone/) to distinguish recording, display, Watch sync, and export issues.
 
 - No points in Preview: check the selected dates and filters, then open the same day in Timeline. Export cannot create a path that was not recorded.
 - Pins instead of a line: check whether you exported Visits rather than Points.
@@ -118,29 +118,29 @@ For an incomplete iso.me day, use the [missing visits and route points checklist
 
 ## Keep a separate copy for restoring your journal
 
-GPX is a portable map format, but iso.me does not import GPX. To retain records you can import later, export visits and route points separately as supported iso.me JSON files and keep both. A map file is not a complete backup of every journal setting or outing edit. Follow [the backup and restore checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) for a transferable copy of supported records.
+GPX is a portable map format, but Whereday does not import GPX. To retain records you can import later, export visits and route points separately as supported Whereday JSON files and keep both. A map file is not a complete backup of every journal setting or outing edit. Follow [the backup and restore checklist](https://whereday.com/blog/back-up-iphone-location-history/) for a transferable copy of supported records.
 
-For spreadsheet rows, CSV may suit your next task better. Read [the format and restore matrix](https://isome.isolated.tech/docs/export-import/) before choosing an archive format. For automatic copies, see [scheduled exports](https://isome.isolated.tech/docs/automatic-exports/); background execution is best effort.
+For spreadsheet rows, CSV may suit your next task better. Read [the format and restore matrix](https://whereday.com/docs/export-import/) before choosing an archive format. For automatic copies, see [scheduled exports](https://whereday.com/docs/automatic-exports/); background execution is best effort.
 
 Exported coordinates and times can reveal your movements. A file saved in cloud storage or sent to another app follows that destination’s privacy rules. Check the file before sharing it.
 
 ## Record the route.
 Choose how to keep it.
 
-Try free recording and export preview. The optional purchase unlocks writing files; see [current pricing](https://isome.isolated.tech/#pricing).
+Try free recording and export preview. The optional purchase unlocks writing files; see [current pricing](https://whereday.com/#pricing).
 
 [Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-gpx&mt=8)
 
-Reviewed October 26, 2026. Steps reflect iso.me’s recording and export controls; labels can vary by app version. For setup, read [the private journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/); for existing Apple or Google records, see [how to view iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/).
+Reviewed October 26, 2026. Steps reflect Whereday’s recording and export controls; labels can vary by app version. For setup, read [the private journal guide](https://whereday.com/blog/private-location-journal-iphone/); for existing Apple or Google records, see [how to view iPhone location history](https://whereday.com/blog/view-location-history-iphone/).
 
 ## Read next
 
-- [Keep a restorable copy](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
+- [Keep a restorable copy](https://whereday.com/blog/back-up-iphone-location-history/)
 
 GPX is a map file; retain supported visits and points separately for import.
 
-- [Investigate an incomplete route](https://isome.isolated.tech/blog/missing-location-history-iphone/)
+- [Investigate an incomplete route](https://whereday.com/blog/missing-location-history-iphone/)
 
 Check recording state and filters before repeating the export.
 
-Source: https://isome.isolated.tech/blog/record-iphone-route-gpx/
+Source: https://whereday.com/blog/record-iphone-route-gpx/

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "01-places",
+    "screen": "map",
+    "tag": "Your private location journal",
+    "title": [
+      "Remember where",
+      "you’ve been."
+    ],
+    "body": [
+      "Your visits and routes.",
+      "Privately on your device."
+    ],
+    "x": 326,
+    "y": 856,
+    "w": 834,
+    "angle": 2,
+    "caption": "THE PLACES THAT MAKE A DAY"
+  },
+  {
+    "name": "02-timeline",
+    "screen": "timeline",
+    "tag": "A record of the everyday",
+    "title": [
+      "Your day.",
+      "All in one place."
+    ],
+    "body": [
+      "Visits and journeys, together",
+      "in one daily timeline."
+    ],
+    "x": 122,
+    "y": 856,
+    "w": 834,
+    "angle": -2,
+    "caption": "ONE DAY, VISIT BY VISIT"
+  },
+  {
+    "name": "03-routes",
+    "screen": "route",
+    "tag": "Every outing has a story",
+    "title": [
+      "A route worth",
+      "remembering."
+    ],
+    "body": [
+      "Replay the path, time and distance",
+      "of each recorded outing."
+    ],
+    "x": 326,
+    "y": 856,
+    "w": 834,
+    "angle": 2,
+    "caption": "FOLLOW YOUR OWN FOOTSTEPS"
+  },
+  {
+    "name": "04-country-days",
+    "screen": "country",
+    "tag": "For days a little farther away",
+    "title": [
+      "A little here.",
+      "A little there."
+    ],
+    "body": [
+      "Count your days by country.",
+      "Add past stays to your record."
+    ],
+    "x": 122,
+    "y": 856,
+    "w": 834,
+    "angle": -2,
+    "caption": "YOUR DAYS, COUNTRY BY COUNTRY"
+  },
+  {
+    "name": "05-export",
+    "screen": "export",
+    "tag": "Your data travels with you",
+    "title": [
+      "Your history.",
+      "Yours to keep."
+    ],
+    "body": [
+      "Export GPX, CSV and more.",
+      "One purchase. No subscription."
+    ],
+    "x": 186,
+    "y": 1140,
+    "w": 1000,
+    "angle": 2,
+    "caption": "8 OPEN FORMATS"
+  }
+]

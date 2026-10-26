@@ -1,6 +1,6 @@
-# iso.me marketing website
+# Whereday marketing website
 
-The production host is `https://isome.isolated.tech`. The static site lives in
+The production host is `https://whereday.com`. The static site lives in
 `public/`; edits do not become public until deployment.
 
 ## Build and check
@@ -97,7 +97,7 @@ python3 marketing/scripts/check_import_samples.py
 
 This checks record parsing and an invalid-file rejection, not persistence or a
 full device restore. Do not import sample data into a real journal just to
-inspect the file format. The verified public 1.7.16 build imports iso.me files
+inspect the file format. The verified public 1.7.16 build imports Whereday files
 without the newer preview and duplicate checks. Current development source
 includes Google import and duplicate handling; distinguish it from the
 publicly distributed binary.
@@ -117,7 +117,7 @@ reported, and stored counts. See the [disk import evidence](../docs/qa/seo-backu
 This does not establish a working file-picker transfer or app-process restart.
 
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
-existing iso.me recordings; the broader history guide handles locating Apple,
+existing Whereday recordings; the broader history guide handles locating Apple,
 Google, or existing journal records. Keep those search intents distinct.
 
 The Obsidian guide at `/blog/iphone-location-journal-obsidian/` covers a manual
@@ -134,7 +134,7 @@ The exact app-generated file was also checked in a clean Obsidian 1.14.5 desktop
 vault, including navigation from a separate note's wiki-link. The guide includes
 the synthetic-only screenshot and explains horizontal scrolling for the wide table.
 
-The same guide now includes an optional iso.me Maps 0.7.15 desktop example,
+The same guide now includes an optional Whereday Maps 0.7.15 desktop example,
 using that exact native Markdown file. Two markers and both visit popups were
 checked in Obsidian 1.14.5. The reproducible map note selects OpenTopoMap at
 zoom 17 after real default-provider and zoom failures were observed. Markdown
@@ -185,7 +185,7 @@ guarantee indexing.
 
 Search Console ownership is verified. The [October 26 baseline](../docs/search-console-baseline-2026-10-26.md)
 preserves September 27–October 24 historical performance from the existing
-isolated.tech domain property filtered to iso.me. The dedicated URL-prefix
+isolated.tech domain property filtered to Whereday. The dedicated URL-prefix
 property is processing; its sitemap already shows Success. Use the report's
 stored filters and date windows for repeatable comparisons.
 

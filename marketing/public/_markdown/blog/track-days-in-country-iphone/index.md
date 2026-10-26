@@ -1,28 +1,28 @@
-- [iso.me](https://isome.isolated.tech/)
-- [Guides](https://isome.isolated.tech/blog/)
+- [Whereday](https://whereday.com/)
+- [Guides](https://whereday.com/blog/)
 - Country days
 
 Practical iPhone guides
 
 # How to track days spent in each country on iPhone
 
-Review country totals and the dates behind them, add missing stays, and keep a personal record without an iso.me account.
+Review country totals and the dates behind them, add missing stays, and keep a personal record without an Whereday account.
 
-By [Cody Bontecou](https://isolated.tech), iso.me’s developer · Reviewed October 26, 2026
+By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed October 26, 2026
 
 ## Count the dates you can account for
 
-In iso.me, open Timeline → Country Days to count local dates represented by your recorded visits, route points, and manual stays. Choose this year, the last 365 days, or all time, then open a country to review its dates. Viewing the counts and adding manual stays are free. Writing the CSV file requires the optional export purchase.
+In Whereday, open Timeline → Country Days to count local dates represented by your recorded visits, route points, and manual stays. Choose this year, the last 365 days, or all time, then open a country to review its dates. Viewing the counts and adding manual stays are free. Writing the CSV file requires the optional export purchase.
 
-This guide covers Country Days in iso.me 1.7.16. It is a personal travel journal: its rules do not determine tax residency, immigration status, or how a visa counts a day.
+This guide covers Country Days in Whereday 1.7.16. It is a personal travel journal: its rules do not determine tax residency, immigration status, or how a visa counts a day.
 
 Build your country record
-- [Open your country totals](https://isome.isolated.tech/blog/track-days-in-country-iphone/#start)
-- [Understand travel days and timezones](https://isome.isolated.tech/blog/track-days-in-country-iphone/#rules)
-- [Inspect a checked counting example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example)
-- [Add a missing stay](https://isome.isolated.tech/blog/track-days-in-country-iphone/#manual)
-- [Identify countries in older records](https://isome.isolated.tech/blog/track-days-in-country-iphone/#privacy)
-- [Save a CSV copy](https://isome.isolated.tech/blog/track-days-in-country-iphone/#csv)
+- [Open your country totals](https://whereday.com/blog/track-days-in-country-iphone/#start)
+- [Understand travel days and timezones](https://whereday.com/blog/track-days-in-country-iphone/#rules)
+- [Inspect a checked counting example](https://whereday.com/blog/track-days-in-country-iphone/#checked-example)
+- [Add a missing stay](https://whereday.com/blog/track-days-in-country-iphone/#manual)
+- [Identify countries in older records](https://whereday.com/blog/track-days-in-country-iphone/#privacy)
+- [Save a CSV copy](https://whereday.com/blog/track-days-in-country-iphone/#csv)
 
 ## 1. Review the dates behind each total
 
@@ -31,16 +31,16 @@ Build your country record
 - Open a country and review the individual dates. A total is only useful when you understand which dates produced it.
 - If older locations lack countries, use the analysis controls described below. If nothing was recorded for a stay, add it manually rather than expecting GPS to recreate it.
 
-To collect new history, start recording before your trip. Start enables detailed GPS and visit monitoring together; Stop ends both. Read [the first-recording guide](https://isome.isolated.tech/blog/private-location-journal-iphone/) for permissions and recording controls.
+To collect new history, start recording before your trip. Start enables detailed GPS and visit monitoring together; Stop ends both. Read [the first-recording guide](https://whereday.com/blog/private-location-journal-iphone/) for permissions and recording controls.
 
-![Country Days on iPhone, with period filters, country analysis, and Add stay controls](https://isome.isolated.tech/screenshots/country-days.webp)
+![Country Days on iPhone, with period filters, country analysis, and Add stay controls](https://whereday.com/screenshots/country-days.webp)
 
 Country Days before any country dates have been resolved. Captured in development build 1.7.17 (47), in an iOS 26.5 simulator on October 26, 2026; this is an interface example, not a recorded trip.
 
 ## 2. Check the counting rules
 
 Presence dates, rather than a continuous travel guarantee
-| Situation | How iso.me counts it
+| Situation | How Whereday counts it
 | Many points in the same country on one date | One day for that country, rather than one day per record.
 | Two countries on a travel day | That date can count in both countries. Adding country totals may exceed the number of distinct dates.
 | A record near midnight | The resolved location’s timezone determines the local date, rather than UTC or your phone’s current timezone.
@@ -51,7 +51,7 @@ Presence dates, rather than a continuous travel guarantee
 
 ## A checked example: four country dates across three dates
 
-We passed invented records through the country-day calculator included in iso.me 1.7.16 (46), then saved and read back its CSV output. Country labels and timezones were assigned directly for this test; no coordinates were sent for geocoding and no real trip was recorded.
+We passed invented records through the country-day calculator included in Whereday 1.7.16 (46), then saved and read back its CSV output. Country labels and timezones were assigned directly for this test; no coordinates were sent for geocoding and no real trip was recorded.
 
 - Portugal: two points on October 1, plus an overlapping manual stay from October 1 through October 2.
 - Spain: a point later on October 1, using Europe/Madrid.
@@ -67,7 +67,7 @@ Exact rows from the synthetic calculator output
 
 Portugal has two days, Spain one, and France one. The sum is four country dates, but only three distinct local date labels appear. Portugal and Spain both include October 1. The repeated Portugal point and overlapping manual stay do not create extra Portugal rows, and the excluded records do not fill October 4 or 5.
 
-[Download the checked synthetic Country Days CSV](https://isome.isolated.tech/samples/synthetic-country-days.csv) and open it in a text viewer or spreadsheet. It has the exact four rows above and contains no personal history. The `recorded` source flag describes the input type; in this example those inputs are invented points.
+[Download the checked synthetic Country Days CSV](https://whereday.com/samples/synthetic-country-days.csv) and open it in a text viewer or spreadsheet. It has the exact four rows above and contains no personal history. The `recorded` source flag describes the input type; in this example those inputs are invented points.
 
 Checked October 26, 2026 in an isolated Debug simulator rebuild of release source 1.7.16 (46), iOS 26.5. All 23 selected Country Days tests passed. This verifies the calculator, CSV writer, and file bytes for these inputs, not physical travel, country lookup accuracy, the export purchase, or the sharing interface.
 
@@ -81,15 +81,15 @@ A manual stay records your account of a trip; it does not create a GPS path. Kee
 
 New recordings identify countries when network geocoding is enabled. Analyze saved locations checks earlier records in batches, with stop and resume controls. It can take time for a large archive.
 
-Country identification uses Apple geocoding and follows your network-geocoding preference. A lookup sends coordinates to Apple; turning it off changes which unresolved locations can be assigned a country. Your journal remains on your device, and iso.me does not receive an archive of it. See the [privacy policy](https://isome.isolated.tech/privacy) for all network boundaries.
+Country identification uses Apple geocoding and follows your network-geocoding preference. A lookup sends coordinates to Apple; turning it off changes which unresolved locations can be assigned a country. Your journal remains on your device, and Whereday does not receive an archive of it. See the [privacy policy](https://whereday.com/privacy) for all network boundaries.
 
 Analysis can identify a country for an existing coordinate. It cannot recover locations that were never recorded. Use a manual stay for dates you can account for independently.
 
 ## 5. Keep a CSV copy of your country dates
 
-Use the export control in Country Days and save the CSV to a destination you choose. The file includes country codes, local dates, and recorded/manual source information. Viewing and editing your counts are free; writing this export requires the lifetime unlock. See [current pricing](https://isome.isolated.tech/#pricing).
+Use the export control in Country Days and save the CSV to a destination you choose. The file includes country codes, local dates, and recorded/manual source information. Viewing and editing your counts are free; writing this export requires the lifetime unlock. See [current pricing](https://whereday.com/#pricing).
 
-The CSV uses `country_code`, `local_date`, and `source`. Source is `recorded`, `manual`, or `recorded+manual`; the last value still represents one country/date. Compare your file with the [checked four-row example](https://isome.isolated.tech/blog/track-days-in-country-iphone/#checked-example) and inspect a known date and a travel day. A country-date CSV is a summary, not a backup of every visit, route point, or manual stay. Keep your underlying records using the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/).
+The CSV uses `country_code`, `local_date`, and `source`. Source is `recorded`, `manual`, or `recorded+manual`; the last value still represents one country/date. Compare your file with the [checked four-row example](https://whereday.com/blog/track-days-in-country-iphone/#checked-example) and inspect a known date and a travel day. A country-date CSV is a summary, not a backup of every visit, route point, or manual stay. Keep your underlying records using the [backup checklist](https://whereday.com/blog/back-up-iphone-location-history/).
 
 ## Remember the country.
 Keep the dates behind the count.
@@ -102,12 +102,12 @@ Reviewed October 26, 2026 against the source used for App Store 1.7.16 build 46,
 
 ## Read next
 
-- [Record your next trip](https://isome.isolated.tech/blog/private-location-journal-iphone/)
+- [Record your next trip](https://whereday.com/blog/private-location-journal-iphone/)
 
 Start a local journal before you leave.
 
-- [Keep the underlying records](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
+- [Keep the underlying records](https://whereday.com/blog/back-up-iphone-location-history/)
 
 A country-date summary is not a complete backup.
 
-Source: https://isome.isolated.tech/blog/track-days-in-country-iphone/
+Source: https://whereday.com/blog/track-days-in-country-iphone/

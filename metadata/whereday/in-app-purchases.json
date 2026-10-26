@@ -1,0 +1,218 @@
+[
+  {
+    "kind": "family",
+    "id": "19f19c56-56b1-4a53-9969-1cea1373e65b",
+    "locale": "en-US",
+    "current": "iso.me Family Lifetime",
+    "proposed": "Whereday Family Lifetime",
+    "description": "Share data export with your Apple Family."
+  },
+  {
+    "kind": "family",
+    "id": "4166f77e-323e-4fef-91ac-bb95057eed48",
+    "locale": "ar-SA",
+    "current": "iso.me للعائلة مدى الحياة",
+    "proposed": "Whereday للعائلة مدى الحياة",
+    "description": "شارك تصدير البيانات مع عائلتك على Apple."
+  },
+  {
+    "kind": "family",
+    "id": "a7c93ea2-a514-4c9f-8bf5-44511595f642",
+    "locale": "zh-Hans",
+    "current": "iso.me 家庭终身导出",
+    "proposed": "Whereday 家庭终身导出",
+    "description": "与 Apple 家庭成员共享数据导出。"
+  },
+  {
+    "kind": "family",
+    "id": "e75cc3a6-05df-4ebe-9190-24a667c68b85",
+    "locale": "hi",
+    "current": "iso.me फ़ैमिली लाइफ़टाइम",
+    "proposed": "Whereday फ़ैमिली लाइफ़टाइम",
+    "description": "परिवार के साथ डेटा एक्सपोर्ट शेयर करें।"
+  },
+  {
+    "kind": "family",
+    "id": "8af011d9-dbb9-47c8-9fd5-07783be65ce2",
+    "locale": "es-ES",
+    "current": "iso.me Familiar de por vida",
+    "proposed": "Whereday Familiar de por vida",
+    "description": "Comparte la exportación con tu familia Apple."
+  },
+  {
+    "kind": "family",
+    "id": "7c5c0909-0b50-42b4-b1d1-7c68428c8754",
+    "locale": "ja",
+    "current": "iso.me ファミリー永久書き出し",
+    "proposed": "Whereday ファミリー永久書き出し",
+    "description": "Appleファミリーとデータ書き出しを共有できます。"
+  },
+  {
+    "kind": "family",
+    "id": "e0b8db5c-ae76-4a03-9d93-1d9156162a2c",
+    "locale": "fr-FR",
+    "current": "iso.me Famille à vie",
+    "proposed": "Whereday Famille à vie",
+    "description": "Partagez l’export avec votre famille Apple."
+  },
+  {
+    "kind": "family",
+    "id": "8f9a2ef4-747c-4e18-9246-e8c44fcc1316",
+    "locale": "ru",
+    "current": "iso.me Семейный навсегда",
+    "proposed": "Whereday Семейный навсегда",
+    "description": "Делитесь экспортом с семьёй Apple."
+  },
+  {
+    "kind": "family",
+    "id": "5b301da8-7921-4a23-a63c-8b72d7eaac52",
+    "locale": "pt-BR",
+    "current": "iso.me Família vitalício",
+    "proposed": "Whereday Família vitalício",
+    "description": "Compartilhe exportações com a família."
+  },
+  {
+    "kind": "upgrade",
+    "id": "1f6f3c6a-38f4-47de-8787-a0634f9c57c4",
+    "locale": "zh-Hans",
+    "current": "iso.me 家庭共享升级",
+    "proposed": "Whereday 家庭共享升级",
+    "description": "将个人终身版升级为支持家人共享。"
+  },
+  {
+    "kind": "upgrade",
+    "id": "9ca64538-a3ed-4d7d-b49e-f2b6b8080780",
+    "locale": "ru",
+    "current": "Семейное улучшение iso.me",
+    "proposed": "Семейное улучшение Whereday",
+    "description": "Добавьте Семейный доступ к личному плану."
+  },
+  {
+    "kind": "upgrade",
+    "id": "5d57dd32-5eef-48e5-8fb3-d02033e7745e",
+    "locale": "pt-BR",
+    "current": "Upgrade Família iso.me",
+    "proposed": "Upgrade Família Whereday",
+    "description": "Adicione compartilhamento ao Individual."
+  },
+  {
+    "kind": "upgrade",
+    "id": "8195b4b4-df40-48ae-a477-7468b14ccfd8",
+    "locale": "ja",
+    "current": "iso.me ファミリーアップグレード",
+    "proposed": "Whereday ファミリーアップグレード",
+    "description": "個人向けからファミリー共有へアップグレード。"
+  },
+  {
+    "kind": "upgrade",
+    "id": "f365ae33-81c8-4c66-ba4e-b9102cb46b66",
+    "locale": "hi",
+    "current": "iso.me फ़ैमिली अपग्रेड",
+    "proposed": "Whereday फ़ैमिली अपग्रेड",
+    "description": "इंडिविजुअल में फ़ैमिली शेयरिंग जोड़ें।"
+  },
+  {
+    "kind": "upgrade",
+    "id": "248804d2-b650-4288-b81a-ae003a4e3065",
+    "locale": "fr-FR",
+    "current": "Passage Famille iso.me",
+    "proposed": "Passage Famille Whereday",
+    "description": "Passez d’Individuel au partage familial."
+  },
+  {
+    "kind": "upgrade",
+    "id": "eb242426-b2e1-4952-a3e4-6b666351a05d",
+    "locale": "es-ES",
+    "current": "Mejora familiar de iso.me",
+    "proposed": "Mejora familiar de Whereday",
+    "description": "Mejora Individual para compartir En familia."
+  },
+  {
+    "kind": "upgrade",
+    "id": "0763dac4-f990-4e1f-85fb-2c4ebc7caf57",
+    "locale": "ar-SA",
+    "current": "ترقية العائلة من iso.me",
+    "proposed": "ترقية العائلة من Whereday",
+    "description": "رقِّ الخطة الفردية إلى المشاركة العائلية."
+  },
+  {
+    "kind": "upgrade",
+    "id": "843fb26f-480c-4ad3-a4a4-1491dcbf2345",
+    "locale": "en-US",
+    "current": "iso.me Family Upgrade",
+    "proposed": "Whereday Family Upgrade",
+    "description": "Upgrade Individual to Apple Family Sharing."
+  },
+  {
+    "kind": "individual",
+    "id": "b17d7aea-85f3-4f5c-98df-88ad2823e54c",
+    "locale": "zh-Hans",
+    "current": "iso.me 个人终身导出",
+    "proposed": "Whereday 个人终身导出",
+    "description": "使用你的 Apple ID 永久导出数据。"
+  },
+  {
+    "kind": "individual",
+    "id": "fb990c54-a574-426d-b979-d626d8fd13d7",
+    "locale": "ru",
+    "current": "iso.me Личный навсегда",
+    "proposed": "Whereday Личный навсегда",
+    "description": "Экспорт навсегда для вашего Apple ID."
+  },
+  {
+    "kind": "individual",
+    "id": "9b86f943-7f5b-41b8-83ea-069bfb7c8ab0",
+    "locale": "pt-BR",
+    "current": "iso.me Individual vitalício",
+    "proposed": "Whereday Individual vitalício",
+    "description": "Exporte para sempre com seu ID Apple."
+  },
+  {
+    "kind": "individual",
+    "id": "70f6b611-b114-4983-8a08-138a42d415b3",
+    "locale": "ja",
+    "current": "iso.me 個人向け永久書き出し",
+    "proposed": "Whereday 個人向け永久書き出し",
+    "description": "Apple IDでデータをいつでも書き出せます。"
+  },
+  {
+    "kind": "individual",
+    "id": "d8b7a7b9-ad94-49e3-a390-2319585758c5",
+    "locale": "hi",
+    "current": "iso.me इंडिविजुअल लाइफ़टाइम",
+    "proposed": "Whereday इंडिविजुअल लाइफ़टाइम",
+    "description": "अपने Apple ID से हमेशा एक्सपोर्ट करें।"
+  },
+  {
+    "kind": "individual",
+    "id": "dcfcb9c4-d20a-4b40-9555-01d7709afc7f",
+    "locale": "fr-FR",
+    "current": "iso.me Individuel à vie",
+    "proposed": "Whereday Individuel à vie",
+    "description": "Exportez à vie avec votre identifiant Apple."
+  },
+  {
+    "kind": "individual",
+    "id": "82a17e0f-5aad-4c5b-8258-60f886d9fa7f",
+    "locale": "es-ES",
+    "current": "iso.me Individual de por vida",
+    "proposed": "Whereday Individual vitalicio",
+    "description": "Exporta para siempre con tu Apple ID."
+  },
+  {
+    "kind": "individual",
+    "id": "08445274-f03c-4812-9de8-3243883a31de",
+    "locale": "ar-SA",
+    "current": "iso.me فردي مدى الحياة",
+    "proposed": "Whereday فردي مدى الحياة",
+    "description": "صدّر بياناتك دائمًا باستخدام حساب Apple."
+  },
+  {
+    "kind": "individual",
+    "id": "278f83e0-28a0-4b1a-a902-b778c2b6cb2d",
+    "locale": "en-US",
+    "current": "iso.me Individual Lifetime",
+    "proposed": "Whereday Individual Lifetime",
+    "description": "Export forever with your Apple ID."
+  }
+]

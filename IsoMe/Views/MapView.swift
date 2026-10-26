@@ -738,7 +738,7 @@ struct LocationMapView: View {
         case .visit(let id):
             do {
                 guard let visit = try viewModel.storedVisit(id: id) else {
-                    manualVisitRouter.errorMessage = String(localized: "That IsoMe item couldn't be found.")
+                    manualVisitRouter.errorMessage = String(localized: "That Whereday item couldn't be found.")
                     return
                 }
                 deepLinkedVisit = visit
@@ -3213,7 +3213,7 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let visitMarkers = LayerToggleHelp(
         id: "visit-markers",
         title: "Visit markers",
-        message: "Shows places iso.me detected as stops in the selected date range. Hide them when you want an uncluttered route-only map."
+        message: "Shows places Whereday detected as stops in the selected date range. Hide them when you want an uncluttered route-only map."
     )
 
     static let travelPath = LayerToggleHelp(
@@ -3225,7 +3225,7 @@ struct LayerToggleHelp: Identifiable, Equatable {
     static let photoMarkers = LayerToggleHelp(
         id: "photo-markers",
         title: "Photo markers",
-        message: "Shows Photos library pictures for the selected date range. iso.me uses photo GPS when available, otherwise the nearest route point or visit; photo files stay in Photos."
+        message: "Shows Photos library pictures for the selected date range. Whereday uses photo GPS when available, otherwise the nearest route point or visit; photo files stay in Photos."
     )
 
     static let photoImages = LayerToggleHelp(
