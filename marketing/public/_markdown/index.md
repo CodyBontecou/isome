@@ -142,7 +142,7 @@ Understand the differences in accounts, storage, backups, formats, and moving yo
 
 ### [Record a route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/)
 
-Choose GPS points, preview the file, and keep a portable route. Includes a synthetic example.
+Choose GPS points, preview a route file, and inspect a synthetic app export in gpx.studio.
 
 04
 
@@ -167,6 +167,18 @@ Use Apple Watch GPS recording and transfer the queued points to your phone when 
 ### [Track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
 
 Review local dates, account for travel days, and add a manual stay when a trip was not recorded.
+
+08
+
+### [Use your records in another tool](https://isome.isolated.tech/integrations/)
+
+Choose Markdown for Obsidian or Overland for Dawarich. Each walkthrough includes a checked synthetic example.
+
+09
+
+### [Save places and correct visits](https://isome.isolated.tech/docs/places/)
+
+Manage reusable pins, correct a visit, or add a past stop. Includes a tested saved locations CSV.
 
 Reading on your computer? Scan this code with your iPhone camera to open iso.me in the App Store.
 

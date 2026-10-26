@@ -130,6 +130,14 @@ mobile/desktop Lighthouse on the revised guide. Its established title and URL
 are retained; no duplicate indexing request or new search-performance claim
 was made.
 
+Repository and homepage discovery now surface the checked workflows. The README
+has a user-guide directory and explicit development/public release boundaries;
+the homepage task grid links integrations and saved places. All 15 README
+product-site URLs return HTML 200. All 30 pages remain within two HTML links
+of home, with Saved Places now directly linked. No outreach, third-party
+backlink result, or ranking effect is claimed. See
+[the discovery record](qa/seo-workflow-discovery-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

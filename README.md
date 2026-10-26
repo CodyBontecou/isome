@@ -1,6 +1,6 @@
 # iso.me
 
-> **Open source, privacy-first iOS location tracking — your data stays on your device.**
+> **Open source location journaling for iPhone and Apple Watch, with your working history stored on your device.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B%20%7C%20watchOS%2010%2B-lightgrey)](#tech-stack)
@@ -9,6 +9,23 @@
 iso.me is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No iso.me account or server-side location archive. Apple geocoding and Maps services, default-on first-party onboarding telemetry, and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://isome.isolated.tech/privacy).
 
 **[🌐 isome.isolated.tech](https://isome.isolated.tech)** · **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
+
+## User guides and checked examples
+
+For the public app, start with the [product documentation](https://isome.isolated.tech/docs/) or choose a task below. The guides identify what was checked and where a workflow still needs verification.
+
+| Your task | Guide and available evidence |
+|---|---|
+| Find an earlier day | [Find iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/): Apple/Google paths, date selection, and preserving existing records. |
+| Start a local journal | [Private location journal setup](https://isome.isolated.tech/blog/private-location-journal-iphone/): controls and a checked empty-path example that distinguishes a timer from saved GPS points. |
+| Use a route file | [Record and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/): a synthetic export from the released serializer, checked in gpx.studio. |
+| Keep supported records | [Backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/): separate visit/point files, supported formats, and destination checks. |
+| Reuse a place name | [Saved locations and CSV](https://isome.isolated.tech/docs/places/): released editor controls and a sample checked through native parsing, storage, and duplicate handling. |
+| Read visits as notes | [Markdown journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/): an actual export checked in a desktop vault. |
+| Send points to a receiver | [Dawarich Overland setup](https://isome.isolated.tech/integrations/dawarich/): native delivery of three synthetic points, checked after a receiver/database restart. |
+| Review travel dates | [Country Days guide](https://isome.isolated.tech/blog/track-days-in-country-iphone/): local dates, manual stays, travel days, and gaps. |
+
+See [all integration workflows](https://isome.isolated.tech/integrations/) and the [released Siri and Shortcuts action reference](https://isome.isolated.tech/docs/siri-shortcuts/). Synthetic examples are invented data; they do not establish physical recording, complete device restoration, or unattended background delivery.
 
 ## Screenshots
 
@@ -28,7 +45,7 @@ High-accuracy GPS tracking that records your exact path. Configurable distance f
 Follow the device appearance or choose Light or Dark in **Settings → Appearance → Theme**. The shared palette adapts across the map, timeline, settings, export, and onboarding screens.
 
 ### Manual Visits
-Manual visits can be logged from the map, including past visits at a selected location. Confirm or correct detected places and edit arrival/departure times from Visit Details. Use **Check Out** on an open manual visit to record departure now. If a manual log overlaps another visit, review the warning before choosing **Save Anyway** to keep both records. Automatic visit cleanup preserves manual logs. Apple Maps place searches may send your query and search area to Apple.
+Manual visits can be logged from the map, including past visits at a selected location. Confirm or correct detected places and edit arrival/departure times from Visit Details. Development source additionally supports **Check Out** on an open manual visit and an overlap warning with **Save Anyway**. These newer controls are not part of the verified public 1.7.16 release. See the [development automation QA](docs/testing/manual-visit-shortcuts.md) for that source workflow. Apple Maps place searches may send your query and search area to Apple.
 
 ### Country Days
 The free **Timeline → Country Days** screen counts unique local dates present in each country from recorded visits and route points. Filter by this year, the last 365 days, or all time; open a country to review individual dates. Travel days can count in both countries. Add, edit, or delete manual stays to cover missing records; overlapping dates are deduplicated.
@@ -39,7 +56,11 @@ New recordings identify countries using the existing network-geocoding preferenc
 Real-time tracking status on the lock screen and Dynamic Island. Shows current location, distance traveled, points recorded, and remaining auto-off time.
 
 ### Export & Import
-Export visits and location points as JSON, CSV, or Markdown. Choose a date range, time-of-day window, and per-format field toggles, and either condense everything into a single file or split the export into **one file per day** for easier downstream slicing. Customize filenames and dated subfolders with tokens (for example, Markdown can use `{year}/{year}-{month}/Daily Track - {date}.md`). Optionally set a default export folder for one-tap saves and schedule an automatic export — once per day, or **repeated every 1–23 hours** from a start time. Automatic exports always keep one consistent dated file per local day; interval runs can either fully rewrite that day's file or append only new records. Scheduled exports use a routing-only APNs worker to wake the app near each occurrence; your location records, files, folder paths, and filename templates stay on-device. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
+Export visits and location points in eight formats, including JSON, CSV, Markdown, and GPX. Choose a date range, time-of-day window, and per-format field toggles, and either condense everything into a single file or split the export into **one file per day** for easier downstream slicing. Customize filenames and dated subfolders with tokens (for example, Markdown can use `{year}/{year}-{month}/Daily Track - {date}.md`). Optionally set a default export folder for one-tap saves and schedule an automatic export — once per day, or **repeated every 1–23 hours** from a start time. Automatic exports always keep one consistent dated file per local day; interval runs can either fully rewrite that day's file or append only new records. Scheduled exports use a routing-only APNs worker to wake the app near each occurrence; your location records, files, folder paths, and filename templates stay on-device. Import previously exported data back into the app. Export is the one paid feature — see [Pricing](#pricing).
+
+#### Google Timeline import in development source
+
+The verified public **1.7.16 (46)** release predates this importer. The following describes repository source; use the [public export/import reference](https://isome.isolated.tech/docs/export-import/) for that released build.
 
 Google Timeline imports use **Settings > Data Import > Import File**. Select one JSON file, review its format, date range, new records, and duplicates, then choose visits and/or points and confirm. Canceling the preview writes nothing. Imports run locally without a Google login, upload, or place lookup.
 
@@ -48,10 +69,12 @@ Supported Google exports are classic Location History (`locations` with E7 coord
 Duplicate detection always skips matches within the file and against stored records. Points match at the same rounded second within 10 meters; visits match within 60 seconds of arrival, 5 minutes of departure, and 100 meters (open visits only match other open visits). Confirmation checks again before saving, preserving existing names, notes, and confirmations. These thresholds are approximate, so review the counts. Raw location history imports points only; this version does not infer visits or invent timestamps for untimed waypoints. Invalid records and unsupported entries are counted in the preview. Each file is limited to 50 MiB and 250,000 visits plus points; larger exports must be split. Existing iso.me JSON, CSV, and Markdown imports use the same preview, and combined JSON backups preserve both visits and points.
 
 
-Exports drop in cleanly to the [iso.me Maps Obsidian plugin](https://github.com/CodyBontecou/obsidian-iso-me-maps), which renders visits, routes, heatmaps, and outliers as Leaflet maps inline in your notes — point a code block at a single condensed export, a folder of per-day files, or a filename glob.
+#### Markdown handoff to Obsidian
+
+For a checked desktop file workflow, use the [Markdown handoff guide](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). The separate [iso.me Maps Obsidian plugin repository](https://github.com/CodyBontecou/obsidian-iso-me-maps) describes its map features; plugin compatibility, mobile transfer, and scheduled vault delivery have not been verified by that guide.
 
 ### Watch App
-Companion watchOS app showing today's visit count, distance traveled, and tracking status. Syncs with the main app via shared App Groups.
+The companion watchOS app records GPS points without the iPhone nearby and queues them for later transfer through WatchConnectivity. Check the phone copy after reconnecting; follow the [Watch recording and sync reference](https://isome.isolated.tech/docs/apple-watch/). App Groups support local shared data, not transport between the two devices.
 
 ### Widgets
 iOS lock screen widget via Live Activities and watchOS complications for quick tracking status.
@@ -66,7 +89,7 @@ The one paid feature is **export**, offered as lifetime purchases with no recurr
 - **Family Lifetime — $39.99** with Apple Family Sharing for up to five family members
 - **Family Upgrade — $19.99** for Individual Lifetime owners who later want Family Sharing
 
-Everyone who bought the original `com.bontecou.isome.lifetime` unlock is grandfathered into Family Lifetime automatically. The split is on purpose: tracking is the commodity, but a clean, lossless export of your full history is the part that's worth paying for once. It also keeps the privacy promise free at the door — you never have to pay to keep your data on your device.
+Everyone who bought the original `com.bontecou.isome.lifetime` unlock is grandfathered into Family Lifetime automatically. Recording and local review remain free. File exports provide optional portability; their contents depend on the selected data, fields, and filters. Check the saved records before relying on a backup.
 
 ## Tech Stack
 
@@ -188,4 +211,4 @@ If you want to chat about the project, design decisions, or what to build next, 
 
 iso.me is licensed under the [GNU Affero General Public License v3.0](LICENSE). The AGPL ensures that any modified version of iso.me — including ones run as a hosted service — must also be open source. This protects the privacy-first promise: nobody can take iso.me, bolt on tracking, and ship it as a closed product.
 
-Manual visit automation: [Check In / Check Out Shortcuts and visit links](docs/testing/manual-visit-shortcuts.md).
+Manual visit automation in development source: [Check In / Check Out Shortcuts and visit links](docs/testing/manual-visit-shortcuts.md).
