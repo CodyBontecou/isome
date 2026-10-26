@@ -229,6 +229,15 @@ HTML/Markdown pairs and all-100 mobile/desktop Lighthouse checks; live mobile
 layout and campaign checks pass. See [the comparison record](qa/seo-comparison-decision-2026-10-26.md).
 No new URL or Google-import availability claim was added.
 
+Acquisition reporting now has an opt-in completed-window comparison, excluding
+today and keeping page/source event counts separate. Six tests cover SQL date
+boundaries, aggregation, failures, and offline replay. A production SELECT for
+the two 28-day periods through October 25 returns no recorded events, expected
+because collection began October 26. This does not establish zero historical
+traffic or SEO performance. The raw report remains available; no collector or
+database write was changed. See [the reporting record](qa/seo-acquisition-completed-windows-2026-10-26.md).
+Apple's public version was rechecked and remains 1.7.16; migration stays gated.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

@@ -217,6 +217,30 @@ incomplete counts:
 python3 marketing/scripts/report_acquisition.py
 ```
 
+For SEO review, compare two equal windows of completed UTC dates instead:
+
+```sh
+python3 marketing/scripts/report_acquisition.py --summary
+python3 marketing/scripts/report_acquisition.py --summary --as-of 2026-10-26 --days 28
+```
+
+The cutoff is exclusive and defaults to today's UTC date. The second command
+compares August 31–September 27 with September 28–October 25. It queries all
+56 dates, excludes October 26, and reports page/source counts and absolute
+changes. It never computes session conversion rates, percentage growth from
+zero, or attributable installs. Days with recorded events do not prove
+collector uptime; absent rows do not establish that no people visited.
+
+Use `--input /path/to/wrangler-results.json` to replay a saved successful
+Wrangler SELECT result without credentials or network access. The saved query
+must cover both requested windows. The legacy raw report covers only 28 dates
+including today, so it cannot establish coverage for a 56-date comparison.
+Failures are errors, not empty successful reports. Verify the report with:
+
+```sh
+python3 -m unittest discover -s marketing/scripts -p 'test_report_acquisition.py' -v
+```
+
 Interpret `page_view` as page loads and `app_store_clicked` as activations,
 not unique people, installs, or purchases. Referrer categories describe each
 page's referrer: a later internal page does not retain the original search
