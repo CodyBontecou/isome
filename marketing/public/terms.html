@@ -12,9 +12,6 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -23,14 +20,14 @@
       --card: #ffffff;
       --ink: #1f1f1f;
       --ink-soft: #3a3a38;
-      --mute: #85827e;
+      --mute: #5f5d59;
       --rule: #d2cfca;
       --rule-soft: #e3e0db;
-      --accent: #3274f4;
-      --lcd: #00c773;
+      --accent: #1c57ca;
+      --lcd: #006f46;
       --lcd-bg: #e0e6d9;
-      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      --display: 'Inter', -apple-system, system-ui, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+      --display: -apple-system, system-ui, sans-serif;
       --radius: 4px;
     }
     body {
@@ -248,14 +245,19 @@
       .brand img { width: 22px; height: 22px; }
       .footer-inner { flex-direction: column; align-items: flex-start; }
     }
+    .skip-link { position: absolute; left: 16px; top: -80px; padding: 12px; background: white; z-index: 10; }
+    .skip-link:focus { top: 16px; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .doc-card a { text-decoration: underline; text-underline-offset: 4px; }
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
   <nav class="top">
     <div class="nav-inner">
       <a href="/" class="brand">
-        <img src="/app-icon-28.png" alt="" width="26" height="26">
+        <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
         <span class="brand-dot"></span>
         ISO.ME
       </a>
@@ -269,6 +271,7 @@
     </div>
   </nav>
 
+  <main id="main">
   <header class="doc-head">
     <span class="eyebrow">§ Legal · Document 02</span>
     <h1>Terms of Service</h1>
@@ -338,6 +341,8 @@
       <p>If you have questions about these Terms, please contact us at <a href="mailto:cody.bontecou@gmail.com">cody.bontecou@gmail.com</a>.</p>
     </div>
   </div>
+
+  </main>
 
   <footer>
     <div class="footer-inner">
