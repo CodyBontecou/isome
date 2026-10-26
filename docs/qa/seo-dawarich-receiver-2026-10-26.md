@@ -130,3 +130,22 @@ files, and removed the credential-bearing test from the temporary native source.
 Only the redacted template is committed. The temporary Colima profile and its
 container data were deleted successfully. The active Docker context was not
 switched, and other runtime profiles were not stopped or deleted.
+
+## Publication
+
+Committed and pushed on `main` as `3692033`. Production Pages deployment short
+ID `998d16ed`: https://998d16ed.spotted-8ez.pages.dev.
+
+- All 30 live HTML/Markdown pairs and representation, error, API contract,
+  cache separation, methods, and asset checks pass.
+- New directory and Dawarich guide both score 100 in all four Lighthouse
+  categories on mobile and desktop against production. Reports are retained
+  under `/private/tmp/isome-seo-dawarich-after/`; local six-page sweep is under
+  `/private/tmp/isome-seo-dawarich-before/`, with corrected guide recheck under
+  `/private/tmp/isome-seo-dawarich-layout-final/`.
+- The live payload and screenshot return 200 and match the hashes above; the
+  sample has the intended attachment filename.
+- Live mobile DOM check: viewport and document width both 390 px, table
+  overflow contained, expected heading/download link and JSON-LD present.
+- No Google indexing request was submitted for these new URLs; they are in the
+  live sitemap. Publication and Lighthouse results do not establish indexing.
