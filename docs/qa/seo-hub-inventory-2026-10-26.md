@@ -32,3 +32,23 @@ Build: 32 HTML pages, 31 Markdown representations, 1,124 local targets,
 metadata, JSON-LD, IDs, sitemap and article inventory pass. The guide hub
 fits at 320px and 390px with equal viewport/document widths. Browser inspection
 confirms eight exact article references, including Country Days.
+
+## Publication
+
+Content commit `034d396` was pushed directly to main and published as Pages
+deployment `b7418b11`. Both hubs score 100 in every Lighthouse category on
+mobile and desktop, locally and in production. All 31 production HTML/Markdown
+pairs and the existing response/API contract pass. A repeat build leaves the
+committed public output unchanged.
+
+Live hub JSON-LD equals the checked output, including eight blog article
+identities and Country Days; the unreleased importer is absent. Full HTML byte
+equality was not asserted: Cloudflare's existing email protection rewrites the
+footer mailto link and inserts its decode script. No protection setting changed.
+The integration directory's new desktop-plugin anchor and remaining mobile/
+scheduled limits are verified in the live DOM. Both hubs fit 320/390px locally;
+production guide hub at 320px and integration hub at 390px fit without overflow.
+
+Live guide hub screenshot:
+`build/seo-evidence/hub-inventory-20261026/live.png`. No indexing resubmission
+was made. Local preview was stopped after verification.

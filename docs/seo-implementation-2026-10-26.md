@@ -301,6 +301,9 @@ rejects missing reader links or stale inventory; non-public drafts remain
 excluded. Hub and integration summaries now reflect the completed synthetic
 GPX, restart, and desktop Maps checks. All 12 Python marketing tests pass. See
 [the hub consistency record](qa/seo-hub-inventory-2026-10-26.md).
+Published main commit `034d396` as deployment `b7418b11`; both hubs have
+all-100 local/production mobile/desktop Lighthouse scores. All 31 production
+response pairs and exact live structured-data checks pass.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
