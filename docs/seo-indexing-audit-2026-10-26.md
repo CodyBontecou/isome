@@ -8,9 +8,9 @@ Console observations, not a new search-performance result.
 | Page | Google index status | Live test on October 26 | Next action |
 | --- | --- | --- | --- |
 | `/blog/private-location-journal-iphone/` | Indexed | Not repeated | Retain URL; assess later query/page performance |
-| `/compare/google-maps-timeline/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Request indexing when explicitly approved |
-| `/blog/record-iphone-route-gpx/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Request indexing when explicitly approved |
-| `/blog/view-location-history-iphone/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Request indexing when explicitly approved |
+| `/compare/google-maps-timeline/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Indexing request accepted; await crawl/index status |
+| `/blog/record-iphone-route-gpx/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Indexing request accepted; await crawl/index status |
+| `/blog/view-location-history-iphone/` | Unknown to Google; not indexed | Available to Google; page can be indexed | Indexing request accepted; await crawl/index status |
 
 The three live tests each detected one valid Breadcrumbs item. Initial index
 reports showed no recorded crawl, referring page, or sitemap association for
@@ -36,12 +36,25 @@ no duplicate request was made during this audit.
 
 ## Submission status
 
-Automatic approval review rejected the comparison indexing submission because
-it changes Google's crawl queue and requires explicit authorization. The owner
-has been asked to approve requests for the comparison, GPX and history pages
-after successful live tests. No request for those three pages was submitted in
-this audit while that answer is pending. Approval for an earlier Country Days
-request was not reused for these different submissions.
+The owner explicitly approved requests for the comparison, GPX and history
+pages after successful live tests. On October 26, Google accepted all three:
+
+| URL | Confirmed response |
+| --- | --- |
+| `/blog/view-location-history-iphone/` | Indexing requested; added to priority crawl queue |
+| `/blog/record-iphone-route-gpx/` | Indexing requested; added to priority crawl queue |
+| `/compare/google-maps-timeline/` | Indexing requested; added to priority crawl queue |
+
+Each acceptance was verified in Search Console's confirmation dialog. Screenshots
+are retained locally as `history-requested.png`, `gpx-requested.png`, and
+`comparison-requested.png` under `build/seo-evidence/indexing-20261026/`.
+Google completed its verification automatically; no CAPTCHA was solved.
+
+The earlier automatic-review rejection is resolved by that explicit approval.
+These confirmations establish accepted crawl requests, not completed indexing
+or rankings. Do not submit duplicates merely to change priority; Google says
+repeated submissions do not change queue position. The initial index statuses
+in the table above remain the pre-request observations.
 
 ## Measurement repair and initial snapshot
 
