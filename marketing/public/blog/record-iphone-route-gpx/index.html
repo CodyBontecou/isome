@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>How to Record an iPhone Route and Export GPX — iso.me</title>
-  <meta name="description" content="Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits.">
+  <meta name="description" content="Record a route in iso.me and export GPX to Files. Includes a checked export-and-viewer example with synthetic points, previews, and free and paid limits.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/blog/record-iphone-route-gpx/">
   <meta name="theme-color" content="#f5f4ef">
   <meta property="og:title" content="How to Record an iPhone Route and Export GPX — iso.me">
-  <meta property="og:description" content="Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits.">
+  <meta property="og:description" content="Record a route in iso.me and export GPX to Files. Includes a checked export-and-viewer example with synthetic points, previews, and free and paid limits.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://isome.isolated.tech/blog/record-iphone-route-gpx/">
   <meta property="og:image" content="https://isome.isolated.tech/screenshots/export.png">
   <meta property="og:image:alt" content="iso.me export interface with data types and file format choices">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to Record an iPhone Route and Export GPX — iso.me">
-  <meta name="twitter:description" content="Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits.">
+  <meta name="twitter:description" content="Record a route in iso.me and export GPX to Files. Includes a checked export-and-viewer example with synthetic points, previews, and free and paid limits.">
   <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/export.png">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -99,7 +99,7 @@ pre code { overflow-wrap: normal; }
       "@id": "https://isome.isolated.tech/blog/record-iphone-route-gpx/",
       "url": "https://isome.isolated.tech/blog/record-iphone-route-gpx/",
       "name": "How to Record an iPhone Route and Export GPX — iso.me",
-      "description": "Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits.",
+      "description": "Record a route in iso.me and export GPX to Files. Includes a checked export-and-viewer example with synthetic points, previews, and free and paid limits.",
       "inLanguage": "en",
       "dateModified": "2026-10-26",
       "author": {
@@ -157,7 +157,7 @@ pre code { overflow-wrap: normal; }
   <h2 id="quick-answer">Record first, then export the points</h2>
   <p>To record an iPhone route as GPX with iso.me, start tracking before your trip, stop when you finish, then choose <strong>Points</strong> and <strong>GPX</strong> in Export. Select the right date range, preview the result, and save the file to Files or share it with a compatible route viewer.</p>
   <p>Recording is free. Previewing the export is free. Writing the GPX file requires the optional one-time unlock. This workflow exports a route recorded in iso.me; it does not extract old Apple Maps or Google Timeline history.</p>
-  <nav class="article-toc" aria-label="In this guide"><strong>From recording to file</strong><ol><li><a href="#record">Record and check a route</a></li><li><a href="#export">Select points and export GPX</a></li><li><a href="#verify">Check the saved file</a></li><li><a href="#sample">Inspect a synthetic GPX example</a></li><li><a href="#problems">Fix an empty or incomplete export</a></li></ol></nav>
+  <nav class="article-toc" aria-label="In this guide"><strong>From recording to file</strong><ol><li><a href="#record">Record and check a route</a></li><li><a href="#export">Select points and export GPX</a></li><li><a href="#verify">Check the saved file</a></li><li><a href="#sample">Inspect a synthetic GPX example</a></li><li><a href="#checked-ui-export">See the checked app-to-Files export</a></li><li><a href="#problems">Fix an empty or incomplete export</a></li></ol></nav>
 </section>
 
 <section aria-labelledby="record">
@@ -234,6 +234,23 @@ pre code { overflow-wrap: normal; }
   <p>The metadata time records when the file was generated; it is separate from the invented point times. Preserve both segments when comparing viewers. A program may display them differently or omit iso.me’s optional speed and accuracy extensions.</p>
   <p><a href="https://gpx.studio/app?files=%5B%22https%3A%2F%2Fisome.isolated.tech%2Fsamples%2Fsynthetic-app-export.gpx%22%5D">Open this public synthetic sample in gpx.studio</a>. This link loads only the example hosted on this website. It does not read your journal.</p>
   <figure class="route-example"><img src="/screenshots/gpx-studio-synthetic.png" width="1280" height="720" alt="gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2" loading="lazy" decoding="async"><figcaption>Checked October 26, 2026 in gpx.studio on desktop. The synthetic export appears as two segments. The viewer reports 03:00 of segment time; the first and last timestamps span fourteen minutes because the eleven-minute gap is excluded. This is not a real recorded journey.</figcaption></figure>
+</section>
+
+<section aria-labelledby="checked-ui-export">
+  <h2 id="checked-ui-export">A GPX saved through the app and Files</h2>
+  <p>We also checked the export screen in an isolated Debug rebuild of released iso.me <strong>1.7.16 (46)</strong> on iOS 26.5. Its journal contained the <a href="/blog/back-up-iphone-location-history/#checked-picker">three invented points imported from the documentation JSON</a>. This tests exporting stored records; the points were not recorded on a walk.</p>
+  <ol>
+    <li>Selected <strong>Points</strong> and <strong>GPX</strong>, with JSON deselected.</li>
+    <li>Opened <strong>Preview Export</strong>: GPX, three items, one planned file, 1003 bytes.</li>
+    <li>Closed Preview, chose <strong>Export 1 File → Save to Files → On My iPhone → Save</strong>.</li>
+    <li>Checked the saved file, then opened that exact public synthetic file in gpx.studio.</li>
+  </ol>
+  <figure class="product-example"><img src="/screenshots/gpx-preview-synthetic.png" width="1206" height="2622" alt="iso.me Export Preview in the isolated simulator showing GPX, three items, one file, and a planned size of 1003 bytes" loading="lazy" decoding="async"><figcaption>The checked preview for the three imported synthetic points. The test build was already unlocked; no App Store purchase was tested.</figcaption></figure>
+  <p><a href="/samples/synthetic-ui-export.gpx" download>Download the exact GPX saved through Files</a>. The saved copy matched the share-sheet file byte for byte. It contains three track points, one segment, and times <strong>12:00, 12:01, and 12:02 UTC on January 1, 2000</strong>. No visit waypoints are included.</p>
+  <p>In this single-file example, the generated filename was <code>iso.me - Monday 2026-10-26 - points.gpx</code>, while the point times were in 2000. The metadata time records file generation. Inspect the actual track timestamps rather than treating the filename as proof of its date range.</p>
+  <p><a href="https://gpx.studio/app?files=%5B%22https%3A%2F%2Fisome.isolated.tech%2Fsamples%2Fsynthetic-ui-export.gpx%22%5D">Open the saved synthetic export in gpx.studio</a>. In a fresh desktop browser context, the viewer displayed the angled three-point line, <strong>0.03 km</strong>, and <strong>02:00 / 02:00</strong> moving and total time. Those are viewer results for invented data, not a GPS accuracy or distance benchmark.</p>
+  <figure class="route-example"><img src="/screenshots/gpx-studio-ui-export.png" width="1280" height="900" alt="gpx.studio showing the angled synthetic track saved from iso.me, with 0.03 km distance and 02:00 moving and total time" loading="lazy" decoding="async"><figcaption>The 1003-byte UI export opened in gpx.studio, checked October 26, 2026. Only the public synthetic file was loaded.</figcaption></figure>
+  <p class="source-note">The app’s Export screen, file creation, share sheet, Save to Files, and viewer handoff were checked with unchanged release-source export code and a separate test identity. This was not the App Store binary, a purchase flow, a physical recording, or an unattended export. Keep those evidence limits separate from the earlier serializer-only sample.</p>
 </section>
 
 <section aria-labelledby="problems">

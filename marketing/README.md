@@ -68,6 +68,14 @@ extension against fixture value types; it does not run recording, persistence,
 filtering, filename planning, purchase, or sharing UI. A narrow CORS header lets
 gpx.studio read this public synthetic sample for viewer verification.
 
+The guide also has `samples/synthetic-ui-export.gpx`, an unchanged 1003-byte
+file produced through the isolated 1.7.16 Export UI from the three imported
+documentation points. Preview showed three items/one file; Share Sheet → Save
+to Files wrote a byte-identical copy. A fresh gpx.studio context displayed
+0.03 km and 02:00 / 02:00. This advances the export/share path; the input was
+invented, not a recorded walk, and the test build was already unlocked.
+See [the UI export evidence](../docs/qa/seo-gpx-ui-export-2026-10-26.md).
+
 The next batch adds `/blog/back-up-iphone-location-history/` and expands the
 existing `/docs/apple-watch/` reference. Backup and Watch instructions are
 reviewed against the current source; no new physical-device restore or Watch

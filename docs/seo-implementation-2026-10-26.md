@@ -273,6 +273,14 @@ Deployment `7db9a51c` passes all 31 HTML/Markdown pairs and all-100
 mobile/desktop Lighthouse checks on the updated backup guide. The live
 screenshot matches the tested file and is visually verified after loading.
 
+The GPX guide now has an actual Export UI → share sheet → Save to Files check
+using the three previously imported synthetic points. Preview showed three
+items and one 1003-byte file; the saved copy matches the share-sheet output.
+XML checks preserve the three coordinates/times and one segment. In a fresh
+gpx.studio context it displays 0.03 km and 02:00 / 02:00. This verifies the
+stored-record export path, not a real recording or purchase. See
+[the UI export record](qa/seo-gpx-ui-export-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
 3. Verify Obsidian mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Obsidian desktop plugin is checked with synthetic data; the Dawarich native batch/persistence test used only invented data and a local receiver.

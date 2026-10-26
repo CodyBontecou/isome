@@ -77,7 +77,7 @@ PAGES = [
         "type": "BlogPosting",
         "title": "How to Record an iPhone Route and Export GPX — iso.me",
         "headline": "How to record an iPhone route and export a GPX file",
-        "description": "Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits.",
+        "description": "Record a route in iso.me and export GPX to Files. Includes a checked export-and-viewer example with synthetic points, previews, and free and paid limits.",
         "lede": "Start tracking in iso.me, stop after your trip, then select Points and GPX in Export. Recording and preview are free; saving the file requires the optional unlock.",
         "image": "/screenshots/export.png",
         "image_alt": "iso.me export interface with data types and file format choices",
