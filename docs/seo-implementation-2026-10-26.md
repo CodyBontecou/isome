@@ -114,6 +114,9 @@ denied; no complete UI save or file-picker import is claimed. All 29 selected
 native tests pass. See [the places evidence](qa/seo-saved-locations-2026-10-26.md).
 Apple's live lookup still reported 1.7.16 on this recheck, so the Google import
 article remains a draft; revisit its release gate when the public version changes.
+The places update is live in deployment `ec2c0058`. All 30 HTML/Markdown pairs
+and exact sample/screenshot checks pass; the reference and its changed
+Timeline/outings neighbor score 100 in all mobile/desktop Lighthouse categories.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.

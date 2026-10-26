@@ -108,3 +108,20 @@ No repository native production source or app binary changed.
 
 These are native logic and website lab checks, not indexing, rankings, field
 Core Web Vitals, or a newly completed on-device save/import workflow.
+
+## Publication
+
+Committed and pushed on `main` as `69b9f6f`. Production Pages deployment short
+ID `ec2c0058`: https://ec2c0058.spotted-8ez.pages.dev.
+
+- All 30 production HTML/Markdown pairs, representations, cache separation,
+  error recovery, methods, API contract, and asset-integrity checks pass.
+- Places and Timeline/outings both score 100 for performance, accessibility,
+  best practices, and SEO on mobile and desktop against production. Reports:
+  `/private/tmp/isome-seo-places-after/`.
+- Sample returns 200 as `text/csv` with the intended attachment filename and
+  exact native-tested bytes. The screenshot returns 200 and matches its hash.
+- Live mobile page has client and scroll widths of 390 px, the expected title
+  and sample link, and a successfully loaded editor image.
+- Local preview server was stopped. No indexing request, account change,
+  purchase, new campaign, or scheduled automation was created.
