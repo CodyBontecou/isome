@@ -220,6 +220,15 @@ Final deployment `f2c3819a` passes all 31 HTML/Markdown pairs. Both homepages
 have all-100 mobile/desktop Lighthouse results; final Chinese CLS is 0.
 The main build now owns the same complete page set as the live site.
 
+The Google comparison now directs readers by task: preserve existing Google
+history, record future days, or inspect export compatibility. Google's current
+iPhone help supports a concrete archive-saving checklist, with device backup
+kept separate from file export. Existing GPX, Obsidian, Dawarich, and restore
+evidence is linked with its limits. Deployment `58f319e0` passes all 31
+HTML/Markdown pairs and all-100 mobile/desktop Lighthouse checks; live mobile
+layout and campaign checks pass. See [the comparison record](qa/seo-comparison-decision-2026-10-26.md).
+No new URL or Google-import availability claim was added.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

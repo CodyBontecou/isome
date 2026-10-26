@@ -35,4 +35,24 @@ the 481-pixel comparison table stays inside its 286-pixel scroll region.
 All three App Store links retain `ct=seo-google-timeline` and the approved
 provider token. No broken loaded images were found.
 
-Publication and performance verification are recorded after deployment below.
+Published from main commit `25188e2` to deployment `58f319e0`
+(<https://58f319e0.spotted-8ez.pages.dev>). The public comparison serves all
+three decisions and evidence links. At 390 pixels its document width remains
+390, and all three download links retain the approved comparison campaign.
+
+Lighthouse scores are 100 for performance, accessibility, best practices, and
+SEO on both mobile and desktop, locally and on production. Reports are in
+`/private/tmp/isome-seo-comparison-decision-local/` and
+`/private/tmp/isome-seo-comparison-decision-production/`. An earlier sandboxed
+audit could not reach the npm registry; the completed audits ran with the
+required browser/network access. The production response checker passes all
+31 HTML/Markdown pairs, cache separation, recovery, contract, methods, and
+asset integrity checks.
+
+Live screenshot:
+`build/seo-evidence/comparison-decision-20261026/live-desktop.jpg`.
+
+The next larger acquisition-content gate remains the publicly released
+Google importer plus repeatable workflow verification. Meaningful search-data
+review also needs reporting time; these same-day changes establish neither
+improved rankings nor conversion lift.
