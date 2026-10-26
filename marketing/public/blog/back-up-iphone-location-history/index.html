@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Back Up and Restore iPhone Location History — iso.me</title>
-  <meta name="description" content="Export iso.me visits and GPS points as separate JSON files, verify your copies, and restore supported records. Learn what scheduled exports do and do not keep.">
+  <meta name="description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://isome.isolated.tech/blog/back-up-iphone-location-history/">
   <meta name="theme-color" content="#f5f4ef">
   <meta property="og:title" content="Back Up and Restore iPhone Location History — iso.me">
-  <meta property="og:description" content="Export iso.me visits and GPS points as separate JSON files, verify your copies, and restore supported records. Learn what scheduled exports do and do not keep.">
+  <meta property="og:description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://isome.isolated.tech/blog/back-up-iphone-location-history/">
   <meta property="og:image" content="https://isome.isolated.tech/screenshots/export.png">
   <meta property="og:image:alt" content="iso.me export interface with data and file format controls">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Back Up and Restore iPhone Location History — iso.me">
-  <meta name="twitter:description" content="Export iso.me visits and GPS points as separate JSON files, verify your copies, and restore supported records. Learn what scheduled exports do and do not keep.">
+  <meta name="twitter:description" content="Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.">
   <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/export.png">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -99,7 +99,7 @@ pre code { overflow-wrap: normal; }
       "@id": "https://isome.isolated.tech/blog/back-up-iphone-location-history/",
       "url": "https://isome.isolated.tech/blog/back-up-iphone-location-history/",
       "name": "Back Up and Restore iPhone Location History — iso.me",
-      "description": "Export iso.me visits and GPS points as separate JSON files, verify your copies, and restore supported records. Learn what scheduled exports do and do not keep.",
+      "description": "Back up iso.me visits and GPS points as JSON. See a checked disk import, visit merging, repeated points, and what to verify before changing iPhones.",
       "inLanguage": "en",
       "dateModified": "2026-10-26",
       "author": {
@@ -157,7 +157,7 @@ pre code { overflow-wrap: normal; }
   <h2 id="quick-answer">Keep the files before changing phones</h2>
   <p>To keep a restorable copy of iso.me location history, export <strong>Visits</strong> and <strong>Points</strong> separately as iso.me JSON files. Include the dates and fields you need, confirm both files exist, and retain the originals when importing them on another iPhone.</p>
   <p>Recording, preview, and importing supported files are free. Writing export files requires the optional one-time unlock. This guide covers iso.me records; it is not a way to restore Apple Maps or Google Timeline archives.</p>
-  <nav class="article-toc" aria-label="In this guide"><strong>Backup and restore checklist</strong><ol><li><a href="#scope">Decide what the files must preserve</a></li><li><a href="#export">Export visits and points</a></li><li><a href="#check">Verify and keep the copies</a></li><li><a href="#sample">Inspect synthetic JSON examples</a></li><li><a href="#restore">Import on the destination iPhone</a></li><li><a href="#scheduled">Understand scheduled exports</a></li></ol></nav>
+  <nav class="article-toc" aria-label="In this guide"><strong>Backup and restore checklist</strong><ol><li><a href="#scope">Decide what the files must preserve</a></li><li><a href="#export">Export visits and points</a></li><li><a href="#check">Verify and keep the copies</a></li><li><a href="#sample">Inspect synthetic JSON examples</a></li><li><a href="#checked-import">See the checked import result</a></li><li><a href="#restore">Import on the destination iPhone</a></li><li><a href="#scheduled">Understand scheduled exports</a></li></ol></nav>
 </section>
 
 <section aria-labelledby="scope">
@@ -182,12 +182,13 @@ pre code { overflow-wrap: normal; }
     <li>Open Export and select <strong>Visits</strong>.</li>
     <li>Select <strong>JSON</strong>. Deselect other formats if you only want this file.</li>
     <li>Choose the date range. For the full available visit archive, choose all history rather than Today or a recent period.</li>
-    <li>Review time, duration, completion, and accuracy filters. A filter can omit records even when the date range is correct.</li>
+    <li>Review time of day, minimum duration, and Only completed visits. Visit selection uses arrival time, so a stay arriving before the selected range can be excluded even if it ended inside it.</li>
     <li>Keep coordinates and the other fields you want to restore. Open Preview and check representative dates.</li>
     <li>Export to a folder you control. Note whether the settings produce one file or several dated files.</li>
   </ol>
   <h3>Then export your route points</h3>
-  <p>Repeat the process with <strong>Points</strong> and <strong>JSON</strong>. Use the intended full date range and review its filters too. Keep both sets of files. Exporting visits alone does not preserve all of the GPS points between stops.</p>
+  <p>Repeat the process with <strong>Points</strong> and <strong>JSON</strong>. Use the intended full date range and review its time of day, maximum accuracy, and GPS glitch filters too. Keep both sets of files. Exporting visits alone does not preserve all of the GPS points between stops.</p>
+  <p>If Preview omits expected records, follow the <a href="/blog/missing-location-history-iphone/#export">export filter diagnosis</a> before writing or importing another copy.</p>
   <p>Stop an active recording before taking a final transfer copy if you want the session to be finished first. New records captured after an export will not be in that earlier file.</p>
 </section>
 
@@ -222,8 +223,27 @@ pre code { overflow-wrap: normal; }
   }]
 }</code></pre>
   <p>The visit file has a <code>visits</code> array; the route file has a <code>points</code> array. Visits need coordinates and an arrival time. Points need coordinates and a supported timestamp. A valid JSON file can still be unsuitable for import if those fields are missing.</p>
-  <p>Both downloadable fixtures were parsed with iso.me’s current Swift importer: two visits and three points, with their expected names, coordinates, and times. This checks file compatibility; it does not verify persistence, merging, or a complete device restore.</p>
+  <p>Both downloadable fixtures were parsed with iso.me’s current Swift importer: two visits and three points, with their expected names, coordinates, and times. Parsing checks the file structure. The separate released-source disk check below shows how saved records can differ from these parsed counts.</p>
   <p>Open the samples as text to inspect them. Importing them into your everyday journal would add invented records dated January 1, 2000. They are not needed to back up your own data.</p>
+</section>
+
+<section aria-labelledby="checked-import">
+  <h2 id="checked-import">Checked example: imported counts can differ from saved records</h2>
+  <p>We passed these synthetic JSON records through the actual <strong>1.7.16 (46) import method</strong> into a new on-disk journal in an isolated iOS 26.5 simulator test. We then opened the same store in a fresh data container and re-exported the saved records as JSON. The input contains two nearby stops, separated by two minutes, and three route points.</p>
+  <div class="table-scroll" role="region" aria-label="Checked synthetic import results" tabindex="0"><table>
+    <caption>Same synthetic records, different stages</caption>
+    <thead><tr><th scope="col">Check</th><th scope="col">Visits</th><th scope="col">Route points</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Records in the original files</th><td>2</td><td>3</td></tr>
+      <tr><th scope="row">Reported by the first import</th><td>2</td><td>3</td></tr>
+      <tr><th scope="row">Saved after reopening the store</th><td>1 combined visit</td><td>3</td></tr>
+      <tr><th scope="row">Records in JSON re-export</th><td>1</td><td>3</td></tr>
+      <tr><th scope="row">Saved after importing both files again</th><td>1 combined visit</td><td>6, including repeated points</td></tr>
+    </tbody>
+  </table></div>
+  <p>The released app reconciles nearby visits after importing. In this example it retained <strong>Synthetic stop A</strong> at the first stop’s coordinates, with arrival at <strong>11:45 UTC</strong> and departure at <strong>12:17 UTC</strong> on January 1, 2000. It combined the two stops instead of preserving a separate stop B. The three point timestamps and coordinates remained in the saved route.</p>
+  <p>This is why you should retain the original files and compare individual records as well as totals. An import result counts the records read, not necessarily the final number of visits. Visit reconciliation is separate from a duplicate-safe archive import: repeating the point file added its three points again.</p>
+  <p class="source-note">Checked October 26, 2026 in a Debug rebuild of the verified release source, using invented records and a separate disk store. The native import, save, store reopening, and JSON re-export were tested. This was not the App Store binary, a file-picker test, an app-process restart, or a transfer between physical phones. The original samples remain unchanged.</p>
 </section>
 
 <section aria-labelledby="restore">
@@ -236,7 +256,7 @@ pre code { overflow-wrap: normal; }
     <li>Close and reopen iso.me, then check the same dates again. Confirm the imported records remain before erasing or retiring the original phone.</li>
     <li>Keep your originals until you have checked the result. An import cannot restore records that were excluded from the export.</li>
   </ol>
-  <p>In App Store 1.7.16, import adds records without the newer preview and duplicate checks. Do not assume overlapping files are merged. Import each intended file once and inspect the result before retrying. If a file fails, retain it and read the reported format or field error before editing it. A JSON archive from Google Timeline has a different structure and is not a supported iso.me restore file.</p>
+  <p>In App Store 1.7.16, import adds records without the newer preview and duplicate checks. Nearby visits can still be combined by visit reconciliation after import, while repeated points can be added again. Import each intended file once and inspect the result before retrying. If a file fails, retain it and read the reported format or field error before editing it. A JSON archive from Google Timeline has a different structure and is not a supported iso.me restore file.</p>
   <h3>Check the destination against the original files</h3>
   <ul>
     <li><strong>Before importing:</strong> note the visit and point totals in Settings → Data. A phone that already has records is a merge situation, not a clean destination.</li>
@@ -244,7 +264,7 @@ pre code { overflow-wrap: normal; }
     <li><strong>Check details:</strong> compare names, notes, dates, and coordinates for a few records with the saved JSON. A total alone cannot show that the right date range was selected.</li>
     <li><strong>Check the display range:</strong> an imported record outside Today will not appear in a Today view. Select its actual date or an all-history view before importing again.</li>
   </ul>
-  <p>For the documentation fixtures, an empty test journal should gain two visits named <strong>Synthetic stop A</strong> and <strong>Synthetic stop B</strong>, plus three points dated January 1, 2000. These are expected values from the files, not a completed device-restore test. Keep invented records out of your everyday journal.</p>
+  <p>For these documentation fixtures, the checked release-source import reported two visits and three points, but saved one combined visit and three points. Use the <a href="#checked-import">stage-by-stage results</a> above when inspecting the example. Keep invented records out of your everyday journal.</p>
   <p><strong>Restore Purchases is separate.</strong> It restores an eligible paid entitlement through the App Store; it does not download a copy of your location history. iso.me does not provide an account-based server archive or built-in iCloud journal sync.</p>
 </section>
 
@@ -267,7 +287,7 @@ pre code { overflow-wrap: normal; }
   <a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free for iPhone</a>
 </section>
 
-<p class="source-note">Reviewed October 26, 2026 against iso.me’s export, import, and scheduling behavior. Importing restores supported records; it is not a promise to reproduce every app setting or edited view.</p>
+<p class="source-note">Reviewed October 26, 2026 against iso.me’s export, import, and scheduling behavior, including a 1.7.16 release-source disk import and JSON re-export check. Importing restores supported records; it is not a promise to reproduce every app setting or edited view.</p>
 
     </article>
     <nav class="article-toc" aria-labelledby="read-next-title"><h2 id="read-next-title">Read next</h2><ul><li><a href="/blog/iphone-location-journal-obsidian/">Make a readable Markdown note</a><p>Copy a visit table into a desktop Obsidian vault.</p></li><li><a href="/docs/automatic-exports/">Check scheduled copies</a><p>Understand current-day exports, rewrite behavior, and background limits.</p></li></ul></nav>

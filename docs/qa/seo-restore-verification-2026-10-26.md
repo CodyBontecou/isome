@@ -2,6 +2,12 @@
 
 October 26, 2026. The clean-destination restore gate remains open.
 
+Update: the later [native disk import check](seo-backup-disk-import-2026-10-26.md)
+verifies the actual import method, disk-store reopening, and JSON re-export.
+It found that the sample’s two nearby visits reconcile into one saved visit.
+This supersedes the earlier two-saved-visits expectation, while the file-picker
+and physical transfer remain unverified.
+
 ## Isolated setup
 
 Exported release source `6ae78e622c72ee051e6f14113082556c398d926a` to a

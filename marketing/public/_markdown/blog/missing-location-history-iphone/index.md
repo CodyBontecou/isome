@@ -108,7 +108,7 @@ For an example you can inspect without sharing your history, the [checked GPX ex
 
 Do not clear history, delete the outing, or reinstall as an initial troubleshooting step. Deleting an outing can also delete its route points. Keep supported exports you already have, and use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) if you need a separate copy of the retained records.
 
-In the verified public 1.7.16 (46) release, importing iso.me files adds records without a duplicate check. Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
+The verified public 1.7.16 (46) release has no import preview or general duplicate check. Post-import visit reconciliation can combine nearby visits, while repeated points can be added again; see the [checked import example](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import). Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
 
 ### What to include when asking for help
 

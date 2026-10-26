@@ -109,6 +109,13 @@ checklist. A release-source simulator restore attempt remains incomplete because
 the test copy did not present its file picker; see the
 [verification record](../docs/qa/seo-restore-verification-2026-10-26.md).
 
+A later native test used the actual released 1.7.16 import method and a new
+on-disk store. Opening the store again and re-exporting JSON confirmed one
+combined visit from the two nearby fixture stops, and all three points. A
+repeat point import saved six points. The guide now distinguishes parsed,
+reported, and stored counts. See the [disk import evidence](../docs/qa/seo-backup-disk-import-2026-10-26.md).
+This does not establish a working file-picker transfer or app-process restart.
+
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
 existing iso.me recordings; the broader history guide handles locating Apple,
 Google, or existing journal records. Keep those search intents distinct.
