@@ -46,17 +46,32 @@ The previous approvals and accepted requests for Country Days, comparison,
 history, and GPX are preserved. No duplicate request for those pages was made.
 Indexing requests for these two different URLs require separate explicit
 approval under the earlier automatic-review decision. Approval was requested
-after both live tests passed; submission remains pending the owner's answer.
+after both live tests passed. The owner explicitly approved both requests;
+their confirmed outcomes are recorded below.
 No CAPTCHA was encountered or completed during these inspections.
 
 Local evidence is retained outside the public release at
 `build/seo-evidence/discovery-20261026/`. No website asset, app binary, campaign,
 scheduled automation, DNS record, permission, or collector was changed.
 
-## Next decision
+## Approved submission outcomes
 
-If approved, submit each of these two URLs once and record Google's response.
-An accepted request still does not establish completed indexing. Leave the
-successful sitemap submission in place. Wait for actual reporting updates
-before judging the new cluster's visibility or changing titles based on this
-unavailable data. The Google-import acquisition article remains release-gated.
+After approval, each URL was submitted once on October 26:
+
+| URL | Google's confirmed response | Status |
+| --- | --- | --- |
+| `/zh-hans/` | Indexing requested; URL added to a priority crawl queue | Accepted |
+| `/integrations/dawarich/` | Quota Exceeded; daily quota exceeded, try again tomorrow | Not accepted; pending retry |
+
+The Chinese confirmation was verified before navigating away. Screenshots:
+`chinese-requested.png` and `dawarich-quota.png` in the local evidence folder.
+Google's invisible verification ran during the Dawarich request; no CAPTCHA
+challenge was solved. No quota workaround, duplicate Chinese request, or
+scheduled retry was attempted. The owner's approval for Dawarich remains valid
+for a later retry when the quota permits it.
+
+An accepted request does not establish completed indexing. Leave the successful
+sitemap submission in place; both URLs remain available through its discovery
+path. Wait for actual reporting updates before judging visibility or changing
+titles based on unavailable data. The Google-import acquisition article
+remains release-gated.

@@ -243,8 +243,11 @@ and the older successful sitemap read (October 25, 17 discovered pages).
 Dawarich and the preserved Chinese homepage are reported as unknown to Google,
 but both pass Google's smartphone live tests: crawl/indexing allowed,
 successful fetch, and the expected self-canonical. The live 31-URL sitemap
-contains both. Requests for these new URLs await explicit approval; no prior
-accepted request was repeated. See [the discovery record](qa/seo-new-url-discovery-2026-10-26.md).
+contains both. The owner approved both new indexing requests. Google accepted
+the Chinese homepage into its priority crawl queue, but rejected the Dawarich
+request with a daily-quota message. Dawarich remains pending a later authorized
+retry; no prior accepted request was repeated or automated retry scheduled.
+See [the discovery record](qa/seo-new-url-discovery-2026-10-26.md).
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
