@@ -125,6 +125,10 @@ recording-state examples. Apple/Google instructions were reviewed against their
 current primary help pages, with Apple iOS 26 context. No personal history was
 accessed or new platform-UI/recovery success claimed. See
 [the history-answer review](qa/seo-history-answer-2026-10-26.md).
+Production deployment `731861fe` passes all 30 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse on the revised guide. Its established title and URL
+are retained; no duplicate indexing request or new search-performance claim
+was made.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.

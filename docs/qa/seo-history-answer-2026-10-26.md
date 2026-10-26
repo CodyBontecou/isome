@@ -54,3 +54,24 @@ practices, and SEO on mobile and desktop. At 390×844, viewport and scroll width
 are both 390 px; the comparison table scrolls within a 358 px region. All six
 in-page navigation targets resolve. The established title is retained. Local
 reports: `/private/tmp/isome-seo-history-before/`.
+
+## Publication
+
+Committed and pushed on `main` as `0487792`. Production Pages deployment short
+ID `731861fe`: https://731861fe.spotted-8ez.pages.dev.
+
+- Production HTTP checks pass for all 30 HTML/Markdown pairs, representation
+  negotiation, cache separation, errors, methods, API contract, and assets.
+- The updated guide scores 100 for performance, accessibility, best practices,
+  and SEO on both mobile and desktop against production. Reports:
+  `/private/tmp/isome-seo-history-after/`.
+- Live mobile inspection confirms 390 px viewport and document widths, expected
+  Significant Locations/preservation/questions sections, updated description,
+  and retained title.
+- Inspected the published page in the browser. Proof retained locally at
+  `build/seo-evidence/history-answer-20261026/history-guide-live.png`.
+- Stopped the local preview server. No account history, settings, backup, or
+  Google crawl-queue state was changed.
+
+Publication and lab scores do not establish improved search performance or
+completed indexation of this revision; preserve the existing baseline.
