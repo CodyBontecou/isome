@@ -33,6 +33,12 @@ python3 marketing/scripts/check_site.py
 
 ## Preview
 
+The private-journal article includes a checked 1.7.16 release-source simulator
+example: Start/Stop produced an eight-second outing with zero saved points.
+Its checklist distinguishes a session timer from a captured GPS path. This
+does not claim a successful physical route. See the
+[recording-state evidence](../docs/qa/seo-journal-recording-state-2026-10-26.md).
+
 ```sh
 python3 marketing/scripts/preview_site.py
 ```

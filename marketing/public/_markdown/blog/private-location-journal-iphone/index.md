@@ -50,6 +50,8 @@ App iso.me for iPhone
 
 iso.me records your own location history while tracking is enabled. Start recording before the part of the day you want to keep, then review the map and Timeline. Installing the app cannot recover routes from before you recorded them. If you already use Google Timeline, [compare the two workflows](https://isome.isolated.tech/compare/google-maps-timeline/) before switching.
 
+These interface examples illustrate the app’s screens; they are not a newly recorded trip. See the [checked recording-state example](https://isome.isolated.tech/blog/private-location-journal-iphone/#first-recording) below for what to verify.
+
 ![iso.me map showing visits and recorded route points in San Francisco](https://isome.isolated.tech/blog/private-location-journal-iphone/screenshots/map.png)
 
 Map view: visits, route dots, and route lines stay in a private timeline.
@@ -87,11 +89,20 @@ Deletion Know how to remove local history and remember that deleting an app can 
 ### Verify your first recording
 
 - Open iso.me and finish setup. Choose Always if you want GPS and visit monitoring to continue in the background; While Using limits when the app can obtain locations. You can revisit this in iOS Settings.
-- On the Map tab, start a short route with the recording control. Stop it when you finish.
-- Open Timeline and check the date, route, and start/end times. Automatic visits need time at a place; do not expect every brief stop to appear immediately.
+- On the Map tab, tap the play control to start recording. Check that it changes to a red Stop control and that the elapsed time advances. Stop when you finish.
+- Open Timeline, select the day, and open the outing. Check its start and end times, Points count, and Path. A timer or an outing row alone does not prove GPS locations were saved.
+- For a route you walked, check that its path follows the expected places. Check visits separately: automatic visits need time at a place, so a brief stop may not appear immediately.
 - If the result is empty, check location permission, tracking state, and the selected day before relying on a longer recording.
 
-[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
+### A saved outing can still have no route
+
+In a checked simulator example, Start changed to Stop and the timer advanced. After stopping, Timeline listed one eight-second outing, zero visits, and zero distance. Opening it showed 0 points and “No GPS points were saved for this outing yet.” This verifies the controls and empty-path state, not a successful route recording.
+
+![iso.me outing detail with an eight-second duration, zero distance, zero points, and the message that no GPS points were saved](https://isome.isolated.tech/screenshots/journal-empty-outing.png)
+
+Checked October 26, 2026 in an isolated Debug simulator rebuild of the 1.7.16 release source, on iOS 26.5. No GPS points were saved during this session. This is not a physical outing or a battery test.
+
+If you see this state, check location permission, the selected date, and whether tracking was on when you moved. Try another short recording where the phone can obtain a location, then inspect the saved points again. A manual visit can add a stop to your journal, but it cannot recreate the missing GPS path. Use the [missing-recording checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) for the next checks.
 
 Tracking is free. Writing export files, scheduled exports, and webhooks require the one-time unlock; importing a prior export is free. See [current pricing](https://isome.isolated.tech/#pricing) and the [setup reference](https://isome.isolated.tech/docs/getting-started/).
 
