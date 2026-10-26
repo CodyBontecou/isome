@@ -148,6 +148,12 @@ def check():
             ):
                 page.errors.append(f"home languages: missing reader language link to {other_path}")
 
+    from blog_inventory import check as check_blog_inventory
+    try:
+        check_blog_inventory(PUBLIC)
+    except ValueError as error:
+        errors.append(str(error))
+
     checked_links = 0
     from campaign_links import app_url, CONFIG
     campaign_config = json.loads(CONFIG.read_text())
