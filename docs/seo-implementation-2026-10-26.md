@@ -157,6 +157,9 @@ The prior two-saved-visits expectation is corrected across backup, export, and
 troubleshooting pages. All 22 selected native tests pass; file-picker/physical
 transfer and app-process restart remain unverified. See
 [the disk import record](qa/seo-backup-disk-import-2026-10-26.md).
+Production deployment `f8001e05` passes all 30 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse on all three changed pages. Live checks confirm the
+new result table and corrections, with no mobile document overflow.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
