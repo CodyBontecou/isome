@@ -89,3 +89,26 @@ from this UI selection/import/restart result. It adds the actual saved-count
 screenshot and advises allowing the picker to load before retrying. Remaining
 limits are explicit: no physical transfer, captured source-phone export,
 purchase-flow proof, or complete device-settings restoration.
+
+## Publication and web checks
+
+Released from main commit `7b1ad08` to production deployment `7db9a51c`
+(<https://7db9a51c.spotted-8ez.pages.dev>). The live backup guide includes the
+new section, revised description, and loaded post-restart screenshot. Its image
+returns 200 `image/png` and matches the local 713,892-byte file exactly.
+
+The build passes 32 HTML pages (31 public), 1,110 local targets, metadata,
+JSON-LD, fragment/ARIA targets, and sitemap coverage. Local and production
+Lighthouse both score 100 for performance, accessibility, best practices, and
+SEO on mobile and desktop. Reports are retained in
+`/private/tmp/isome-seo-restore-picker-local/` and
+`/private/tmp/isome-seo-restore-picker-production/`. Production response checks
+pass all 31 HTML/Markdown pairs, cache separation, recovery, methods, contract,
+and asset integrity. The live page and loaded image were visually checked in
+the in-app browser; screenshot: `build/seo-evidence/restore-picker-20261026/guide-live.png`.
+
+A separate Chrome DevTools image-decode evaluation stalled during the local
+320-pixel check. It was cancelled and visual verification continued in the
+in-app browser; no result from that incomplete check is claimed. The completed
+Lighthouse runs provide mobile and desktop lab results. These checks do not
+establish new indexing, rankings, or acquisition gains.

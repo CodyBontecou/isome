@@ -269,6 +269,9 @@ reconciliation and termination/relaunch, Settings retains one visit and three
 points. The new screenshot distinguishes this UI result from the earlier
 native field/re-export test. Physical transfer and a captured source-phone
 export remain unverified. See [the picker/restart record](qa/seo-restore-picker-restart-2026-10-26.md).
+Deployment `7db9a51c` passes all 31 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse checks on the updated backup guide. The live
+screenshot matches the tested file and is visually verified after loading.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
