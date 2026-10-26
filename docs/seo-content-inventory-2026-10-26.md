@@ -1,6 +1,8 @@
 # iso.me article cluster inventory
 
-Reviewed October 26, 2026. All paths below are implemented locally. They are not evidence of production deployment or measured search demand. The Search Console baseline remains the pre-deployment baseline.
+Reviewed October 26, 2026. The initial direct HTTP audit confirmed the then-existing 27 sitemap URLs live. The implementation below adds the Country Days guide, bringing the live sitemap to 28 URLs. The Search Console baseline remains the pre-deployment baseline and does not measure the new cluster's results. See [the refreshed SEO priorities](isome-seo-priorities-2026-10-26.md) for the live audit and next work.
+
+**Release reconciliation completed:** The verified public build is 1.7.16 (46), from source preceding the importer. Public pages now state those version-specific limits; the Google migration walkthrough remains a non-public draft. Country Days is in that public build and now has a guide. See [implementation results](seo-implementation-2026-10-26.md). The following was the earlier source-drift finding: current source adds Google Timeline JSON import, preview, and duplicate detection; the live comparison, history guide, backup guide, and export reference still describe the older behavior. Align claims with confirmed public app versions. Country Days and expanded manual-visit Shortcuts also need a release-aware content review. The rows below record the original article scopes, not proof that their product claims remain current.
 
 | Page | Reader task | Distinct scope | Evidence and remaining limits |
 | --- | --- | --- | --- |
@@ -13,6 +15,8 @@ Reviewed October 26, 2026. All paths below are implemented locally. They are not
 | `/blog/missing-location-history-iphone/` | Diagnose an incomplete iso.me day | Recording, hidden/rejected points, visits, Watch transfer and export filters | Source-reviewed diagnostic checklist; no promise to recover absent records |
 | `/blog/iphone-location-journal-obsidian/` | Read visit records in a desktop vault | Manual Markdown handoff and generated-file boundaries | Hand-authored synthetic note rendered in Obsidian 1.14.4; mobile and scheduled delivery untested |
 | `/docs/apple-watch/` | Record away from iPhone and check transfer | Existing feature reference, controls and status meanings | Current source and existing replay context; no new physical Watch walk claimed |
+
+| `/blog/track-days-in-country-iphone/` | Review country dates | Counting rules, timezones, manual stays and optional CSV | Verified released source; current simulator interface capture; synthetic counting examples |
 
 ## Reader paths
 

@@ -1,4 +1,4 @@
-§ Legal · Document 01 
+§ Legal · Document 01
 
 # Privacy Policy
 
@@ -26,9 +26,9 @@ A small set of optional or auxiliary features do communicate over the network. E
 
 The App uses your device's location services to:
 
-- Automatically detect places you visit 
-- Record detailed routes when tracking is enabled 
-- Feed optional surfaces such as the Apple Watch app, widgets, and Live Activities  
+- Automatically detect places you visit
+- Record detailed routes when tracking is enabled
+- Feed optional surfaces such as the Apple Watch app, widgets, and Live Activities
 
 Your location history stays on your device unless you deliberately enable a feature that sends it elsewhere. The only such feature is optional webhook delivery (see Network Requests), which posts your data to a destination you configure yourself.
 
@@ -36,11 +36,11 @@ Your location history stays on your device unless you deliberately enable a feat
 
 The App may make network requests in the following circumstances:
 
-- Apple system services (optional): if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy. 
-- First-party onboarding analytics (on by default): the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to iso.me's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier. 
-- Webhook delivery (off by default, Pro): if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; iso.me never sees your endpoint or your data. 
-- Scheduled export wake-ups (only if enabled, Pro): if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with iso.me's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names. 
-- App Store: purchases are handled entirely by Apple's App Store. iso.me does not process or store payment information.  
+- Apple system services (optional): if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy.
+- First-party onboarding analytics (on by default): the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to iso.me's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier.
+- Webhook delivery (off by default, Pro): if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; iso.me never sees your endpoint or your data.
+- Scheduled export wake-ups (only if enabled, Pro): if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with iso.me's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names.
+- App Store: purchases are handled entirely by Apple's App Store. iso.me does not process or store payment information.
 
 ## Data Export
 
@@ -48,13 +48,13 @@ You can export visits, route points, and outings at any time as JSON, CSV, Markd
 
 ## Analytics and Tracking
 
-iso.me contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites.
+iso.me contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
 
 ## Third-Party Services
 
-- Apple: geocoding, Maps search and directions, map snapshots, push notifications, and App Store purchases are Apple system services governed by Apple's privacy policy. 
-- Cloudflare: hosts iso.me's own analytics ingest and export-scheduling endpoints (as described above), plus this website. Cloudflare processes data as our infrastructure provider. 
-- Destinations you choose: webhook delivery and file exports go only to endpoints and folders you configure yourself.  
+- Apple: geocoding, Maps search and directions, map snapshots, push notifications, and App Store purchases are Apple system services governed by Apple's privacy policy.
+- Cloudflare: hosts iso.me's own analytics ingest and export-scheduling endpoints (as described above), plus this website. Cloudflare processes data as our infrastructure provider.
+- Destinations you choose: webhook delivery and file exports go only to endpoints and folders you configure yourself.
 
 ## Data Deletion
 

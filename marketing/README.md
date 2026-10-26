@@ -74,7 +74,10 @@ python3 marketing/scripts/check_import_samples.py
 
 This checks record parsing and an invalid-file rejection, not persistence or a
 full device restore. Do not import sample data into a real journal just to
-inspect the file format. Import currently adds records without deduplication.
+inspect the file format. The verified public 1.7.16 build imports iso.me files
+without the newer preview and duplicate checks. Current development source
+includes Google import and duplicate handling; distinguish it from the
+publicly distributed binary.
 
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
 existing iso.me recordings; the broader history guide handles locating Apple,
@@ -104,24 +107,87 @@ isolated.tech domain property filtered to iso.me. The dedicated URL-prefix
 property is processing; its sitemap already shows Success. Use the report's
 stored filters and date windows for repeatable comparisons.
 
-The existing gated Cloudflare Web Analytics integration is retained. This
-content batch adds no analytics endpoint, visitor identifier, or campaign token.
+The existing gated Cloudflare Web Analytics integration is retained. The shared
+`public/assets/acquisition.js` adds coarse website counts after the same
+exclusion gate allows collection. It also honors Global Privacy Control and Do
+Not Track. It sends only an exact public page path, event, CTA placement, and
+coarse referrer category. No cookies, browser storage, visitor IDs, raw URLs,
+query strings, location records, or user text are collected by this listener.
 
-1. After deployment, verify the new URLs in Search Console and confirm sitemap
-   discovery. Keep the saved pre-deployment baseline; record the deployment date.
-2. Add an outbound `app_store_clicked` event to an approved analytics collector,
-   with page path and CTA placement. Preserve the current exclusion gate. Do not
-   send location records, user text, or arbitrary query strings.
-3. Generate genuine App Store Connect campaign links using the account's
-   provider token. Suggested stable campaign labels: `seo-home`,
-   `seo-private-journal`, `seo-google-timeline`, and `seo-export-reference`.
-   Do not invent the provider token or treat ordinary UTM tags as Apple campaign
-   attribution.
-4. Report organic visits, outbound clicks, visible campaign downloads, and
-   purchases separately. Account for reporting thresholds and delays.
+`POST /api/v1/acquisition` validates a maximum 512-byte same-origin JSON body
+and updates `website_acquisition_daily` through the `SEO_DB` D1 binding. This
+separate table shares the existing analytics database; it does not write app
+onboarding records. Browser/gate failures lose events rather than delay a
+navigation. The endpoint can receive synthetic or automated requests, so these
+are coarse counters, not an audited attribution system.
+
+Run the privacy/validation tests:
+
+```sh
+node --test marketing/scripts/acquisition.test.mjs
+```
+
+Initialize the local table and use the actual Pages runtime:
+
+```sh
+wrangler d1 migrations apply iso-me-onboarding-analytics --local --config marketing/wrangler.jsonc
+cd marketing
+wrangler pages dev public --port 8892
+```
+
+For a 28-day aggregate report:
+
+```sh
+wrangler d1 execute iso-me-onboarding-analytics --remote --config marketing/wrangler.jsonc --file marketing/queries/acquisition.sql
+```
+
+Interpret `page_view` as page loads and `app_store_clicked` as activations,
+not unique people, installs, or purchases. Referrer categories describe each
+page's referrer: a later internal page does not retain the original search
+source. Do not calculate an organic session conversion rate by joining these
+rows. The UTC day is the server receipt day. The existing Search Console
+baseline measures search-result clicks independently.
+
+Four pages now use Apple-generated campaign links: the homepage, private-journal
+article, Google Timeline comparison, and GPX walkthrough. The genuine developer
+provider token and stable campaign labels live in `content/acquisition.json`.
+`campaign_links.py` rewrites download anchors during the build; public product
+metadata and unmeasured pages keep their canonical App Store URLs. The homepage
+QR encodes the same `seo-home` URL, checked against `assets/app-store-qr-url.txt`.
+Regenerate the QR and its URL file when changing that configuration.
+
+Apple campaign reports have thresholds and delays. Keep organic visits,
+outbound activations, visible campaign downloads, and purchases separate.
+
+After each deployment, record its date and inspect new URLs and sitemap
+discovery in Search Console. Preserve the historical baseline and compare
+explicit equal-length windows after allowing for reporting lag. A successful
+HTTP response is not proof that Google indexed a page.
 
 See [Apple's campaign-link documentation](https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links)
-and the [SEO execution plan](../docs/isome-seo-plan-2026-10-26.md).
+and [the refreshed SEO priorities](../docs/isome-seo-priorities-2026-10-26.md).
+
+## Release-aware articles
+
+The Country Days guide is generated at
+`/blog/track-days-in-country-iphone/` and linked from the homepage, guide hub,
+and Timeline reference. The public 1.7.16 build 46 includes this feature.
+Its screenshot is an iOS 26.5 simulator interface example, with no resolved
+country history. Counting examples are invented, not a physical travel test.
+
+The Google Timeline migration walkthrough is prepared in `content/` and
+listed in `DRAFTS` in `build_seo_pages.py`. It is intentionally absent from
+`public/`, the sitemap, and acquisition links: the confirmed public build's
+source predates the importer. Render it outside the deployment tree with:
+
+```sh
+python3 marketing/scripts/preview_drafts.py
+```
+
+Before promoting it into `PAGES`, confirm the supporting public binary,
+repeat import/duplicate checks, replace the release-preview notices, and
+update the comparison, history, backup, and export references together. Current
+source support alone is insufficient to claim App Store availability.
 
 ## Lighthouse
 

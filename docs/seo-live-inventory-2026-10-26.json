@@ -1,0 +1,413 @@
+{
+  "review_date": "2026-10-26",
+  "scope": "Direct HTTP fetches of the live sitemap URLs; not a Google indexation or performance audit",
+  "sitemap_url": "https://isome.isolated.tech/sitemap.xml",
+  "page_count": 27,
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/",
+      "title": "Private iPhone Location History & Route Journal \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/"
+      ],
+      "description": [
+        "iso.me is a private location journal for iPhone and Apple Watch. Automatically record visits and routes on-device, with no account, no iso.me location servers, and optional export in eight formats when you need your history."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "final": "https://isome.isolated.tech/about",
+      "title": "About iso.me \u2014 Private iPhone Location Journal",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/about"
+      ],
+      "description": [
+        "Meet iso.me, the open source iPhone and Apple Watch location journal built by Cody Bontecou at isolated.tech."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/",
+      "title": "iPhone Location History Guides \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/"
+      ],
+      "description": [
+        "Practical iPhone location history guides: record a private journal, compare Google Timeline, choose export formats, and understand tracking controls."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/back-up-iphone-location-history/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/back-up-iphone-location-history/",
+      "title": "Back Up and Restore iPhone Location History \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/back-up-iphone-location-history/"
+      ],
+      "description": [
+        "Export iso.me visits and GPS points as separate JSON files, verify your copies, and restore supported records. Learn what scheduled exports do and do not keep."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/iphone-location-journal-obsidian/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/iphone-location-journal-obsidian/",
+      "title": "Export an iPhone Location Journal to Obsidian \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/iphone-location-journal-obsidian/"
+      ],
+      "description": [
+        "Export iso.me visits as Markdown, copy the note into an Obsidian desktop vault, and keep your writing separate. Includes a synthetic sample and sync limits."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/iphone-location-tracking-battery/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/iphone-location-tracking-battery/",
+      "title": "iPhone GPS Tracking and Battery Use: iso.me Settings",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/iphone-location-tracking-battery/"
+      ],
+      "description": [
+        "Check iPhone battery activity, choose iso.me distance filters and auto-stop settings, and compare route detail without assuming a guaranteed battery saving."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/missing-location-history-iphone/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/missing-location-history-iphone/",
+      "title": "Missing Visits or GPS Points in iso.me? iPhone Checks",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/missing-location-history-iphone/"
+      ],
+      "description": [
+        "Diagnose an empty iso.me day, incomplete GPS route, missing visit, pending Watch sync, or filtered export. Preserve existing records before retrying."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/private-location-journal-iphone/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/private-location-journal-iphone/",
+      "title": "How to Keep a Private Location Journal on iPhone \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/private-location-journal-iphone/"
+      ],
+      "description": [
+        "A practical guide to keeping a private iPhone location journal with on-device history, local review, open-format exports, and carefully optional webhooks."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/record-iphone-route-gpx/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/record-iphone-route-gpx/",
+      "title": "How to Record an iPhone Route and Export GPX \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/record-iphone-route-gpx/"
+      ],
+      "description": [
+        "Record a route in iso.me, preview GPS points, export GPX to Files, and check the result. Includes a synthetic sample and clear free and paid limits."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/blog/view-location-history-iphone/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/blog/view-location-history-iphone/",
+      "title": "How to See Your Location History on iPhone \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/blog/view-location-history-iphone/"
+      ],
+      "description": [
+        "Find your own visited places in Apple Maps, check Google Timeline, and understand missing records before starting a new iPhone location journal."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/compare/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/compare/",
+      "title": "Compare iPhone Location Journals \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/compare/"
+      ],
+      "description": [
+        "Compare iso.me with Google Timeline on iPhone: accounts, recording, backups, exports, and the limits of moving an existing archive."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/compare/google-maps-timeline/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/compare/google-maps-timeline/",
+      "title": "Google Timeline Alternative for iPhone: iso.me Compared",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/compare/google-maps-timeline/"
+      ],
+      "description": [
+        "Compare iso.me and Google Timeline for iPhone: accounts, local history, encrypted backup, GPX and CSV exports, pricing, and import limitations."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "final": "https://isome.isolated.tech/contact",
+      "title": "Contact iso.me \u2014 Support and Project Links",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/contact"
+      ],
+      "description": [
+        "Contact iso.me developer Cody Bontecou for support, bug reports, and questions about the private iPhone location journal."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/",
+      "title": "Documentation \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/"
+      ],
+      "description": [
+        "Practical guides for every corner of iso.me: tracking, timelines, exports, automation, the Apple Watch app, and privacy."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/apple-watch/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/apple-watch/",
+      "title": "Record Apple Watch GPS routes without your iPhone \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/apple-watch/"
+      ],
+      "description": [
+        "Independent watch tracking, offline sync, and complications."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/automatic-exports/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/automatic-exports/",
+      "title": "Automatic exports \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/automatic-exports/"
+      ],
+      "description": [
+        "Schedule exports once a day or every few hours, keeping one file per day."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/export-import/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/export-import/",
+      "title": "Export and restore location history \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/export-import/"
+      ],
+      "description": [
+        "Eight export formats, filters, filename templates, and free import for restores."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/getting-started/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/getting-started/",
+      "title": "Getting started \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/getting-started/"
+      ],
+      "description": [
+        "Install, onboarding, permissions, and your first tracking session."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/photos/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/photos/",
+      "title": "Photos on the map \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/photos/"
+      ],
+      "description": [
+        "Optionally connect your Photos library to place pictures on your map and outings."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/places/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/places/",
+      "title": "Places, corrections & manual entries \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/places/"
+      ],
+      "description": [
+        "Confirm or correct detected visits, save places, and add visits by hand."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/privacy-data/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/privacy-data/",
+      "title": "Privacy & your data \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/privacy-data/"
+      ],
+      "description": [
+        "What stays on your device, what can leave it, and how deletion works."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/siri-shortcuts/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/siri-shortcuts/",
+      "title": "Siri & Shortcuts \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/siri-shortcuts/"
+      ],
+      "description": [
+        "Nine actions for tracking, stats, renaming, and exports."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/timeline-outings/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/timeline-outings/",
+      "title": "Timeline & outings \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/timeline-outings/"
+      ],
+      "description": [
+        "The daily timeline, inferred outings, route replay, and editing or deleting sessions."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/tracking/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/tracking/",
+      "title": "Visits, routes & battery \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/tracking/"
+      ],
+      "description": [
+        "How automatic visit detection and route recording work, and the settings that control them."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/docs/webhooks/",
+      "status": 200,
+      "final": "https://isome.isolated.tech/docs/webhooks/",
+      "title": "Webhooks & self-hosting \u2014 iso.me Docs",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/docs/webhooks/"
+      ],
+      "description": [
+        "Configure optional delivery and verify your receiver\u2019s payload and authentication requirements."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "final": "https://isome.isolated.tech/privacy",
+      "title": "Privacy Policy \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/privacy"
+      ],
+      "description": [
+        "iso.me privacy policy: location history is stored on-device with no account and no server-side location archive. Optional Apple services, first-party onboarding analytics, user-configured webhooks, and export-scheduling metadata are disclosed in full."
+      ],
+      "hreflang": 0
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "final": "https://isome.isolated.tech/terms",
+      "title": "Terms of Service \u2014 iso.me",
+      "h1": 1,
+      "lang": "en",
+      "canonical": [
+        "https://isome.isolated.tech/terms"
+      ],
+      "description": [
+        "Terms for iso.me, a private iPhone location journal with local storage, free tracking, and optional export unlock."
+      ],
+      "hreflang": 0
+    }
+  ]
+}

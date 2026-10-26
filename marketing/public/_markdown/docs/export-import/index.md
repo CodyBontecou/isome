@@ -1,4 +1,4 @@
-§ Docs · Guide 6 of 11 
+§ Docs · Guide 6 of 11
 
 # Export and restore location history
 
@@ -24,25 +24,25 @@ Free vs Pro. Building and previewing exports is free. Writing export files (from
 
 ## Eight formats
 
-| Format | Best for 
-| JSON | Structured visit and point records, scripts, and tooling. 
-| CSV | Spreadsheets and analysis. 
-| Markdown | Human-readable journals — single outings export as a front-matter page with visits and route points. 
-| GeoJSON | Mapping tools and GIS. 
-| GPX | GPS tools and route viewers; visits become waypoints, routes become tracks. 
-| KML | Google Earth and Earth-compatible viewers. 
-| OwnTracks | OwnTracks-ecosystem tools (route points). 
-| Overland | Overland-ecosystem tools (route points). 
+| Format | Best for
+| JSON | Structured visit and point records, scripts, and tooling.
+| CSV | Spreadsheets and analysis.
+| Markdown | Human-readable journals — single outings export as a front-matter page with visits and route points.
+| GeoJSON | Mapping tools and GIS.
+| GPX | GPS tools and route viewers; visits become waypoints, routes become tracks.
+| KML | Google Earth and Earth-compatible viewers.
+| OwnTracks | OwnTracks-ecosystem tools (route points).
+| Overland | Overland-ecosystem tools (route points).
 
 Choose any mix of formats in one export; each becomes its own file. OwnTracks and Overland formats carry route points (visits exports in those slots fall back to JSON).
 
 ## What gets exported
 
-- Data: visits, route points, outings, or all of it. 
-- Date range: all time (default), today, yesterday, last 7 or 30 days, this month, or a custom range. 
-- Time of day (off by default): keep only records between two times — windows that cross midnight work too. 
-- Filters: only completed visits, minimum visit duration, exclude GPS glitches, and a maximum-accuracy cap (≤ 10 / 25 / 50 / 100 m). 
-- Fields: per-format toggles for names, addresses, durations, coordinates, notes, altitude, speed, accuracy, and glitch flags.  
+- Data: visits, route points, outings, or all of it.
+- Date range: all time (default), today, yesterday, last 7 or 30 days, this month, or a custom range.
+- Time of day (off by default): keep only records between two times — windows that cross midnight work too.
+- Filters: only completed visits, minimum visit duration, exclude GPS glitches, and a maximum-accuracy cap (≤ 10 / 25 / 50 / 100 m).
+- Fields: per-format toggles for names, addresses, durations, coordinates, notes, altitude, speed, accuracy, and glitch flags.
 
 Your entire setup — formats, data kind, filters, field toggles — is remembered between launches.
 
@@ -52,15 +52,15 @@ File names come from a template you control. These tokens are available:
 
 `{date}` `{year}` `{month}` `{dayNumber}` `{weekday}` `{monthName}` `{quarter}` `{datetime}` `{time}` `{day}` `{type}` `{title}` `{name}` `{format}`
 
-- Use `/` in a template to build dated subfolders. 
-- Built-in presets: Readable (default) `iso.me - {day} {date} - {type}`, Compact, and Dated `{year}/{year}-{month}/Daily Track - {date}`. 
-- A live preview shows the resolved path as you type.  
+- Use `/` in a template to build dated subfolders.
+- Built-in presets: Readable (default) `iso.me - {day} {date} - {type}`, Compact, and Dated `{year}/{year}-{month}/Daily Track - {date}`.
+- A live preview shows the resolved path as you type.
 
 ## Output layout
 
-- Single file (default) or one file per day — handy for journals and incremental backups. 
-- Exporting outings produces one file per outing automatically. 
-- Collisions are auto-suffixed so nothing overwrites.  
+- Single file (default) or one file per day — handy for journals and incremental backups.
+- Exporting outings produces one file per outing automatically.
+- Collisions are auto-suffixed so nothing overwrites.
 
 ## Saving and sharing
 
@@ -68,21 +68,21 @@ Pick a default folder (with auto-save on by default) and exports land there sile
 
 ## Import
 
-Settings → Import file accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: Google Timeline archives are not supported.
+Settings → Import file accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.
 
-Choose a file for the next task 
-| Format | Useful for | Import into iso.me 
-| iso.me JSON | Structured visit or point records | Supported visit and point exports 
-| iso.me CSV / Markdown | Spreadsheets / readable records | Supported visit and point exports; required fields must remain 
-| GPX / KML / GeoJSON | Mapping tools and route viewers | No 
-| OwnTracks / Overland | Compatible location tools | No 
+Choose a file for the next task
+| Format | Useful for | Import into iso.me
+| iso.me JSON | Structured visit or point records | Supported visit and point exports
+| iso.me CSV / Markdown | Spreadsheets / readable records | Supported visit and point exports; required fields must remain
+| GPX / KML / GeoJSON | Mapping tools and route viewers | No
+| OwnTracks / Overland | Compatible location tools | No
 
 ## Keep a copy and check it
 
-- Select visits or route points, JSON, and the dates you want to retain. Export each data type you need; keep all generated files. 
-- Preview the result. Check that filters, field choices, and dates have not excluded required records. 
-- Export to a folder you control and confirm the files exist in Files before deleting or replacing anything. 
-- When importing later, keep the originals and inspect several dates, visits, and points after the import. Do not assume every setting, photo association, or edited outing is restored.  
+- Select visits or route points, JSON, and the dates you want to retain. Export each data type you need; keep all generated files.
+- Preview the result. Check that filters, field choices, and dates have not excluded required records.
+- Export to a folder you control and confirm the files exist in Files before deleting or replacing anything.
+- When importing later, keep the originals and inspect several dates, visits, and points after the import. Do not assume every setting, photo association, or edited outing is restored.
 
 [Automatic exports](https://isome.isolated.tech/docs/automatic-exports/) can keep scheduled copies, subject to iOS background execution. For the recording workflow, see [the private location journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/). For a route file, follow [the GPX recording walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/). For restorable records, use [the backup and restore checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/). Comparing apps? Read [iso.me and Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/).
 

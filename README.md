@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B%20%7C%20watchOS%2010%2B-lightgrey)](#tech-stack)
 [![Swift](https://img.shields.io/badge/swift-5-orange)](#tech-stack)
 
-iso.me is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **keeps every byte of your data on-device**. No accounts. No cloud sync. No third-party dependencies. No analytics. Just you, your phone, and your history.
+iso.me is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No iso.me account or server-side location archive. Apple geocoding and Maps services, default-on first-party onboarding telemetry, and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://isome.isolated.tech/privacy).
 
 **[🌐 isome.isolated.tech](https://isome.isolated.tech)** · **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
 
@@ -60,11 +60,11 @@ iOS lock screen widget via Live Activities and watchOS complications for quick t
 
 Tracking is free and unlimited — visits, continuous routes, watch app, Live Activities, widgets. No subscription, no ads, no usage caps.
 
-The one paid feature is **export**, offered as lifetime purchases with no recurring charge:
+The one paid feature is **export**, offered as lifetime purchases with no recurring charge. US prices verified in App Store Connect on October 26, 2026; other storefronts vary:
 
-- **Individual Lifetime — $10** for one Apple ID
-- **Family Lifetime — $20** with Apple Family Sharing for up to five family members
-- **Family Upgrade — $10** for Individual Lifetime owners who later want Family Sharing
+- **Individual Lifetime — $19.99** for one Apple ID
+- **Family Lifetime — $39.99** with Apple Family Sharing for up to five family members
+- **Family Upgrade — $19.99** for Individual Lifetime owners who later want Family Sharing
 
 Everyone who bought the original `com.bontecou.isome.lifetime` unlock is grandfathered into Family Lifetime automatically. The split is on purpose: tracking is the commodity, but a clean, lossless export of your full history is the part that's worth paying for once. It also keeps the privacy promise free at the door — you never have to pay to keep your data on your device.
 
@@ -75,7 +75,7 @@ Everyone who bought the original `com.bontecou.isome.lifetime` unlock is grandfa
 - **Data:** SwiftData
 - **Minimum iOS:** 17.0
 - **Minimum watchOS:** 10.0
-- **Dependencies:** None (all native Apple frameworks)
+- **Dependencies:** ExportKit, ExportAutomationKit, and Notelet, alongside native Apple frameworks.
 
 ### Frameworks Used
 

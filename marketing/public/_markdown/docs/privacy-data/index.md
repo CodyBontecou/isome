@@ -1,4 +1,4 @@
-§ Docs · Guide 11 of 11 
+§ Docs · Guide 11 of 11
 
 # Privacy & your data
 
@@ -26,12 +26,12 @@ Your location history — visits, routes, outings, saved places, photo matches �
 
 ## Everything that can leave your device
 
-| Where | What's sent | When | Off switch 
-| Apple geocoding | Coordinates of a visit (to fetch its name/address) | When naming visits | Settings → Location names 
-| Apple Maps | Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images) | When you use those features | Features are opt-in per use; road-matching toggle in map filters 
-| iso.me analytics (first-party, on by default) | Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — never coordinates, visits, routes, or anything you type | During onboarding and purchases | None in-app today; deleting the app removes the install ID 
-| Export scheduler | Time zone, schedule times, push token, random install ID — timing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off 
-| Your webhook | Location points and visits, in your chosen format | Only after you configure an endpoint | Disable webhooks (off by default) 
+| Where | What's sent | When | Off switch
+| Apple geocoding | Coordinates of a visit (to fetch its name/address) | When naming visits | Settings → Location names
+| Apple Maps | Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images) | When you use those features | Features are opt-in per use; road-matching toggle in map filters
+| iso.me analytics (first-party, on by default) | Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — never coordinates, visits, routes, or anything you type | During onboarding and purchases | None in-app today; deleting the app removes the install ID
+| Export scheduler | Time zone, schedule times, push token, random install ID — timing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off
+| Your webhook | Location points and visits, in your chosen format | Only after you configure an endpoint | Disable webhooks (off by default)
 
 ## Photos
 
@@ -39,9 +39,9 @@ The photo feature reads your library on-device to match pictures to places. Phot
 
 ## Deleting your data
 
-- Everything, in-app: Settings → Data → Clear all data permanently removes every visit, point, outing, photo match, and saved place. 
-- Everything, bluntly: deleting the app removes your entire journal and the local analytics install ID from that device. 
-- Single items: delete any visit or outing from its detail page.  
+- Everything, in-app: Settings → Data → Clear all data permanently removes every visit, point, outing, photo match, and saved place.
+- Everything, bluntly: deleting the app removes your entire journal and the local analytics install ID from that device.
+- Single items: delete any visit or outing from its detail page.
 
 ## Backups are your job (by design)
 
@@ -49,10 +49,10 @@ Because nothing is synced to a cloud, there is no server copy to fall back on. E
 
 ## Permissions iso.me requests
 
-| Permission | Why 
-| Location — Always | Automatic visit detection in the background (While-Using still works for manual sessions). 
-| Photos (optional) | Matching your pictures to places; never modifies your library. 
-| Notifications (optional) | Auto Export status and retry notices. 
+| Permission | Why
+| Location — Always | Automatic visit detection in the background (While-Using still works for manual sessions).
+| Photos (optional) | Matching your pictures to places; never modifies your library.
+| Notifications (optional) | Auto Export status and retry notices.
 
 [← PreviousRecord Apple Watch GPS routes without your iPhone](https://isome.isolated.tech/docs/apple-watch/)
 

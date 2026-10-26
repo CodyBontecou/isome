@@ -25,10 +25,10 @@ From recording to file
 
 ## 1. Record a short route
 
-- Open iso.me and complete permission setup. Choose Always location access if you want recording to continue in the background. 
-- On the Map tab, start recording before you leave. Start enables GPS recording, visit monitoring, and significant location changes together. 
-- After a short walk or trip, stop recording. Stop ends both GPS and visit monitoring. 
-- Open Timeline and check the outing’s date, start and end times, and map. Confirm that it contains the part of the trip you intend to export.  
+- Open iso.me and complete permission setup. Choose Always location access if you want recording to continue in the background.
+- On the Map tab, start recording before you leave. Start enables GPS recording, visit monitoring, and significant location changes together.
+- After a short walk or trip, stop recording. Stop ends both GPS and visit monitoring.
+- Open Timeline and check the outing’s date, start and end times, and map. Confirm that it contains the part of the trip you intend to export.
 
 Try this with a short session before relying on it for a full day. GPS can be noisy or unavailable, and permission changes or a stopped session can leave gaps. There is no separate passive visit-only switch. The [recording reference](https://isome.isolated.tech/docs/tracking/) explains distance filtering and auto-stop.
 
@@ -36,19 +36,19 @@ For a longer trip, choose an auto-stop duration that will not end early. Stop wh
 
 ## 2. Choose Points and GPX
 
-- Open Export and choose Points as the data type. These are the recorded GPS locations that make up a path. 
-- Select GPX. If other formats are also selected, the export can produce additional files. 
-- Choose the date range for your recording. Review any time-of-day, accuracy, and GPS-glitch filters that could exclude points. 
-- Open Preview. Check the intended date and file contents before paying for or writing an export. 
-- Export. With a default folder configured, look there for the saved file; otherwise use the share sheet to save it in Files.  
+- Open Export and choose Points as the data type. These are the recorded GPS locations that make up a path.
+- Select GPX. If other formats are also selected, the export can produce additional files.
+- Choose the date range for your recording. Review any time-of-day, accuracy, and GPS-glitch filters that could exclude points.
+- Open Preview. Check the intended date and file contents before paying for or writing an export.
+- Export. With a default folder configured, look there for the saved file; otherwise use the share sheet to save it in Files.
 
 You can also open a specific outing in Timeline and use its Export action with GPX selected. For a full reference on filenames, date filters, and saving destinations, see [export and restore compatibility](https://isome.isolated.tech/docs/export-import/).
 
-Choose the data you actually need 
-| Choice | GPX result | Use it for  
-| Points | Track points grouped into track segments | The recorded path over a selected period 
-| Visits | Waypoints, when visit coordinates are included | Stops rather than a continuous path 
-| Outings | The selected outing’s route points | A particular recorded trip  
+Choose the data you actually need
+| Choice | GPX result | Use it for
+| Points | Track points grouped into track segments | The recorded path over a selected period
+| Visits | Waypoints, when visit coordinates are included | Stops rather than a continuous path
+| Outings | The selected outing’s route points | A particular recorded trip
 
 A GPX export with only visits can be valid but show pins instead of a line. Pick Points or an outing if the path is the part you want to keep.
 
@@ -60,10 +60,10 @@ The export interface. This screenshot illustrates the workflow and may show samp
 
 Find the exported `.gpx` file in the folder you chose. Confirm the filename and date before sending it elsewhere. If your destination application accepts GPX tracks, use its import or open-file action to select the file.
 
-- Check that the track covers the expected start and end locations. 
-- Check timestamps against the trip. GPX times may be shown in UTC or converted to the viewer’s local timezone. 
-- Look for gaps and separate segments instead of assuming every straight line represents captured movement. 
-- Keep the original file if another tool rewrites or converts it.  
+- Check that the track covers the expected start and end locations.
+- Check timestamps against the trip. GPX times may be shown in UTC or converted to the viewer’s local timezone.
+- Look for gaps and separate segments instead of assuming every straight line represents captured movement.
+- Keep the original file if another tool rewrites or converts it.
 
 GPX describes geographic data; it does not include a street map or guarantee that every app offers the same display. Files preview may show text or a file icon rather than drawing a route. A viewer that supports waypoints alone may not display a track.
 
@@ -85,11 +85,11 @@ The coordinates identify a point. Its time helps a viewer place it in sequence; 
 
 For an incomplete iso.me day, use the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) to distinguish recording, display, Watch sync, and export issues.
 
-- No points in Preview: check the selected dates and filters, then open the same day in Timeline. Export cannot create a path that was not recorded. 
-- Pins instead of a line: check whether you exported Visits rather than Points. 
-- The path has gaps: check recording state, permission, and auto-stop. Inspect the original points before changing filters to include less accurate fixes. 
-- File saved somewhere unexpected: check the default export folder before repeating the export. Some exports produce more than one file. 
-- A viewer rejects the file: confirm it supports GPX 1.1 tracks and that the file was completely saved. Keep the original while checking the error.  
+- No points in Preview: check the selected dates and filters, then open the same day in Timeline. Export cannot create a path that was not recorded.
+- Pins instead of a line: check whether you exported Visits rather than Points.
+- The path has gaps: check recording state, permission, and auto-stop. Inspect the original points before changing filters to include less accurate fixes.
+- File saved somewhere unexpected: check the default export folder before repeating the export. Some exports produce more than one file.
+- A viewer rejects the file: confirm it supports GPX 1.1 tracks and that the file was completely saved. Keep the original while checking the error.
 
 ## Keep a separate copy for restoring your journal
 
@@ -104,7 +104,7 @@ Choose how to keep it.
 
 Try free recording and export preview. The optional purchase unlocks writing files; see [current pricing](https://isome.isolated.tech/#pricing).
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-gpx&mt=8)
 
 Reviewed October 26, 2026. Steps reflect iso.me’s recording and export controls; labels can vary by app version. For setup, read [the private journal guide](https://isome.isolated.tech/blog/private-location-journal-iphone/); for existing Apple or Google records, see [how to view iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/).
 

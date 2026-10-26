@@ -1,4 +1,4 @@
-§ Docs · Guide 1 of 11 
+§ Docs · Guide 1 of 11
 
 # Getting started
 
@@ -26,11 +26,11 @@ iso.me is a free download on the App Store. There is no account to create and no
 
 ## The onboarding steps
 
-- Welcome — a short overview of what iso.me records and where it keeps it. 
-- Core features — visit timeline, route recording, and exports at a glance. 
-- Permission setup — iso.me asks for While Using location access first, then offers Always. Always is what enables automatic visit detection while the app is in the background; you can decline and still use manual tracking. If permission is denied, the app links you straight to iOS Settings. 
-- Connect Photos (optional) — you can enable photo moments now or skip entirely. Skipping changes nothing else. 
-- You're all set — optionally tick Start tracking immediately and iso.me begins recording the moment onboarding finishes.  
+- Welcome — a short overview of what iso.me records and where it keeps it.
+- Core features — visit timeline, route recording, and exports at a glance.
+- Permission setup — iso.me asks for While Using location access first, then offers Always. Always is what enables automatic visit detection while the app is in the background; you can decline and still use manual tracking. If permission is denied, the app links you straight to iOS Settings.
+- Connect Photos (optional) — you can enable photo moments now or skip entirely. Skipping changes nothing else.
+- You're all set — optionally tick Start tracking immediately and iso.me begins recording the moment onboarding finishes.
 
 ## After onboarding
 
@@ -38,9 +38,9 @@ You land on the Map tab. The other tabs are Timeline (your day, visit by visit),
 
 ## Your first day
 
-- Start tracking from the map pill before a walk or drive — you'll see the path draw in, and a Live Activity appears on your lock screen. 
-- Stop tracking from the pill, the Live Activity's Stop button, Siri, or automatically with the auto-stop timer. 
-- Open the Timeline tab to review where you went, how long you stayed, and how far you moved.  
+- Start tracking from the map pill before a walk or drive — you'll see the path draw in, and a Live Activity appears on your lock screen.
+- Stop tracking from the pill, the Live Activity's Stop button, Siri, or automatically with the auto-stop timer.
+- Open the Timeline tab to review where you went, how long you stayed, and how far you moved.
 
 Where is my data? On your iPhone only. See the [Privacy & your data](https://isome.isolated.tech/docs/privacy-data) guide for the complete picture of storage, network requests, and deletion.
 

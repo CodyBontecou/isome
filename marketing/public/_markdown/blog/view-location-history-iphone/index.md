@@ -24,20 +24,20 @@ Choose your next step
 
 ## Which history are you looking for?
 
-Start with the service that recorded the day 
-| What you used | Where to look | What to check  
-| Apple Maps | Places → Visited Places, where available | Whether the feature was enabled and the visit is retained 
-| Google Maps | Profile picture → Your Timeline | The account, selected device history, and date 
-| iso.me | Timeline or the date range on Map | Whether tracking was enabled for that period 
-| No enabled recorder | There may be no route record to open | Start a new recording before the next trip  
+Start with the service that recorded the day
+| What you used | Where to look | What to check
+| Apple Maps | Places → Visited Places, where available | Whether the feature was enabled and the visit is retained
+| Google Maps | Profile picture → Your Timeline | The account, selected device history, and date
+| iso.me | Timeline or the date range on Map | Whether tracking was enabled for that period
+| No enabled recorder | There may be no route record to open | Start a new recording before the next trip
 
 Directions you requested, places you searched for, and a recorded visit are different kinds of information. A search for a restaurant does not by itself establish when you arrived or how you travelled there.
 
 ## Find visited places in Apple Maps
 
-- Open Maps, then open Places. 
-- Choose Visited Places, if it is available. 
-- Search for a place or filter by date, category, or city. Use All Visits to browse.  
+- Open Maps, then open Places.
+- Choose Visited Places, if it is available.
+- Search for a place or filter by date, category, or city. Use All Visits to browse.
 
 Apple says this feature needs to be enabled before visits appear, is unavailable in some regions, and keeps visits encrypted so Apple cannot read them. Retention settings can also remove older entries. Menus vary with iOS version; use [Apple’s Visited Places instructions](https://support.apple.com/guide/iphone/view-visited-places-iph0c2597c4f/ios) for your version.
 
@@ -45,22 +45,22 @@ If you are looking for a setting called Significant Locations rather than a Maps
 
 ## Open Google Maps Timeline
 
-- Open Google Maps and tap your profile picture or initial. 
-- Choose Your Timeline, then use the calendar to select a day. 
-- If history is missing, confirm which account and device you used. Check your backup and deletion settings before making changes.  
+- Open Google Maps and tap your profile picture or initial.
+- Choose Your Timeline, then use the calendar to select a day.
+- If history is missing, confirm which account and device you used. Check your backup and deletion settings before making changes.
 
 Google Timeline stores history on the device and can keep an encrypted backup. To save an independent archive, Google’s iPhone instructions use Settings → Location & Privacy → Export Timeline data, then Save to Files. Settings are changing, so follow [Google’s current Timeline guide](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en) if your menus differ.
 
-Keep that archive separately. iso.me does not import Google Timeline files; the [Google Timeline comparison](https://isome.isolated.tech/compare/google-maps-timeline/) explains the tradeoffs before you change your recording setup.
+Keep that archive separately. The verified App Store 1.7.16 build does not import Google Timeline files; the [Google Timeline comparison](https://isome.isolated.tech/compare/google-maps-timeline/) explains the tradeoffs before you change your recording setup.
 
 ## Why a day can be empty
 
 First check the date, account, and app rather than assuming the history is gone. A map showing today may simply be the wrong view for last month’s trip. In iso.me, use Timeline’s date controls or change the Map date range.
 
-- Recording was off. A location permission lets an app request locations; it is not proof that the app recorded that day. 
-- The record was removed. Look for retained files or supported backups before clearing more data or replacing a device. 
-- The device missed part of the trip. Permission changes, a stopped session, GPS conditions, or a flat battery can leave gaps. 
-- A visit has not appeared. Detected arrivals and departures are not an immediate check-in at every stop. A route can contain points even when a visit is missing.  
+- Recording was off. A location permission lets an app request locations; it is not proof that the app recorded that day.
+- The record was removed. Look for retained files or supported backups before clearing more data or replacing a device.
+- The device missed part of the trip. Permission changes, a stopped session, GPS conditions, or a flat battery can leave gaps.
+- A visit has not appeared. Detected arrivals and departures are not an immediate check-in at every stop. A route can contain points even when a visit is missing.
 
 For an incomplete iso.me day, use the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) to distinguish recording, display, Watch sync, and export issues.
 
@@ -70,10 +70,10 @@ Photos, receipts, and calendar entries may help you remember a day, but they are
 
 If you want a separate journal without an iso.me account, try a short recording before a longer trip:
 
-- Install iso.me and complete permission setup. Always location access allows recording in the background. 
-- On Map, tap the recording control before you leave. Start enables GPS recording and visit monitoring together. 
-- Stop when you finish. Open Timeline and check the date, route, and times. 
-- If you need a portable route file, follow [the iPhone route and GPX guide](https://isome.isolated.tech/blog/record-iphone-route-gpx/).  
+- Install iso.me and complete permission setup. Always location access allows recording in the background.
+- On Map, tap the recording control before you leave. Start enables GPS recording and visit monitoring together.
+- Stop when you finish. Open Timeline and check the date, route, and times.
+- If you need a portable route file, follow [the iPhone route and GPX guide](https://isome.isolated.tech/blog/record-iphone-route-gpx/).
 
 Recording and reviewing your journal are free. Writing export files requires the optional one-time unlock; preview is free. Read [the setup walkthrough](https://isome.isolated.tech/blog/private-location-journal-iphone/) for permissions, battery controls, and keeping supported copies.
 
@@ -88,7 +88,7 @@ Start recording before you go.
 
 Try iso.me’s free recording, then review the route and visits on your iPhone.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
 Reviewed October 26, 2026 against Apple and Google documentation and iso.me’s product source. Platform instructions can vary by version and region. Written by iso.me’s developer; the screenshots are interface examples.
 

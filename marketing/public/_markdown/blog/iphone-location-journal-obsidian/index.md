@@ -30,21 +30,21 @@ A visit export is a practical starting point when you want to remember stops rat
 
 A Points export is different: it lists recorded locations with times and optional speed, altitude, accuracy, and outlier information. A long recording can produce a large table. Markdown does not turn those rows into a route map in Obsidian.
 
-Match the file to the task 
-| What you want | Choose | Check before saving  
-| A list of places and stops | Visits → Markdown | Date range, names, notes, and the columns you need 
-| Timestamped GPS rows | Points → Markdown | Point count, accuracy filters, and file size 
-| A route for a map viewer | Points → GPX | Use the [GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/); this guide does not add a map plugin 
-| A copy for restoring supported records | Separate Visits and Points JSON files | Use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) alongside your readable notes  
+Match the file to the task
+| What you want | Choose | Check before saving
+| A list of places and stops | Visits → Markdown | Date range, names, notes, and the columns you need
+| Timestamped GPS rows | Points → Markdown | Point count, accuracy filters, and file size
+| A route for a map viewer | Points → GPX | Use the [GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/); this guide does not add a map plugin
+| A copy for restoring supported records | Separate Visits and Points JSON files | Use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) alongside your readable notes
 
 ## 1. Export the date range as Markdown
 
-- In iso.me, open Export and select Visits. 
-- Select Markdown. Deselect other formats if you only want the note file. 
-- Choose the day or date range. Review duration, completion, and time filters so they do not remove visits you wanted to keep. 
-- Choose the visit fields. For a readable note, names and notes may matter more than coordinates. Keep a separate supported backup if you need restoration later. 
-- Open Preview. Check a known stop and its date before writing the file. 
-- Export to your chosen folder, or use the share sheet to save in Files. Confirm that the `.md` file exists.  
+- In iso.me, open Export and select Visits.
+- Select Markdown. Deselect other formats if you only want the note file.
+- Choose the day or date range. Review duration, completion, and time filters so they do not remove visits you wanted to keep.
+- Choose the visit fields. For a readable note, names and notes may matter more than coordinates. Keep a separate supported backup if you need restoration later.
+- Open Preview. Check a known stop and its date before writing the file.
+- Export to your chosen folder, or use the share sheet to save in Files. Confirm that the `.md` file exists.
 
 For one file per day, enable the daily output layout and inspect the resolved filename preview. A template such as `{date}-visits` can make files easier to recognize. Treat it as an example; check the actual generated filename before copying it into your vault.
 
@@ -54,11 +54,11 @@ Visit table dates and times are formatted using the device’s calendar and loca
 
 Make the saved export available on the computer where you use Obsidian. Use a transfer destination you control. This step moves location records outside iso.me’s local journal, so the destination’s storage and sharing settings apply.
 
-- Find the folder for the Obsidian vault you intend to use. 
-- Create a subfolder such as `Location` for generated exports. 
-- Copy the Markdown file into that subfolder. Keep the original until you have checked the copy. 
-- In Obsidian’s file explorer, open the note. Switch to Reading view if you want to inspect the rendered table. 
-- Verify the date heading, number of visits, names, and times against iso.me’s Preview.  
+- Find the folder for the Obsidian vault you intend to use.
+- Create a subfolder such as `Location` for generated exports.
+- Copy the Markdown file into that subfolder. Keep the original until you have checked the copy.
+- In Obsidian’s file explorer, open the note. Switch to Reading view if you want to inspect the rendered table.
+- Verify the date heading, number of visits, names, and times against iso.me’s Preview.
 
 Obsidian documents both copying Markdown directly into a vault folder and dragging it into the file explorer in its [Markdown import guide](https://obsidian.md/help/import/markdown). Its [storage guide](https://obsidian.md/help/Files%2Band%2Bfolders/How%2BObsidian%2Bstores%2Bdata) explains that a vault is a folder of local files and reflects external file changes.
 
@@ -102,7 +102,7 @@ Add your own context.
 
 Try free recording and Markdown preview. See [current pricing](https://isome.isolated.tech/#pricing) for the optional file-export unlock.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
 Reviewed October 26, 2026 against iso.me’s Markdown exporter and Obsidian’s linked documentation. A synthetic note was rendered in a temporary desktop vault. Mobile handoff and scheduled vault delivery remain untested.
 

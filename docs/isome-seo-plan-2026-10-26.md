@@ -1,5 +1,7 @@
 # iso.me SEO audit and execution plan
 
+> **Historical implementation plan.** For the current live-site audit and next priorities, use [the refreshed SEO priorities](isome-seo-priorities-2026-10-26.md). A fresh October 26 HTTP audit confirms 27 sitemap URLs are now live. The older local-only/deployment statements and no-Google-import assumptions below are historical: current app source includes a Google importer, while public App Store availability must be verified before advertising it. Do not reuse the old page-creation backlog as outstanding work.
+
 Prepared October 26, 2026. The original audit below describes the pre-implementation site. Implementation has now started locally; no deployment, analytics changes, or scheduled jobs have been performed.
 
 ## Implementation progress — October 26, 2026

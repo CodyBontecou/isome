@@ -1,0 +1,11 @@
+{
+  "name": "spotted",
+  "pages_build_output_dir": "./public",
+  "compatibility_date": "2026-04-08",
+  "d1_databases": [{
+    "binding": "SEO_DB",
+    "database_name": "iso-me-onboarding-analytics",
+    "database_id": "20e95c7d-0939-4ead-8066-f2207505d273",
+    "migrations_dir": "./migrations"
+  }]
+}

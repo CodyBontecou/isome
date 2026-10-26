@@ -1,4 +1,4 @@
-§ Docs · Guide 2 of 11 
+§ Docs · Guide 2 of 11
 
 # Visits, routes & battery
 
@@ -26,10 +26,10 @@ iso.me records visits (arrivals and departures) and routes (GPS paths). Start en
 
 ## Starting and stopping
 
-- Map pill — the floating control on the Map tab shows live duration and distance while recording. 
-- Live Activity — lock screen and Dynamic Island show progress and include a Stop button. 
-- Siri / Shortcuts — “Start iso.me” and “Stop tracking with iso.me” phrases work hands-free. 
-- Auto-stop timer — optional safety net that ends tracking automatically.  
+- Map pill — the floating control on the Map tab shows live duration and distance while recording.
+- Live Activity — lock screen and Dynamic Island show progress and include a Stop button.
+- Siri / Shortcuts — “Start iso.me” and “Stop tracking with iso.me” phrases work hands-free.
+- Auto-stop timer — optional safety net that ends tracking automatically.
 
 For a walkthrough, see [how to keep a private location journal](https://isome.isolated.tech/blog/private-location-journal-iphone/) or [record an iPhone route and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/).
 
@@ -43,17 +43,17 @@ New visits are reverse-geocoded to a name and address automatically, unless you'
 
 ## Route recording quality
 
-- Only fixes with reported accuracy of 100 m or better are saved; wilder fixes are dropped. 
-- Obvious glitches — impossible jumps and out-and-back spikes — are flagged as GPS glitches and excluded from distances and maps by default. Enable Settings → Map display → Show GPS glitches to see them.  
+- Only fixes with reported accuracy of 100 m or better are saved; wilder fixes are dropped.
+- Obvious glitches — impossible jumps and out-and-back spikes — are flagged as GPS glitches and excluded from distances and maps by default. Enable Settings → Map display → Show GPS glitches to see them.
 
 ## Tracking settings reference
 
-| Setting | Options | Default | What it does 
-| Distance filter | 5 / 10 / 25 / 50 / 100 / 200 m | 5 m | Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active. 
-| Stop after | Never / 1 / 2 / 4 / 8 / 12 h | Never | Automatically ends tracking after this long, so a forgotten session can't run all day. 
-| Location names | On / Off | On | Whether coordinates are sent to Apple's geocoding service to name visits. 
-| Live Activity | On / Off | On | Lock screen / Dynamic Island status while tracking. 
-| Units | Metric / US | Metric | Applies everywhere: app, widgets, Live Activity, watch. 
+| Setting | Options | Default | What it does
+| Distance filter | 5 / 10 / 25 / 50 / 100 / 200 m | 5 m | Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active.
+| Stop after | Never / 1 / 2 / 4 / 8 / 12 h | Never | Automatically ends tracking after this long, so a forgotten session can't run all day.
+| Location names | On / Off | On | Whether coordinates are sent to Apple's geocoding service to name visits.
+| Live Activity | On / Off | On | Lock screen / Dynamic Island status while tracking.
+| Units | Metric / US | Metric | Applies everywhere: app, widgets, Live Activity, watch.
 
 Battery. Tracking includes detailed GPS as well as visit monitoring, so it uses battery for as long as recording stays on. Stop when you finish, consider a 25–50 m distance filter, and set an auto-stop timer. Check the resulting route before relying on a larger filter; no battery duration is guaranteed. Follow the [battery-use comparison checklist](https://isome.isolated.tech/blog/iphone-location-tracking-battery/) to check the tradeoff on your own phone.
 

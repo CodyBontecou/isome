@@ -32,12 +32,12 @@ Note the recording duration, starting and ending charge, screen use, and whether
 
 ## 2. Change the controls that affect your recording
 
-What each control changes in iso.me 
-| Control | What changes | What to check  
-| Stop recording | Ends the active recording and stops its GPS, visit, and significant-change monitoring. | Confirm the tracking state changed. Future movement will not be captured by that stopped session. 
-| Distance filter | Changes the movement threshold requested for location updates. Options are 5, 10, 25, 50, 100, and 200 meters. | Larger values can mean fewer points and less route detail. They do not switch off high-accuracy GPS. 
-| Stop after | Adds an automatic stopping timer: 1, 2, 4, 8, or 12 hours, or Never. | Choose enough time for the intended route, and still check the final recording state. 
-| Location names | Controls sending coordinates to Apple’s geocoding service to name visits. | Turning names off does not stop GPS recording or create a visits-only mode.  
+What each control changes in iso.me
+| Control | What changes | What to check
+| Stop recording | Ends the active recording and stops its GPS, visit, and significant-change monitoring. | Confirm the tracking state changed. Future movement will not be captured by that stopped session.
+| Distance filter | Changes the movement threshold requested for location updates. Options are 5, 10, 25, 50, 100, and 200 meters. | Larger values can mean fewer points and less route detail. They do not switch off high-accuracy GPS.
+| Stop after | Adds an automatic stopping timer: 1, 2, 4, 8, or 12 hours, or Never. | Choose enough time for the intended route, and still check the final recording state.
+| Location names | Controls sending coordinates to Apple’s geocoding service to name visits. | Turning names off does not stop GPS recording or create a visits-only mode.
 
 Find these options under Settings → Location tracking. For a longer outing, you could try a 25 or 50 meter distance filter on a short, familiar route before using it for a full day. That is a starting point for comparison, not a measured battery recommendation.
 
@@ -47,11 +47,11 @@ Use Stop after as a fallback for a forgotten session. If the timer expires durin
 
 ## 3. Compare one change on a familiar route
 
-- Choose a short route with turns and stops you can recognize later. Note the current distance filter and intended recording duration. 
-- Start recording and check that the app shows an active session. Keep screen use representative of how you normally record. 
-- Stop at the end. In Timeline, open the outing and inspect the path, times, turns, and gaps. 
-- On another comparable trip, change only the distance filter. Note differences in charge use and route detail rather than assuming the setting is better because it is larger. 
-- Keep the setting that preserves the detail you need. Repeat if the two trips had substantially different conditions.  
+- Choose a short route with turns and stops you can recognize later. Note the current distance filter and intended recording duration.
+- Start recording and check that the app shows an active session. Keep screen use representative of how you normally record.
+- Stop at the end. In Timeline, open the outing and inspect the path, times, turns, and gaps.
+- On another comparable trip, change only the distance filter. Note differences in charge use and route detail rather than assuming the setting is better because it is larger.
+- Keep the setting that preserves the detail you need. Repeat if the two trips had substantially different conditions.
 
 A route with fewer points may be adequate for remembering a journey but miss a short detour you care about. An export contains the recorded points; exporting GPX cannot add detail that was never captured. Use the [GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/) when you want to inspect a saved route in another tool.
 
@@ -84,7 +84,7 @@ Check where it ends.
 
 Try free recording and review your first short outing before choosing settings for a longer day.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
 Reviewed October 26, 2026 against iso.me’s recording controls and Apple’s linked guidance. No new device battery benchmark was performed. Controls can vary by app and iOS version.
 

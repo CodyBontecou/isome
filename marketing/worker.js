@@ -1,6 +1,50 @@
 // The site builder replaces this token with the public-page Markdown manifest.
 const pages = __PAGE_MARKDOWN__;
 
+async function acquisition(request, env) {
+  const headers = { 'Cache-Control': 'no-store' };
+  const reply = (message, status) => new Response(message, { status, headers });
+  if (request.method !== 'POST') return new Response(null, { status: 405, headers: { ...headers, Allow: 'POST' } });
+  const url = new URL(request.url);
+  // Reject cross-origin/form submissions. Preview deployments don't collect counts.
+  if (request.headers.get('Origin') !== url.origin ||
+      !(url.hostname === 'isome.isolated.tech' || ['127.0.0.1', 'localhost'].includes(url.hostname))) return reply('Forbidden', 403);
+  if (request.headers.get('Content-Type')?.split(';')[0].trim() !== 'application/json') return reply('JSON required', 415);
+  if (request.headers.get('Sec-GPC') === '1' || request.headers.get('DNT') === '1') return reply(null, 204);
+  if (!env.SEO_DB) return reply('Measurement unavailable', 503);
+  if (Number(request.headers.get('Content-Length')) > 512) return reply('Payload too large', 413);
+  let size = 0;
+  const chunks = [];
+  const reader = request.body?.getReader();
+  if (!reader) return reply('Invalid event', 400);
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > 512) { await reader.cancel(); return reply('Payload too large', 413); }
+    chunks.push(value);
+  }
+  let event;
+  try {
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    event = JSON.parse(new TextDecoder().decode(bytes));
+  } catch { return reply('Invalid event', 400); }
+  if (!event || Array.isArray(event) || Object.keys(event).sort().join(',') !== 'event,page,placement,source' ||
+      !['page_view', 'app_store_clicked'].includes(event.event) ||
+      !Object.hasOwn(pages, event.page) ||
+      !['page', 'header', 'inline', 'footer', 'qr'].includes(event.placement) ||
+      !['direct', 'internal', 'search', 'other'].includes(event.source) ||
+      (event.event === 'page_view') !== (event.placement === 'page')) return reply('Invalid event', 400);
+  try {
+    await env.SEO_DB.prepare(`INSERT INTO website_acquisition_daily (day,event,page,placement,source,count)
+      VALUES (date('now'),?,?,?,?,1) ON CONFLICT(day,event,page,placement,source)
+      DO UPDATE SET count=count+1`).bind(event.event, event.page, event.placement, event.source).run();
+  } catch { return reply('Measurement unavailable', 503); }
+  return reply(null, 204);
+}
+
 function quality(accept, type) {
   for (const entry of accept.toLowerCase().split(',')) {
     const [media, ...parameters] = entry.trim().split(';');
@@ -15,6 +59,7 @@ function quality(accept, type) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/api/v1/acquisition') return acquisition(request, env);
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response(JSON.stringify({
         type: 'about:blank', title: 'Method not allowed', status: 405,
