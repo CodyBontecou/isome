@@ -32,7 +32,16 @@ struct ExportOptions {
     var includePointSpeed = true; var includePointAccuracy = true
     var includePointOutlierFlag = true
 }
+// The points-only sample never serializes visits. Supply the unused waypoint
+// audit adapter so this extracted serializer still compiles after audit fields
+// were added to the production visit path.
+struct FixtureVisitAuditMetadata {
+    func fields() -> [(String, String)] { [] }
+}
 struct ExportService {
+    static func auditMetadata(_ visit: Visit, options: ExportOptions) -> FixtureVisitAuditMetadata {
+        FixtureVisitAuditMetadata()
+    }
     static let iso8601Formatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -78,7 +87,7 @@ def check(write=False):
         subprocess.run([str(folder / "render"), str(output)], check=True)
         data = output.read_bytes()
     root = ET.fromstring(data)
-    assert root.attrib == {"version": "1.1", "creator": "iso.me"}
+    assert root.attrib == {"version": "1.1", "creator": "Whereday"}
     segments = root.findall("g:trk/g:trkseg", NS)
     assert [len(segment) for segment in segments] == [3, 2]
     points = root.findall("g:trk/g:trkseg/g:trkpt", NS)

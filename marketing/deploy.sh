@@ -13,7 +13,7 @@ wrangler d1 migrations apply iso-me-onboarding-analytics --remote --config "$MAR
 )
 
 if command -v indexnow >/dev/null 2>&1; then
-  indexnow submit-sitemap isome.isolated.tech --recent-days 7 --confirm
+  indexnow submit-sitemap whereday.com --recent-days 7 --confirm
 else
   printf '%s\n' 'warning: indexnow CLI not found; production deployed without URL notification' >&2
 fi

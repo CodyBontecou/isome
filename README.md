@@ -1,4 +1,4 @@
-# iso.me
+# Whereday
 
 > **Open source location journaling for iPhone and Apple Watch, with your working history stored on your device.**
 
@@ -6,26 +6,26 @@
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B%20%7C%20watchOS%2010%2B-lightgrey)](#tech-stack)
 [![Swift](https://img.shields.io/badge/swift-5-orange)](#tech-stack)
 
-iso.me is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No iso.me account or server-side location archive. Apple geocoding and Maps services, default-on first-party onboarding telemetry, and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://isome.isolated.tech/privacy).
+Whereday is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No Whereday account or server-side location archive. Apple geocoding and Maps services, default-on first-party onboarding telemetry, and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://whereday.com/privacy).
 
-**[🌐 isome.isolated.tech](https://isome.isolated.tech)** · **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
+**[🌐 whereday.com](https://whereday.com)** · **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/isome/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/isome)**
 
 ## User guides and checked examples
 
-For the public app, start with the [product documentation](https://isome.isolated.tech/docs/) or choose a task below. The guides identify what was checked and where a workflow still needs verification.
+For the public app, start with the [product documentation](https://whereday.com/docs/) or choose a task below. The guides identify what was checked and where a workflow still needs verification.
 
 | Your task | Guide and available evidence |
 |---|---|
-| Find an earlier day | [Find iPhone location history](https://isome.isolated.tech/blog/view-location-history-iphone/): Apple/Google paths, date selection, and preserving existing records. |
-| Start a local journal | [Private location journal setup](https://isome.isolated.tech/blog/private-location-journal-iphone/): controls and a checked empty-path example that distinguishes a timer from saved GPS points. |
-| Use a route file | [Record and export GPX](https://isome.isolated.tech/blog/record-iphone-route-gpx/): synthetic points exported through the released app’s UI and Files, then checked in gpx.studio. |
-| Keep supported records | [Backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/): separate visit/point files, supported formats, and destination checks. |
-| Reuse a place name | [Saved locations and CSV](https://isome.isolated.tech/docs/places/): released editor controls and a sample checked through native parsing, storage, and duplicate handling. |
-| Read visits as notes | [Markdown journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/): an actual export checked in a desktop vault. |
-| Send points to a receiver | [Dawarich Overland setup](https://isome.isolated.tech/integrations/dawarich/): native delivery of three synthetic points, checked after a receiver/database restart. |
-| Review travel dates | [Country Days guide](https://isome.isolated.tech/blog/track-days-in-country-iphone/): local dates, manual stays, travel days, and gaps. |
+| Find an earlier day | [Find iPhone location history](https://whereday.com/blog/view-location-history-iphone/): Apple/Google paths, date selection, and preserving existing records. |
+| Start a local journal | [Private location journal setup](https://whereday.com/blog/private-location-journal-iphone/): controls and a checked empty-path example that distinguishes a timer from saved GPS points. |
+| Use a route file | [Record and export GPX](https://whereday.com/blog/record-iphone-route-gpx/): synthetic points exported through the released app’s UI and Files, then checked in gpx.studio. |
+| Keep supported records | [Backup checklist](https://whereday.com/blog/back-up-iphone-location-history/): separate visit/point files, supported formats, and destination checks. |
+| Reuse a place name | [Saved locations and CSV](https://whereday.com/docs/places/): released editor controls and a sample checked through native parsing, storage, and duplicate handling. |
+| Read visits as notes | [Markdown journal in Obsidian](https://whereday.com/blog/iphone-location-journal-obsidian/): an actual export checked in a desktop vault. |
+| Send points to a receiver | [Dawarich Overland setup](https://whereday.com/integrations/dawarich/): native delivery of three synthetic points, checked after a receiver/database restart. |
+| Review travel dates | [Country Days guide](https://whereday.com/blog/track-days-in-country-iphone/): local dates, manual stays, travel days, and gaps. |
 
-See [all integration workflows](https://isome.isolated.tech/integrations/) and the [released Siri and Shortcuts action reference](https://isome.isolated.tech/docs/siri-shortcuts/). Synthetic examples are invented data; they do not establish physical recording, complete device restoration, or unattended background delivery.
+See [all integration workflows](https://whereday.com/integrations/) and the [released Siri and Shortcuts action reference](https://whereday.com/docs/siri-shortcuts/). Synthetic examples are invented data; they do not establish physical recording, complete device restoration, or unattended background delivery.
 
 ## Screenshots
 
@@ -61,21 +61,21 @@ Export visits and location points in eight formats, including JSON, CSV, Markdow
 
 #### Google Timeline import in development source
 
-The verified public **1.7.16 (46)** release predates this importer. The following describes repository source; use the [public export/import reference](https://isome.isolated.tech/docs/export-import/) for that released build.
+The verified public **1.7.16 (46)** release predates this importer. The following describes repository source; use the [public export/import reference](https://whereday.com/docs/export-import/) for that released build.
 
 Google Timeline imports use **Settings > Data Import > Import File**. Select one JSON file, review its format, date range, new records, and duplicates, then choose visits and/or points and confirm. Canceling the preview writes nothing. Imports run locally without a Google login, upload, or place lookup.
 
 Supported Google exports are classic Location History (`locations` with E7 coordinates and millisecond/ISO timestamps), legacy Semantic Timeline (`timelineObjects` with place visits and timed activity paths), and device Timeline (`semanticSegments` or an iOS root array, including `geo:`/degree coordinates and timed paths). On iPhone, [export Timeline data from Google Maps](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en) and save the JSON to Files. Unzip Takeout archives first and select individual JSON files. Folders and ZIP archives are outside this MVP.
 
-Duplicate detection always skips matches within the file and against stored records. Points match at the same rounded second within 10 meters; visits match within 60 seconds of arrival, 5 minutes of departure, and 100 meters (open visits only match other open visits). Confirmation checks again before saving, preserving existing names, notes, and confirmations. These thresholds are approximate, so review the counts. Raw location history imports points only; this version does not infer visits or invent timestamps for untimed waypoints. Invalid records and unsupported entries are counted in the preview. Each file is limited to 50 MiB and 250,000 visits plus points; larger exports must be split. Existing iso.me JSON, CSV, and Markdown imports use the same preview, and combined JSON backups preserve both visits and points.
+Duplicate detection always skips matches within the file and against stored records. Points match at the same rounded second within 10 meters; visits match within 60 seconds of arrival, 5 minutes of departure, and 100 meters (open visits only match other open visits). Confirmation checks again before saving, preserving existing names, notes, and confirmations. These thresholds are approximate, so review the counts. Raw location history imports points only; this version does not infer visits or invent timestamps for untimed waypoints. Invalid records and unsupported entries are counted in the preview. Each file is limited to 50 MiB and 250,000 visits plus points; larger exports must be split. Existing Whereday JSON, CSV, and Markdown imports use the same preview, and combined JSON backups preserve both visits and points.
 
 
 #### Markdown handoff to Obsidian
 
-For a checked desktop file workflow, use the [Markdown handoff guide](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). Its optional [iso.me Maps example](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/#map-plugin) checks plugin 0.7.15 with two invented native-export visits in Obsidian 1.14.5, including marker popups, tile-provider limits, and Markdown timezone behavior. Mobile transfer and scheduled vault delivery remain unverified.
+For a checked desktop file workflow, use the [Markdown handoff guide](https://whereday.com/blog/iphone-location-journal-obsidian/). Its optional [Whereday Maps example](https://whereday.com/blog/iphone-location-journal-obsidian/#map-plugin) checks plugin 0.7.15 with two invented native-export visits in Obsidian 1.14.5, including marker popups, tile-provider limits, and Markdown timezone behavior. Mobile transfer and scheduled vault delivery remain unverified.
 
 ### Watch App
-The companion watchOS app records GPS points without the iPhone nearby and queues them for later transfer through WatchConnectivity. Check the phone copy after reconnecting; follow the [Watch recording and sync reference](https://isome.isolated.tech/docs/apple-watch/). App Groups support local shared data, not transport between the two devices.
+The companion watchOS app records GPS points without the iPhone nearby and queues them for later transfer through WatchConnectivity. Check the phone copy after reconnecting; follow the [Watch recording and sync reference](https://whereday.com/docs/apple-watch/). App Groups support local shared data, not transport between the two devices.
 
 ### Widgets
 iOS lock screen widget via Live Activities and watchOS complications for quick tracking status.
@@ -210,6 +210,6 @@ If you want to chat about the project, design decisions, or what to build next, 
 
 ## License
 
-iso.me is licensed under the [GNU Affero General Public License v3.0](LICENSE). The AGPL ensures that any modified version of iso.me — including ones run as a hosted service — must also be open source. This protects the privacy-first promise: nobody can take iso.me, bolt on tracking, and ship it as a closed product.
+Whereday is licensed under the [GNU Affero General Public License v3.0](LICENSE). The AGPL ensures that any modified version of Whereday — including ones run as a hosted service — must also be open source. This protects the privacy-first promise: nobody can take Whereday, bolt on tracking, and ship it as a closed product.
 
 Manual visit automation in development source: [Check In / Check Out Shortcuts and visit links](docs/testing/manual-visit-shortcuts.md).

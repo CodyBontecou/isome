@@ -1,0 +1,13 @@
+import {createRequire} from 'node:module';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const req=createRequire(import.meta.url);
+const sharp=req('sharp');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+await mkdir(path.join(root,'asc'),{recursive:true});
+let svg=await readFile(path.join(root,'headers/product-hero-2400x1350.svg'),'utf8');
+svg=svg.replace('width="2400" height="1350" viewBox','width="5244" height="2950" viewBox');
+await writeFile(path.join(root,'asc/header-5244x2950.svg'),svg);
+await sharp(Buffer.from(svg)).flatten({background:'#F8F5EB'}).png().toFile(path.join(root,'asc/header-5244x2950.png'));
+console.log('Exported the Whereday App Store header at 5244 x 2950, opaque RGB.');

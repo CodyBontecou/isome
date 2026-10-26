@@ -18,7 +18,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT / "IsoMe.xcodeproj"
 COPY_PATH = ROOT / "screenshots/localized-copy.json"
-OUTPUT_ROOT = ROOT / "screenshots/localized"
+OUTPUT_ROOT = ROOT / "screenshots/whereday"
 BUNDLE_ID = "com.bontecou.isome"
 WATCH_BUNDLE_ID = "com.bontecou.isome.watchkitapp"
 

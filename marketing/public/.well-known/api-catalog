@@ -1,17 +1,17 @@
 {
   "linkset": [
     {
-      "anchor": "https://isome.isolated.tech/",
+      "anchor": "https://whereday.com/",
       "service-desc": [
         {
-          "href": "https://isome.isolated.tech/openapi.json",
+          "href": "https://whereday.com/openapi.json",
           "type": "application/vnd.oai.openapi+json",
-          "title": "iso.me public product metadata API"
+          "title": "Whereday public product metadata API"
         }
       ],
       "service-doc": [
         {
-          "href": "https://isome.isolated.tech/docs/",
+          "href": "https://whereday.com/docs/",
           "type": "text/html",
           "title": "Native app documentation"
         }

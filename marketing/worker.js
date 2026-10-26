@@ -8,7 +8,7 @@ async function acquisition(request, env) {
   const url = new URL(request.url);
   // Reject cross-origin/form submissions. Preview deployments don't collect counts.
   if (request.headers.get('Origin') !== url.origin ||
-      !(url.hostname === 'isome.isolated.tech' || ['127.0.0.1', 'localhost'].includes(url.hostname))) return reply('Forbidden', 403);
+      !(url.hostname === 'whereday.com' || ['127.0.0.1', 'localhost'].includes(url.hostname))) return reply('Forbidden', 403);
   if (request.headers.get('Content-Type')?.split(';')[0].trim() !== 'application/json') return reply('JSON required', 415);
   if (request.headers.get('Sec-GPC') === '1' || request.headers.get('DNT') === '1') return reply(null, 204);
   if (!env.SEO_DB) return reply('Measurement unavailable', 503);
@@ -59,6 +59,13 @@ function quality(accept, type) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Preserve existing bookmarks and indexed URLs when moving the product site.
+    if (['isome.isolated.tech', 'www.whereday.com'].includes(url.hostname)) {
+      url.protocol = 'https:';
+      url.hostname = 'whereday.com';
+      url.port = '';
+      return Response.redirect(url.toString(), 301);
+    }
     if (url.pathname === '/api/v1/acquisition') return acquisition(request, env);
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response(JSON.stringify({
@@ -101,14 +108,14 @@ export default {
           type: 'about:blank', title: 'Not found', status: 404,
           detail: 'This resource does not exist. The website provides public product metadata, not private journal access.',
           instance: url.pathname,
-          resolution: 'Read https://isome.isolated.tech/docs/ for exports, webhooks, and Shortcuts.',
+          resolution: 'Read https://whereday.com/docs/ for exports, webhooks, and Shortcuts.',
         }), { status: 404, headers: { 'Content-Type': 'application/problem+json; charset=utf-8' } });
       } else if (wantsMarkdown) {
         response = new Response(request.method === 'HEAD' ? null :
-          '# Page not found\n\nThis resource does not exist on the iso.me website.\n\n' +
-          'Try the [documentation](https://isome.isolated.tech/docs/), ' +
-          '[site map](https://isome.isolated.tech/sitemap.xml), or ' +
-          '[agent guide](https://isome.isolated.tech/llms.txt).\n',
+          '# Page not found\n\nThis resource does not exist on the Whereday website.\n\n' +
+          'Try the [documentation](https://whereday.com/docs/), ' +
+          '[site map](https://whereday.com/sitemap.xml), or ' +
+          '[agent guide](https://whereday.com/llms.txt).\n',
           { status: 404, headers: { 'Content-Type': 'text/markdown; charset=utf-8' } });
       }
     }

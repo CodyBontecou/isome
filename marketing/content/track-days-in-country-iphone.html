@@ -1,7 +1,7 @@
 <section aria-labelledby="answer">
   <h2 id="answer">Count the dates you can account for</h2>
-  <p>In iso.me, open <strong>Timeline → Country Days</strong> to count local dates represented by your recorded visits, route points, and manual stays. Choose this year, the last 365 days, or all time, then open a country to review its dates. Viewing the counts and adding manual stays are free. Writing the CSV file requires the optional export purchase.</p>
-  <p>This guide covers Country Days in iso.me 1.7.16. It is a personal travel journal: its rules do not determine tax residency, immigration status, or how a visa counts a day.</p>
+  <p>In Whereday, open <strong>Timeline → Country Days</strong> to count local dates represented by your recorded visits, route points, and manual stays. Choose this year, the last 365 days, or all time, then open a country to review its dates. Viewing the counts and adding manual stays are free. Writing the CSV file requires the optional export purchase.</p>
+  <p>This guide covers Country Days in Whereday 1.7.16. It is a personal travel journal: its rules do not determine tax residency, immigration status, or how a visa counts a day.</p>
   <nav class="article-toc" aria-label="In this guide"><strong>Build your country record</strong><ol><li><a href="#start">Open your country totals</a></li><li><a href="#rules">Understand travel days and timezones</a></li><li><a href="#checked-example">Inspect a checked counting example</a></li><li><a href="#manual">Add a missing stay</a></li><li><a href="#privacy">Identify countries in older records</a></li><li><a href="#csv">Save a CSV copy</a></li></ol></nav>
 </section>
 
@@ -15,7 +15,7 @@
 
 <section aria-labelledby="rules">
   <h2 id="rules">2. Check the counting rules</h2>
-  <div class="table-scroll" role="region" aria-label="Country Days counting rules" tabindex="0"><table><caption>Presence dates, rather than a continuous travel guarantee</caption><thead><tr><th scope="col">Situation</th><th scope="col">How iso.me counts it</th></tr></thead><tbody>
+  <div class="table-scroll" role="region" aria-label="Country Days counting rules" tabindex="0"><table><caption>Presence dates, rather than a continuous travel guarantee</caption><thead><tr><th scope="col">Situation</th><th scope="col">How Whereday counts it</th></tr></thead><tbody>
     <tr><th scope="row">Many points in the same country on one date</th><td>One day for that country, rather than one day per record.</td></tr>
     <tr><th scope="row">Two countries on a travel day</th><td>That date can count in both countries. Adding country totals may exceed the number of distinct dates.</td></tr>
     <tr><th scope="row">A record near midnight</th><td>The resolved location’s timezone determines the local date, rather than UTC or your phone’s current timezone.</td></tr>
@@ -28,7 +28,7 @@
 
 <section aria-labelledby="checked-example">
   <h2 id="checked-example">A checked example: four country dates across three dates</h2>
-  <p>We passed invented records through the country-day calculator included in iso.me 1.7.16 (46), then saved and read back its CSV output. Country labels and timezones were assigned directly for this test; no coordinates were sent for geocoding and no real trip was recorded.</p>
+  <p>We passed invented records through the country-day calculator included in Whereday 1.7.16 (46), then saved and read back its CSV output. Country labels and timezones were assigned directly for this test; no coordinates were sent for geocoding and no real trip was recorded.</p>
   <ul>
     <li><strong>Portugal:</strong> two points on October 1, plus an overlapping manual stay from October 1 through October 2.</li>
     <li><strong>Spain:</strong> a point later on October 1, using Europe/Madrid.</li>
@@ -59,7 +59,7 @@
 <section aria-labelledby="privacy">
   <h2 id="privacy">4. Identify countries in older locations</h2>
   <p>New recordings identify countries when network geocoding is enabled. <strong>Analyze saved locations</strong> checks earlier records in batches, with stop and resume controls. It can take time for a large archive.</p>
-  <p>Country identification uses Apple geocoding and follows your network-geocoding preference. A lookup sends coordinates to Apple; turning it off changes which unresolved locations can be assigned a country. Your journal remains on your device, and iso.me does not receive an archive of it. See the <a href="/privacy">privacy policy</a> for all network boundaries.</p>
+  <p>Country identification uses Apple geocoding and follows your network-geocoding preference. A lookup sends coordinates to Apple; turning it off changes which unresolved locations can be assigned a country. Your journal remains on your device, and Whereday does not receive an archive of it. See the <a href="/privacy">privacy policy</a> for all network boundaries.</p>
   <p>Analysis can identify a country for an existing coordinate. It cannot recover locations that were never recorded. Use a manual stay for dates you can account for independently.</p>
 </section>
 

@@ -4,7 +4,7 @@ import json
 import re
 from urllib.parse import urljoin, urlsplit
 
-BASE = 'https://isome.isolated.tech'
+BASE = 'https://whereday.com'
 SCHEMA = re.compile(r'(<script type="application/ld\+json">)(.*?)(</script>)', re.S)
 
 

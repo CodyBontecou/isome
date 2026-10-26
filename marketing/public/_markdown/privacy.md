@@ -12,13 +12,13 @@ October 26, 2026
 
 Scope
 
-iso.me — iOS & watchOS
+Whereday — iOS & watchOS
 
-iso.me ("the App") is built with privacy as a core principle. This policy explains how the App handles your information.
+Whereday ("the App") is built with privacy as a core principle. This policy explains how the App handles your information.
 
 ## Data Collection and Storage
 
-By default, all location data — visits, routes, saved places, and photo associations — is stored exclusively on your device. There is no iso.me account, and no iso.me server keeps a copy of your location history.
+By default, all location data — visits, routes, saved places, and photo associations — is stored exclusively on your device. There is no Whereday account, and no Whereday server keeps a copy of your location history.
 
 A small set of optional or auxiliary features do communicate over the network. Each is listed under Network Requests below, together with exactly what is sent and where.
 
@@ -37,10 +37,10 @@ Your location history stays on your device unless you deliberately enable a feat
 The App may make network requests in the following circumstances:
 
 - Apple system services (optional): if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy.
-- First-party onboarding analytics (on by default): the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to iso.me's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier.
-- Webhook delivery (off by default, Pro): if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; iso.me never sees your endpoint or your data.
-- Scheduled export wake-ups (only if enabled, Pro): if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with iso.me's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names.
-- App Store: purchases are handled entirely by Apple's App Store. iso.me does not process or store payment information.
+- First-party onboarding analytics (on by default): the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to Whereday's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier.
+- Webhook delivery (off by default, Pro): if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; Whereday never sees your endpoint or your data.
+- Scheduled export wake-ups (only if enabled, Pro): if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with Whereday's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names.
+- App Store: purchases are handled entirely by Apple's App Store. Whereday does not process or store payment information.
 
 ## Data Export
 
@@ -48,12 +48,12 @@ You can export visits, route points, and outings at any time as JSON, CSV, Markd
 
 ## Analytics and Tracking
 
-iso.me contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
+Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
 
 ## Third-Party Services
 
 - Apple: geocoding, Maps search and directions, map snapshots, push notifications, and App Store purchases are Apple system services governed by Apple's privacy policy.
-- Cloudflare: hosts iso.me's own analytics ingest and export-scheduling endpoints (as described above), plus this website. Cloudflare processes data as our infrastructure provider.
+- Cloudflare: hosts Whereday's own analytics ingest and export-scheduling endpoints (as described above), plus this website. Cloudflare processes data as our infrastructure provider.
 - Destinations you choose: webhook delivery and file exports go only to endpoints and folders you configure yourself.
 
 ## Data Deletion
@@ -62,7 +62,7 @@ You can delete all locally stored data at any time from within the App's Setting
 
 ## Children's Privacy
 
-iso.me does not knowingly collect information from children under 13. The data flows described in this policy, including first-party telemetry enabled by default, also apply to use of the App. Location records are not included in that telemetry.
+Whereday does not knowingly collect information from children under 13. The data flows described in this policy, including first-party telemetry enabled by default, also apply to use of the App. Location records are not included in that telemetry.
 
 ## Changes to This Policy
 
@@ -72,4 +72,4 @@ We may update this Privacy Policy from time to time. Changes will be posted on t
 
 If you have questions about this Privacy Policy, please contact us at [cody.bontecou@gmail.com](mailto:cody.bontecou@gmail.com).
 
-Source: https://isome.isolated.tech/privacy
+Source: https://whereday.com/privacy

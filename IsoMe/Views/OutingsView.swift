@@ -466,7 +466,7 @@ struct OutingsView: View {
 
     private var emptyStateMessage: String {
         if viewModel.locationManager.isTrackingEnabled, Calendar.current.isDateInToday(selectedDate) {
-            return String(localized: "Tracking is active. New movement will appear here after iso.me saves the first location point.")
+            return String(localized: "Tracking is active. New movement will appear here after Whereday saves the first location point.")
         }
 
         if hasAnyTimelineData {
@@ -1342,7 +1342,7 @@ private struct RecordingSessionDetailView: View {
                         .tracking(1.2)
                         .foregroundStyle(TE.textPrimary)
 
-                    Text(isSyncingPhotos ? "Checking your Photos library for pictures taken during this outing." : "No photos with GPS metadata or a nearby iso.me route/visit match were found during this outing.")
+                    Text(isSyncingPhotos ? "Checking your Photos library for pictures taken during this outing." : "No photos with GPS metadata or a nearby Whereday route/visit match were found during this outing.")
                         .font(TE.mono(.caption2, weight: .medium))
                         .foregroundStyle(TE.textMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -1422,9 +1422,9 @@ private struct RecordingSessionDetailView: View {
             return "Limited Photos access is enabled, so only selected photos can appear."
         }
         if viewModel.photoLibraryAccessState.canRead {
-            return "Photos are matched by timestamp. iso.me uses photo GPS when available, otherwise the nearest route point or visit. Photo files stay in Photos."
+            return "Photos are matched by timestamp. Whereday uses photo GPS when available, otherwise the nearest route point or visit. Photo files stay in Photos."
         }
-        return "Connecting Photos lets iso.me show pictures taken during this outing."
+        return "Connecting Photos lets Whereday show pictures taken during this outing."
     }
 
     private var actionSection: some View {

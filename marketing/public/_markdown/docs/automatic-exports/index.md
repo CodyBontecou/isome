@@ -18,7 +18,7 @@ Reading
 
 Back to
 
-[All docs](https://isome.isolated.tech/docs/)
+[All docs](https://whereday.com/docs/)
 
 Optional paid feature. Auto Export appears in the Export tab after you choose a default export folder and unlock file exports. Recording, viewing history, and Export Preview are free.
 
@@ -30,7 +30,7 @@ Optional paid feature. Auto Export appears in the Export tab after you choose a 
 - Use Run now, then find and open the actual file. Check the date, record type, and some expected records. A last-run time alone does not show that the file contains what you need.
 - Enable the schedule and check a later file yourself. Notification and background permissions can affect delivery opportunities; a successful manual run does not verify an unattended run.
 
-For a restorable archive, first make separate full-history Visits and Points JSON copies using the [backup guide](https://isome.isolated.tech/blog/back-up-iphone-location-history/). Auto Export starts with the current day; it does not backfill all earlier history. For a readable note, follow the [manual Obsidian handoff](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). A folder selection alone does not establish delivery into an Obsidian vault.
+For a restorable archive, first make separate full-history Visits and Points JSON copies using the [backup guide](https://whereday.com/blog/back-up-iphone-location-history/). Auto Export starts with the current day; it does not backfill all earlier history. For a readable note, follow the [manual Obsidian handoff](https://whereday.com/blog/iphone-location-journal-obsidian/). A folder selection alone does not establish delivery into an Obsidian vault.
 
 ## Which day is saved?
 
@@ -65,21 +65,21 @@ What the native checks found
 | A 10:00 visit was exported open, then its departure was set to 12:00 | The next JSON append still had no departure. Rewriting the same day’s file included the 12:00 departure.
 | A run at 23:55, another point at 23:59, then a run at 00:10 | Yesterday’s file stayed unchanged and did not gain the 23:59 point. Today’s file included only today’s point.
 
-Choose Rewrite when you need the current values of today’s visits in each snapshot. For important earlier dates, use a manual date-range export and check it separately. The [checked restore example](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import) explains a different issue: importing files can reconcile nearby visits and add repeated points.
+Choose Rewrite when you need the current values of today’s visits in each snapshot. For important earlier dates, use a manual date-range export and check it separately. The [checked restore example](https://whereday.com/blog/back-up-iphone-location-history/#checked-import) explains a different issue: importing files can reconcile nearby visits and add repeated points.
 
 Checked October 26, 2026 against unchanged 1.7.16 release-source planning and file-writing code. All 27 selected native tests passed. No scheduled wake, notification delivery, folder-picker access, cloud synchronization, or unattended export was newly verified.
 
 ## If a scheduled file is missing or incomplete
 
-- Open iso.me and inspect Auto Export’s last run and any error. Check that the schedule and selected data type are still what you intended.
+- Open Whereday and inspect Auto Export’s last run and any error. Check that the schedule and selected data type are still what you intended.
 - Check the chosen folder in Files. Confirm you are looking at the intended local date and file type, then open the file itself.
 - Use Run now while the app is open, then inspect the result. A folder that has become unavailable needs attention before another scheduled attempt can succeed.
 - If yesterday’s file is incomplete, make a separate manual export for yesterday. A run today does not repair it.
-- If the file lacks records visible in the journal, compare the record type and date selection. Follow the [export diagnosis](https://isome.isolated.tech/blog/missing-location-history-iphone/#export) before deleting or importing anything.
+- If the file lacks records visible in the journal, compare the record type and date selection. Follow the [export diagnosis](https://whereday.com/blog/missing-location-history-iphone/#export) before deleting or importing anything.
 
-iso.me can request background refresh, register a silent scheduling push, offer a fallback notification, and check for overdue work when opened. These are opportunities to run, not a delivery guarantee. A fallback notification can be tapped to attempt the export; inspect the saved file afterward.
+Whereday can request background refresh, register a silent scheduling push, offer a fallback notification, and check for overdue work when opened. These are opportunities to run, not a delivery guarantee. A fallback notification can be tapped to attempt the export; inspect the saved file afterward.
 
-The scheduling service receives routing and timing metadata, including an installation identifier, push token, time zone, and schedule. It does not receive your journal or export contents through this scheduling path. Exported copies follow the storage rules of the folder or service you select. See the [privacy reference](https://isome.isolated.tech/docs/privacy-data/).
+The scheduling service receives routing and timing metadata, including an installation identifier, push token, time zone, and schedule. It does not receive your journal or export contents through this scheduling path. Exported copies follow the storage rules of the folder or service you select. See the [privacy reference](https://whereday.com/docs/privacy-data/).
 
 ## Common questions
 
@@ -95,6 +95,6 @@ Not reliably. Selection uses record time, and a later departure edit does not ma
 
 Use a separate note unless you have checked the specific format’s merge behavior. Rewrite replaces the generated file, and different append formats handle existing content differently.
 
-[← PreviousExport and restore location history](https://isome.isolated.tech/docs/export-import/) [Next →Webhooks & self-hosting](https://isome.isolated.tech/docs/webhooks/)
+[← PreviousExport and restore location history](https://whereday.com/docs/export-import/) [Next →Webhooks & self-hosting](https://whereday.com/docs/webhooks/)
 
-Source: https://isome.isolated.tech/docs/automatic-exports/
+Source: https://whereday.com/docs/automatic-exports/

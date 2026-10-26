@@ -15,13 +15,13 @@ def build_product_contract():
         ('Privacy and data', '/docs/privacy-data/'),
     ]
     product = {
-        'name': 'iso.me',
+        'name': 'Whereday',
         'summary': 'An open source location journal for iPhone and Apple Watch, with on-device visits, GPS routes, and optional portable export.',
         'homepage': BASE + '/',
         'appStore': 'https://apps.apple.com/us/app/iso-me/id6761960794',
         'sourceRepository': 'https://github.com/CodyBontecou/isome',
         'platforms': ['iOS 17 or later', 'watchOS 10 or later'],
-        'capabilities': ['Visit detection during tracking', 'GPS route recording', 'Timeline and outings', 'Independent Apple Watch recording', 'Portable export', 'Supported iso.me file import (App Store 1.7.16)', 'Country Days and manual stays', 'Siri and Shortcuts', 'Optional outbound webhooks'],
+        'capabilities': ['Visit detection during tracking', 'GPS route recording', 'Timeline and outings', 'Independent Apple Watch recording', 'Portable export', 'Supported Whereday file import (App Store 1.7.16)', 'Country Days and manual stays', 'Siri and Shortcuts', 'Optional outbound webhooks'],
         'exportFormats': ['JSON', 'CSV', 'Markdown', 'GeoJSON', 'GPX', 'KML', 'OwnTracks', 'Overland'],
         'pricingURL': BASE + '/#pricing',
         'privacyURL': BASE + '/privacy',
@@ -46,12 +46,12 @@ def build_product_contract():
     }
     spec = {
         'openapi': '3.1.0',
-        'info': {'title': 'iso.me Website API', 'version': '1.0.0', 'description': 'Read-only public product metadata and a validated browser measurement endpoint for daily aggregate counts. No account, credentials, personal locations, exports, or journal records are accessible through this API.', 'contact': {'name': 'Cody Bontecou', 'email': 'cody.bontecou@gmail.com', 'url': BASE + '/contact'}},
+        'info': {'title': 'Whereday Website API', 'version': '1.0.0', 'description': 'Read-only public product metadata and a validated browser measurement endpoint for daily aggregate counts. No account, credentials, personal locations, exports, or journal records are accessible through this API.', 'contact': {'name': 'Cody Bontecou', 'email': 'cody.bontecou@gmail.com', 'url': BASE + '/contact'}},
         'servers': [{'url': BASE}],
         'security': [],
         'paths': {'/api/v1/product': {'get': {
             'operationId': 'getIsoMeProduct',
-            'summary': 'Read iso.me capabilities and documentation links',
+            'summary': 'Read Whereday capabilities and documentation links',
             'description': 'Retrieve public metadata about the native app. No parameters or authentication are required. Responses are cacheable for five minutes. There is no fixed advertised application quota; Cloudflare protections may apply. The /v1 response can gain optional fields; incompatible changes use a new major path. No writes or private journal access are supported.',
             'responses': {
                 '200': {'description': 'Public product metadata.', 'content': {'application/json': {'schema': {'$ref': '#/components/schemas/Product'}, 'example': product}}},
@@ -90,4 +90,4 @@ def build_product_contract():
     (PUBLIC / 'openapi.json').write_text(json.dumps(spec, indent=2) + '\n')
     well_known = PUBLIC / '.well-known'
     well_known.mkdir(exist_ok=True)
-    (well_known / 'api-catalog').write_text(json.dumps({'linkset': [{'anchor': BASE + '/', 'service-desc': [{'href': BASE + '/openapi.json', 'type': 'application/vnd.oai.openapi+json', 'title': 'iso.me public product metadata API'}], 'service-doc': [{'href': BASE + '/docs/', 'type': 'text/html', 'title': 'Native app documentation'}]}]}, indent=2) + '\n')
+    (well_known / 'api-catalog').write_text(json.dumps({'linkset': [{'anchor': BASE + '/', 'service-desc': [{'href': BASE + '/openapi.json', 'type': 'application/vnd.oai.openapi+json', 'title': 'Whereday public product metadata API'}], 'service-doc': [{'href': BASE + '/docs/', 'type': 'text/html', 'title': 'Native app documentation'}]}]}, indent=2) + '\n')

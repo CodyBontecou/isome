@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay a Watch queue through iso.me's production codec/importer on iOS Simulator."""
+"""Replay a Watch queue through Whereday's production codec/importer on iOS Simulator."""
 import argparse
 import json
 from pathlib import Path

@@ -1,6 +1,6 @@
 /* Coarse website counts only. No cookies, storage, visitor IDs, or journal data. */
 (() => {
-  if (location.hostname !== 'isome.isolated.tech' || navigator.globalPrivacyControl || navigator.doNotTrack === '1') return;
+  if (location.hostname !== 'whereday.com' || navigator.globalPrivacyControl || navigator.doNotTrack === '1') return;
   let enabled = false;
   let source = 'direct';
   try {

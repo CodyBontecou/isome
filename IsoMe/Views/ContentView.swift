@@ -307,7 +307,7 @@ private struct OnboardingView: View {
         LocationOnboardingPageView(
             icon: "",
             eyebrow: "Welcome",
-            title: "ISO.ME",
+            title: "WHEREDAY",
             description: "A calm, private timeline of where your day takes you — always on-device and in your control.",
             useAppIcon: true
         ) {
@@ -363,7 +363,7 @@ private struct OnboardingView: View {
                         .foregroundStyle(OnboardingPalette.textPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text("Background visit detection lets iso.me keep recording when the app is closed.")
+                    Text("Background visit detection lets Whereday keep recording when the app is closed.")
                         .font(.onboardingBody)
                         .foregroundStyle(OnboardingPalette.textSecondary)
                         .multilineTextAlignment(.center)
@@ -406,7 +406,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("iso.me uses your location to detect places you visit and trace your daily path.")
+                Text("Whereday uses your location to detect places you visit and trace your daily path.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -433,7 +433,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("Background visit detection requires extended location access so iso.me keeps recording when the app is closed.")
+                Text("Background visit detection requires extended location access so Whereday keeps recording when the app is closed.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -460,7 +460,7 @@ private struct OnboardingView: View {
                     .tracking(1.8)
                     .foregroundStyle(OnboardingPalette.textMuted)
 
-                Text("Grant location access in iPhone Settings → iso.me → Location.")
+                Text("Grant location access in iPhone Settings → Whereday → Location.")
                     .font(.onboardingCaption)
                     .foregroundStyle(OnboardingPalette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -502,7 +502,7 @@ private struct OnboardingView: View {
             icon: "photo.on.rectangle.angled",
             eyebrow: "Optional",
             title: "CONNECT PHOTOS",
-            description: "Let iso.me automatically show iPhone photos on your map and outings. Photos stay in your Photos library."
+            description: "Let Whereday automatically show iPhone photos on your map and outings. Photos stay in your Photos library."
         ) {
             VStack(spacing: 12) {
                 OnboardingStatusRow(
@@ -543,7 +543,7 @@ private struct OnboardingView: View {
                                 .foregroundStyle(OnboardingPalette.textSecondary)
                         }
                     } else if automaticPhotoSyncEnabled && viewModel.photoLibraryAccessState.canRead {
-                        Text("Enabled. Photo cards will appear automatically when iso.me can place them on your map.")
+                        Text("Enabled. Photo cards will appear automatically when Whereday can place them on your map.")
                             .font(.onboardingCaption)
                             .foregroundStyle(OnboardingPalette.success)
                             .fixedSize(horizontal: false, vertical: true)

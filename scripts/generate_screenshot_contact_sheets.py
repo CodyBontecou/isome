@@ -10,8 +10,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "screenshots/localized/appstore"
-OUTPUT = ROOT / "screenshots/localized/contact-sheets"
+SOURCE = ROOT / "screenshots/whereday/ready"
+OUTPUT = ROOT / "screenshots/whereday/contact-sheets"
 FONT = "/System/Library/Fonts/SFNSMono.ttf"
 
 
@@ -37,18 +37,18 @@ def main() -> int:
 
     for locale in locales:
         root = SOURCE / locale
-        canvas = Image.new("RGB", (1500, 1120), "#EAE7DF")
+        canvas = Image.new("RGB", (1500, 1320), "#EAE7DF")
         draw = ImageDraw.Draw(canvas)
-        draw.text((30, 20), f"iso.me localization QA — {locale}", fill="#202020", font=font)
+        draw.text((30, 20), f"Whereday localization QA — {locale}", fill="#202020", font=font)
 
         for index, path in enumerate(sorted((root / "iphone-67").glob("*.png"))):
             paste_thumbnail(canvas, path, (25 + index * 290, 75, 270, 585))
         for index, path in enumerate(sorted((root / "ipad-129").glob("*.png"))):
-            paste_thumbnail(canvas, path, (25 + index * 335, 680, 315, 360))
+            paste_thumbnail(canvas, path, (25 + index * 290, 680, 270, 360))
         watch_paths = sorted((root / "watch-series-10").glob("*.png"))
         if watch_paths:
-            paste_thumbnail(canvas, watch_paths[0], (1370, 760, 110, 180))
-        draw.text((1370, 950), "Watch", fill="#202020", font=label_font)
+            paste_thumbnail(canvas, watch_paths[0], (690, 1100, 110, 180))
+        draw.text((820, 1170), "Watch", fill="#202020", font=label_font)
 
         destination = OUTPUT / f"{locale}.jpg"
         canvas.save(destination, quality=90)

@@ -1,0 +1,74 @@
+{
+  "appId": "6761960794",
+  "version": "1.7.17",
+  "build": "48",
+  "buildState": "VALID",
+  "attached": true,
+  "galleryTotal": 99,
+  "iphone": 45,
+  "ipad": 45,
+  "watch": 9,
+  "watchRussianVerification": "App Store Connect web UI: one rendered Whereday image",
+  "englishIphone": "Approved ASO pack; all five source checksums match Apple",
+  "listingLocales": 9,
+  "purchaseNames": 27,
+  "reviewerNotesUpdated": true,
+  "submittedForReview": false,
+  "sourcePullRequest": "https://github.com/CodyBontecou/isome/pull/85",
+  "ipadSets": [
+    {
+      "locale": "en-US",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "fcc97dd2-16bc-404d-b2f5-d219cc706683"
+    },
+    {
+      "locale": "ar-SA",
+      "screenshotCount": 5,
+      "verification": "App Store Connect web UI: five rendered images, correct order persisted after reload",
+      "setId": "23f27711-1a0f-4e6a-8d29-ccafa3a6e171"
+    },
+    {
+      "locale": "es-ES",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "8c3d85e5-ca41-4a38-8327-afc5dbbd2d69"
+    },
+    {
+      "locale": "fr-FR",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "5ac90785-996c-4198-b24f-2e6127be302c"
+    },
+    {
+      "locale": "hi",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "710d693f-b6b0-4cda-aee1-fb0351062a42"
+    },
+    {
+      "locale": "ja",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "1c7c2995-367a-4a99-a7d8-96313e0179b1"
+    },
+    {
+      "locale": "pt-BR",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "a2b3c7b7-581e-4cd3-863d-ad227ffda221"
+    },
+    {
+      "locale": "ru",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "f7a4ace0-5641-4d00-8bb8-30ea8ef5a278"
+    },
+    {
+      "locale": "zh-Hans",
+      "screenshotCount": 5,
+      "verification": "asc upload: all five COMPLETE",
+      "setId": "09282b9e-dc25-4007-906b-45344b6882fe"
+    }
+  ]
+}

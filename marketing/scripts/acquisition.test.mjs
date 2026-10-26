@@ -9,8 +9,8 @@ const worker = (await import(`data:text/javascript;base64,${Buffer.from(source).
 const client = await readFile(new URL('../public/assets/acquisition.js', import.meta.url), 'utf8');
 const valid = { event: 'app_store_clicked', page: '/', placement: 'inline', source: 'search' };
 function request(body = valid, headers = {}, method = 'POST') {
-  return new Request('https://isome.isolated.tech/api/v1/acquisition', {
-    method, headers: { Origin: 'https://isome.isolated.tech', 'Content-Type': 'application/json', ...headers },
+  return new Request('https://whereday.com/api/v1/acquisition', {
+    method, headers: { Origin: 'https://whereday.com', 'Content-Type': 'application/json', ...headers },
     ...(method === 'POST' ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {}),
   });
 }
@@ -52,7 +52,7 @@ test('honors browser privacy headers and reports an unavailable collector', asyn
   assert.equal(result.headers.get('Cache-Control'), 'no-store');
 });
 
-async function browser({ track = true, fail = false, gpc = false, host = 'isome.isolated.tech' } = {}) {
+async function browser({ track = true, fail = false, gpc = false, host = 'whereday.com' } = {}) {
   const calls = [];
   let click;
   const context = {
@@ -87,4 +87,13 @@ test('client sends coarse page and click dimensions, never the search query or r
     { event: 'app_store_clicked', page: '/blog/', placement: 'inline', source: 'search' },
   ]);
   assert.ok(calls.every(c => c.options.credentials === 'omit' && c.options.referrerPolicy === 'no-referrer' && !c.options.body.includes('sensitive')));
+});
+
+
+test('legacy and www links redirect to Whereday without losing paths or queries', async () => {
+  for (const host of ['isome.isolated.tech', 'www.whereday.com']) {
+    const response = await worker.fetch(new Request(`https://${host}/docs/export-import/?format=gpx&x=%2F`), {});
+    assert.equal(response.status, 301);
+    assert.equal(response.headers.get('Location'), 'https://whereday.com/docs/export-import/?format=gpx&x=%2F');
+  }
 });

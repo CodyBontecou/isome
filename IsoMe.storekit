@@ -10,8 +10,8 @@
       "internalID" : "A50A1E75-7217-443E-8CF5-E36B64D1D64F",
       "localizations" : [
         {
-          "description" : "Unlock iso.me data export forever for your Apple ID.",
-          "displayName" : "iso.me Individual Lifetime",
+          "description" : "Unlock Whereday data export forever for your Apple ID.",
+          "displayName" : "Whereday Individual Lifetime",
           "locale" : "en_US"
         }
       ],
@@ -25,8 +25,8 @@
       "internalID" : "86F588B9-F970-4411-A550-487F4E68195D",
       "localizations" : [
         {
-          "description" : "Unlock iso.me data export forever and share it with your Apple Family.",
-          "displayName" : "iso.me Family Lifetime",
+          "description" : "Unlock Whereday data export forever and share it with your Apple Family.",
+          "displayName" : "Whereday Family Lifetime",
           "locale" : "en_US"
         }
       ],
@@ -41,7 +41,7 @@
       "localizations" : [
         {
           "description" : "Upgrade an Individual Lifetime purchase to Apple Family Sharing.",
-          "displayName" : "iso.me Family Upgrade",
+          "displayName" : "Whereday Family Upgrade",
           "locale" : "en_US"
         }
       ],

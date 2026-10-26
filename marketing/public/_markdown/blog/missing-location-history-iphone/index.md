@@ -1,30 +1,30 @@
-- [iso.me](https://isome.isolated.tech/)
-- [Guides](https://isome.isolated.tech/blog/)
+- [Whereday](https://whereday.com/)
+- [Guides](https://whereday.com/blog/)
 - Missing visits and route points
 
 Practical iPhone guides
 
-# What to check when visits or route points are missing in iso.me
+# What to check when visits or route points are missing in Whereday
 
 Check the date and recording state, then separate missing points, missing visits, pending Watch transfers, and export filters. Keep existing records while you investigate.
 
-By [Cody Bontecou](https://isolated.tech), iso.me’s developer · Reviewed October 26, 2026
+By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed October 26, 2026
 
 ## Find out which part is missing
 
-If an iso.me day looks empty, check the selected date and recording state first. Then separate four different problems: missing route points, a missing visit, records still on Apple Watch, or an export that excluded records. Each needs a different check.
+If an Whereday day looks empty, check the selected date and recording state first. Then separate four different problems: missing route points, a missing visit, records still on Apple Watch, or an export that excluded records. Each needs a different check.
 
-This guide is for an existing iso.me journal. For Apple Maps or Google Timeline records, use [the iPhone location-history guide](https://isome.isolated.tech/blog/view-location-history-iphone/). Installing iso.me cannot recover a route that another app never recorded.
+This guide is for an existing Whereday journal. For Apple Maps or Google Timeline records, use [the iPhone location-history guide](https://whereday.com/blog/view-location-history-iphone/). Installing Whereday cannot recover a route that another app never recorded.
 
 Choose the symptom
-- [Match what you see](https://isome.isolated.tech/blog/missing-location-history-iphone/#symptoms)
-- [Check recording and permission](https://isome.isolated.tech/blog/missing-location-history-iphone/#recording)
-- [Inspect route points and filters](https://isome.isolated.tech/blog/missing-location-history-iphone/#points)
-- [Check visits and place names](https://isome.isolated.tech/blog/missing-location-history-iphone/#visits)
-- [Check Watch transfer](https://isome.isolated.tech/blog/missing-location-history-iphone/#watch)
-- [Check an empty export](https://isome.isolated.tech/blog/missing-location-history-iphone/#export)
-- [Preserve records and ask for help](https://isome.isolated.tech/blog/missing-location-history-iphone/#preserve)
-- [Common questions](https://isome.isolated.tech/blog/missing-location-history-iphone/#questions)
+- [Match what you see](https://whereday.com/blog/missing-location-history-iphone/#symptoms)
+- [Check recording and permission](https://whereday.com/blog/missing-location-history-iphone/#recording)
+- [Inspect route points and filters](https://whereday.com/blog/missing-location-history-iphone/#points)
+- [Check visits and place names](https://whereday.com/blog/missing-location-history-iphone/#visits)
+- [Check Watch transfer](https://whereday.com/blog/missing-location-history-iphone/#watch)
+- [Check an empty export](https://whereday.com/blog/missing-location-history-iphone/#export)
+- [Preserve records and ask for help](https://whereday.com/blog/missing-location-history-iphone/#preserve)
+- [Common questions](https://whereday.com/blog/missing-location-history-iphone/#questions)
 
 ## Match the symptom before changing anything
 
@@ -52,29 +52,29 @@ Start enables GPS recording, visit monitoring, and significant location changes 
 
 In our isolated 1.7.16 release-source simulator check, Start changed to Stop and the timer ran. After stopping, Timeline saved an eight-second outing with zero distance and zero points. Its detail explicitly said No GPS points were saved for this outing yet. A running timer or an outing card alone does not confirm a route was captured.
 
-![iso.me outing detail showing eight seconds, zero distance, zero points, and no saved GPS points](https://isome.isolated.tech/screenshots/journal-empty-outing.png)
+![Whereday outing detail showing eight seconds, zero distance, zero points, and no saved GPS points](https://whereday.com/screenshots/journal-empty-outing.png)
 
 Checked October 26, 2026 in a separate Debug simulator rebuild of 1.7.16 (46), iOS 26.5. This empty test journal contains no personal route. It does not establish why no points arrived or verify physical GPS recording.
 
-Open your outing and check Points and the path, then compare the expected time range. For the complete first-session checklist, see [the recording guide](https://isome.isolated.tech/blog/private-location-journal-iphone/#first-recording).
+Open your outing and check Points and the path, then compare the expected time range. For the complete first-session checklist, see [the recording guide](https://whereday.com/blog/private-location-journal-iphone/#first-recording).
 
-Review the app’s permission under iPhone Settings → Privacy & Security → Location Services. iso.me offers Always access for background visit monitoring; an active manual session and automatic visit detection have different permission needs. Follow [Apple’s Location Services instructions](https://support.apple.com/en-us/102515) if the controls on your iOS version differ.
+Review the app’s permission under iPhone Settings → Privacy & Security → Location Services. Whereday offers Always access for background visit monitoring; an active manual session and automatic visit detection have different permission needs. Follow [Apple’s Location Services instructions](https://support.apple.com/en-us/102515) if the controls on your iOS version differ.
 
 For a new test, allow time to acquire a location and choose an open area with a clear view of the sky. Apple explains that GPS accuracy can improve over several minutes and that buildings, roofs, and terrain can obstruct signals. This is a future-recording check, not a way to recover earlier movement.
 
-Changing permission can help a future recording. It does not fill an earlier gap. See the [tracking reference](https://isome.isolated.tech/docs/tracking/) for the shared Start/Stop controls.
+Changing permission can help a future recording. It does not fill an earlier gap. See the [tracking reference](https://whereday.com/docs/tracking/) for the shared Start/Stop controls.
 
 ## 2. Separate missing points from hidden points
 
 A sparse route can come from the chosen distance filter, rejected GPS fixes, or points hidden as glitches. These are different from a session that never ran.
 
 - Distance filter: a larger value requests updates after more movement. Compare the setting with a short route before relying on it for detail such as small turns.
-- Rejected fixes: iso.me saves incoming route locations only when reported accuracy is between zero and 100 meters. A fix outside that range is not a hidden point you can reveal later.
+- Rejected fixes: Whereday saves incoming route locations only when reported accuracy is between zero and 100 meters. A fix outside that range is not a hidden point you can reveal later.
 - Hidden glitches: some saved points are flagged as outliers. Enable Settings → Map display → Show GPS glitches to inspect them. A newly visible spike is not evidence that you travelled along it.
 
-If the route is visible in iso.me but absent from a file, choose Points in Export, select the same dates, and review accuracy and glitch filters in Preview. A Visits GPX contains stops rather than the continuous path. Follow the [GPX export walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/) for file checks.
+If the route is visible in Whereday but absent from a file, choose Points in Export, select the same dates, and review accuracy and glitch filters in Preview. A Visits GPX contains stops rather than the continuous path. Follow the [GPX export walkthrough](https://whereday.com/blog/record-iphone-route-gpx/) for file checks.
 
-If you are changing settings to manage energy use, use the [battery comparison checklist](https://isome.isolated.tech/blog/iphone-location-tracking-battery/). A larger distance filter still requests high-accuracy GPS and cannot recreate points from before the change.
+If you are changing settings to manage energy use, use the [battery comparison checklist](https://whereday.com/blog/iphone-location-tracking-battery/). A larger distance filter still requests high-accuracy GPS and cannot recreate points from before the change.
 
 ## 3. Check visits separately from the path
 
@@ -82,15 +82,15 @@ A route passing a building does not establish that a visit was detected there. V
 
 If the visit exists but the label is wrong, review its coordinates and use place corrections or a saved place. Turning Location names off prevents the naming request to Apple’s geocoding service; it does not switch off the route recorder.
 
-You can add a past visit manually when you know where and when you stopped. That adds a journal entry; it does not recover a measured route or prove an automatic detection occurred. The [places and manual-entry reference](https://isome.isolated.tech/docs/places/) explains the available corrections.
+You can add a past visit manually when you know where and when you stopped. That adds a journal entry; it does not recover a measured route or prove an automatic detection occurred. The [places and manual-entry reference](https://whereday.com/docs/places/) explains the available corrections.
 
 ## 4. If the recording came from Apple Watch
 
-Check the Watch before assuming the phone lost its copy. Bring the paired devices together, open iso.me on the iPhone and Watch, and use Sync Now if your app version offers it.
+Check the Watch before assuming the phone lost its copy. Bring the paired devices together, open Whereday on the iPhone and Watch, and use Sync Now if your app version offers it.
 
 Sync queued means delivery is pending; it does not confirm the phone imported every record. Synced with iPhone reports an acknowledgement. After either message, inspect the recording date on the phone and check both points and visits. Nothing to sync describes the pending queue, not the completeness of your journal.
 
-Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the [Watch recording and sync guide](https://isome.isolated.tech/docs/apple-watch/) for the detailed status checks. Its [checked queue example](https://isome.isolated.tech/docs/apple-watch/#checked-transfer) shows why points can remain queued after the phone has saved them, and why the phone’s date and point count still need checking.
+Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the [Watch recording and sync guide](https://whereday.com/docs/apple-watch/) for the detailed status checks. Its [checked queue example](https://whereday.com/docs/apple-watch/#checked-transfer) shows why points can remain queued after the phone has saved them, and why the phone’s date and point count still need checking.
 
 ## 5. If history exists but the exported file is empty
 
@@ -102,13 +102,13 @@ Inspect Export Preview before changing the journal. Preview is free; writing a f
 - For Visits, check completion and duration. Turn off Only completed visits and remove the minimum duration for a comparison. An open visit or a short stop can otherwise be excluded.
 - Preview again. If the expected records now appear, the settings explain the difference. If they remain absent, return to the same date in Timeline and identify whether you actually have points, visits, or only an outing.
 
-For an example you can inspect without sharing your history, the [checked GPX example](https://isome.isolated.tech/blog/record-iphone-route-gpx/#sample) contains five invented points from the released app’s serializer. It demonstrates a file and viewer result, not recovery of missing records. The [export reference](https://isome.isolated.tech/docs/export-import/) covers formats and field choices.
+For an example you can inspect without sharing your history, the [checked GPX example](https://whereday.com/blog/record-iphone-route-gpx/#sample) contains five invented points from the released app’s serializer. It demonstrates a file and viewer result, not recovery of missing records. The [export reference](https://whereday.com/docs/export-import/) covers formats and field choices.
 
 ## Preserve what remains before retrying
 
-Do not clear history, delete the outing, or reinstall as an initial troubleshooting step. Deleting an outing can also delete its route points. Keep supported exports you already have, and use the [backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/) if you need a separate copy of the retained records.
+Do not clear history, delete the outing, or reinstall as an initial troubleshooting step. Deleting an outing can also delete its route points. Keep supported exports you already have, and use the [backup checklist](https://whereday.com/blog/back-up-iphone-location-history/) if you need a separate copy of the retained records.
 
-The verified public 1.7.16 (46) release has no import preview or general duplicate check. Post-import visit reconciliation can combine nearby visits, while repeated points can be added again; see the [checked import example](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import). Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
+The verified public 1.7.16 (46) release has no import preview or general duplicate check. Post-import visit reconciliation can combine nearby visits, while repeated points can be added again; see the [checked import example](https://whereday.com/blog/back-up-iphone-location-history/#checked-import). Repeatedly importing an overlapping file is not a way to refresh the display. A backup can only restore the records it actually contains; Restore Purchases restores an eligible entitlement, not a server copy of your journal.
 
 ### What to include when asking for help
 
@@ -135,7 +135,7 @@ No. The selected record type, date range, time of day, and quality filters can e
 
 ### Will a saved place fill an old gap?
 
-A saved place provides reusable location details. You can separately add a known past visit, but neither action recreates measured movement. Use the [saved places reference](https://isome.isolated.tech/docs/places/) for the distinction.
+A saved place provides reusable location details. You can separately add a known past visit, but neither action recreates measured movement. Use the [saved places reference](https://whereday.com/docs/places/) for the distinction.
 
 ## Check a short route.
 Then trust a longer day.
@@ -144,16 +144,16 @@ Recording and reviewing history are free. Check one finished session before rely
 
 [Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
-Reviewed October 26, 2026 against iso.me 1.7.16 (46) release-source recording and export filters, the checked empty-outing example, Watch-sync source, and Apple’s linked Location Services guidance. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
+Reviewed October 26, 2026 against Whereday 1.7.16 (46) release-source recording and export filters, the checked empty-outing example, Watch-sync source, and Apple’s linked Location Services guidance. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
 
 ## Read next
 
-- [Preserve the records you have](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
+- [Preserve the records you have](https://whereday.com/blog/back-up-iphone-location-history/)
 
 Keep supported visit and point files before changing your setup.
 
-- [Check Watch recording and sync](https://isome.isolated.tech/docs/apple-watch/)
+- [Check Watch recording and sync](https://whereday.com/docs/apple-watch/)
 
 Read the status messages and verify the transferred day on your phone.
 
-Source: https://isome.isolated.tech/blog/missing-location-history-iphone/
+Source: https://whereday.com/blog/missing-location-history-iphone/

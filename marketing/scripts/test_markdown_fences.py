@@ -5,7 +5,7 @@ from build_agentic import Markdown
 
 class MarkdownFenceTests(unittest.TestCase):
     def render(self, content):
-        converter = Markdown('https://isome.isolated.tech/example/')
+        converter = Markdown('https://whereday.com/example/')
         converter.feed('<main><pre><code>' + content + '</code></pre><p>After example.</p></main>')
         return converter.result()
 

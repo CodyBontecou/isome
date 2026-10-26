@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Export and restore location history — iso.me Docs</title>
+  <title>Export and restore location history — Whereday Docs</title>
   <meta name="description" content="Eight export formats, filters, filename templates, and free import for restores.">
   <meta name="robots" content="index,follow">
-  <link rel="canonical" href="https://isome.isolated.tech/docs/export-import/">
+  <link rel="canonical" href="https://whereday.com/docs/export-import/">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <style>/* iso.me docs — shared styles (adapted from the site's doc template) */
+  <style>/* Whereday docs — shared styles (adapted from the site's doc template) */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --paper: #f5f4ef;
@@ -323,10 +323,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   <a class="skip-link" href="#main">Skip to content</a>
   <nav class="top" aria-label="Primary navigation">
     <div class="nav-inner">
-      <a href="/" class="brand" aria-label="iso.me home">
+      <a href="/" class="brand" aria-label="Whereday home">
         <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
         <span class="brand-dot" aria-hidden="true"></span>
-        ISO.ME
+        WHEREDAY
       </a>
       <div class="nav-links">
         <a href="/#features">Features</a>
@@ -343,7 +343,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   <header class="doc-head">
     <span class="eyebrow">§ Docs · Guide 6 of 11</span>
     <h1>Export and restore location history</h1>
-    <p class="lede">Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported iso.me visit and point files for free.</p>
+    <p class="lede">Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported Whereday visit and point files for free.</p>
     <div class="meta-strip">
       <div><div class="k">Platform</div><div class="v">iOS 17+</div></div>
       <div><div class="k">Updated</div><div class="v">October 26, 2026</div></div>
@@ -385,7 +385,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <p><code>{date}</code> <code>{year}</code> <code>{month}</code> <code>{dayNumber}</code> <code>{weekday}</code> <code>{monthName}</code> <code>{quarter}</code> <code>{datetime}</code> <code>{time}</code> <code>{day}</code> <code>{type}</code> <code>{title}</code> <code>{name}</code> <code>{format}</code></p>
 <ul>
 <li>Use <code>/</code> in a template to build dated subfolders.</li>
-<li>Built-in presets: <em>Readable</em> (default) <code>iso.me - {day} {date} - {type}</code>, <em>Compact</em>, and <em>Dated</em> <code>{year}/{year}-{month}/Daily Track - {date}</code>.</li>
+<li>Built-in presets: <em>Readable</em> (default) <code>Whereday - {day} {date} - {type}</code>, <em>Compact</em>, and <em>Dated</em> <code>{year}/{year}-{month}/Daily Track - {date}</code>.</li>
 <li>A live preview shows the resolved path as you type.</li>
 </ul>
 
@@ -400,13 +400,13 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <p>Pick a <strong>default folder</strong> (with auto-save on by default) and exports land there silently with a confirmation toast; otherwise the standard share sheet appears. The <strong>Preview</strong> button renders everything without writing — free, and a good way to sanity-check filters. Single outings can also be exported straight from their detail page.</p>
 
 <h2>Import</h2>
-<p>Settings → <strong>Import file</strong> accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.</p>
+<p>Settings → <strong>Import file</strong> accepts visit and point files exported from Whereday as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.</p>
 <div role="region" aria-label="Supported import file formats" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Choose a file for the next task</caption>
-<tr><th scope="col">Format</th><th scope="col">Useful for</th><th scope="col">Import into iso.me</th></tr>
-<tr><th scope="row">iso.me JSON</th><td>Structured visit or point records</td><td>Supported visit and point exports</td></tr>
-<tr><th scope="row">iso.me CSV / Markdown</th><td>Spreadsheets / readable records</td><td>Supported visit and point exports; required fields must remain</td></tr>
+<tr><th scope="col">Format</th><th scope="col">Useful for</th><th scope="col">Import into Whereday</th></tr>
+<tr><th scope="row">Whereday JSON</th><td>Structured visit or point records</td><td>Supported visit and point exports</td></tr>
+<tr><th scope="row">Whereday CSV / Markdown</th><td>Spreadsheets / readable records</td><td>Supported visit and point exports; required fields must remain</td></tr>
 <tr><th scope="row">GPX / KML / GeoJSON</th><td>Mapping tools and route viewers</td><td>No</td></tr>
 <tr><th scope="row">OwnTracks / Overland</th><td>Compatible location tools</td><td>No</td></tr>
 </table>
@@ -419,7 +419,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <li>Export to a folder you control and confirm the files exist in Files before deleting or replacing anything.</li>
 <li>When importing later, keep the originals and inspect several dates, visits, and points after the import. Do not assume every setting, photo association, or edited outing is restored.</li>
 </ol>
-<p><a href="/docs/automatic-exports/">Automatic exports</a> can keep scheduled copies, subject to iOS background execution. For the recording workflow, see <a href="/blog/private-location-journal-iphone/">the private location journal guide</a>. For a route file, follow <a href="/blog/record-iphone-route-gpx/">the GPX recording walkthrough</a>. For restorable records, use <a href="/blog/back-up-iphone-location-history/">the backup and restore checklist</a>. Comparing apps? Read <a href="/compare/google-maps-timeline/">iso.me and Google Timeline</a>.</p>
+<p><a href="/docs/automatic-exports/">Automatic exports</a> can keep scheduled copies, subject to iOS background execution. For the recording workflow, see <a href="/blog/private-location-journal-iphone/">the private location journal guide</a>. For a route file, follow <a href="/blog/record-iphone-route-gpx/">the GPX recording walkthrough</a>. For restorable records, use <a href="/blog/back-up-iphone-location-history/">the backup and restore checklist</a>. Comparing apps? Read <a href="/compare/google-maps-timeline/">Whereday and Google Timeline</a>.</p>
 <p>Import adds supported records. In the checked 1.7.16 release-source example, post-import visit reconciliation combined two nearby visits into one, while importing the point file again added repeated points. The import result is not necessarily the final stored visit count. See the <a href="/blog/back-up-iphone-location-history/#checked-import">checked disk import and JSON re-export</a>. Import each intended file once, then check individual records before retrying. The <a href="/blog/back-up-iphone-location-history/#sample">synthetic JSON examples</a> show the visit and point structures without using private history.</p>
 <p>For a readable note in a desktop vault, follow the <a href="/blog/iphone-location-journal-obsidian/">Markdown-to-Obsidian workflow</a>. It covers manual file placement and keeps generated notes separate from personal writing.</p>
     </div>
@@ -435,7 +435,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     <div class="footer-inner">
       <div class="footer-brand">
         <span class="dot"></span>
-        © 2026 ISO.ME · BUILT WITH CARE
+        © 2026 WHEREDAY · BUILT WITH CARE
       </div>
       <div class="footer-links">
         <a href="/about">About</a>
@@ -454,7 +454,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     'instareply.isolated.tech': true,
     'voxboard.isolated.tech': true,
     'healthmd.isolated.tech': true,
-    'isome.isolated.tech': true,
+    'whereday.com': true,
     'gitsyncmd.isolated.tech': true,
     'timemd.isolated.tech': true,
     'imghost.isolated.tech': true

@@ -18,17 +18,17 @@ Reading
 
 Back to
 
-[All docs](https://isome.isolated.tech/docs/)
+[All docs](https://whereday.com/docs/)
 
 ## Record on the Watch, then check the phone copy
 
-iso.me can record GPS points on Apple Watch without the iPhone nearby. The Watch keeps a local queue for transfer to the companion iPhone. Recording and reviewing history are free; writing export files on the phone requires the optional unlock.
+Whereday can record GPS points on Apple Watch without the iPhone nearby. The Watch keeps a local queue for transfer to the companion iPhone. Recording and reviewing history are free; writing export files on the phone requires the optional unlock.
 
 Install the Watch app and allow its location request. The phone app is needed to review transferred records in its journal and use its export workflow. Controls can vary by version; if a control described below is missing, check the available app update.
 
 ## Before your first route
 
-- Open iso.me on the Watch. If it asks for location access, respond to the permission prompt. If access was denied, review the Watch's location settings.
+- Open Whereday on the Watch. If it asks for location access, respond to the permission prompt. If access was denied, review the Watch's location settings.
 - Tap Start and confirm the status changes from standby to tracking. After an initial permission request, check the state rather than assuming a recording began.
 - Try a short route first. Look for the elapsed time and point count to change before relying on a longer session.
 - When finished, tap Stop on the Watch. Confirm it has left the tracking state.
@@ -37,8 +37,8 @@ Recording away from the phone is separate from syncing to it. You do not need an
 
 ## Sync and verify the result
 
-- Bring the paired Watch and iPhone together and open iso.me on the iPhone.
-- Open iso.me on the Watch. If available in your version, tap Sync Now and read the status.
+- Bring the paired Watch and iPhone together and open Whereday on the iPhone.
+- Open Whereday on the Watch. If available in your version, tap Sync Now and read the status.
 - In the phone app, open Timeline for the day of the recording. Check the outing and use its map to inspect the expected points and times.
 - Check both route points and visits. A transferred route is not proof that every stop was detected or named correctly.
 
@@ -55,7 +55,7 @@ Completed transfers are acknowledged by the phone; points remain in the Watch qu
 
 ## Checked queue example: 503 points, two batches
 
-We replayed an invented Watch queue through the queue logic and iPhone receiver included in iso.me 1.7.16 (46). The example contains 503 points, two completed visits, and one completed outing. Queue files and a separate phone database were saved to disk and reopened between deliveries.
+We replayed an invented Watch queue through the queue logic and iPhone receiver included in Whereday 1.7.16 (46). The example contains 503 points, two completed visits, and one completed outing. Queue files and a separate phone database were saved to disk and reopened between deliveries.
 
 Queued points and saved phone points are different counts
 | Stage | Points still queued | Points saved on phone
@@ -101,7 +101,7 @@ Not necessarily. In the checked example, 500 points were already saved while all
 
 ### Will retrying add the same points twice?
 
-The checked replay of the same Watch batch added zero duplicate points, including after the phone store was reopened. This depends on those same record IDs. A repeated file import is a separate workflow: the [backup import check](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import) shows that importing the point file again added repeated points.
+The checked replay of the same Watch batch added zero duplicate points, including after the phone store was reopened. This depends on those same record IDs. A repeated file import is a separate workflow: the [backup import check](https://whereday.com/blog/back-up-iphone-location-history/#checked-import) shows that importing the point file again added repeated points.
 
 ### Does Nothing to sync prove I have a complete backup?
 
@@ -109,10 +109,10 @@ No. It describes pending transfer data. It does not recreate unrecorded movement
 
 ## Keep a portable copy after syncing
 
-Once the route is visible on the phone, follow [the GPX walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/) to open it in another route tool, or [back up supported visits and points](https://isome.isolated.tech/blog/back-up-iphone-location-history/) for later import. See [Timeline and outings](https://isome.isolated.tech/docs/timeline-outings/) for reviewing the transferred day.
+Once the route is visible on the phone, follow [the GPX walkthrough](https://whereday.com/blog/record-iphone-route-gpx/) to open it in another route tool, or [back up supported visits and points](https://whereday.com/blog/back-up-iphone-location-history/) for later import. See [Timeline and outings](https://whereday.com/docs/timeline-outings/) for reviewing the transferred day.
 
-If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) before deleting records or retrying an import.
+If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://whereday.com/blog/missing-location-history-iphone/) before deleting records or retrying an import.
 
-[← PreviousSiri & Shortcuts for iPhone location tracking](https://isome.isolated.tech/docs/siri-shortcuts/) [Next →Privacy & your data](https://isome.isolated.tech/docs/privacy-data/)
+[← PreviousSiri & Shortcuts for iPhone location tracking](https://whereday.com/docs/siri-shortcuts/) [Next →Privacy & your data](https://whereday.com/docs/privacy-data/)
 
-Source: https://isome.isolated.tech/docs/apple-watch/
+Source: https://whereday.com/docs/apple-watch/
