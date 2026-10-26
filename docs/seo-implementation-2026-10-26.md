@@ -168,6 +168,10 @@ file unchanged. All 27 selected tests pass. The reference, docs hub, and backup
 link explain setup, cutoff, rewrite/append limits, and actual file verification.
 No timed background wake or cloud delivery is claimed. See
 [the automatic-export file record](qa/seo-automatic-export-files-2026-10-26.md).
+Production deployment `b963f622` passes all 30 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse on the reference, docs hub, backup guide, and webhook
+neighbor. A narrow overflow region fixes the neighbor’s wide receiver table;
+live mobile checks confirm both documents fit at 390 px.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.

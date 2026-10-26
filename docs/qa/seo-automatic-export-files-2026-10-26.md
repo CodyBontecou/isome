@@ -96,3 +96,25 @@ Local Lighthouse 13.5.0 passes all four categories at 100 for automatic exports,
 the docs hub, and the backup article on mobile and desktop. Reports:
 `/private/tmp/isome-seo-automatic-files-before/`. The webhook neighbor has its
 own reports in `/private/tmp/isome-seo-automatic-files-neighbor-before/`.
+
+## Publication
+
+Implementation pushed on `main` as `64267e5`. Production deployment:
+`b963f622`, https://b963f622.spotted-8ez.pages.dev.
+
+Content-specific HTTP checks confirmed all four production pages were current
+before starting the final production Lighthouse run. Live browser checks
+confirm the new reference/checked examples and 390 px document/viewport; the
+webhook table is contained in its named region. Desktop visual proof:
+`build/seo-evidence/automatic-files-20261026/automatic-export-checks-live.jpg`.
+
+The local preview was stopped. Scoped Argent cleanup of the one QA simulator
+used found no remaining services. No new campaign, Google indexing request,
+external message, scheduled task, or app submission was made.
+
+Production HTTP verification passes all 30 HTML/Markdown pairs and cache,
+representation, 404, API, method, and asset checks. Final Lighthouse 13.5.0
+scores 100 for performance, accessibility, best practices, and SEO on all
+four audited pages, mobile and desktop (eight checks). Reports:
+`/private/tmp/isome-seo-automatic-files-after/`. These lab results do not
+establish field Core Web Vitals, indexation, rankings, or conversions.
