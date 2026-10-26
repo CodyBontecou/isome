@@ -116,3 +116,10 @@ unavailable (naturalWidth 0), then loaded (480), shows identical image and text
 bounds at 320 and 1280 px. Local Chinese mobile/desktop Lighthouse both score
 100 in every category with CLS 0. Reports:
 `/private/tmp/isome-seo-locale-image-before/`.
+
+The image fix was published as main commit `3be04d1`, deployment `880a2b29`.
+Production Chinese mobile/desktop Lighthouse score 100 in all categories
+with CLS 0; reports: `/private/tmp/isome-seo-locale-image-after/`. All 31
+HTML/Markdown pairs pass again. Final visual review also added one explicit
+headline phrase break to remove a lone final character, retaining the words
+and reserved image geometry.
