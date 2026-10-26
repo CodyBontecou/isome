@@ -90,7 +90,7 @@ Check the Watch before assuming the phone lost its copy. Bring the paired device
 
 Sync queued means delivery is pending; it does not confirm the phone imported every record. Synced with iPhone reports an acknowledgement. After either message, inspect the recording date on the phone and check both points and visits. Nothing to sync describes the pending queue, not the completeness of your journal.
 
-Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the [Watch recording and sync guide](https://isome.isolated.tech/docs/apple-watch/) for the detailed status checks.
+Keep the Watch app installed while checking pending records. Its queue is not a complete backup of everything previously transferred. Follow the [Watch recording and sync guide](https://isome.isolated.tech/docs/apple-watch/) for the detailed status checks. Its [checked queue example](https://isome.isolated.tech/docs/apple-watch/#checked-transfer) shows why points can remain queued after the phone has saved them, and why the phone’s date and point count still need checking.
 
 ## 5. If history exists but the exported file is empty
 

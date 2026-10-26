@@ -183,6 +183,13 @@ Production deployment `57ae769d` passes all 30 HTML/Markdown pairs and all-100
 mobile/desktop Lighthouse on both changed pages. The live attachment matches
 the exact native output, including its 133 bytes and filename.
 
+The Apple Watch reference now includes a checked 503-point queue replay with
+queue and phone stores reopened from disk. Retrying the unacknowledged first
+500-point batch adds zero points; acknowledging it leaves three queued, and
+the final batch produces 503 saved points, two visits, and one outing. All 15
+selected tests pass. Real Watch recording and paired-device transport remain
+unverified. See [the queue disk record](qa/seo-watch-queue-disk-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

@@ -46,9 +46,9 @@ GUIDES = [
      "Build shortcuts for recording, reading your journal, renaming stops, and exporting files. Choose the dates and data you need, then check the result before adding an automation.",
      "iOS 17+", 5, None),
     ("apple-watch", "Record Apple Watch GPS routes without your iPhone",
-     "Independent watch tracking, offline sync, and complications.",
+     "Record on Apple Watch, check transfer status, and verify the phone copy with a checked offline-queue example.",
      "Start a route on Apple Watch, record without your iPhone nearby, then check the transfer back to your phone. Learn the recording controls, sync status, and recovery checks.",
-     "watchOS 10+", 3, None),
+     "watchOS 10+", 6, None),
     ("privacy-data", "Privacy & your data",
      "What stays on your device, what can leave it, and how deletion works.",
      "A plain-language map of every place your data can go: on-device storage, Apple system services, first-party analytics, and the optional features you control.",
@@ -500,7 +500,25 @@ BODIES["apple-watch"] = """
 <tr><th scope="row">Synced with iPhone</th><td>The phone acknowledged the delivered data. Still check the intended day and route.</td></tr>
 <tr><th scope="row">Nothing to sync</th><td>Check the phone's existing history and the selected day. An empty pending queue is not a full history report.</td></tr>
 </table>
+<p>Apple notes that <a href="https://developer.apple.com/documentation/watchconnectivity/wcsession">background transfers may not arrive immediately</a>. Check the saved phone records as well as the transfer status.</p>
 <p>Completed transfers are acknowledged by the phone; points remain in the Watch queue until acknowledged. This helps retry delivery, but the queue is not a full backup of history already transferred. Do not uninstall the Watch app as a first troubleshooting step.</p>
+
+<h2 id="checked-transfer">Checked queue example: 503 points, two batches</h2>
+<p>We replayed an invented Watch queue through the queue logic and iPhone receiver included in iso.me 1.7.16 (46). The example contains 503 points, two completed visits, and one completed outing. Queue files and a separate phone database were saved to disk and reopened between deliveries.</p>
+<div role="region" aria-label="Checked Watch queue and phone counts" tabindex="0" style="overflow-x:auto;max-width:100%">
+<table>
+<caption>Queued points and saved phone points are different counts</caption>
+<tr><th scope="col">Stage</th><th scope="col">Points still queued</th><th scope="col">Points saved on phone</th></tr>
+<tr><th scope="row">Before delivery</th><td>503</td><td>0</td></tr>
+<tr><th scope="row">First 500 saved, acknowledgement withheld</th><td>503</td><td>500</td></tr>
+<tr><th scope="row">Same batch retried and acknowledged</th><td>3</td><td>500</td></tr>
+<tr><th scope="row">Final three saved and acknowledged</th><td>0</td><td>503</td></tr>
+<tr><th scope="row">Queue and phone store reopened</th><td>0</td><td>503</td></tr>
+</table>
+</div>
+<p>The retry added zero points because that batch’s record IDs were already saved. The completed outing stayed queued until its final point batch was acknowledged. At the end, the phone retained all 503 point IDs and timestamps, two visits, and one outing. A delayed delivery of the first batch still left the phone at 503 points.</p>
+<p>This explains why a pending queue can contain points already saved on the phone: the Watch may still be waiting for an acknowledgement. Conversely, an empty queue says nothing about whether you selected the right date or whether a route was recorded before transfer.</p>
+<p><strong>What was checked:</strong> released queue batching, acknowledgements, receiver imports, and reopening temporary disk stores in an iOS 26.5 simulator. All 15 selected native tests passed on October 26, 2026. Delivery was supplied by the test with WatchConnectivity disabled. No physical Watch recording, Bluetooth or Wi-Fi delivery, background transfer, app-process restart, or Watch sync screen was newly verified.</p>
 
 <h2>If the route is missing or incomplete</h2>
 <ul>
@@ -514,6 +532,22 @@ BODIES["apple-watch"] = """
 <h2>Daily counters and complications</h2>
 <p>The Watch shows tracking state, elapsed time, coordinates, distance, points, and a movement-based visit count. Its visit counter is not a count of named places confirmed by the iPhone. <strong>Reset today</strong> resets the Watch's daily counters; it does not restore missing records or delete the iPhone's imported history.</p>
 <p>Circular, rectangular, inline, and corner complications offer glanceable status. A complication is a snapshot, so open the Watch app to inspect the current recording and sync state.</p>
+
+<h2 id="verify-phone">Check the phone copy before removing anything</h2>
+<ul>
+<li>Open the recording’s actual date in Timeline, not only Today. Check the outing’s start and end time.</li>
+<li>Inspect the outing’s point count and map. A saved session title or timer alone does not prove that GPS points were collected.</li>
+<li>Check the expected visits separately from the path. Watch movement-based visits can differ from iPhone visit detection.</li>
+<li>Keep the Watch app and its pending data while resolving a transfer problem. Once the phone copy is checked, use supported exports if you need a separate archive.</li>
+</ul>
+
+<h2 id="questions">Common questions</h2>
+<h3>Does Sync queued mean my route is missing from the phone?</h3>
+<p>Not necessarily. In the checked example, 500 points were already saved while all 503 still remained queued because the acknowledgement had not been applied. Inspect the phone’s intended date before deciding what is missing.</p>
+<h3>Will retrying add the same points twice?</h3>
+<p>The checked replay of the same Watch batch added zero duplicate points, including after the phone store was reopened. This depends on those same record IDs. A repeated file import is a separate workflow: the <a href="/blog/back-up-iphone-location-history/#checked-import">backup import check</a> shows that importing the point file again added repeated points.</p>
+<h3>Does Nothing to sync prove I have a complete backup?</h3>
+<p>No. It describes pending transfer data. It does not recreate unrecorded movement, establish the completeness of older phone history, or provide a separate archive. Verify the phone copy and retain supported exports for records you need to keep.</p>
 
 <h2>Keep a portable copy after syncing</h2>
 <p>Once the route is visible on the phone, follow <a href="/blog/record-iphone-route-gpx/">the GPX walkthrough</a> to open it in another route tool, or <a href="/blog/back-up-iphone-location-history/">back up supported visits and points</a> for later import. See <a href="/docs/timeline-outings/">Timeline and outings</a> for reviewing the transferred day.</p>

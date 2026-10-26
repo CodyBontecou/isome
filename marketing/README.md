@@ -161,6 +161,12 @@ departure, and a run after midnight does not repair the preceding date’s file.
 The planner, serializer, writer, and on-disk output were tested; no scheduled
 wake or cloud delivery is claimed. See the [verification record](../docs/qa/seo-automatic-export-files-2026-10-26.md).
 
+The Apple Watch reference includes a released-source synthetic queue replay:
+503 points in two batches, a withheld acknowledgement and retry, and queue/phone
+stores reopened from disk. All 15 tests pass. This verifies software state and
+receiver persistence; physical Watch recording and paired-device delivery remain
+unverified. See the [disk replay record](../docs/qa/seo-watch-queue-disk-2026-10-26.md).
+
 ## Deploy
 
 `marketing/deploy.sh` builds and validates before its existing Cloudflare Pages

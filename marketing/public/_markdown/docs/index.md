@@ -78,7 +78,7 @@ Start and stop tracking, read saved visits, rename outings, and export a chosen 
 
 ## Record Apple Watch GPS routes without your iPhone
 
-Independent watch tracking, offline sync, and complications.
+Record on Apple Watch, check transfer status, and verify the phone copy with a checked offline-queue example.
 
 ](https://isome.isolated.tech/docs/apple-watch/) [ Guide 11
 
