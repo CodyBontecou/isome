@@ -53,3 +53,22 @@ Local mobile/desktop Lighthouse scores are 100 in all four categories. Reports:
 This is discovery and claim-consistency work; no new workflow test, physical
 recording, restore, or platform compatibility beyond the referenced evidence
 is claimed.
+
+## Publication
+
+README and site changes were committed and pushed on `main` as `f61efbe`.
+Production Pages deployment short ID `6bcef4e4`:
+https://6bcef4e4.spotted-8ez.pages.dev.
+
+- All 30 production HTML/Markdown pairs and representation, method, cache,
+  error, API-contract, and asset checks pass.
+- Production homepage Lighthouse 13.5.0 scores 100 for performance,
+  accessibility, best practices, and SEO on both mobile and desktop. Reports:
+  `/private/tmp/isome-seo-discovery-after/`.
+- Live mobile DOM: nine task cards, expected integration and Saved Places
+  targets, 390 px viewport/scroll widths, and six retained `seo-home` links.
+- Desktop visual proof retained at
+  `build/seo-evidence/discovery-20261026/homepage-guides-live.jpg`.
+
+No third-party link placement, Google submission, account permission, app
+binary, new campaign, or scheduled task was created.
