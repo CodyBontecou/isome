@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 from build_seo_pages import render
 from check_site import BASE, PUBLIC, page_url
 from product_contract import build_product_contract
+from campaign_links import update_download_links
 
 TRUST = [
     {
@@ -114,6 +115,7 @@ def build():
         if page['path'] == '/404':
             content = content.replace('content="index,follow"', 'content="noindex,follow"')
         (PUBLIC / (page['path'].lstrip('/') + '.html')).write_text(content)
+    update_download_links()
     manifest = {}
     for source in sorted(PUBLIC.rglob('*.html')):
         if source.name == '404.html':

@@ -30,7 +30,7 @@ The `website_acquisition_daily` table stores UTC day, event, public page, placem
 
 Page loads and activations are not unique visitors, installs, purchases, or an organic session conversion rate. The source category is per-page referrer context; the code does not preserve the original acquisition source through internal navigation. Excluded browsers, early exits, network failures, and automated requests limit interpretation. No synthetic valid event was inserted into production to inflate counts.
 
-Apple campaign attribution remains unconfigured: no signed-in Apple web session or genuine campaign/provider token was available. The owner said it may not have been set up yet. Standard App Store links remain valid; no token was guessed. Use a generated campaign link when available and account for Apple's thresholds and delays.
+Apple campaign attribution remains unconfigured. The CLI had no Apple web session, but a subsequent browser check found an existing signed-in App Store Connect session. The Campaigns page did not display existing campaign data. Automatic approval review rejected opening Generate a Campaign Link, stating that creation of persistent campaign state lacked explicit authorization. Explicit approval for four named campaign links was requested and is pending. Standard App Store links remain valid; no token was guessed. The provider token is null in `marketing/content/acquisition.json`; the build-time anchor rewriter and QR URL consistency check are prepared for an approved genuine token. Account for Apple's thresholds and delays once links are active.
 
 Report with the SQL command in [the website README](../marketing/README.md). No recurring automation was created.
 
