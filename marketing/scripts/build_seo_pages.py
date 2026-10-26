@@ -11,6 +11,16 @@ APP = "https://apps.apple.com/us/app/iso-me/id6761960794"
 REVIEWED = "2026-10-26"
 PAGES = [
     {
+        "path": "/blog/track-days-in-country-iphone/",
+        "section": "Guides", "section_path": "/blog/", "breadcrumb": "Country days",
+        "type": "BlogPosting",
+        "title": "Track Days Spent in Each Country on iPhone — iso.me",
+        "headline": "How to track days spent in each country on iPhone",
+        "description": "Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.",
+        "lede": "Review country totals and the dates behind them, add missing stays, and keep a personal record without an iso.me account.",
+        "source": "track-days-in-country-iphone.html",
+    },
+    {
         "path": "/compare/",
         "title": "Compare iPhone Location Journals — iso.me",
         "headline": "Choose how you keep your location history.",
@@ -105,8 +115,26 @@ PAGES = [
 ]
 
 
+# Not generated into public/ until the supporting App Store build is verified.
+DRAFTS = [{
+    "path": "/blog/import-google-timeline-iphone/", "section": "Guides", "section_path": "/blog/",
+    "breadcrumb": "Import Google Timeline", "type": "BlogPosting", "robots": "noindex,follow",
+    "title": "Import Google Timeline on iPhone — Release Preview — iso.me",
+    "headline": "How to import Google Timeline into iso.me on iPhone",
+    "description": "A release-preview walkthrough of supported Google JSON files, import preview, duplicate checks, and preserving the original archive.",
+    "lede": "Prepared for the next supporting release. The verified public 1.7.16 build does not include this importer.",
+    "source": "import-google-timeline-iphone.html",
+}]
+
+
 # Keep next steps specific to the task on each page.
-RELATED = {'/blog/view-location-history-iphone/': [('/blog/missing-location-history-iphone/',
+RELATED = {
+ '/blog/track-days-in-country-iphone/': [
+     ('/blog/private-location-journal-iphone/', 'Record your next trip',
+      'Start a local journal before you leave.'),
+     ('/blog/back-up-iphone-location-history/', 'Keep the underlying records',
+      'A country-date summary is not a complete backup.')],
+ '/blog/view-location-history-iphone/': [('/blog/missing-location-history-iphone/',
                                           'Check missing iso.me records',
                                           'Diagnose recording gaps, hidden points, Watch '
                                           'transfers, and export filters.'),
@@ -200,7 +228,7 @@ def render(page):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{escape(page["title"])}</title>
   <meta name="description" content="{escape(page["description"], quote=True)}">
-  <meta name="robots" content="index,follow">
+  <meta name="robots" content="{page.get('robots', 'index,follow')}">
   <link rel="canonical" href="{url}">
   <meta name="theme-color" content="#f5f4ef">
   <meta property="og:title" content="{escape(page["title"], quote=True)}">

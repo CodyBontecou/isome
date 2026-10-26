@@ -1,4 +1,4 @@
-§ Docs · Guide 3 of 11 
+§ Docs · Guide 3 of 11
 
 # Timeline & outings
 
@@ -30,19 +30,19 @@ A movement session (outing) is recorded when you pressed Start, and inferred whe
 
 Inference is configurable in Settings → Inferred outings:
 
-| Setting | Options | Default 
-| Auto-generate | On / Off | On 
-| Split after (quiet gap) | 15 m / 30 m / 1 h / 2 h / 4 h | 30 minutes 
-| Ignore shorter than | None / 5 m / 15 m / 30 m / 1 h | None 
-| Minimum GPS points | 1 / 2 / 3 / 5 / 10 | 1 
+| Setting | Options | Default
+| Auto-generate | On / Off | On
+| Split after (quiet gap) | 15 m / 30 m / 1 h / 2 h / 4 h | 30 minutes
+| Ignore shorter than | None / 5 m / 15 m / 30 m / 1 h | None
+| Minimum GPS points | 1 / 2 / 3 / 5 / 10 | 1
 
 ## Outing detail
 
 Tap any outing for its full record: a road-matched mini map, start and end times, duration, distance, point count, GPS-glitch count, and average speed. Recorded outings can be renamed and given notes (inferred ones can't — edit the points' day instead). Linked visits and photos appear below.
 
-- Show on map focuses the Map tab on this outing's path. 
-- Export saves this single outing in your choice of format (a Pro feature; the picker remembers your format). 
-- Delete outing removes the session and its GPS points — visits are kept. Deleting the active outing stops tracking first.  
+- Show on map focuses the Map tab on this outing's path.
+- Export saves this single outing in your choice of format (a Pro feature; the picker remembers your format).
+- Delete outing removes the session and its GPS points — visits are kept. Deleting the active outing stops tracking first.
 
 ## Route replay
 
@@ -53,6 +53,12 @@ Both the map (for a whole day) and the outing detail page (for one outing) offer
 Outing lists can be sorted by newest, oldest, longest duration, distance, or point count.
 
 If a recorded day looks incomplete, follow the [missing visits and route points checklist](https://isome.isolated.tech/blog/missing-location-history-iphone/) before deleting records or retrying an import.
+
+## Country Days
+
+Timeline → Country Days counts local dates represented by visits, route points, and manual stays. Review this year, the last 365 days, or all time. A travel date can count in more than one country; gaps are not filled automatically. Viewing and manual stays are free; writing the country-date CSV uses the export purchase.
+
+See [how to track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/) for timezone, network-geocoding, and counting details.
 
 [← PreviousVisits, routes & battery](https://isome.isolated.tech/docs/tracking/) [Next →Places, corrections & manual entries](https://isome.isolated.tech/docs/places/)
 

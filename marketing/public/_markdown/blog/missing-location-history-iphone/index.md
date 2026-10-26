@@ -26,14 +26,14 @@ Choose the symptom
 
 ## Match the symptom before changing anything
 
-Start with the closest match 
-| What you see | First check | Next step  
-| The whole day is empty | Timeline date and Map date range | Confirm whether recording was running during that period. 
-| A path ends partway through | Stop time and Stop after setting | Inspect the last recorded point and check permission. 
-| A route exists but a stop is missing | Route points at the expected stop | Review visit detection separately; a path is not a list of confirmed visits. 
-| Watch recorded, phone looks empty | Watch sync message and recording date | Open both apps, check transfer, then inspect the phone’s day. 
-| Timeline has data, export is empty | Export data type, dates, and filters | Check Preview before writing another file. 
-| A visit has coordinates but no useful name | Location names setting and place correction | Review or rename the visit instead of treating it as absent.  
+Start with the closest match
+| What you see | First check | Next step
+| The whole day is empty | Timeline date and Map date range | Confirm whether recording was running during that period.
+| A path ends partway through | Stop time and Stop after setting | Inspect the last recorded point and check permission.
+| A route exists but a stop is missing | Route points at the expected stop | Review visit detection separately; a path is not a list of confirmed visits.
+| Watch recorded, phone looks empty | Watch sync message and recording date | Open both apps, check transfer, then inspect the phone’s day.
+| Timeline has data, export is empty | Export data type, dates, and filters | Check Preview before writing another file.
+| A visit has coordinates but no useful name | Location names setting and place correction | Review or rename the visit instead of treating it as absent.
 
 Note the date and approximate time of the gap. Compare Map and Timeline for that same period. A Map range excluding yesterday and a Timeline opened on today can make retained history look missing.
 
@@ -41,10 +41,10 @@ Note the date and approximate time of the gap. Compare Map and Timeline for that
 
 Start enables GPS recording, visit monitoring, and significant location changes together. Stop ends those services. A location permission alone does not mean a recording was active. The app’s current recording state also cannot prove that it was running throughout yesterday’s trip.
 
-- Open the expected day in Timeline and inspect any outing’s start and end times. 
-- Check Settings → Location tracking → Stop after. A timer shorter than the trip can explain why its later section was not recorded. 
-- For a new short test, tap Start and confirm the recording state changes. After a permission prompt, check the state again rather than assuming the session began. 
-- Finish the test with Stop, then inspect its route and times in Timeline.  
+- Open the expected day in Timeline and inspect any outing’s start and end times.
+- Check Settings → Location tracking → Stop after. A timer shorter than the trip can explain why its later section was not recorded.
+- For a new short test, tap Start and confirm the recording state changes. After a permission prompt, check the state again rather than assuming the session began.
+- Finish the test with Stop, then inspect its route and times in Timeline.
 
 Review the app’s permission under iPhone Settings → Privacy & Security → Location Services. iso.me offers Always access for background visit monitoring; an active manual session and automatic visit detection have different permission needs. Follow [Apple’s Location Services instructions](https://support.apple.com/en-us/102515) if the controls on your iOS version differ.
 
@@ -54,9 +54,9 @@ Changing permission can help a future recording. It does not fill an earlier gap
 
 A sparse route can come from the chosen distance filter, rejected GPS fixes, or points hidden as glitches. These are different from a session that never ran.
 
-- Distance filter: a larger value requests updates after more movement. Compare the setting with a short route before relying on it for detail such as small turns. 
-- Rejected fixes: iso.me saves incoming route locations only when reported accuracy is between zero and 100 meters. A fix outside that range is not a hidden point you can reveal later. 
-- Hidden glitches: some saved points are flagged as outliers. Enable Settings → Map display → Show GPS glitches to inspect them. A newly visible spike is not evidence that you travelled along it.  
+- Distance filter: a larger value requests updates after more movement. Compare the setting with a short route before relying on it for detail such as small turns.
+- Rejected fixes: iso.me saves incoming route locations only when reported accuracy is between zero and 100 meters. A fix outside that range is not a hidden point you can reveal later.
+- Hidden glitches: some saved points are flagged as outliers. Enable Settings → Map display → Show GPS glitches to inspect them. A newly visible spike is not evidence that you travelled along it.
 
 If the route is visible in iso.me but absent from a file, choose Points in Export, select the same dates, and review accuracy and glitch filters in Preview. A Visits GPX contains stops rather than the continuous path. Follow the [GPX export walkthrough](https://isome.isolated.tech/blog/record-iphone-route-gpx/) for file checks.
 
@@ -86,10 +86,10 @@ Import adds records without a duplicate check. Repeatedly importing an overlappi
 
 ### What to include when asking for help
 
-- App and iOS versions, plus whether the recording came from iPhone or Watch. 
-- The affected date, approximate time, and timezone. 
-- Whether the problem is missing points, visits, names, sync, or an export. 
-- The recording state, Stop after value, and any exact error or sync message.  
+- App and iOS versions, plus whether the recording came from iPhone or Watch.
+- The affected date, approximate time, and timezone.
+- Whether the problem is missing points, visits, names, sync, or an export.
+- The recording state, Stop after value, and any exact error or sync message.
 
 Describe the symptom before sending a route file. You can [contact support](mailto:cody.bontecou@gmail.com) without including your coordinates or a full location archive.
 
@@ -98,7 +98,7 @@ Then trust a longer day.
 
 Recording and reviewing history are free. Check one finished session before relying on a new setup for a long trip.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
 Reviewed October 26, 2026 against iso.me’s recording, filtering, import, and Watch-sync source. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
 

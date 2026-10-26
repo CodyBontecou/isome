@@ -16,6 +16,7 @@ UPDATED_PATHS = {
     "/compare/", "/compare/google-maps-timeline/",
     "/blog/view-location-history-iphone/", "/blog/record-iphone-route-gpx/",
     "/blog/iphone-location-journal-obsidian/",
+    "/blog/track-days-in-country-iphone/",
     "/blog/missing-location-history-iphone/",
     "/blog/iphone-location-tracking-battery/",
     "/blog/back-up-iphone-location-history/", "/docs/apple-watch/", "/docs/webhooks/", "/docs/timeline-outings/",
@@ -25,6 +26,18 @@ UPDATED_PATHS = {
 def build():
     for script in ("build_docs.py", "build_seo_pages.py", "build_agentic.py"):
         subprocess.run([sys.executable, str(SCRIPTS / script)], check=True)
+
+    # Include one shared, gated acquisition listener on every public page.
+    acquisition = '<script defer src="/assets/acquisition.js"></script>'
+    for page in PUBLIC.rglob('*.html'):
+        content = page.read_text()
+        if acquisition not in content:
+            page.write_text(content.replace('</body>', acquisition + '\n</body>'))
+
+    from build_seo_pages import DRAFTS
+    for draft in DRAFTS:
+        if (PUBLIC / draft['path'].strip('/') / 'index.html').exists():
+            raise ValueError(f"Release-gated draft leaked into public/: {draft['path']}")
 
     namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
     ET.register_namespace("", namespace)

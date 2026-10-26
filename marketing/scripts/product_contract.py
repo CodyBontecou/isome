@@ -21,7 +21,7 @@ def build_product_contract():
         'appStore': 'https://apps.apple.com/us/app/iso-me/id6761960794',
         'sourceRepository': 'https://github.com/CodyBontecou/isome',
         'platforms': ['iOS 17 or later', 'watchOS 10 or later'],
-        'capabilities': ['Visit detection during tracking', 'GPS route recording', 'Timeline and outings', 'Independent Apple Watch recording', 'Portable export', 'Supported import', 'Siri and Shortcuts', 'Optional outbound webhooks'],
+        'capabilities': ['Visit detection during tracking', 'GPS route recording', 'Timeline and outings', 'Independent Apple Watch recording', 'Portable export', 'Supported iso.me file import (App Store 1.7.16)', 'Country Days and manual stays', 'Siri and Shortcuts', 'Optional outbound webhooks'],
         'exportFormats': ['JSON', 'CSV', 'Markdown', 'GeoJSON', 'GPX', 'KML', 'OwnTracks', 'Overland'],
         'pricingURL': BASE + '/#pricing',
         'privacyURL': BASE + '/privacy',
@@ -46,7 +46,7 @@ def build_product_contract():
     }
     spec = {
         'openapi': '3.1.0',
-        'info': {'title': 'iso.me Public Product Metadata API', 'version': '1.0.0', 'description': 'Read-only public app capabilities and documentation links. No account, credentials, personal locations, exports, or journal records are accessible through this API.', 'contact': {'name': 'Cody Bontecou', 'email': 'cody.bontecou@gmail.com', 'url': BASE + '/contact'}},
+        'info': {'title': 'iso.me Website API', 'version': '1.0.0', 'description': 'Read-only public product metadata and a validated browser measurement endpoint for daily aggregate counts. No account, credentials, personal locations, exports, or journal records are accessible through this API.', 'contact': {'name': 'Cody Bontecou', 'email': 'cody.bontecou@gmail.com', 'url': BASE + '/contact'}},
         'servers': [{'url': BASE}],
         'security': [],
         'paths': {'/api/v1/product': {'get': {
@@ -63,6 +63,27 @@ def build_product_contract():
             'Problem': {'type': 'object', 'required': ['type', 'title', 'status', 'detail', 'resolution'], 'properties': {'type': uri, 'title': string, 'status': {'type': 'integer'}, 'detail': string, 'resolution': string}},
         }},
     }
+    spec['paths']['/api/v1/acquisition'] = {'post': {
+        'operationId': 'countWebsiteAcquisition',
+        'summary': 'Count a gated website page load or App Store link activation',
+        'description': 'Internal browser measurement endpoint. Same-origin requests only, after the analytics exclusion gate. Accepts public page paths and coarse dimensions; no visitor identifiers or journal data. Updates daily aggregate counters. Does not measure installs or purchases.',
+        'requestBody': {'required': True, 'content': {'application/json': {'schema': {
+            'type': 'object', 'additionalProperties': False,
+            'required': ['event', 'page', 'placement', 'source'],
+            'properties': {
+                'event': {'type': 'string', 'enum': ['page_view', 'app_store_clicked']},
+                'page': {'type': 'string', 'description': 'An exact known public page path without a query or fragment.'},
+                'placement': {'type': 'string', 'enum': ['page', 'header', 'inline', 'footer', 'qr']},
+                'source': {'type': 'string', 'enum': ['direct', 'internal', 'search', 'other']},
+            },
+        }}}},
+        'responses': {str(code): {'description': description} for code, description in [
+            (204, 'Count accepted, or privacy preference honored without storing.'),
+            (400, 'Invalid or unknown dimensions.'), (403, 'Origin or host rejected.'),
+            (405, 'Use POST.'), (413, 'Payload exceeds 512 bytes.'),
+            (415, 'Use application/json.'), (503, 'Measurement unavailable; no success claimed.'),
+        ]},
+    }}
     target = PUBLIC / 'api/v1/product.json'
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(product, indent=2) + '\n')

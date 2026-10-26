@@ -262,7 +262,7 @@ BODIES["export-import"] = """
 <p>Pick a <strong>default folder</strong> (with auto-save on by default) and exports land there silently with a confirmation toast; otherwise the standard share sheet appears. The <strong>Preview</strong> button renders everything without writing — free, and a good way to sanity-check filters. Single outings can also be exported straight from their detail page.</p>
 
 <h2>Import</h2>
-<p>Settings → <strong>Import file</strong> accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: Google Timeline archives are not supported.</p>
+<p>Settings → <strong>Import file</strong> accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.</p>
 <table>
 <caption>Choose a file for the next task</caption>
 <tr><th scope="col">Format</th><th scope="col">Useful for</th><th scope="col">Import into iso.me</th></tr>
@@ -426,6 +426,13 @@ BODIES["apple-watch"] = """
 <p>Once the route is visible on the phone, follow <a href="/blog/record-iphone-route-gpx/">the GPX walkthrough</a> to open it in another route tool, or <a href="/blog/back-up-iphone-location-history/">back up supported visits and points</a> for later import. See <a href="/docs/timeline-outings/">Timeline and outings</a> for reviewing the transferred day.</p>
 <p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>
 
+"""
+
+# Country Days is present in verified public 1.7.16 build 46.
+BODIES["timeline-outings"] += """
+<h2>Country Days</h2>
+<p>Timeline → <strong>Country Days</strong> counts local dates represented by visits, route points, and manual stays. Review this year, the last 365 days, or all time. A travel date can count in more than one country; gaps are not filled automatically. Viewing and manual stays are free; writing the country-date CSV uses the export purchase.</p>
+<p>See <a href="/blog/track-days-in-country-iphone/">how to track days spent in each country</a> for timezone, network-geocoding, and counting details.</p>
 """
 
 BODIES["privacy-data"] = """

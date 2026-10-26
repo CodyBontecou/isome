@@ -1,4 +1,4 @@
-§ Docs · Guide 4 of 11 
+§ Docs · Guide 4 of 11
 
 # Places, corrections & manual entries
 
@@ -26,25 +26,25 @@ Every visit carries a status: unconfirmed (as detected), confirmed (you approved
 
 ## Confirming and correcting
 
-- Tap a visit on the map or in the timeline to open its detail sheet, then Confirm place to accept the detected name. 
-- To fix a wrong name, edit it or pick from nearby business suggestions — real places found via Apple Maps around the visit's location, searchable in the sheet. 
-- Undo correction restores the originally detected name, address, and position. 
-- Arrival and departure times are editable (with a “still here” toggle for ongoing visits), and notes can be attached to any visit.  
+- Tap a visit on the map or in the timeline to open its detail sheet, then Confirm place to accept the detected name.
+- To fix a wrong name, edit it or pick from nearby business suggestions — real places found via Apple Maps around the visit's location, searchable in the sheet.
+- Undo correction restores the originally detected name, address, and position.
+- Arrival and departure times are editable (with a “still here” toggle for ongoing visits), and notes can be attached to any visit.
 
 ## Saved places
 
 Confirming or correcting a visit also saves the place — a name, position, and a match radius (default 150 m). From then on, any new visit inside that radius is automatically named from the saved place and marked confirmed. No more re-correcting “Home” every week.
 
-- Saved places are manageable from the manual-entry sheet: select, swipe to delete, or create new ones with a radius of 50 / 100 / 150 / 250 m. 
-- Places with the same name at nearly the same spot update each other instead of piling up.  
+- Saved places are manageable from the manual-entry sheet: select, swipe to delete, or create new ones with a radius of 50 / 100 / 150 / 250 m.
+- Places with the same name at nearly the same spot update each other instead of piling up.
 
 ## Manual and past visits
 
 The + menu on the map offers three ways to add history by hand:
 
-- Save current place — names where you are right now. 
-- Add past visit — pick a place, an arrival, and a departure; the map then jumps to that day so you can see it in context. 
-- Add place manually — search Apple Maps, drop a pin, pick a saved place, or use your current location; optionally save it as a reusable place.  
+- Save current place — names where you are right now.
+- Add past visit — pick a place, an arrival, and a departure; the map then jumps to that day so you can see it in context.
+- Add place manually — search Apple Maps, drop a pin, pick a saved place, or use your current location; optionally save it as a reusable place.
 
 Locations can be chosen by searching Apple Maps, dropping a pin on a map, reusing a saved place, or using your current GPS position. Past visits require a departure time and never silently fall back to “here”.
 

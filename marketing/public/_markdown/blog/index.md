@@ -1,10 +1,10 @@
-Practical guides · iso.me 
+Practical guides · iso.me
 
 # Keep a useful location history on iPhone.
 
-Choose how to record your own visits and routes, keep portable files, and understand what stays on your phone. Start with a setup guide or compare the tools before changing your workflow. 
+Choose how to record your own visits and routes, keep portable files, and understand what stays on your phone. Start with a setup guide or compare the tools before changing your workflow.
 
-[Set up your journal](https://isome.isolated.tech/blog/private-location-journal-iphone/) [Compare Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/) 
+[Set up your journal](https://isome.isolated.tech/blog/private-location-journal-iphone/) [Compare Google Timeline](https://isome.isolated.tech/compare/google-maps-timeline/)
 
 What do you need?
 
@@ -34,28 +34,28 @@ Compare accounts, recording, backups, export formats, and migration limits.
 
 Read
 
-Private location journal Product notes Release updates Export guides On-device history Apple Watch companion Private location journal Product notes Release updates Export guides On-device history Apple Watch companion 
+Private location journal Product notes Release updates Export guides On-device history Apple Watch companion Private location journal Product notes Release updates Export guides On-device history Apple Watch companion
 
-§ 01 Record your history 
+§ 01 Record your history
 
 ## Make your first recorded day useful.
 
 Guide
-Private location history 
+Private location history
 
 Published guide
 
 ## [How to Keep a Private Location Journal on iPhone](https://isome.isolated.tech/blog/private-location-journal-iphone/)
 
-A practical walkthrough for using iso.me as a local-first place and route journal: what to record, how to review the map, when to export JSON, CSV, Markdown, GPX, KML, or GeoJSON, and how to treat optional webhooks as an explicit privacy boundary. 
+A practical walkthrough for using iso.me as a local-first place and route journal: what to record, how to review the map, when to export JSON, CSV, Markdown, GPX, KML, or GeoJSON, and how to treat optional webhooks as an explicit privacy boundary.
 
-Status Published 
+Status Published
 
-Topics Privacy · Export · Webhooks 
+Topics Privacy · Export · Webhooks
 
-Updated October 2026 
+Updated October 2026
 
-On-device Route history Open exports Optional automation 
+On-device Route history Open exports Optional automation
 
 Compare your options
 
@@ -133,6 +133,14 @@ Keep separate visit and point files, verify what was saved, and understand what 
 
 [Follow the backup checklist](https://isome.isolated.tech/blog/back-up-iphone-location-history/)
 
+Travel journal guide
+
+### [Track days spent in each country](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
+
+Check local dates, travel days, and gaps. Add a manual stay and understand the CSV export.
+
+[Review your country dates](https://isome.isolated.tech/blog/track-days-in-country-iphone/)
+
 Markdown journal workflow
 
 ### [Read your location journal in Obsidian](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
@@ -141,13 +149,13 @@ Copy a Markdown visit export into a desktop vault, inspect the table, and keep p
 
 [Follow the manual Markdown workflow](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/)
 
-§ 02 Export and connect 
+§ 02 Export and connect
 
 ## Keep your records useful outside the app.
 
 Files
 Recording
-Apple Watch 
+Apple Watch
 
 01
 

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Days Spent in Each Country on iPhone — iso.me</title>
+  <meta name="description" content="Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://isome.isolated.tech/blog/track-days-in-country-iphone/">
+  <meta name="theme-color" content="#f5f4ef">
+  <meta property="og:title" content="Track Days Spent in Each Country on iPhone — iso.me">
+  <meta property="og:description" content="Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://isome.isolated.tech/blog/track-days-in-country-iphone/">
+  <meta property="og:image" content="https://isome.isolated.tech/screenshots/map.png">
+  <meta property="og:image:alt" content="iso.me map interface showing visits and route points">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Track Days Spent in Each Country on iPhone — iso.me">
+  <meta name="twitter:description" content="Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.">
+  <meta name="twitter:image" content="https://isome.isolated.tech/screenshots/map.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>:root {
+  color-scheme: light;
+  --paper: #f5f4ef;
+  --ink: #1f1f1f;
+  --muted: #5f5d59;
+  --rule: #d2cfca;
+  --accent: #1c57ca;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: "Geist", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+a { color: var(--accent); text-underline-offset: 4px; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.skip-link { position: absolute; left: 16px; top: -80px; padding: 12px; background: white; z-index: 10; }
+.skip-link:focus { top: 16px; }
+.site-nav, .site-footer { max-width: 1120px; margin: auto; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-weight: 700; text-decoration: none; }
+.brand img { border-radius: 4px; }
+.nav-links, .footer-links { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.nav-links a, .footer-links a { font-size: 14px; line-height: 20px; }
+.button { display: inline-flex; justify-content: center; align-items: center; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: white; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; }
+.button:hover { background: #1748a8; text-decoration: none; }
+.button:active { transform: translateY(1px); }
+main { max-width: 960px; margin: auto; padding: 32px 24px 64px; }
+.breadcrumbs { font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 32px; }
+.breadcrumbs ol { padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.breadcrumbs li + li::before { content: "/"; margin-right: 8px; }
+.eyebrow, .byline, .source-note { color: var(--muted); font-size: 14px; line-height: 20px; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.025em; }
+h1 { max-width: 680px; font-size: 48px; line-height: 1; margin: 16px 0 24px; font-weight: 600; background: linear-gradient(to right, #000, #666); color: transparent; background-clip: text; -webkit-background-clip: text; }
+h2 { font-size: 30px; line-height: 36px; font-weight: 600; margin: 0 0 16px; }
+h3 { font-size: 20px; line-height: 28px; margin: 0 0 12px; }
+p { text-wrap: pretty; margin: 0 0 16px; }
+.lede { max-width: 680px; font-size: 20px; line-height: 28px; }
+header { padding-bottom: 40px; }
+section { margin-top: 48px; }
+li { margin-bottom: 12px; }
+ul, ol { padding-left: 24px; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+caption { text-align: left; font-weight: 600; padding: 16px; }
+th, td { text-align: left; vertical-align: top; padding: 16px; border: 1px solid var(--rule); min-width: 160px; }
+thead { background: #ecebe4; }
+.product-example { margin: 48px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+.product-example img { width: 240px; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--rule); }
+figcaption { max-width: 320px; color: var(--muted); font-size: 14px; line-height: 20px; }
+.closing { padding: 32px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.closing h2 { font-size: 36px; line-height: 40px; }
+.card { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.site-footer { border-top: 1px solid var(--rule); }
+.article-toc { padding: 24px; border: 1px solid var(--rule); border-radius: 8px; background: white; margin-top: 24px; }
+.article-toc ol { margin-bottom: 0; }
+pre { padding: 16px; border: 1px solid var(--rule); border-radius: 8px; background: white; overflow-x: auto; font-size: 14px; line-height: 20px; }
+code { overflow-wrap: anywhere; }
+pre code { overflow-wrap: normal; }
+@media (max-width: 640px) {
+  .site-nav, .site-footer { padding: 16px; gap: 16px; }
+  .nav-links { gap: 12px; }
+  .nav-links a:not(.button) { display: none; }
+  main { padding: 24px 16px 48px; }
+  h1 { font-size: 36px; line-height: 40px; }
+  h2 { font-size: 24px; line-height: 32px; }
+  .lede { font-size: 18px; line-height: 28px; }
+  .closing { padding: 24px; }
+  .closing h2 { font-size: 30px; line-height: 36px; }
+  .product-example { flex-direction: column; align-items: flex-start; }
+}
+</style>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://isome.isolated.tech/blog/track-days-in-country-iphone/",
+      "url": "https://isome.isolated.tech/blog/track-days-in-country-iphone/",
+      "name": "Track Days Spent in Each Country on iPhone — iso.me",
+      "description": "Count country dates from recorded visits, GPS points, and manual stays in iso.me. Understand travel days, timezones, gaps, and optional CSV export.",
+      "inLanguage": "en",
+      "dateModified": "2026-10-26",
+      "author": {
+        "@type": "Person",
+        "name": "Cody Bontecou",
+        "url": "https://isolated.tech"
+      },
+      "headline": "How to track days spent in each country on iPhone",
+      "datePublished": "2026-10-26",
+      "mainEntityOfPage": "https://isome.isolated.tech/blog/track-days-in-country-iphone/",
+      "image": "https://isome.isolated.tech/screenshots/map.png",
+      "publisher": {
+        "@type": "Organization",
+        "name": "isolated.tech",
+        "url": "https://isolated.tech"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "iso.me",
+          "item": "https://isome.isolated.tech/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://isome.isolated.tech/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Country days",
+          "item": "https://isome.isolated.tech/blog/track-days-in-country-iphone/"
+        }
+      ]
+    }
+  ]
+}</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="/"><img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" width="28" height="28" alt="">ISO.ME</a>
+    <div class="nav-links"><a href="/blog/" aria-current="true">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/#pricing">Pricing</a><a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free</a></div>
+  </nav>
+  <main id="main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">iso.me</a></li><li><a href="/blog/">Guides</a></li><li>Country days</li></ol></nav>
+    <article aria-labelledby="article-title">
+    <header><p class="eyebrow">Practical iPhone guides</p><h1 id="article-title">How to track days spent in each country on iPhone</h1><p class="lede">Review country totals and the dates behind them, add missing stays, and keep a personal record without an iso.me account.</p><p class="byline">By <a href="https://isolated.tech">Cody Bontecou</a>, iso.me’s developer · Reviewed <time datetime="2026-10-26">October 26, 2026</time></p></header>
+    <section aria-labelledby="answer">
+  <h2 id="answer">Count the dates you can account for</h2>
+  <p>In iso.me, open <strong>Timeline → Country Days</strong> to count local dates represented by your recorded visits, route points, and manual stays. Choose this year, the last 365 days, or all time, then open a country to review its dates. Viewing the counts and adding manual stays are free. Writing the CSV file requires the optional export purchase.</p>
+  <p>This guide covers Country Days in iso.me 1.7.16. It is a personal travel journal: its rules do not determine tax residency, immigration status, or how a visa counts a day.</p>
+  <nav class="article-toc" aria-label="In this guide"><strong>Build your country record</strong><ol><li><a href="#start">Open your country totals</a></li><li><a href="#rules">Understand travel days and timezones</a></li><li><a href="#manual">Add a missing stay</a></li><li><a href="#privacy">Identify countries in older records</a></li><li><a href="#csv">Save a CSV copy</a></li></ol></nav>
+</section>
+
+<section aria-labelledby="start">
+  <h2 id="start">1. Review the dates behind each total</h2>
+  <ol><li>Open <strong>Timeline</strong>, then <strong>Country Days</strong>.</li><li>Select a period. The default is this year; the other choices are the last 365 days and all time.</li><li>Open a country and review the individual dates. A total is only useful when you understand which dates produced it.</li><li>If older locations lack countries, use the analysis controls described below. If nothing was recorded for a stay, add it manually rather than expecting GPS to recreate it.</li></ol>
+  <p>To collect new history, start recording before your trip. Start enables detailed GPS and visit monitoring together; Stop ends both. Read <a href="/blog/private-location-journal-iphone/">the first-recording guide</a> for permissions and recording controls.</p>
+</section>
+
+<figure class="product-example"><img src="/screenshots/country-days.webp" width="603" height="1311" alt="Country Days on iPhone, with period filters, country analysis, and Add stay controls" loading="lazy" decoding="async"><figcaption>Country Days before any country dates have been resolved. Captured in development build 1.7.17 (47), in an iOS 26.5 simulator on October 26, 2026; this is an interface example, not a recorded trip.</figcaption></figure>
+
+<section aria-labelledby="rules">
+  <h2 id="rules">2. Check the counting rules</h2>
+  <div class="table-scroll" role="region" aria-label="Country Days counting rules" tabindex="0"><table><caption>Presence dates, rather than a continuous travel guarantee</caption><thead><tr><th scope="col">Situation</th><th scope="col">How iso.me counts it</th></tr></thead><tbody>
+    <tr><th scope="row">Many points in the same country on one date</th><td>One day for that country, rather than one day per record.</td></tr>
+    <tr><th scope="row">Two countries on a travel day</th><td>That date can count in both countries. Adding country totals may exceed the number of distinct dates.</td></tr>
+    <tr><th scope="row">A record near midnight</th><td>The resolved location’s timezone determines the local date, rather than UTC or your phone’s current timezone.</td></tr>
+    <tr><th scope="row">A completed visit with a verified departure</th><td>Its local date range can contribute multiple dates.</td></tr>
+    <tr><th scope="row">An open visit or unverified departure</th><td>Only its arrival date is counted. Route points or manual stays can account for other dates.</td></tr>
+    <tr><th scope="row">Unknown country, GPS outlier, or recording gap</th><td>No invented dates or automatic continuous stay.</td></tr>
+    <tr><th scope="row">Overlapping manual and recorded presence</th><td>The date counts once per country; the source flags can show both.</td></tr>
+  </tbody></table></div>
+  <h3>A simple border-crossing example</h3>
+  <p>Imagine a recorded point in Portugal on October 1 and another in Spain later that local date. Each country gets October 1. If a manual Portugal stay also includes October 1, Portugal still gets one day. If October 2 has no usable evidence or manual stay, the app does not fill it merely because you have records before and after it.</p>
+  <p>This is an invented example of the counting rules, not a captured trip. Review gaps with the <a href="/blog/missing-location-history-iphone/">missing-records checklist</a> before changing your journal.</p>
+</section>
+
+<section aria-labelledby="manual">
+  <h2 id="manual">3. Add a stay that was not recorded</h2>
+  <p>Use <strong>Add stay</strong> in Country Days. Choose the country and first and last dates, add an optional note, and save. Review the affected country’s dates afterwards. You can edit or delete a manual stay when you find a mistake.</p>
+  <p>A manual stay records your account of a trip; it does not create a GPS path. Keep tickets or other original records separately if you need them. Overlapping manual stays do not multiply the same country/date.</p>
+</section>
+
+<section aria-labelledby="privacy">
+  <h2 id="privacy">4. Identify countries in older locations</h2>
+  <p>New recordings identify countries when network geocoding is enabled. <strong>Analyze saved locations</strong> checks earlier records in batches, with stop and resume controls. It can take time for a large archive.</p>
+  <p>Country identification uses Apple geocoding and follows your network-geocoding preference. A lookup sends coordinates to Apple; turning it off changes which unresolved locations can be assigned a country. Your journal remains on your device, and iso.me does not receive an archive of it. See the <a href="/privacy">privacy policy</a> for all network boundaries.</p>
+  <p>Analysis can identify a country for an existing coordinate. It cannot recover locations that were never recorded. Use a manual stay for dates you can account for independently.</p>
+</section>
+
+<section aria-labelledby="csv">
+  <h2 id="csv">5. Keep a CSV copy of your country dates</h2>
+  <p>Use the export control in Country Days and save the CSV to a destination you choose. The file includes country codes, local dates, and recorded/manual source information. Viewing and editing your counts are free; writing this export requires the lifetime unlock. See <a href="/#pricing">current pricing</a>.</p>
+  <p>Check a known date and a travel day in the saved file. A country-date CSV is a summary, not a backup of every visit, route point, or manual stay. Keep your underlying records using the <a href="/blog/back-up-iphone-location-history/">backup checklist</a>.</p>
+</section>
+
+<section class="closing" aria-labelledby="keep-days"><h2 id="keep-days">Remember the country.<br>Keep the dates behind the count.</h2><p>Start a free local journal and review Country Days on your iPhone.</p><a class="button" href="https://apps.apple.com/us/app/iso-me/id6761960794">Download free for iPhone</a></section>
+<p class="source-note">Reviewed October 26, 2026 against the source used for App Store 1.7.16 build 46, including CountryDaysView, CountryDayCalculator, and CountryDayResolver. The examples are synthetic. They do not represent a new physical travel test.</p>
+
+    </article>
+    <nav class="article-toc" aria-labelledby="read-next-title"><h2 id="read-next-title">Read next</h2><ul><li><a href="/blog/private-location-journal-iphone/">Record your next trip</a><p>Start a local journal before you leave.</p></li><li><a href="/blog/back-up-iphone-location-history/">Keep the underlying records</a><p>A country-date summary is not a complete backup.</p></li></ul></nav>
+  </main>
+  <footer class="site-footer"><a class="brand" href="/">ISO.ME · isolated.tech</a><div class="footer-links"><a href="/blog/">Guides</a><a href="/compare/">Compare</a><a href="/docs/">Docs</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:cody.bontecou@gmail.com">Support</a></div></footer>
+  <!-- Cloudflare Web Analytics -->
+<script>
+(function () {
+  var productionHosts = {
+    'instareply.isolated.tech': true,
+    'voxboard.isolated.tech': true,
+    'healthmd.isolated.tech': true,
+    'isome.isolated.tech': true,
+    'gitsyncmd.isolated.tech': true,
+    'timemd.isolated.tech': true,
+    'imghost.isolated.tech': true
+  };
+
+  if (!productionHosts[window.location.hostname]) {
+    return;
+  }
+
+  function loadCloudflareBeacon() {
+    if (document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')) {
+      return;
+    }
+
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    script.setAttribute('data-cf-beacon', '{"token":"090f363070334cddad5c5cc1509b8807"}');
+    document.head.appendChild(script);
+  }
+
+  fetch('https://img-host.costream.workers.dev/analytics-gate', {
+    cache: 'no-store',
+    mode: 'cors',
+    credentials: 'omit'
+  })
+    .then(function (response) {
+      return response.ok ? response.json() : { track: false };
+    })
+    .then(function (gate) {
+      if (gate && gate.track) {
+        loadCloudflareBeacon();
+      }
+    })
+    .catch(function () {
+      // Fail closed so excluded IPs are not accidentally tracked.
+    });
+})();
+</script>
+<!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
+</body>
+</html>

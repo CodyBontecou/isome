@@ -104,7 +104,7 @@ class Markdown(HTMLParser):
     def result(self):
         text = ''.join(self.parts)
         text = re.sub(r'\n[ \t]+', '\n', text)
-        return re.sub(r'\n{3,}', '\n\n', text).strip() + '\n\nSource: ' + self.url + '\n'
+        return '\n'.join(line.rstrip() for line in re.sub(r'\n{3,}', '\n\n', text).strip().splitlines()) + '\n\nSource: ' + self.url + '\n'
 
 
 def build():

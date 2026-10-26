@@ -1,4 +1,4 @@
-§ Legal · Document 02 
+§ Legal · Document 02
 
 # Terms of Service
 
@@ -36,10 +36,10 @@ iso.me offers one-time Individual Lifetime and Family Lifetime in-app purchases 
 
 You agree to use iso.me only for lawful purposes. You may not:
 
-- Use the App to track any person without their knowledge and consent 
-- Reverse-engineer, decompile, or disassemble the App 
-- Redistribute or resell the App or any part of it 
-- Use the App in any way that violates applicable laws or regulations  
+- Use the App to track any person without their knowledge and consent
+- Reverse-engineer, decompile, or disassemble the App
+- Redistribute or resell the App or any part of it
+- Use the App in any way that violates applicable laws or regulations
 
 ## 06 — Location Services
 

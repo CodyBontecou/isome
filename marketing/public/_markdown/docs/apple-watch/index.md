@@ -1,4 +1,4 @@
-§ Docs · Guide 10 of 11 
+§ Docs · Guide 10 of 11
 
 # Record Apple Watch GPS routes without your iPhone
 
@@ -28,35 +28,35 @@ Install the Watch app and allow its location request. The phone app is needed to
 
 ## Before your first route
 
-- Open iso.me on the Watch. If it asks for location access, respond to the permission prompt. If access was denied, review the Watch's location settings. 
-- Tap Start and confirm the status changes from standby to tracking. After an initial permission request, check the state rather than assuming a recording began. 
-- Try a short route first. Look for the elapsed time and point count to change before relying on a longer session. 
-- When finished, tap Stop on the Watch. Confirm it has left the tracking state.  
+- Open iso.me on the Watch. If it asks for location access, respond to the permission prompt. If access was denied, review the Watch's location settings.
+- Tap Start and confirm the status changes from standby to tracking. After an initial permission request, check the state rather than assuming a recording began.
+- Try a short route first. Look for the elapsed time and point count to change before relying on a longer session.
+- When finished, tap Stop on the Watch. Confirm it has left the tracking state.
 
 Recording away from the phone is separate from syncing to it. You do not need an active phone connection for the Watch to collect points, but the phone must be available later for transfer. GPS conditions, permission, battery, and watchOS behavior can affect the recording.
 
 ## Sync and verify the result
 
-- Bring the paired Watch and iPhone together and open iso.me on the iPhone. 
-- Open iso.me on the Watch. If available in your version, tap Sync Now and read the status. 
-- In the phone app, open Timeline for the day of the recording. Check the outing and use its map to inspect the expected points and times. 
-- Check both route points and visits. A transferred route is not proof that every stop was detected or named correctly.  
+- Bring the paired Watch and iPhone together and open iso.me on the iPhone.
+- Open iso.me on the Watch. If available in your version, tap Sync Now and read the status.
+- In the phone app, open Timeline for the day of the recording. Check the outing and use its map to inspect the expected points and times.
+- Check both route points and visits. A transferred route is not proof that every stop was detected or named correctly.
 
-Read the sync state before retrying 
-| Watch status | What to do next 
-| Connecting to iPhone | Keep the paired devices available and open the phone app. 
-| Sync queued | The request is queued. Check the phone result; this is not confirmation that every record is imported. 
-| Synced with iPhone | The phone acknowledged the delivered data. Still check the intended day and route. 
-| Nothing to sync | Check the phone's existing history and the selected day. An empty pending queue is not a full history report. 
+Read the sync state before retrying
+| Watch status | What to do next
+| Connecting to iPhone | Keep the paired devices available and open the phone app.
+| Sync queued | The request is queued. Check the phone result; this is not confirmation that every record is imported.
+| Synced with iPhone | The phone acknowledged the delivered data. Still check the intended day and route.
+| Nothing to sync | Check the phone's existing history and the selected day. An empty pending queue is not a full history report.
 
 Completed transfers are acknowledged by the phone; points remain in the Watch queue until acknowledged. This helps retry delivery, but the queue is not a full backup of history already transferred. Do not uninstall the Watch app as a first troubleshooting step.
 
 ## If the route is missing or incomplete
 
-- Nothing recorded: check the Watch's location permission, tracking state, and whether the point count advanced during the session. 
-- Watch has data, phone looks empty: check the recording date, open both apps, and read the Watch sync status before starting another route. 
-- Points arrived but visits differ: Watch visits are derived from recorded movement and are not identical to the iPhone's automatic visit detection. Check the route itself and correct places where needed. 
-- Older app version: an update can change sync behavior, but cannot recreate every record that is no longer retained. Keep existing data while diagnosing a gap.  
+- Nothing recorded: check the Watch's location permission, tracking state, and whether the point count advanced during the session.
+- Watch has data, phone looks empty: check the recording date, open both apps, and read the Watch sync status before starting another route.
+- Points arrived but visits differ: Watch visits are derived from recorded movement and are not identical to the iPhone's automatic visit detection. Check the route itself and correct places where needed.
+- Older app version: an update can change sync behavior, but cannot recreate every record that is no longer retained. Keep existing data while diagnosing a gap.
 
 If a retry does not resolve it, contact support with the app versions, recording date, and exact sync message. You can describe the missing period without sending your private route.
 

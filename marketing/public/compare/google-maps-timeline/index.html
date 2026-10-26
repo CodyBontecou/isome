@@ -158,7 +158,7 @@ pre code { overflow-wrap: normal; }
         <tr><th scope="row">Storage and backup</th><td>Local journal. Keep supported export files for restoration; no built-in cloud sync.</td><td>Device history, with optional encrypted server backup.</td></tr>
         <tr><th scope="row">Recording</th><td>Start and Stop control GPS recording and visit monitoring together. Always permission allows background recording.</td><td>Visits and routes collected with Timeline enabled.</td></tr>
         <tr><th scope="row">Files</th><td>JSON, CSV, Markdown, GPX, KML, GeoJSON, OwnTracks, and Overland. Paid export; free preview.</td><td>Location-history JSON export.</td></tr>
-        <tr><th scope="row">Moving existing history</th><td>Imports supported iso.me visit and point files. No Google Timeline importer.</td><td>Timeline backup can transfer history to another device.</td></tr>
+        <tr><th scope="row">Moving existing history</th><td>App Store 1.7.16 imports iso.me JSON, CSV, and Markdown files. No Google Timeline import in that build.</td><td>Timeline backup can transfer history to another device.</td></tr>
         <tr><th scope="row">Payment</th><td>Free recording. US lifetime unlock: $19.99 Individual or $39.99 Family. Regional prices vary.</td><td>Timeline is available within Google Maps.</td></tr>
       </tbody>
     </table>
@@ -186,7 +186,7 @@ pre code { overflow-wrap: normal; }
 
 <section aria-labelledby="preserve">
   <h2 id="preserve">Preserve your existing history first</h2>
-  <p>Save Google’s exported archive separately before changing apps or devices. iso.me cannot import that archive or reconstruct earlier movement.</p>
+  <p>Save Google’s exported archive separately before changing apps or devices. App Store 1.7.16 cannot import that archive. A future importer still cannot reconstruct records missing from the file.</p>
   <p>For existing Apple or Google records, start with <a href="/blog/view-location-history-iphone/">the iPhone history guide</a>. For new iso.me routes, follow <a href="/blog/record-iphone-route-gpx/">the GPX export walkthrough</a> and check <a href="/docs/export-import/">export and restore compatibility</a>. A GPX file is useful for drawing a route elsewhere, but it cannot be imported into iso.me. Keep supported visit and point exports for records you want to restore later.</p>
 </section>
 
@@ -259,5 +259,6 @@ pre code { overflow-wrap: normal; }
 })();
 </script>
 <!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
 </body>
 </html>

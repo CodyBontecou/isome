@@ -1,0 +1,26 @@
+{
+  "checked_on": "2026-10-26",
+  "public_app": {
+    "version": "1.7.16",
+    "build": "46",
+    "state": "READY_FOR_DISTRIBUTION",
+    "source_commit": "6ae78e622c72ee051e6f14113082556c398d926a",
+    "google_timeline_import": false,
+    "country_days": true
+  },
+  "us_lifetime_prices": {
+    "com.bontecou.isome.lifetime": {
+      "amount": "39.99",
+      "currency": "USD"
+    },
+    "com.bontecou.isome.lifetime.family.upgrade": {
+      "amount": "19.99",
+      "currency": "USD"
+    },
+    "com.bontecou.isome.lifetime.individual": {
+      "amount": "19.99",
+      "currency": "USD"
+    }
+  },
+  "source_note": "App Store Connect release/build relationship; build-46 archive source checkout was clean at the recorded revision. Current development source is ahead of this binary."
+}

@@ -28,23 +28,23 @@ Backup and restore checklist
 
 A GPX track can be useful in a map viewer without being a journal backup. iso.me’s importer accepts supported iso.me visit and point exports in JSON, CSV, or Markdown. It does not accept every file that happens to have one of those extensions.
 
-What you are trying to keep 
-| Your goal | What to save | What to verify  
-| Restore visit records | Visits exported as iso.me JSON | Dates, coordinates, names, and the optional fields you need 
-| Restore the recorded path | Points exported as iso.me JSON | The whole date range and required point fields 
-| Open a route elsewhere | GPX, KML, or GeoJSON as appropriate for the viewer | Viewer compatibility; these formats cannot be imported into iso.me 
-| Keep every app preference or edit | A record of important settings alongside the exported files | Do not assume an import restores settings, photo associations, or edited outing summaries  
+What you are trying to keep
+| Your goal | What to save | What to verify
+| Restore visit records | Visits exported as iso.me JSON | Dates, coordinates, names, and the optional fields you need
+| Restore the recorded path | Points exported as iso.me JSON | The whole date range and required point fields
+| Open a route elsewhere | GPX, KML, or GeoJSON as appropriate for the viewer | Viewer compatibility; these formats cannot be imported into iso.me
+| Keep every app preference or edit | A record of important settings alongside the exported files | Do not assume an import restores settings, photo associations, or edited outing summaries
 
 For restoration, choose Visits and Points individually. An outing summary is a different export from the visit and point records the importer expects. The [export reference](https://isome.isolated.tech/docs/export-import/) lists supported formats and fields.
 
 ## 1. Export your visits
 
-- Open Export and select Visits. 
-- Select JSON. Deselect other formats if you only want this file. 
-- Choose the date range. For the full available visit archive, choose all history rather than Today or a recent period. 
-- Review time, duration, completion, and accuracy filters. A filter can omit records even when the date range is correct. 
-- Keep coordinates and the other fields you want to restore. Open Preview and check representative dates. 
-- Export to a folder you control. Note whether the settings produce one file or several dated files.  
+- Open Export and select Visits.
+- Select JSON. Deselect other formats if you only want this file.
+- Choose the date range. For the full available visit archive, choose all history rather than Today or a recent period.
+- Review time, duration, completion, and accuracy filters. A filter can omit records even when the date range is correct.
+- Keep coordinates and the other fields you want to restore. Open Preview and check representative dates.
+- Export to a folder you control. Note whether the settings produce one file or several dated files.
 
 ### Then export your route points
 
@@ -60,10 +60,10 @@ The Export screen illustrates the workflow. The screenshot may contain sample da
 
 Open Files and find the destination you selected. Confirm that you have a visit export and a point export, not just two copies of one type. If you chose daily splitting, retain every file needed for the period.
 
-- Check the filenames and that the files are not empty. 
-- Use Preview or a text viewer to check early and recent dates from the intended archive. 
-- Keep an additional copy somewhere you will still be able to reach after changing phones. 
-- Preserve the originals while transferring or importing them. Check the destination copy before relying on it.  
+- Check the filenames and that the files are not empty.
+- Use Preview or a text viewer to check early and recent dates from the intended archive.
+- Keep an additional copy somewhere you will still be able to reach after changing phones.
+- Preserve the originals while transferring or importing them. Check the destination copy before relying on it.
 
 A folder stored only on the old phone does not help if you erase that phone before transferring the files. If you choose a cloud folder or another service, that exported copy follows the destination’s storage and privacy rules. Location records can reveal detailed movements, so choose the destination deliberately.
 
@@ -71,8 +71,8 @@ A folder stored only on the old phone does not help if you erase that phone befo
 
 These examples contain invented coordinates near zero and fixed dates on January 1, 2000. They are documentation fixtures, not a real trip or captured app exports:
 
-- [Download the synthetic Visits JSON](https://isome.isolated.tech/samples/synthetic-visits.json): two named stops with arrival and departure times. 
-- [Download the synthetic Points JSON](https://isome.isolated.tech/samples/synthetic-points.json): three timestamped locations matching the [synthetic GPX example](https://isome.isolated.tech/samples/synthetic-route.gpx).  
+- [Download the synthetic Visits JSON](https://isome.isolated.tech/samples/synthetic-visits.json): two named stops with arrival and departure times.
+- [Download the synthetic Points JSON](https://isome.isolated.tech/samples/synthetic-points.json): three timestamped locations matching the [synthetic GPX example](https://isome.isolated.tech/samples/synthetic-route.gpx).
 
 ```
 {
@@ -93,13 +93,13 @@ Open the samples as text to inspect them. Importing them into your everyday jour
 
 ## 3. Import the supported files on the destination
 
-- Make the saved visit and point files available in Files on the destination iPhone. 
-- Open iso.me, then choose Settings → Import file. 
-- Select a supported iso.me file and read the import result. Repeat for the other data type and any additional dated files. 
-- Check several dates on Map and Timeline. Look for both visits and route points, including the earliest and most recent records you expected. 
-- Keep your originals until you have checked the result. An import cannot restore records that were excluded from the export.  
+- Make the saved visit and point files available in Files on the destination iPhone.
+- Open iso.me, then choose Settings → Import file.
+- Select a supported iso.me file and read the import result. Repeat for the other data type and any additional dated files.
+- Check several dates on Map and Timeline. Look for both visits and route points, including the earliest and most recent records you expected.
+- Keep your originals until you have checked the result. An import cannot restore records that were excluded from the export.
 
-Import adds records; do not assume it merges an overlapping archive or skips duplicates. Import each intended file once and inspect the result before retrying. If a file fails, retain it and read the reported format or field error before editing it. A JSON archive from Google Timeline has a different structure and is not a supported iso.me restore file.
+In App Store 1.7.16, import adds records without the newer preview and duplicate checks. Do not assume overlapping files are merged. Import each intended file once and inspect the result before retrying. If a file fails, retain it and read the reported format or field error before editing it. A JSON archive from Google Timeline has a different structure and is not a supported iso.me restore file.
 
 Restore Purchases is separate. It restores an eligible paid entitlement through the App Store; it does not download a copy of your location history. iso.me does not provide an account-based server archive or built-in iCloud journal sync.
 
@@ -122,7 +122,7 @@ Check the copy.
 
 Try free recording and export preview. See [current pricing](https://isome.isolated.tech/#pricing) for the optional file-export unlock.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794) 
+[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
 
 Reviewed October 26, 2026 against iso.me’s export, import, and scheduling behavior. Importing restores supported records; it is not a promise to reproduce every app setting or edited view.
 
