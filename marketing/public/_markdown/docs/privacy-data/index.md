@@ -26,6 +26,7 @@ Your location history — visits, routes, outings, saved places, photo matches �
 
 ## Everything that can leave your device
 
+Data sharing and privacy controls
 | Where | What's sent | When | Off switch
 | Apple geocoding | Coordinates of a visit (to fetch its name/address) | When naming visits | Settings → Location names
 | Apple Maps | Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images) | When you use those features | Features are opt-in per use; road-matching toggle in map filters

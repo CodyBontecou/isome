@@ -378,14 +378,17 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 </ul>
 
 <h2>Tracking settings reference</h2>
+<div role="region" aria-label="Tracking settings and defaults" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
-<tr><th>Setting</th><th>Options</th><th>Default</th><th>What it does</th></tr>
+<caption>Tracking settings and defaults</caption>
+<tr><th scope="col">Setting</th><th scope="col">Options</th><th scope="col">Default</th><th scope="col">What it does</th></tr>
 <tr><td><strong>Distance filter</strong></td><td>5 / 10 / 25 / 50 / 100 / 200 m</td><td>5 m</td><td>Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active.</td></tr>
 <tr><td><strong>Stop after</strong></td><td>Never / 1 / 2 / 4 / 8 / 12 h</td><td>Never</td><td>Automatically ends tracking after this long, so a forgotten session can't run all day.</td></tr>
 <tr><td><strong>Location names</strong></td><td>On / Off</td><td>On</td><td>Whether coordinates are sent to Apple's geocoding service to name visits.</td></tr>
 <tr><td><strong>Live Activity</strong></td><td>On / Off</td><td>On</td><td>Lock screen / Dynamic Island status while tracking.</td></tr>
 <tr><td><strong>Units</strong></td><td>Metric / US</td><td>Metric</td><td>Applies everywhere: app, widgets, Live Activity, watch.</td></tr>
 </table>
+</div>
 
 <div class="callout"><p><strong>Battery.</strong> Tracking includes detailed GPS as well as visit monitoring, so it uses battery for as long as recording stays on. Stop when you finish, consider a 25–50 m distance filter, and set an auto-stop timer. Check the resulting route before relying on a larger filter; no battery duration is guaranteed. Follow the <a href="/blog/iphone-location-tracking-battery/">battery-use comparison checklist</a> to check the tradeoff on your own phone.</p></div>
 <p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>

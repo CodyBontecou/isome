@@ -1,0 +1,716 @@
+[
+  {
+    "path": "/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/about",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/compare/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/contact",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 320,
+    "document": 351,
+    "overflow": 31,
+    "offenders": [
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "iso.me JSONStructured visit or point recordsSupported visit and point exports",
+        "right": 351
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Supported visit and point exports",
+        "right": 351
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "iso.me CSV / MarkdownSpreadsheets / readable recordsSupported visit and point ex",
+        "right": 351
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Supported visit and point exports; required fields must remain",
+        "right": 351
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "GPX / KML / GeoJSONMapping tools and route viewersNo",
+        "right": 351
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "No",
+        "right": 351
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "OwnTracks / OverlandCompatible location toolsNo",
+        "right": 351
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "No",
+        "right": 351
+      }
+    ]
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/places/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 320,
+    "document": 455,
+    "overflow": 135,
+    "offenders": [
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "During onboarding and purchases",
+        "right": 368
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "None in-app today; deleting the app removes the install ID",
+        "right": 455
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Export schedulerTime zone, schedule times, push token, random install ID — timin",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Only if you enable Auto Export",
+        "right": 368
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Turn Auto Export off",
+        "right": 455
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Your webhookLocation points and visits, in your chosen formatOnly after you conf",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Only after you configure an endpoint",
+        "right": 368
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Disable webhooks (off by default)",
+        "right": 455
+      }
+    ]
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 320,
+    "document": 335,
+    "overflow": 15,
+    "offenders": [
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Get VisitsOptional Start Date and End Date. Returns visits whose arrival falls i",
+        "right": 336
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Add to a custom shortcut.",
+        "right": 336
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Get MovementsOptional Start Date and End Date. Returns recorded outings whose st",
+        "right": 336
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Add to a custom shortcut.",
+        "right": 336
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Rename VisitA saved Visit and a nonempty Name. Returns the renamed visit.“Rename",
+        "right": 336
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "“Rename a visit in iso.me”",
+        "right": 336
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Rename MovementA saved Movement and a nonempty Name. Returns the renamed outing.",
+        "right": 336
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "“Rename a movement in iso.me”",
+        "right": 336
+      }
+    ]
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 320,
+    "document": 414,
+    "overflow": 94,
+    "offenders": [
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Stop afterNever / 1 / 2 / 4 / 8 / 12 hNeverAutomatically ends tracking after thi",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Automatically ends tracking after this long, so a forgotten session can't run al",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Location namesOn / OffOnWhether coordinates are sent to Apple's geocoding servic",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Whether coordinates are sent to Apple's geocoding service to name visits.",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Live ActivityOn / OffOnLock screen / Dynamic Island status while tracking.",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Lock screen / Dynamic Island status while tracking.",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "UnitsMetric / USMetricApplies everywhere: app, widgets, Live Activity, watch.",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Applies everywhere: app, widgets, Live Activity, watch.",
+        "right": 415
+      }
+    ]
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/integrations/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/privacy",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/terms",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/about",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/compare/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/contact",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/places/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 390,
+    "document": 455,
+    "overflow": 65,
+    "offenders": [
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Apple MapsSearch terms / route segment endpoints (place search, suggestions, roa",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Features are opt-in per use; road-matching toggle in map filters",
+        "right": 455
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "iso.me analytics (first-party, on by default)Which onboarding steps were viewed,",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "None in-app today; deleting the app removes the install ID",
+        "right": 455
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Export schedulerTime zone, schedule times, push token, random install ID — timin",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Turn Auto Export off",
+        "right": 455
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Your webhookLocation points and visits, in your chosen formatOnly after you conf",
+        "right": 455
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Disable webhooks (off by default)",
+        "right": 455
+      }
+    ]
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 390,
+    "document": 414,
+    "overflow": 24,
+    "offenders": [
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Stop afterNever / 1 / 2 / 4 / 8 / 12 hNeverAutomatically ends tracking after thi",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Automatically ends tracking after this long, so a forgotten session can't run al",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Location namesOn / OffOnWhether coordinates are sent to Apple's geocoding servic",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Whether coordinates are sent to Apple's geocoding service to name visits.",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "Live ActivityOn / OffOnLock screen / Dynamic Island status while tracking.",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Lock screen / Dynamic Island status while tracking.",
+        "right": 415
+      },
+      {
+        "tag": "TR",
+        "class": "",
+        "text": "UnitsMetric / USMetricApplies everywhere: app, widgets, Live Activity, watch.",
+        "right": 415
+      },
+      {
+        "tag": "TD",
+        "class": "",
+        "text": "Applies everywhere: app, widgets, Live Activity, watch.",
+        "right": 415
+      }
+    ]
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/integrations/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/privacy",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  },
+  {
+    "path": "/terms",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "offenders": []
+  }
+]

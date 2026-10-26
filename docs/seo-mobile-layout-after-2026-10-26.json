@@ -1,0 +1,680 @@
+[
+  {
+    "path": "/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/about",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Location history backup choices",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      },
+      {
+        "label": "Checked synthetic import results",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Choose an export for your note",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Recording controls and tradeoffs",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Missing history checks",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "GPX export data choices",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      },
+      {
+        "label": "Synthetic GPX export contents",
+        "focusable": true,
+        "width": 286,
+        "scroll": 321
+      }
+    ]
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Country Days counting rules",
+        "focusable": true,
+        "width": 286,
+        "scroll": 321
+      },
+      {
+        "label": "Checked country-date result",
+        "focusable": true,
+        "width": 286,
+        "scroll": 482
+      }
+    ]
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Ways to view your own iPhone location history",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/compare/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "iso.me and Google Timeline comparison",
+        "focusable": true,
+        "width": 286,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/contact",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Checked Watch queue and phone counts",
+        "focusable": true,
+        "width": 234,
+        "scroll": 284
+      }
+    ]
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Supported import file formats",
+        "focusable": true,
+        "width": 234,
+        "scroll": 308
+      }
+    ]
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/places/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Data sharing and privacy controls",
+        "focusable": true,
+        "width": 234,
+        "scroll": 412
+      }
+    ]
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Released Siri and Shortcuts actions",
+        "focusable": true,
+        "width": 234,
+        "scroll": 293
+      },
+      {
+        "label": "Saved journal Shortcuts actions",
+        "focusable": true,
+        "width": 234,
+        "scroll": 293
+      }
+    ]
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Tracking settings and defaults",
+        "focusable": true,
+        "width": 234,
+        "scroll": 372
+      }
+    ]
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Receiver endpoints and formats",
+        "focusable": true,
+        "width": 234,
+        "scroll": 430
+      }
+    ]
+  },
+  {
+    "path": "/integrations/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Synthetic receiver verification",
+        "focusable": true,
+        "width": 286,
+        "scroll": 641
+      }
+    ]
+  },
+  {
+    "path": "/privacy",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/terms",
+    "width": 320,
+    "document": 320,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/about",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/back-up-iphone-location-history/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Location history backup choices",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      },
+      {
+        "label": "Checked synthetic import results",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/iphone-location-journal-obsidian/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Choose an export for your note",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/iphone-location-tracking-battery/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Recording controls and tradeoffs",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/missing-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Missing history checks",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/blog/private-location-journal-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/blog/record-iphone-route-gpx/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "GPX export data choices",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      },
+      {
+        "label": "Synthetic GPX export contents",
+        "focusable": true,
+        "width": 356,
+        "scroll": 356
+      }
+    ]
+  },
+  {
+    "path": "/blog/track-days-in-country-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Country Days counting rules",
+        "focusable": true,
+        "width": 356,
+        "scroll": 356
+      },
+      {
+        "label": "Checked country-date result",
+        "focusable": true,
+        "width": 356,
+        "scroll": 482
+      }
+    ]
+  },
+  {
+    "path": "/blog/view-location-history-iphone/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Ways to view your own iPhone location history",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/compare/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/compare/google-maps-timeline/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "iso.me and Google Timeline comparison",
+        "focusable": true,
+        "width": 356,
+        "scroll": 481
+      }
+    ]
+  },
+  {
+    "path": "/contact",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/apple-watch/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Checked Watch queue and phone counts",
+        "focusable": true,
+        "width": 304,
+        "scroll": 304
+      }
+    ]
+  },
+  {
+    "path": "/docs/automatic-exports/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/export-import/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Supported import file formats",
+        "focusable": true,
+        "width": 304,
+        "scroll": 308
+      }
+    ]
+  },
+  {
+    "path": "/docs/getting-started/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/photos/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/places/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/privacy-data/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Data sharing and privacy controls",
+        "focusable": true,
+        "width": 304,
+        "scroll": 412
+      }
+    ]
+  },
+  {
+    "path": "/docs/siri-shortcuts/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Released Siri and Shortcuts actions",
+        "focusable": true,
+        "width": 304,
+        "scroll": 304
+      },
+      {
+        "label": "Saved journal Shortcuts actions",
+        "focusable": true,
+        "width": 304,
+        "scroll": 304
+      }
+    ]
+  },
+  {
+    "path": "/docs/timeline-outings/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/docs/tracking/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Tracking settings and defaults",
+        "focusable": true,
+        "width": 304,
+        "scroll": 372
+      }
+    ]
+  },
+  {
+    "path": "/docs/webhooks/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Receiver endpoints and formats",
+        "focusable": true,
+        "width": 304,
+        "scroll": 430
+      }
+    ]
+  },
+  {
+    "path": "/integrations/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/integrations/dawarich/",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": [
+      {
+        "label": "Synthetic receiver verification",
+        "focusable": true,
+        "width": 356,
+        "scroll": 641
+      }
+    ]
+  },
+  {
+    "path": "/privacy",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  },
+  {
+    "path": "/terms",
+    "width": 390,
+    "document": 390,
+    "overflow": 0,
+    "regions": []
+  }
+]

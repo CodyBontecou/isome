@@ -359,6 +359,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <p>Set up location permission in iso.me before using <strong>Start Tracking</strong>. These actions are designed to run without opening iso.me, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
 
 <h2>Recording and today’s stats</h2>
+<div role="region" aria-label="Released Siri and Shortcuts actions" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Recording controls and snapshot values</caption>
 <tr><th scope="col">Action</th><th scope="col">What it does</th><th scope="col">Built-in Siri phrase example</th></tr>
@@ -369,8 +370,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“iso.me tracking duration”</td></tr>
 <tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in iso.me”</td></tr>
 </table>
+</div>
 
 <h2>Read and rename saved records</h2>
+<div role="region" aria-label="Saved journal Shortcuts actions" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Journal actions for a custom shortcut</caption>
 <tr><th scope="col">Action</th><th scope="col">Inputs and result</th><th scope="col">Siri setup</th></tr>
@@ -380,6 +383,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in iso.me”</td></tr>
 <tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in iso.me”</td></tr>
 </table>
+</div>
 <p>For a rename workflow, get the visits or movements, choose the intended result, and pass it to the matching rename action. Check the date and item before running: renaming changes the saved journal. These actions do not create missing GPS points or visits.</p>
 
 <h2 id="export-data">Export a chosen date range</h2>

@@ -48,6 +48,7 @@ New visits are reverse-geocoded to a name and address automatically, unless you'
 
 ## Tracking settings reference
 
+Tracking settings and defaults
 | Setting | Options | Default | What it does
 | Distance filter | 5 / 10 / 25 / 50 / 100 / 200 m | 5 m | Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active.
 | Stop after | Never / 1 / 2 / 4 / 8 / 12 h | Never | Automatically ends tracking after this long, so a forgotten session can't run all day.

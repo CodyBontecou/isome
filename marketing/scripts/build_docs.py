@@ -111,14 +111,17 @@ BODIES["tracking"] = """
 </ul>
 
 <h2>Tracking settings reference</h2>
+<div role="region" aria-label="Tracking settings and defaults" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
-<tr><th>Setting</th><th>Options</th><th>Default</th><th>What it does</th></tr>
+<caption>Tracking settings and defaults</caption>
+<tr><th scope="col">Setting</th><th scope="col">Options</th><th scope="col">Default</th><th scope="col">What it does</th></tr>
 <tr><td><strong>Distance filter</strong></td><td>5 / 10 / 25 / 50 / 100 / 200 m</td><td>5 m</td><td>Movement threshold requested for location updates. Larger values may reduce point density and detail; high-accuracy GPS remains active.</td></tr>
 <tr><td><strong>Stop after</strong></td><td>Never / 1 / 2 / 4 / 8 / 12 h</td><td>Never</td><td>Automatically ends tracking after this long, so a forgotten session can't run all day.</td></tr>
 <tr><td><strong>Location names</strong></td><td>On / Off</td><td>On</td><td>Whether coordinates are sent to Apple's geocoding service to name visits.</td></tr>
 <tr><td><strong>Live Activity</strong></td><td>On / Off</td><td>On</td><td>Lock screen / Dynamic Island status while tracking.</td></tr>
 <tr><td><strong>Units</strong></td><td>Metric / US</td><td>Metric</td><td>Applies everywhere: app, widgets, Live Activity, watch.</td></tr>
 </table>
+</div>
 
 <div class="callout"><p><strong>Battery.</strong> Tracking includes detailed GPS as well as visit monitoring, so it uses battery for as long as recording stays on. Stop when you finish, consider a 25–50 m distance filter, and set an auto-stop timer. Check the resulting route before relying on a larger filter; no battery duration is guaranteed. Follow the <a href="/blog/iphone-location-tracking-battery/">battery-use comparison checklist</a> to check the tradeoff on your own phone.</p></div>
 <p>If a recorded day looks incomplete, follow the <a href="/blog/missing-location-history-iphone/">missing visits and route points checklist</a> before deleting records or retrying an import.</p>
@@ -289,6 +292,7 @@ BODIES["export-import"] = """
 
 <h2>Import</h2>
 <p>Settings → <strong>Import file</strong> accepts visit and point files exported from iso.me as JSON, CSV, or Markdown. Importing is free. A matching file extension alone does not make another app's file compatible: The verified App Store 1.7.16 build does not support Google Timeline archives; its importer also lacks the newer preview and duplicate checks.</p>
+<div role="region" aria-label="Supported import file formats" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Choose a file for the next task</caption>
 <tr><th scope="col">Format</th><th scope="col">Useful for</th><th scope="col">Import into iso.me</th></tr>
@@ -297,6 +301,7 @@ BODIES["export-import"] = """
 <tr><th scope="row">GPX / KML / GeoJSON</th><td>Mapping tools and route viewers</td><td>No</td></tr>
 <tr><th scope="row">OwnTracks / Overland</th><td>Compatible location tools</td><td>No</td></tr>
 </table>
+</div>
 <p>If Preview is unexpectedly empty, follow the <a href="/blog/missing-location-history-iphone/#export">export filter diagnosis</a> before changing or importing journal records. It covers record type, arrival dates, time of day, accuracy, and visit completion.</p>
 <h2>Keep a copy and check it</h2>
 <ol>
@@ -416,6 +421,7 @@ BODIES["siri-shortcuts"] = """
 <p>Set up location permission in iso.me before using <strong>Start Tracking</strong>. These actions are designed to run without opening iso.me, but iOS can still require interaction or permission. Test a shortcut manually before relying on an automation.</p>
 
 <h2>Recording and today’s stats</h2>
+<div role="region" aria-label="Released Siri and Shortcuts actions" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Recording controls and snapshot values</caption>
 <tr><th scope="col">Action</th><th scope="col">What it does</th><th scope="col">Built-in Siri phrase example</th></tr>
@@ -426,8 +432,10 @@ BODIES["siri-shortcuts"] = """
 <tr><th scope="row">Today’s Tracking Duration</th><td>Returns elapsed time for the current active recording, or zero when stopped. It is not a sum of every session today.</td><td>“iso.me tracking duration”</td></tr>
 <tr><th scope="row">Today’s Visits</th><td>Returns today’s visit count from the latest shared app snapshot.</td><td>“How many visits today in iso.me”</td></tr>
 </table>
+</div>
 
 <h2>Read and rename saved records</h2>
+<div role="region" aria-label="Saved journal Shortcuts actions" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <caption>Journal actions for a custom shortcut</caption>
 <tr><th scope="col">Action</th><th scope="col">Inputs and result</th><th scope="col">Siri setup</th></tr>
@@ -437,6 +445,7 @@ BODIES["siri-shortcuts"] = """
 <tr><th scope="row">Rename Visit</th><td>A saved Visit and a nonempty Name. Returns the renamed visit.</td><td>“Rename a visit in iso.me”</td></tr>
 <tr><th scope="row">Rename Movement</th><td>A saved Movement and a nonempty Name. Returns the renamed outing.</td><td>“Rename a movement in iso.me”</td></tr>
 </table>
+</div>
 <p>For a rename workflow, get the visits or movements, choose the intended result, and pass it to the matching rename action. Check the date and item before running: renaming changes the saved journal. These actions do not create missing GPS points or visits.</p>
 
 <h2 id="export-data">Export a chosen date range</h2>
@@ -567,14 +576,17 @@ BODIES["privacy-data"] = """
 <p>Your location history — visits, routes, outings, saved places, photo matches — is stored in the app's on-device database and <strong>nowhere else</strong>. There is no iso.me account, no cloud sync, and no iso.me server holding your location data. The full legal text is the <a href="/privacy">Privacy Policy</a>; this guide is the plain-language version.</p>
 
 <h2>Everything that can leave your device</h2>
+<div role="region" aria-label="Data sharing and privacy controls" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
-<tr><th>Where</th><th>What's sent</th><th>When</th><th>Off switch</th></tr>
+<caption>Data sharing and privacy controls</caption>
+<tr><th scope="col">Where</th><th scope="col">What's sent</th><th scope="col">When</th><th scope="col">Off switch</th></tr>
 <tr><td><strong>Apple geocoding</strong></td><td>Coordinates of a visit (to fetch its name/address)</td><td>When naming visits</td><td>Settings → Location names</td></tr>
 <tr><td><strong>Apple Maps</strong></td><td>Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images)</td><td>When you use those features</td><td>Features are opt-in per use; road-matching toggle in map filters</td></tr>
 <tr><td><strong>iso.me analytics</strong> (first-party, on by default)</td><td>Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>During onboarding and purchases</td><td>None in-app today; deleting the app removes the install ID</td></tr>
 <tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, random install ID — <strong>timing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off</td></tr>
 <tr><td><strong>Your webhook</strong></td><td>Location points and visits, in your chosen format</td><td>Only after you configure an endpoint</td><td>Disable webhooks (off by default)</td></tr>
 </table>
+</div>
 
 <h2>Photos</h2>
 <p>The photo feature reads your library on-device to match pictures to places. Photo files are never copied or uploaded; iso.me keeps only local identifiers and match metadata, and respects limited-access mode.</p>

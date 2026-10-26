@@ -358,14 +358,17 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <p>Your location history — visits, routes, outings, saved places, photo matches — is stored in the app's on-device database and <strong>nowhere else</strong>. There is no iso.me account, no cloud sync, and no iso.me server holding your location data. The full legal text is the <a href="/privacy">Privacy Policy</a>; this guide is the plain-language version.</p>
 
 <h2>Everything that can leave your device</h2>
+<div role="region" aria-label="Data sharing and privacy controls" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
-<tr><th>Where</th><th>What's sent</th><th>When</th><th>Off switch</th></tr>
+<caption>Data sharing and privacy controls</caption>
+<tr><th scope="col">Where</th><th scope="col">What's sent</th><th scope="col">When</th><th scope="col">Off switch</th></tr>
 <tr><td><strong>Apple geocoding</strong></td><td>Coordinates of a visit (to fetch its name/address)</td><td>When naming visits</td><td>Settings → Location names</td></tr>
 <tr><td><strong>Apple Maps</strong></td><td>Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images)</td><td>When you use those features</td><td>Features are opt-in per use; road-matching toggle in map filters</td></tr>
 <tr><td><strong>iso.me analytics</strong> (first-party, on by default)</td><td>Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>During onboarding and purchases</td><td>None in-app today; deleting the app removes the install ID</td></tr>
 <tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, random install ID — <strong>timing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off</td></tr>
 <tr><td><strong>Your webhook</strong></td><td>Location points and visits, in your chosen format</td><td>Only after you configure an endpoint</td><td>Disable webhooks (off by default)</td></tr>
 </table>
+</div>
 
 <h2>Photos</h2>
 <p>The photo feature reads your library on-device to match pictures to places. Photo files are never copied or uploaded; iso.me keeps only local identifiers and match metadata, and respects limited-access mode.</p>

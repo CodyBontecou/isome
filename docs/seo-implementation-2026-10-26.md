@@ -193,6 +193,13 @@ Production deployment `9ac1b824` passes all 30 HTML/Markdown pairs and all-100
 mobile/desktop Lighthouse on all three changed pages. Live mobile inspection
 confirms the checked table and no document overflow at 390 px.
 
+A whole-site responsive audit checked all 30 sitemap pages at 320 and 390 CSS
+pixels. Four documentation pages widened the document in six cases; five
+tables now use named, keyboard-focusable scroll regions. All 60 final cases
+fit, and a direct keyboard check scrolls the Privacy table without widening
+the page. No new content or search-result improvement is claimed. See
+[the mobile table record](qa/seo-mobile-table-reflow-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

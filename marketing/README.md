@@ -276,6 +276,12 @@ repeat import/duplicate checks, replace the release-preview notices, and
 update the comparison, history, backup, and export references together. Current
 source support alone is insufficient to claim App Store availability.
 
+The October 26 responsive layout sweep checked all 30 sitemap pages at 320
+and 390 CSS pixels. Five wide documentation tables now scroll in labelled,
+keyboard-focusable regions; all 60 document-width cases pass. This is a
+browser layout check, not physical-device or field-performance evidence. See
+[the mobile reflow record](../docs/qa/seo-mobile-table-reflow-2026-10-26.md).
+
 ## Lighthouse
 
 Run mobile and desktop Lighthouse audits for every page, sequentially so the
