@@ -81,7 +81,7 @@ card+=`<rect x="70" y="974" width="940" height="54" fill="${C.paper}" fill-opaci
 await save('headers','launch-card-1080x1080',1080,1080,card);
 
 // Preview sheet. Production artwork and real app views remain separate in SVG.
-await mkdir(path.join(root, "review"), { recursive: true });
+await mkdir(path.join(root,'review'),{recursive:true});
 const appThumbs=await Promise.all(assets.filter(a=>a.file.startsWith('app-store')).map(a=>sharp(path.join(root,a.file)).resize(258,559).toBuffer()));
 const heroThumb=await sharp(path.join(root,'headers/product-hero-2400x1350.png')).resize(1390,782).toBuffer();
 const bannerThumb=await sharp(path.join(root,'headers/product-banner-1600x600.png')).resize(900,338).toBuffer();

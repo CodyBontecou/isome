@@ -1,0 +1,38 @@
+{
+  "appId": "6761960794",
+  "version": "1.7.17",
+  "brand": "Whereday",
+  "domain": "https://whereday.com/",
+  "listingLocalesVerified": [
+    "en-US",
+    "ar-SA",
+    "fr-FR",
+    "es-ES",
+    "pt-BR",
+    "ru",
+    "hi",
+    "ja",
+    "zh-Hans"
+  ],
+  "auditRevision": "71428b3c-05e5-47dc-8762-561db8aad1cb",
+  "noRemainingTrackedListingDiffs": true,
+  "supportUrl": "https://whereday.com/contact",
+  "marketingUrl": "https://whereday.com/",
+  "privacyUrl": "https://whereday.com/privacy",
+  "copyright": "© 2026 Whereday",
+  "englishScreenshotsUploaded": [
+    "Whereday-01-places.png",
+    "Whereday-02-timeline.png",
+    "Whereday-03-routes.png",
+    "Whereday-04-country-days.png",
+    "Whereday-05-export.png"
+  ],
+  "headerUploaded": "header-5244x2950.png",
+  "galleryVerifiedAfterReload": true,
+  "headerVerifiedAfterReload": true,
+  "submittedForReview": false,
+  "released": false,
+  "reviewerNotes": "Proposed update only; current internal review notes still have the former name and build number.",
+  "metadataChangedByThisRun": false,
+  "listingMetadataMatchesSavedDrafts": true
+}

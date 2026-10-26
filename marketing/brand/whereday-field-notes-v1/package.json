@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node source/build.mjs && node source/stage-adoption.mjs"
+    "build": "node source/build.mjs && node source/export-asc-header.mjs && node source/stage-adoption.mjs"
   },
   "dependencies": {
     "sharp": "0.35.5"
