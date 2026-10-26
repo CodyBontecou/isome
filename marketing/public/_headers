@@ -6,3 +6,6 @@
 
 /samples/synthetic-points.json
   Content-Disposition: attachment; filename="synthetic-points.json"
+
+/samples/synthetic-obsidian-export.md
+  Content-Disposition: attachment; filename="synthetic-obsidian-export.md"

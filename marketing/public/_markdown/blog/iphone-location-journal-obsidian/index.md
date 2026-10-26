@@ -79,6 +79,22 @@ The example was copied into a separate temporary desktop vault and opened in Obs
 
 Inspect the sample in a separate folder or test vault. It is not needed to import or restore your actual journal.
 
+### Try a file produced by the released exporter
+
+[Download the synthetic app-generated Markdown export](https://isome.isolated.tech/samples/synthetic-obsidian-export.md). This second example was rendered by iso.me 1.7.16’s export pipeline from two invented visit records. It contains the same two named stops, with the Address column turned off. No personal location history was used.
+
+The file was generated with UTC as the test timezone. Its January 1, 2000 rows show 11:45 AM → 12:00 PM and 12:02 PM → 12:17 PM, each lasting fifteen minutes. The Export Date at the top records when the file was created, rather than the date of the invented visits.
+
+Copy the downloaded file into your test vault’s `Location` folder, then open it in Reading view. Check the two rows, visit names, notes, and coordinate columns. The exporter’s Source and Status columns describe the records; they do not turn the note into a live connection to iso.me.
+
+The native export test also parsed this Markdown back through iso.me’s importer and checked the two visits, names, coordinates, and arrival times. That is a file-format check, not a test of restoring data on another phone.
+
+We copied this exact file into a clean desktop vault and checked it in Obsidian 1.14.5. Both visit rows rendered in Reading view, and a link from a separate `Trip reflections` note opened the export. The nine-column table is wider than Obsidian’s default reading area; scroll horizontally to see Source and Status, or choose fewer columns before exporting.
+
+![Obsidian Reading view displaying the app-generated synthetic export, with two invented visits, their times, coordinates, names, and notes](https://isome.isolated.tech/screenshots/obsidian-synthetic-export.png)
+
+The unchanged synthetic app export in Obsidian 1.14.5, checked October 26, 2026. The table continues horizontally. This verifies desktop file rendering and a vault link; iPhone transfer and scheduled delivery remain untested.
+
 ## Keep your writing outside generated files
 
 Use generated location notes as a source you can link to from your own reflections. For example, a separate trip note can contain `[[Location/2000-01-01-visits]]` alongside your comments. Keep that handwritten note separate from any file an export process may replace.
