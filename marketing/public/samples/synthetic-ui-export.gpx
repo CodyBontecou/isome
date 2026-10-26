@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="iso.me" xmlns="http://www.topografix.com/GPX/1/1" xmlns:isome="https://isome.isolated.tech/gpx/1.0">
+  <metadata>
+    <name>iso.me export</name>
+    <time>2026-10-26T23:13:22.244Z</time>
+  </metadata>
+  <trk>
+    <name>iso.me track</name>
+    <trkseg>
+      <trkpt lat="0.0000000" lon="0.0000000">
+        <time>2000-01-01T12:00:00.000Z</time>
+        <extensions>
+          <isome:horizontalAccuracy>5.00</isome:horizontalAccuracy>
+        </extensions>
+      </trkpt>
+      <trkpt lat="0.0001000" lon="0.0001000">
+        <time>2000-01-01T12:01:00.000Z</time>
+        <extensions>
+          <isome:horizontalAccuracy>5.00</isome:horizontalAccuracy>
+        </extensions>
+      </trkpt>
+      <trkpt lat="0.0002000" lon="0.0001000">
+        <time>2000-01-01T12:02:00.000Z</time>
+        <extensions>
+          <isome:horizontalAccuracy>5.00</isome:horizontalAccuracy>
+        </extensions>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

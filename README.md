@@ -18,7 +18,7 @@ For the public app, start with the [product documentation](https://whereday.com/
 |---|---|
 | Find an earlier day | [Find iPhone location history](https://whereday.com/blog/view-location-history-iphone/): Apple/Google paths, date selection, and preserving existing records. |
 | Start a local journal | [Private location journal setup](https://whereday.com/blog/private-location-journal-iphone/): controls and a checked empty-path example that distinguishes a timer from saved GPS points. |
-| Use a route file | [Record and export GPX](https://whereday.com/blog/record-iphone-route-gpx/): a synthetic export from the released serializer, checked in gpx.studio. |
+| Use a route file | [Record and export GPX](https://whereday.com/blog/record-iphone-route-gpx/): synthetic points exported through the released app’s UI and Files, then checked in gpx.studio. |
 | Keep supported records | [Backup checklist](https://whereday.com/blog/back-up-iphone-location-history/): separate visit/point files, supported formats, and destination checks. |
 | Reuse a place name | [Saved locations and CSV](https://whereday.com/docs/places/): released editor controls and a sample checked through native parsing, storage, and duplicate handling. |
 | Read visits as notes | [Markdown journal in Obsidian](https://whereday.com/blog/iphone-location-journal-obsidian/): an actual export checked in a desktop vault. |

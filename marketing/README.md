@@ -68,6 +68,14 @@ extension against fixture value types; it does not run recording, persistence,
 filtering, filename planning, purchase, or sharing UI. A narrow CORS header lets
 gpx.studio read this public synthetic sample for viewer verification.
 
+The guide also has `samples/synthetic-ui-export.gpx`, an unchanged 1003-byte
+file produced through the isolated 1.7.16 Export UI from the three imported
+documentation points. Preview showed three items/one file; Share Sheet → Save
+to Files wrote a byte-identical copy. A fresh gpx.studio context displayed
+0.03 km and 02:00 / 02:00. This advances the export/share path; the input was
+invented, not a recorded walk, and the test build was already unlocked.
+See [the UI export evidence](../docs/qa/seo-gpx-ui-export-2026-10-26.md).
+
 The next batch adds `/blog/back-up-iphone-location-history/` and expands the
 existing `/docs/apple-watch/` reference. Backup and Watch instructions are
 reviewed against the current source; no new physical-device restore or Watch
@@ -105,16 +113,21 @@ publicly distributed binary.
 The two synthetic JSON downloads use attachment response headers in `_headers`
 so iPhone Safari offers the named file instead of opening a text page. The
 backup guide includes the touch-and-hold fallback and a destination verification
-checklist. A release-source simulator restore attempt remains incomplete because
-the test copy did not present its file picker; see the
-[verification record](../docs/qa/seo-restore-verification-2026-10-26.md).
+checklist. The earlier release-source simulator attempt did not establish a
+working picker; its [historical record](../docs/qa/seo-restore-verification-2026-10-26.md)
+is now followed by a successful [file-picker and restart check](../docs/qa/seo-restore-picker-restart-2026-10-26.md).
 
 A later native test used the actual released 1.7.16 import method and a new
 on-disk store. Opening the store again and re-exporting JSON confirmed one
 combined visit from the two nearby fixture stops, and all three points. A
 repeat point import saved six points. The guide now distinguishes parsed,
 reported, and stored counts. See the [disk import evidence](../docs/qa/seo-backup-disk-import-2026-10-26.md).
-This does not establish a working file-picker transfer or app-process restart.
+That disk test alone does not establish file-picker or app-process behavior.
+The separate UI check selected both public JSON fixtures in the isolated
+release-source app, then confirmed one reconciled visit and three points after
+termination and relaunch. The guide includes its post-restart screenshot.
+Physical phone transfer, a captured source-phone export, and purchase flow
+remain unverified by that check.
 
 The troubleshooting guide at `/blog/missing-location-history-iphone/` handles
 existing Whereday recordings; the broader history guide handles locating Apple,

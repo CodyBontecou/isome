@@ -262,9 +262,42 @@ mobile/desktop Lighthouse checks on both changed pages. The sample and
 screenshot match the tested files; mobile web layout and the negotiated
 Markdown block are checked. No separate integration URL was created.
 
+The backup guide now has a successful system file-picker import and app-process
+restart check in the isolated 1.7.16 release-source simulator app. Starting from
+zero records, the two synthetic files report two visits and three points; after
+reconciliation and termination/relaunch, Settings retains one visit and three
+points. The new screenshot distinguishes this UI result from the earlier
+native field/re-export test. Physical transfer and a captured source-phone
+export remain unverified. See [the picker/restart record](qa/seo-restore-picker-restart-2026-10-26.md).
+Deployment `7db9a51c` passes all 31 HTML/Markdown pairs and all-100
+mobile/desktop Lighthouse checks on the updated backup guide. The live
+screenshot matches the tested file and is visually verified after loading.
+
+The GPX guide now has an actual Export UI → share sheet → Save to Files check
+using the three previously imported synthetic points. Preview showed three
+items and one 1003-byte file; the saved copy matches the share-sheet output.
+XML checks preserve the three coordinates/times and one segment. In a fresh
+gpx.studio context it displays 0.03 km and 02:00 / 02:00. This verifies the
+stored-record export path, not a real recording or purchase. See
+[the UI export record](qa/seo-gpx-ui-export-2026-10-26.md).
+Published from main commit `f08b2be` as deployment `ec5b64fc`; local and
+production mobile/desktop Lighthouse all 100, all 31 HTML/Markdown pairs pass,
+and exact production sample/image bytes and a fresh production viewer were checked.
+
+The homepage now places three checked-example links beside the existing App
+Store QR: GPX saved through Files, import surviving app restart, and Obsidian
+Maps desktop rendering. Synthetic inputs, unverified physical/scheduled paths,
+and free/paid boundaries are explicit. The existing campaign and collector
+placements are preserved. Local mobile/desktop Lighthouse scores are all 100
+and the section fits at 320/390 px. See
+[the homepage evidence record](qa/seo-homepage-checked-examples-2026-10-26.md).
+Published main commit `a624fca` as deployment `3dad0dbb`; live all-100
+mobile/desktop Lighthouse, all 31 response pairs, exact destination anchors,
+campaign placements, and both mobile widths pass.
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
-2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
-3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.
+2. Capture a real recording-to-GPX-to-viewer workflow, a captured source-phone export and physical clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. The simulator file-picker/import/restart check is complete; physical workflows remain open.
+3. Verify Obsidian mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Obsidian desktop plugin is checked with synthetic data; the Dawarich native batch/persistence test used only invented data and a local receiver.
 4. Review relevant queries/indexation and acquisition counters after reporting lag. Choose further articles or a small localization pilot from meaningful demand evidence, not today's sparse sample.
 
 No app binary, pricing, account permissions, or scheduled automation was changed. The external changes in this batch are the website deployments, separate aggregate table, approved Apple campaign-link generation, Google indexing requests, and retirement of three legacy content-route overrides for the homepage, sitemap, and Chinese prefix.

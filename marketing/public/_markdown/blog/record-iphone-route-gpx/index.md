@@ -21,6 +21,7 @@ From recording to file
 - [Select points and export GPX](https://whereday.com/blog/record-iphone-route-gpx/#export)
 - [Check the saved file](https://whereday.com/blog/record-iphone-route-gpx/#verify)
 - [Inspect a synthetic GPX example](https://whereday.com/blog/record-iphone-route-gpx/#sample)
+- [See the checked app-to-Files export](https://whereday.com/blog/record-iphone-route-gpx/#checked-ui-export)
 - [Fix an empty or incomplete export](https://whereday.com/blog/record-iphone-route-gpx/#problems)
 
 ## 1. Record a short route
@@ -105,6 +106,31 @@ The metadata time records when the file was generated; it is separate from the i
 ![gpx.studio showing two separate red synthetic track segments and a file tree listing Segment 1 and Segment 2](https://whereday.com/screenshots/gpx-studio-synthetic.png)
 
 Checked October 26, 2026 in gpx.studio on desktop. The synthetic export appears as two segments. The viewer reports 03:00 of segment time; the first and last timestamps span fourteen minutes because the eleven-minute gap is excluded. This is not a real recorded journey.
+
+## A GPX saved through the app and Files
+
+We also checked the export screen in an isolated Debug rebuild of released iso.me 1.7.16 (46), before the Whereday rename, on iOS 26.5. Its journal contained the [three invented points imported from the documentation JSON](https://whereday.com/blog/back-up-iphone-location-history/#checked-picker). This tests exporting stored records; the points were not recorded on a walk.
+
+- Selected Points and GPX, with JSON deselected.
+- Opened Preview Export: GPX, three items, one planned file, 1003 bytes.
+- Closed Preview, chose Export 1 File → Save to Files → On My iPhone → Save.
+- Checked the saved file, then opened that exact public synthetic file in gpx.studio.
+
+![Earlier iso.me (now Whereday) Export Preview in the isolated simulator showing GPX, three items, one file, and a planned size of 1003 bytes](https://whereday.com/screenshots/gpx-preview-synthetic.png)
+
+The checked preview for the three imported synthetic points. The test build was already unlocked; no App Store purchase was tested.
+
+[Download the exact GPX saved through Files](https://whereday.com/samples/synthetic-ui-export.gpx). The saved copy matched the share-sheet file byte for byte. It contains three track points, one segment, and times 12:00, 12:01, and 12:02 UTC on January 1, 2000. No visit waypoints are included.
+
+In this single-file example, the generated filename was `iso.me - Monday 2026-10-26 - points.gpx`, while the point times were in 2000. The metadata time records file generation. Inspect the actual track timestamps rather than treating the filename as proof of its date range.
+
+[Open the saved synthetic export in gpx.studio](https://gpx.studio/app?files=%5B%22https%3A%2F%2Fwhereday.com%2Fsamples%2Fsynthetic-ui-export.gpx%22%5D). In a fresh desktop browser context, the viewer displayed the angled three-point line, 0.03 km, and 02:00 / 02:00 moving and total time. Those are viewer results for invented data, not a GPS accuracy or distance benchmark.
+
+![gpx.studio showing the angled synthetic track saved from Whereday, with 0.03 km distance and 02:00 moving and total time](https://whereday.com/screenshots/gpx-studio-ui-export.png)
+
+The 1003-byte UI export opened in gpx.studio, checked October 26, 2026. Only the public synthetic file was loaded.
+
+The app’s Export screen, file creation, share sheet, Save to Files, and viewer handoff were checked with unchanged release-source export code and a separate test identity. This was not the App Store binary, a purchase flow, a physical recording, or an unattended export. Keep those evidence limits separate from the earlier serializer-only sample.
 
 ## If the export is empty or the line looks wrong
 

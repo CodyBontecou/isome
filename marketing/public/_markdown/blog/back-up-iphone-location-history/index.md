@@ -114,10 +114,22 @@ This is why you should retain the original files and compare individual records 
 
 Checked October 26, 2026 in a Debug rebuild of the verified release source, using invented records and a separate disk store. The native import, save, store reopening, and JSON re-export were tested. This was not the App Store binary, a file-picker test, an app-process restart, or a transfer between physical phones. The original samples remain unchanged.
 
+### File selection and a full app restart
+
+In a separate check, the same release-source app started with zero visits and zero points in its isolated simulator journal. We selected `synthetic-visits.json` through Settings → Import File and the system file picker. The alert reported Imported 2 visits, while Settings showed one saved visit after reconciliation.
+
+We then downloaded `synthetic-points.json` in Safari and selected it through the picker. Its alert reported Imported 3 points. After terminating and relaunching the app, Settings still showed 1 visit and 3 points. This checks the file-selection, import, save, and app-restart path separately from the native field and re-export checks above.
+
+![Isolated Whereday simulator Settings after an app restart, showing one saved visit and three saved points from the synthetic JSON files](https://whereday.com/screenshots/restore-synthetic-after-restart.png)
+
+Saved totals after the app process was restarted. The two nearby invented visits became one; all three points remained. No personal journal was used.
+
+Checked October 26, 2026 on iOS 26.5 with a Debug rebuild of 1.7.16 (46) and a separate app identity. Settings and import code were unchanged from the verified release source. This was not the App Store binary, a purchase test, a captured source-phone export, or a transfer between physical phones.
+
 ## 3. Import the supported files on the destination
 
 - Make the saved visit and point files available in Files on the destination iPhone.
-- Open Whereday, then choose Settings → Import file.
+- Open Whereday, then choose Settings → Import file. Allow the system file picker to finish opening; a later opening in the simulator check took about seven seconds.
 - Select a supported Whereday file and read the import result. Repeat for the other data type and any additional dated files.
 - Check several dates on Map and Timeline. Look for both visits and route points, including the earliest and most recent records you expected.
 - Close and reopen Whereday, then check the same dates again. Confirm the imported records remain before erasing or retiring the original phone.

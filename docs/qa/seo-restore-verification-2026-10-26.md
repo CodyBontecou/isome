@@ -2,6 +2,12 @@
 
 October 26, 2026. The clean-destination restore gate remains open.
 
+Follow-up: the later [file-picker and restart check](seo-restore-picker-restart-2026-10-26.md)
+successfully selected both synthetic JSON files and confirmed one saved visit
+and three points after an app-process restart in the isolated release-source
+simulator app. The failed attempt below is historical; physical transfer
+remains unverified.
+
 Update: the later [native disk import check](seo-backup-disk-import-2026-10-26.md)
 verifies the actual import method, disk-store reopening, and JSON re-export.
 It found that the sample’s two nearby visits reconcile into one saved visit.
