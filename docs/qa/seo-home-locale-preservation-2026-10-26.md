@@ -73,3 +73,46 @@ sitemap annotation scheme or automatic language redirect was added.
 
 No ranking, Google indexation, native app language support, human translation
 review, or field-performance result is claimed.
+
+## Legacy routing handoff
+
+The initial main release `845d4bb` deployed successfully as `4e30fff8`, but the
+public Chinese page continued serving its older copy for several minutes while
+the exact deployment URL served the new version. Cloudflare configuration
+identified three `search-chinese-landing-pages` Worker content routes overriding
+Pages: the exact HTTPS homepage, `/sitemap.xml*`, and `/zh-hans*`.
+
+Confirmed that Pages project `spotted` already owns the `isome.isolated.tech`
+custom domain and that its complete 31-page release was available before the
+handoff. Saved [the rollback snapshot](../seo-legacy-home-route-snapshot-2026-10-26.json),
+re-read and matched each route ID/pattern/script, then retired only those three
+routes. [The result](../seo-home-route-retirement-2026-10-26.json) confirms all
+other 28 zone routes are unchanged, including the search verification routes.
+The shared Worker itself and other sites were not deleted or modified.
+
+The live Chinese page immediately served the main release's version note and
+Terms link after the handoff. Browser checks confirm exactly three home-language
+alternates on each homepage, the English language switch, nine English guide
+cards, six retained seo-home campaign links, and integrations/places discovery.
+All 31 production HTML/Markdown pairs and response/cache/error/API/method/asset
+checks pass. No account permissions, DNS, or billing configuration changed.
+
+Current primary references: Cloudflare's [route configuration](https://developers.cloudflare.com/workers/configuration/routing/routes/)
+and [delete-route API](https://developers.cloudflare.com/api/resources/workers/subresources/routes/methods/delete/).
+
+## Cold-image layout correction
+
+The first production audit retained a real failure: Chinese desktop performance
+95, CLS 0.134, while accessibility/best-practices/SEO were 100. Lighthouse's
+layout-shift details identify the hero image as lacking an explicit display
+size, moving the adjacent text. Mobile CLS was 0.060 despite its rounded 100
+performance score. Reports are retained in
+`/private/tmp/isome-seo-locale-preservation-after/`.
+
+Reserved the existing approximate display box explicitly: 240×520 px desktop,
+194×420 px mobile, with object-fit containment. The artwork, copy, and overall
+design are retained. A controlled browser check with the image initially
+unavailable (naturalWidth 0), then loaded (480), shows identical image and text
+bounds at 320 and 1280 px. Local Chinese mobile/desktop Lighthouse both score
+100 in every category with CLS 0. Reports:
+`/private/tmp/isome-seo-locale-image-before/`.

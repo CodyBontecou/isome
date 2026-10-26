@@ -212,10 +212,14 @@ missing locales or broken home-language links. Four isolated failure checks
 and all five acquisition tests pass. This preserves an existing URL, rather
 than choosing a new locale from unmeasured demand. See
 [the locale preservation record](qa/seo-home-locale-preservation-2026-10-26.md).
+Three legacy Worker content overrides were retired after the full Pages release
+was checked; all other zone routes remain unchanged. The live host now serves
+the same homepage-language release as main. A real cold-image layout shift
+was also found and corrected by reserving the Chinese hero’s display box.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.
 4. Review relevant queries/indexation and acquisition counters after reporting lag. Choose further articles or a small localization pilot from meaningful demand evidence, not today's sparse sample.
 
-No app binary, pricing, account permissions, or scheduled automation was changed. The external changes in this batch are the website deployments, separate aggregate table, approved Apple campaign-link generation, and Google indexing request.
+No app binary, pricing, account permissions, or scheduled automation was changed. The external changes in this batch are the website deployments, separate aggregate table, approved Apple campaign-link generation, Google indexing requests, and retirement of three legacy content-route overrides for the homepage, sitemap, and Chinese prefix.

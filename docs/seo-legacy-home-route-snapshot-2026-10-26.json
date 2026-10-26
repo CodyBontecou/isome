@@ -1,0 +1,27 @@
+{
+  "zone_id": "d8d0829357364979adb6e62198b94810",
+  "reason": "Content is now maintained in the checked Pages main release; remove three legacy content overrides only.",
+  "pages_project": "spotted",
+  "checked_deployment": "4e30fff8",
+  "routes": [
+    {
+      "id": "72ee800217e14be6853b4875b46d7053",
+      "pattern": "https://isome.isolated.tech/sitemap.xml*",
+      "script": "search-chinese-landing-pages",
+      "request_limit_fail_open": false
+    },
+    {
+      "id": "f88b968252d24ebab3bff501524e2944",
+      "pattern": "https://isome.isolated.tech/zh-hans*",
+      "script": "search-chinese-landing-pages",
+      "request_limit_fail_open": false
+    },
+    {
+      "id": "dc548b54b97e447e8c927a65ac961d8c",
+      "pattern": "https://isome.isolated.tech/",
+      "script": "search-chinese-landing-pages",
+      "request_limit_fail_open": false
+    }
+  ],
+  "rollback": "POST each saved pattern/script to /zones/{zone_id}/workers/routes; restore only these three patterns."
+}
