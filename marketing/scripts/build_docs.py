@@ -5,7 +5,7 @@ import pathlib, html
 OUT = pathlib.Path(__file__).resolve().parent.parent / "public" / "docs"
 BASE = "https://isome.isolated.tech/docs/"
 UPDATED = "October 26, 2026"
-REVIEWED = {"getting-started", "tracking", "export-import", "privacy-data", "apple-watch", "webhooks", "timeline-outings", "siri-shortcuts", "places"}
+REVIEWED = {"getting-started", "tracking", "export-import", "privacy-data", "apple-watch", "webhooks", "timeline-outings", "siri-shortcuts", "places", "automatic-exports"}
 
 GUIDES = [
     # (slug, title, short, lede, platform, minutes, tag)
@@ -33,10 +33,10 @@ GUIDES = [
      "Eight export formats, filters, filename templates, and free import for restores.",
      "Export recorded visits, route points, and outings in eight formats. Preview is free; writing files requires Pro. Import supported iso.me visit and point files for free.",
      "iOS 17+", 5, "PRO"),
-    ("automatic-exports", "Automatic exports",
-     "Schedule exports once a day or every few hours, keeping one file per day.",
-     "Auto Export writes your day to a folder you choose, on a schedule you choose — daily or as often as every hour — with rewrite and append modes that keep each day's file consistent.",
-     "iOS 17+", 4, "PRO"),
+    ("automatic-exports", "Automatically export iPhone location history to a folder",
+     "Set up daily or interval exports, check rewrite and append behavior, and verify saved files in iso.me.",
+     "Save the current local day to a folder you choose. Check a manual run first, then choose how later runs update the file and how you will spot a missed day.",
+     "iOS 17+", 6, "PRO"),
     ("webhooks", "Webhooks & self-hosting",
      "Configure optional delivery and verify your receiver’s payload and authentication requirements.",
      "The optional webhook feature posts your data, in your chosen format, to a server you control. Off by default, fully configurable, and nothing is sent until you set it up.",
@@ -312,37 +312,66 @@ BODIES["export-import"] = """
 """
 
 BODIES["automatic-exports"] = """
-<div class="callout pro"><p><strong>Pro feature.</strong> Auto Export appears in the Export tab once you've chosen a default export folder and unlocked Pro.</p></div>
+<div class="callout pro"><p><strong>Optional paid feature.</strong> Auto Export appears in the Export tab after you choose a default export folder and unlock file exports. Recording, viewing history, and Export Preview are free.</p></div>
 
-<h2>The idea</h2>
-<p>You pick a folder, a format, and a schedule. Each run exports <strong>the current local day so far</strong> into <strong>one file for that day</strong> — always the same file name for the same day, no matter how many times it runs. Yesterday's file is never touched; tomorrow gets a new one.</p>
+<h2 id="setup">Set up one file you can check</h2>
+<ol>
+<li>In Export, choose a default folder that you can find again in Files. Confirm the folder is available before enabling a schedule.</li>
+<li>In Auto Export, choose the data type and format. Visits describe stops; Points describe the recorded path. A file of one type does not preserve every other type.</li>
+<li>Choose Once daily or an interval of 1–23 hours, plus a start time. Interval schedules also offer Rewrite or Append.</li>
+<li>Use <strong>Run now</strong>, then find and open the actual file. Check the date, record type, and some expected records. A last-run time alone does not show that the file contains what you need.</li>
+<li>Enable the schedule and check a later file yourself. Notification and background permissions can affect delivery opportunities; a successful manual run does not verify an unattended run.</li>
+</ol>
+<p>For a restorable archive, first make separate full-history Visits and Points JSON copies using the <a href="/blog/back-up-iphone-location-history/">backup guide</a>. Auto Export starts with the current day; it does not backfill all earlier history. For a readable note, follow the <a href="/blog/iphone-location-journal-obsidian/">manual Obsidian handoff</a>. A folder selection alone does not establish delivery into an Obsidian vault.</p>
 
-<h2>Schedules</h2>
-<ul>
-<li><strong>Once daily</strong> — at a time you choose (default 21:00).</li>
-<li><strong>Every 1–23 hours</strong> — from a start time you choose. A 3-hour schedule starting at 09:00 fires at 09:00, 12:00, 15:00…; intervals that don't divide the day simply restart from the next day's start time.</li>
-</ul>
+<h2 id="day-window">Which day is saved?</h2>
+<p>Every run selects <strong>the current local day up to the run time</strong>. Its date range is separate from the manual Export tab’s chosen dates and daily splitting preference. Repeated runs use a stable path for that date; the next local date gets its own path.</p>
+<p>If an overdue run happens after midnight, it selects the new day. It does not reopen yesterday’s file and fill its missing final hours. Use a separate manual export for an earlier date that you need to recover from retained journal records.</p>
+<p>A once-daily run at 21:00 saves the day so far at that time. Records captured after it need another run that day or a later manual export. Choose the schedule with that cutoff in mind rather than treating one dated file as proof of a complete calendar day.</p>
 
-<h2>Rewrite vs append</h2>
+<h2 id="schedules">How interval times work</h2>
+<p>Once daily uses your chosen local time, initially 21:00. An interval schedule starts from its daily anchor and includes occurrences less than 24 hours after that anchor, including times past midnight. For example, 09:00 every nine hours gives 09:00, 18:00, then 03:00 the next morning; the new cycle starts at 09:00. It is not an endless nine-hour sequence across every day.</p>
+<p>These are scheduled opportunities. iOS controls actual background execution. Apple explains that a background task’s requested earliest start is <a href="https://developer.apple.com/documentation/backgroundtasks/bgtaskrequest/earliestbegindate">not a guaranteed launch time</a>.</p>
+
+<h2 id="update-mode">Choose Rewrite or Append</h2>
 <table>
-<tr><th>Mode</th><th>Behavior</th></tr>
-<tr><td><strong>Rewrite</strong> (default)</td><td>Each run rewrites the day's file with everything recorded so far today. Simple and self-healing.</td></tr>
-<tr><td><strong>Append</strong></td><td>Each run adds only records captured since the last successful run — no duplicates, tiny writes. (Once-daily schedules always rewrite.)</td></tr>
+<caption>How a later run changes the current day’s file</caption>
+<tr><th scope="col">Mode</th><th scope="col">What it does</th><th scope="col">What to check</th></tr>
+<tr><th scope="row">Rewrite</th><td>Replaces the day’s file with the selected records from local midnight through now. Once-daily runs always use this mode.</td><td>Reflects current record values. Keep personal writing in a separate file because generated output can be replaced.</td></tr>
+<tr><th scope="row">Append</th><td>For interval schedules, selects records from the last successful append cursor through now, clamped to the current day.</td><td>It is not a general duplicate or edit sync. A point at the boundary can repeat in CSV; a visit that arrived earlier can retain its old exported fields.</td></tr>
 </table>
-<p>Append works for CSV, JSON, Markdown, OwnTracks, Overland, and GeoJSON. GPX and KML always rewrite the full day, because valid XML files can't be naively concatenated.</p>
+<p>Append is available for CSV, JSON, Markdown, OwnTracks, Overland, and GeoJSON. Their merge rules differ. GPX and KML always rewrite the full day, even when an interval schedule has Append selected. Changing formats or modes warrants checking the next file rather than assuming its contents match an earlier format.</p>
 
-<h2>How the app wakes up</h2>
-<p>iOS never guarantees background execution, so Auto Export layers its chances:</p>
-<ul>
-<li><strong>Background refresh</strong> — iOS schedules the app to wake near each run.</li>
-<li><strong>A silent push</strong> — iso.me's scheduling service nudges the app at the fire time. The service only ever holds timing metadata (your time zone, the schedule, a push token) — never location records, file contents, or folder names.</li>
-<li><strong>A fallback notification</strong> — if nothing ran by a minute after the scheduled time, you get a tappable “Daily Export Ready” notification; tapping runs it.</li>
-<li><strong>Catch-up</strong> — opening the app runs any overdue occurrence automatically.</li>
-</ul>
-<p>If a run fails you'll get a notification with the reason and a retry; the schedule itself keeps going.</p>
+<h2 id="checked-files">Checked file behavior in release source</h2>
+<p>We tested the 1.7.16 (46) automatic-export planner, serializers, and file writer with invented records in a temporary folder on an iOS 26.5 simulator. These are file tests, not a timed background delivery test.</p>
+<table>
+<caption>What the native checks found</caption>
+<tr><th scope="col">Example</th><th scope="col">Saved result</th></tr>
+<tr><th scope="row">Two points at 10:00 and 11:00, then another run through 12:00 with a new point</th><td>CSV append saved four rows: the 11:00 point appeared twice. JSON append saved three points in this example.</td></tr>
+<tr><th scope="row">A 10:00 visit was exported open, then its departure was set to 12:00</th><td>The next JSON append still had no departure. Rewriting the same day’s file included the 12:00 departure.</td></tr>
+<tr><th scope="row">A run at 23:55, another point at 23:59, then a run at 00:10</th><td>Yesterday’s file stayed unchanged and did not gain the 23:59 point. Today’s file included only today’s point.</td></tr>
+</table>
+<p>Choose Rewrite when you need the current values of today’s visits in each snapshot. For important earlier dates, use a manual date-range export and check it separately. The <a href="/blog/back-up-iphone-location-history/#checked-import">checked restore example</a> explains a different issue: importing files can reconcile nearby visits and add repeated points.</p>
+<p class="source-note">Checked October 26, 2026 against unchanged 1.7.16 release-source planning and file-writing code. All 27 selected native tests passed. No scheduled wake, notification delivery, folder-picker access, cloud synchronization, or unattended export was newly verified.</p>
 
-<h2>Manual control</h2>
-<p><strong>Run now</strong> in the Auto Export section performs an export immediately regardless of schedule — useful after a big day. The section also shows the last run time and format.</p>
+<h2 id="late-file">If a scheduled file is missing or incomplete</h2>
+<ol>
+<li>Open iso.me and inspect Auto Export’s last run and any error. Check that the schedule and selected data type are still what you intended.</li>
+<li>Check the chosen folder in Files. Confirm you are looking at the intended local date and file type, then open the file itself.</li>
+<li>Use Run now while the app is open, then inspect the result. A folder that has become unavailable needs attention before another scheduled attempt can succeed.</li>
+<li>If yesterday’s file is incomplete, make a separate manual export for yesterday. A run today does not repair it.</li>
+<li>If the file lacks records visible in the journal, compare the record type and date selection. Follow the <a href="/blog/missing-location-history-iphone/#export">export diagnosis</a> before deleting or importing anything.</li>
+</ol>
+<p>iso.me can request background refresh, register a silent scheduling push, offer a fallback notification, and check for overdue work when opened. These are opportunities to run, not a delivery guarantee. A fallback notification can be tapped to attempt the export; inspect the saved file afterward.</p>
+<p>The scheduling service receives routing and timing metadata, including an installation identifier, push token, time zone, and schedule. It does not receive your journal or export contents through this scheduling path. Exported copies follow the storage rules of the folder or service you select. See the <a href="/docs/privacy-data/">privacy reference</a>.</p>
+
+<h2 id="questions">Common questions</h2>
+<h3>Does Auto Export make a full backup when I enable it?</h3>
+<p>No. It selects the current local day. Make initial full-history visit and point exports separately and keep their originals.</p>
+<h3>Does Append keep old exported visits up to date?</h3>
+<p>Not reliably. Selection uses record time, and a later departure edit does not make an old arrival new. The checked example above needed Rewrite to refresh its departure.</p>
+<h3>Can I keep my own notes inside an automatically generated file?</h3>
+<p>Use a separate note unless you have checked the specific format’s merge behavior. Rewrite replaces the generated file, and different append formats handle existing content differently.</p>
 """
 
 BODIES["webhooks"] = """
@@ -350,12 +379,14 @@ BODIES["webhooks"] = """
 
 <h2>What it's for</h2>
 <p>Webhooks deliver records to a receiver you choose, but the payload must match that receiver's API. An endpoint accepting HTTP POST is not enough to establish compatibility. Verify a dedicated test destination before enabling delivery of your history.</p>
+<div role="region" aria-label="Receiver endpoints and formats" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <tr><th>Service</th><th>Endpoint shape</th><th>Format</th></tr>
 <tr><td>Dawarich batch receiver</td><td><code>…/api/v1/overland/batches</code></td><td>Overland; verify against your instance before use</td></tr>
 <tr><td>OwnTracks receiver</td><td>per your installation</td><td>Verify it accepts arrays of location messages</td></tr>
 <tr><td>Other receiver</td><td>its documented HTTPS endpoint</td><td>Use its required schema and authentication</td></tr>
 </table>
+</div>
 
 <p>iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check <a href="https://dawarich.app/docs/getting-started/track-your-location/">Dawarich's receiver documentation</a> and confirm actual imported points; the <a href="/integrations/dawarich/">checked Overland walkthrough</a> records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.</p>
 

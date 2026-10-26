@@ -117,7 +117,7 @@
   <h2 id="scheduled">Scheduled exports are ongoing copies, not an initial full archive</h2>
   <p>Auto Export writes the <strong>current local day</strong> to the chosen folder. It can help keep future records, but turning it on today does not by itself back up every earlier day. Make your initial full exports separately.</p>
   <p>Background execution is best effort. Check the latest saved file, use Run Now or open the app if a scheduled copy is overdue, and confirm the records you need are present. A configured schedule is not proof that the last file was written successfully.</p>
-  <p>See <a href="/docs/automatic-exports/">the automatic export reference</a> for timing, rewrite/append behavior, and how the scheduling service works.</p>
+  <p>A run after midnight selects the new day and does not repair yesterday’s file. A once-daily run also saves only the day up to its run time. Use a separate manual export for a prior date that needs a complete copy. See the <a href="/docs/automatic-exports/#checked-files">checked automatic-export examples</a> for CSV boundary repeats, visit edits, and midnight behavior.</p>
 </section>
 
 <section aria-labelledby="different-task">

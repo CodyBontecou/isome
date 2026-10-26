@@ -155,6 +155,12 @@ editor screenshot verifies available controls with location permission denied;
 it is not a completed on-device import. See the
 [places evidence](../docs/qa/seo-saved-locations-2026-10-26.md).
 
+The automatic-export reference includes release-source native file checks:
+CSV append can repeat a boundary point, JSON append can retain an old visit
+departure, and a run after midnight does not repair the preceding date’s file.
+The planner, serializer, writer, and on-disk output were tested; no scheduled
+wake or cloud delivery is claimed. See the [verification record](../docs/qa/seo-automatic-export-files-2026-10-26.md).
+
 ## Deploy
 
 `marketing/deploy.sh` builds and validates before its existing Cloudflare Pages

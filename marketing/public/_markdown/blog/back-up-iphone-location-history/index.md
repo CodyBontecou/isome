@@ -142,7 +142,7 @@ Auto Export writes the current local day to the chosen folder. It can help keep 
 
 Background execution is best effort. Check the latest saved file, use Run Now or open the app if a scheduled copy is overdue, and confirm the records you need are present. A configured schedule is not proof that the last file was written successfully.
 
-See [the automatic export reference](https://isome.isolated.tech/docs/automatic-exports/) for timing, rewrite/append behavior, and how the scheduling service works.
+A run after midnight selects the new day and does not repair yesterday’s file. A once-daily run also saves only the day up to its run time. Use a separate manual export for a prior date that needs a complete copy. See the [checked automatic-export examples](https://isome.isolated.tech/docs/automatic-exports/#checked-files) for CSV boundary repeats, visit edits, and midnight behavior.
 
 ## Need a readable note or a route file?
 

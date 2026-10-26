@@ -1,8 +1,8 @@
 § Docs · Guide 7 of 11
 
-# Automatic exports
+# Automatically export iPhone location history to a folder
 
-Auto Export writes your day to a folder you choose, on a schedule you choose — daily or as often as every hour — with rewrite and append modes that keep each day's file consistent.
+Save the current local day to a folder you choose. Check a manual run first, then choose how later runs update the file and how you will spot a missed day.
 
 Platform
 
@@ -10,49 +10,90 @@ iOS 17+
 
 Updated
 
-August 22, 2026
+October 26, 2026
 
 Reading
 
-4 min
+6 min
 
 Back to
 
 [All docs](https://isome.isolated.tech/docs/)
 
-Pro feature. Auto Export appears in the Export tab once you've chosen a default export folder and unlocked Pro.
+Optional paid feature. Auto Export appears in the Export tab after you choose a default export folder and unlock file exports. Recording, viewing history, and Export Preview are free.
 
-## The idea
+## Set up one file you can check
 
-You pick a folder, a format, and a schedule. Each run exports the current local day so far into one file for that day — always the same file name for the same day, no matter how many times it runs. Yesterday's file is never touched; tomorrow gets a new one.
+- In Export, choose a default folder that you can find again in Files. Confirm the folder is available before enabling a schedule.
+- In Auto Export, choose the data type and format. Visits describe stops; Points describe the recorded path. A file of one type does not preserve every other type.
+- Choose Once daily or an interval of 1–23 hours, plus a start time. Interval schedules also offer Rewrite or Append.
+- Use Run now, then find and open the actual file. Check the date, record type, and some expected records. A last-run time alone does not show that the file contains what you need.
+- Enable the schedule and check a later file yourself. Notification and background permissions can affect delivery opportunities; a successful manual run does not verify an unattended run.
 
-## Schedules
+For a restorable archive, first make separate full-history Visits and Points JSON copies using the [backup guide](https://isome.isolated.tech/blog/back-up-iphone-location-history/). Auto Export starts with the current day; it does not backfill all earlier history. For a readable note, follow the [manual Obsidian handoff](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). A folder selection alone does not establish delivery into an Obsidian vault.
 
-- Once daily — at a time you choose (default 21:00).
-- Every 1–23 hours — from a start time you choose. A 3-hour schedule starting at 09:00 fires at 09:00, 12:00, 15:00…; intervals that don't divide the day simply restart from the next day's start time.
+## Which day is saved?
 
-## Rewrite vs append
+Every run selects the current local day up to the run time. Its date range is separate from the manual Export tab’s chosen dates and daily splitting preference. Repeated runs use a stable path for that date; the next local date gets its own path.
 
-| Mode | Behavior
-| Rewrite (default) | Each run rewrites the day's file with everything recorded so far today. Simple and self-healing.
-| Append | Each run adds only records captured since the last successful run — no duplicates, tiny writes. (Once-daily schedules always rewrite.)
+If an overdue run happens after midnight, it selects the new day. It does not reopen yesterday’s file and fill its missing final hours. Use a separate manual export for an earlier date that you need to recover from retained journal records.
 
-Append works for CSV, JSON, Markdown, OwnTracks, Overland, and GeoJSON. GPX and KML always rewrite the full day, because valid XML files can't be naively concatenated.
+A once-daily run at 21:00 saves the day so far at that time. Records captured after it need another run that day or a later manual export. Choose the schedule with that cutoff in mind rather than treating one dated file as proof of a complete calendar day.
 
-## How the app wakes up
+## How interval times work
 
-iOS never guarantees background execution, so Auto Export layers its chances:
+Once daily uses your chosen local time, initially 21:00. An interval schedule starts from its daily anchor and includes occurrences less than 24 hours after that anchor, including times past midnight. For example, 09:00 every nine hours gives 09:00, 18:00, then 03:00 the next morning; the new cycle starts at 09:00. It is not an endless nine-hour sequence across every day.
 
-- Background refresh — iOS schedules the app to wake near each run.
-- A silent push — iso.me's scheduling service nudges the app at the fire time. The service only ever holds timing metadata (your time zone, the schedule, a push token) — never location records, file contents, or folder names.
-- A fallback notification — if nothing ran by a minute after the scheduled time, you get a tappable “Daily Export Ready” notification; tapping runs it.
-- Catch-up — opening the app runs any overdue occurrence automatically.
+These are scheduled opportunities. iOS controls actual background execution. Apple explains that a background task’s requested earliest start is [not a guaranteed launch time](https://developer.apple.com/documentation/backgroundtasks/bgtaskrequest/earliestbegindate).
 
-If a run fails you'll get a notification with the reason and a retry; the schedule itself keeps going.
+## Choose Rewrite or Append
 
-## Manual control
+How a later run changes the current day’s file
+| Mode | What it does | What to check
+| Rewrite | Replaces the day’s file with the selected records from local midnight through now. Once-daily runs always use this mode. | Reflects current record values. Keep personal writing in a separate file because generated output can be replaced.
+| Append | For interval schedules, selects records from the last successful append cursor through now, clamped to the current day. | It is not a general duplicate or edit sync. A point at the boundary can repeat in CSV; a visit that arrived earlier can retain its old exported fields.
 
-Run now in the Auto Export section performs an export immediately regardless of schedule — useful after a big day. The section also shows the last run time and format.
+Append is available for CSV, JSON, Markdown, OwnTracks, Overland, and GeoJSON. Their merge rules differ. GPX and KML always rewrite the full day, even when an interval schedule has Append selected. Changing formats or modes warrants checking the next file rather than assuming its contents match an earlier format.
+
+## Checked file behavior in release source
+
+We tested the 1.7.16 (46) automatic-export planner, serializers, and file writer with invented records in a temporary folder on an iOS 26.5 simulator. These are file tests, not a timed background delivery test.
+
+What the native checks found
+| Example | Saved result
+| Two points at 10:00 and 11:00, then another run through 12:00 with a new point | CSV append saved four rows: the 11:00 point appeared twice. JSON append saved three points in this example.
+| A 10:00 visit was exported open, then its departure was set to 12:00 | The next JSON append still had no departure. Rewriting the same day’s file included the 12:00 departure.
+| A run at 23:55, another point at 23:59, then a run at 00:10 | Yesterday’s file stayed unchanged and did not gain the 23:59 point. Today’s file included only today’s point.
+
+Choose Rewrite when you need the current values of today’s visits in each snapshot. For important earlier dates, use a manual date-range export and check it separately. The [checked restore example](https://isome.isolated.tech/blog/back-up-iphone-location-history/#checked-import) explains a different issue: importing files can reconcile nearby visits and add repeated points.
+
+Checked October 26, 2026 against unchanged 1.7.16 release-source planning and file-writing code. All 27 selected native tests passed. No scheduled wake, notification delivery, folder-picker access, cloud synchronization, or unattended export was newly verified.
+
+## If a scheduled file is missing or incomplete
+
+- Open iso.me and inspect Auto Export’s last run and any error. Check that the schedule and selected data type are still what you intended.
+- Check the chosen folder in Files. Confirm you are looking at the intended local date and file type, then open the file itself.
+- Use Run now while the app is open, then inspect the result. A folder that has become unavailable needs attention before another scheduled attempt can succeed.
+- If yesterday’s file is incomplete, make a separate manual export for yesterday. A run today does not repair it.
+- If the file lacks records visible in the journal, compare the record type and date selection. Follow the [export diagnosis](https://isome.isolated.tech/blog/missing-location-history-iphone/#export) before deleting or importing anything.
+
+iso.me can request background refresh, register a silent scheduling push, offer a fallback notification, and check for overdue work when opened. These are opportunities to run, not a delivery guarantee. A fallback notification can be tapped to attempt the export; inspect the saved file afterward.
+
+The scheduling service receives routing and timing metadata, including an installation identifier, push token, time zone, and schedule. It does not receive your journal or export contents through this scheduling path. Exported copies follow the storage rules of the folder or service you select. See the [privacy reference](https://isome.isolated.tech/docs/privacy-data/).
+
+## Common questions
+
+### Does Auto Export make a full backup when I enable it?
+
+No. It selects the current local day. Make initial full-history visit and point exports separately and keep their originals.
+
+### Does Append keep old exported visits up to date?
+
+Not reliably. Selection uses record time, and a later departure edit does not make an old arrival new. The checked example above needed Rewrite to refresh its departure.
+
+### Can I keep my own notes inside an automatically generated file?
+
+Use a separate note unless you have checked the specific format’s merge behavior. Rewrite replaces the generated file, and different append formats handle existing content differently.
 
 [← PreviousExport and restore location history](https://isome.isolated.tech/docs/export-import/) [Next →Webhooks & self-hosting](https://isome.isolated.tech/docs/webhooks/)
 

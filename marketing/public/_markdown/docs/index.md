@@ -58,9 +58,9 @@ Eight export formats, filters, filename templates, and free import for restores.
 
 ](https://isome.isolated.tech/docs/export-import/) [ Pro 07
 
-## Automatic exports
+## Automatically export iPhone location history to a folder
 
-Schedule exports once a day or every few hours, keeping one file per day.
+Set up daily or interval exports, check rewrite and append behavior, and verify saved files in iso.me.
 
 ](https://isome.isolated.tech/docs/automatic-exports/) [ Pro 08
 

@@ -358,12 +358,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 <h2>What it's for</h2>
 <p>Webhooks deliver records to a receiver you choose, but the payload must match that receiver's API. An endpoint accepting HTTP POST is not enough to establish compatibility. Verify a dedicated test destination before enabling delivery of your history.</p>
+<div role="region" aria-label="Receiver endpoints and formats" tabindex="0" style="overflow-x:auto;max-width:100%">
 <table>
 <tr><th>Service</th><th>Endpoint shape</th><th>Format</th></tr>
 <tr><td>Dawarich batch receiver</td><td><code>…/api/v1/overland/batches</code></td><td>Overland; verify against your instance before use</td></tr>
 <tr><td>OwnTracks receiver</td><td>per your installation</td><td>Verify it accepts arrays of location messages</td></tr>
 <tr><td>Other receiver</td><td>its documented HTTPS endpoint</td><td>Use its required schema and authentication</td></tr>
 </table>
+</div>
 
 <p>iso.me encodes OwnTracks points as an array, including a single point. Dawarich's current OwnTracks receiver expects individual point fields, so do not assume those two shapes are interchangeable. Its Overland batch receiver is a different protocol. Check <a href="https://dawarich.app/docs/getting-started/track-your-location/">Dawarich's receiver documentation</a> and confirm actual imported points; the <a href="/integrations/dawarich/">checked Overland walkthrough</a> records native batch delivery and receiver persistence on Dawarich 1.18.0. Physical recording and unattended delivery remain separate checks.</p>
 
@@ -387,7 +389,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 <div class="callout warn"><p><strong>Know your destination.</strong> This is the one feature that transmits your location data off-device. Use endpoints you trust (ideally your own servers), and remember queued-but-unsent points in batch modes are lost if iOS terminates the app before a flush.</p></div>
     </div>
     <nav class="pager" aria-label="Guides">
-      <a class="prev" href="/docs/automatic-exports/"><span class="dir">← Previous</span><span class="title">Automatic exports</span></a>
+      <a class="prev" href="/docs/automatic-exports/"><span class="dir">← Previous</span><span class="title">Automatically export iPhone location history to a folder</span></a>
       <a class="next" href="/docs/siri-shortcuts/"><span class="dir">Next →</span><span class="title">Siri &amp; Shortcuts for iPhone location tracking</span></a>
     </nav>
   </div>

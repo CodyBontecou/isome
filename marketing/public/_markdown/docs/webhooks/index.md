@@ -51,6 +51,6 @@ Batch modes show a live queue count with a Flush queue button. Failed sends retr
 
 Know your destination. This is the one feature that transmits your location data off-device. Use endpoints you trust (ideally your own servers), and remember queued-but-unsent points in batch modes are lost if iOS terminates the app before a flush.
 
-[← PreviousAutomatic exports](https://isome.isolated.tech/docs/automatic-exports/) [Next →Siri & Shortcuts for iPhone location tracking](https://isome.isolated.tech/docs/siri-shortcuts/)
+[← PreviousAutomatically export iPhone location history to a folder](https://isome.isolated.tech/docs/automatic-exports/) [Next →Siri & Shortcuts for iPhone location tracking](https://isome.isolated.tech/docs/siri-shortcuts/)
 
 Source: https://isome.isolated.tech/docs/webhooks/

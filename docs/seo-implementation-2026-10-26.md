@@ -161,6 +161,14 @@ Production deployment `f8001e05` passes all 30 HTML/Markdown pairs and all-100
 mobile/desktop Lighthouse on all three changed pages. Live checks confirm the
 new result table and corrections, with no mobile document overflow.
 
+The automatic-export reference now includes released-source native file
+checks: CSV append can repeat a cursor-boundary point, JSON append can retain
+an older visit’s open departure, and a run after midnight leaves yesterday’s
+file unchanged. All 27 selected tests pass. The reference, docs hub, and backup
+link explain setup, cutoff, rewrite/append limits, and actual file verification.
+No timed background wake or cloud delivery is claimed. See
+[the automatic-export file record](qa/seo-automatic-export-files-2026-10-26.md).
+
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
 3. Verify Obsidian plugin/mobile/scheduled delivery and Dawarich physical recording, complete settings workflow, production HTTPS, and unattended delivery before extending those promises. The Dawarich native batch/persistence test used only invented data and a local receiver.

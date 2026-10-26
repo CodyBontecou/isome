@@ -92,6 +92,6 @@ Import adds supported records. In the checked 1.7.16 release-source example, pos
 
 For a readable note in a desktop vault, follow the [Markdown-to-Obsidian workflow](https://isome.isolated.tech/blog/iphone-location-journal-obsidian/). It covers manual file placement and keeps generated notes separate from personal writing.
 
-[← PreviousPhotos on the map](https://isome.isolated.tech/docs/photos/) [Next →Automatic exports](https://isome.isolated.tech/docs/automatic-exports/)
+[← PreviousPhotos on the map](https://isome.isolated.tech/docs/photos/) [Next →Automatically export iPhone location history to a folder](https://isome.isolated.tech/docs/automatic-exports/)
 
 Source: https://isome.isolated.tech/docs/export-import/
