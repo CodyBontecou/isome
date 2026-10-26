@@ -123,3 +123,23 @@ with CLS 0; reports: `/private/tmp/isome-seo-locale-image-after/`. All 31
 HTML/Markdown pairs pass again. Final visual review also added one explicit
 headline phrase break to remove a lone final character, retaining the words
 and reserved image geometry.
+
+## Final release verification
+
+Final content commit `f370981`, deployment `f2c3819a`:
+https://f2c3819a.spotted-8ez.pages.dev. Both HTML and generated Markdown contain
+the final phrase breaks. The heading's height is unchanged at both 320 and
+1280 px, and the reserved image box remains 194×420 mobile / 240×520 desktop.
+
+All 31 production HTML/Markdown pairs pass again, including cache separation,
+404 recovery, public API/contract, Accept preferences, HEAD, methods, and assets.
+Final Chinese mobile and desktop Lighthouse 13.5.0 score 100 in all four
+categories, with CLS 0. Reports: `/private/tmp/isome-seo-locale-final/`.
+The unchanged English homepage scored 100 in both modes in the post-handoff
+reports. No field-performance, ranking, or indexation gain is claimed.
+
+The latest visual proof is
+`build/seo-evidence/locale-preservation-20261026/chinese-home-live.jpg`.
+Both local preview servers were stopped. The preserved source checkout remains
+untouched; no native app, app binary, new campaign, account permission, DNS,
+scheduled automation, or verification-file route was changed.

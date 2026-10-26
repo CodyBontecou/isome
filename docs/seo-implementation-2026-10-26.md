@@ -216,6 +216,9 @@ Three legacy Worker content overrides were retired after the full Pages release
 was checked; all other zone routes remain unchanged. The live host now serves
 the same homepage-language release as main. A real cold-image layout shift
 was also found and corrected by reserving the Chinese hero’s display box.
+Final deployment `f2c3819a` passes all 31 HTML/Markdown pairs. Both homepages
+have all-100 mobile/desktop Lighthouse results; final Chinese CLS is 0.
+The main build now owns the same complete page set as the live site.
 
 1. Confirm a public app build containing Google import, repeat preview/import/duplicate checks against it, then promote the prepared article and update linked product claims together. Do not publish it merely because source exists.
 2. Capture a real recording-to-GPX-to-viewer workflow, clean-destination restore, and physical Watch-only walk/transfer before claiming those specific workflows newly verified. Existing guides remain explicit about evidence limits.
