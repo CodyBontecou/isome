@@ -44,3 +44,30 @@ and desktop Lighthouse scores are all 100 on all four changed pages.
 This is download-message consistency work, not a measured conversion lift.
 No Apple account change, binary submission, Google indexing request, or
 scheduled follow-up occurred.
+
+## Publication checks
+
+Pushed main content commit `e67d2bb` and published deployment `93a60946` to
+the existing Pages project. All 31 production HTML/Markdown pairs and the
+response/API/cache/error/method/asset contract pass. Six acquisition/redirect
+tests pass. The four live pages have the expected note in HTML and Markdown,
+exact Whereday canonicals, and unchanged campaigns: six home links, five
+journal links, three comparison links, and two GPX links. Production homepage
+fits 320px and 390px, and desktop placement is checked at 1280 × 1000.
+
+All mobile Lighthouse checks and three desktop checks initially scored 100
+in every category. The first desktop comparison run scored performance 92
+with a 5,586ms observed document time-to-first-byte and 3.4s speed index; CLS
+and total blocking time were zero. Three independent follow-up document
+header waits were 0.840s, 0.333s, and 0.674s. One focused desktop comparison
+recheck scored 100 in every category, with no code/configuration change.
+The initial report is preserved; its delay cause was not established.
+
+Reports: `/private/tmp/whereday-store-name-local/`,
+`/private/tmp/whereday-store-name-production/`, and
+`/private/tmp/whereday-store-name-comparison-recheck/`.
+Live verification and response probes are retained under
+`build/seo-evidence/whereday-store-handoff-20261026/`; screenshot `live.jpg`.
+A larger PNG screenshot could not be saved through a shell argument due to
+the process argument-size limit; the final JPEG was saved successfully.
+The local preview server was stopped after verification.

@@ -37,6 +37,10 @@ beside download paths. Campaigns, app identity, pricing, and Whereday canonicals
 remain unchanged. All four fit 320/390 px and have all-100 local mobile/desktop
 Lighthouse results. Remove the temporary note only after verifying the public
 listing's new name. See [the handoff record](qa/seo-whereday-store-handoff-2026-10-26.md).
+Published main commit `e67d2bb` as deployment `93a60946`; all 31 production
+response pairs and exact note/campaign/canonical checks pass. Final
+mobile/desktop Lighthouse results are all 100, with one initial desktop
+comparison slow-document outlier retained in the record.
 
 ## Deployed
 
