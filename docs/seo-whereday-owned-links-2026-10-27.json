@@ -1,0 +1,51 @@
+{
+  "checked_on": "2026-10-27",
+  "timezone": "America/Puerto_Rico",
+  "before": [
+    {
+      "description": "Source code of the iso.me iOS app",
+      "homepageUrl": "https://apps.apple.com/us/app/iso-me/id6761960794",
+      "name": "isome",
+      "url": "https://github.com/CodyBontecou/isome"
+    },
+    {
+      "description": "Obsidian plugin that renders Leaflet maps inline from iso.me location exports \u2014 visits, routes, and heatmaps.",
+      "homepageUrl": "",
+      "name": "isome-maps",
+      "url": "https://github.com/CodyBontecou/isome-maps"
+    }
+  ],
+  "after": [
+    {
+      "description": "Source code for Whereday (formerly iso.me), a private iPhone and Apple Watch location journal.",
+      "homepageUrl": "https://whereday.com",
+      "name": "isome",
+      "url": "https://github.com/CodyBontecou/isome"
+    },
+    {
+      "description": "Obsidian plugin that renders Leaflet maps inline from iso.me location exports \u2014 visits, routes, and heatmaps.",
+      "homepageUrl": "https://whereday.com/blog/iphone-location-journal-obsidian/#map-plugin",
+      "name": "isome-maps",
+      "url": "https://github.com/CodyBontecou/isome-maps"
+    }
+  ],
+  "verified_destinations": [
+    {
+      "url": "https://whereday.com/",
+      "status": 200,
+      "self_canonical": true
+    },
+    {
+      "url": "https://whereday.com/blog/iphone-location-journal-obsidian/",
+      "status": 200,
+      "self_canonical": true,
+      "fragment": "map-plugin",
+      "fragment_exists": true
+    }
+  ],
+  "repository_slugs_changed": false,
+  "repository_source_changed": false,
+  "permissions_changed": false,
+  "website_deployed": false,
+  "ranking_or_traffic_effect_measured": false
+}

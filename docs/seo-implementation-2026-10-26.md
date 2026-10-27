@@ -42,6 +42,16 @@ response pairs and exact note/campaign/canonical checks pass. Final
 mobile/desktop Lighthouse results are all 100, with one initial desktop
 comparison slow-document outlier retained in the record.
 
+## Owned GitHub listing links after the move
+
+On October 27, the main app repository's About description was updated to
+Whereday (formerly iso.me), and its website field now links to whereday.com.
+The existing Maps plugin listing now links directly to the checked desktop
+setup section. Repository slugs, plugin identity/description, source, and
+permissions are unchanged. Saved values and both live destinations are
+verified; no website deployment or ranking result is claimed. See
+[the owned-link record](qa/seo-whereday-owned-links-2026-10-27.md).
+
 ## Deployed
 
 Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `9b4b2698` ([snapshot](https://9b4b2698.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.
