@@ -18,6 +18,17 @@ remain processing; no completed index migration or traffic improvement is
 claimed. Keep the DNS proof and direct old-host redirects. See
 [the Search Console record](qa/seo-whereday-search-console-2026-10-26.md).
 
+## Initial Whereday indexing and live-crawl check
+
+Google URL Inspection confirms the new homepage is indexed, with a successful
+Googlebot smartphone crawl and Google-selected canonical equal to the inspected
+HTTPS URL. The journal, Google comparison, and GPX pages are discovered but
+not indexed; all three pass Google's live smartphone fetch with the expected
+new-host canonical and crawl/index permission. Independent HTTP checks and
+old-host redirects pass for all four. This is a four-page sample, not a
+sitewide indexed count or a traffic result. No production change or indexing
+request was made. See [the crawl record](qa/seo-whereday-google-crawl-2026-10-26.md).
+
 ## Deployed
 
 Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `9b4b2698` ([snapshot](https://9b4b2698.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.

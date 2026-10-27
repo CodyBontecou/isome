@@ -1,0 +1,107 @@
+{
+  "checked_on_local": "2026-10-26",
+  "timezone": "America/Puerto_Rico",
+  "property": "sc-domain:whereday.com",
+  "sample_size": 4,
+  "pages": [
+    {
+      "url": "https://whereday.com/",
+      "status": 200,
+      "canonical": [
+        "https://whereday.com/"
+      ],
+      "robots": [
+        "index,follow"
+      ],
+      "x_robots_tag": null,
+      "old_host_status": 301,
+      "old_host_location": "https://whereday.com/",
+      "indexed_state": "indexed",
+      "google_index_crawl": "Oct 26, 2026, 8:06:56 PM (UI)",
+      "declared_canonical": "https://whereday.com/",
+      "google_selected_canonical": "inspected URL",
+      "google_live_test": null
+    },
+    {
+      "url": "https://whereday.com/blog/private-location-journal-iphone/",
+      "status": 200,
+      "canonical": [
+        "https://whereday.com/blog/private-location-journal-iphone/"
+      ],
+      "robots": [
+        "index,follow"
+      ],
+      "x_robots_tag": null,
+      "old_host_status": 301,
+      "old_host_location": "https://whereday.com/blog/private-location-journal-iphone/",
+      "indexed_state": "discovered, currently not indexed",
+      "google_index_crawl": null,
+      "declared_canonical": "https://whereday.com/blog/private-location-journal-iphone/",
+      "google_selected_canonical": "not determined; page not indexed",
+      "google_live_test": {
+        "status": "URL is available to Google",
+        "tested_at_ui": "Oct 26, 2026, 8:12:55 PM",
+        "crawler": "Google Inspection Tool smartphone",
+        "crawl_allowed": true,
+        "fetch": "successful",
+        "indexing_allowed": true,
+        "valid_breadcrumbs": 1
+      }
+    },
+    {
+      "url": "https://whereday.com/compare/google-maps-timeline/",
+      "status": 200,
+      "canonical": [
+        "https://whereday.com/compare/google-maps-timeline/"
+      ],
+      "robots": [
+        "index,follow"
+      ],
+      "x_robots_tag": null,
+      "old_host_status": 301,
+      "old_host_location": "https://whereday.com/compare/google-maps-timeline/",
+      "indexed_state": "discovered, currently not indexed",
+      "google_index_crawl": null,
+      "declared_canonical": "https://whereday.com/compare/google-maps-timeline/",
+      "google_selected_canonical": "not determined; page not indexed",
+      "google_live_test": {
+        "status": "URL is available to Google",
+        "tested_at_ui": "Oct 26, 2026, 8:13:42 PM",
+        "crawler": "Google Inspection Tool smartphone",
+        "crawl_allowed": true,
+        "fetch": "successful",
+        "indexing_allowed": true,
+        "valid_breadcrumbs": 1
+      }
+    },
+    {
+      "url": "https://whereday.com/blog/record-iphone-route-gpx/",
+      "status": 200,
+      "canonical": [
+        "https://whereday.com/blog/record-iphone-route-gpx/"
+      ],
+      "robots": [
+        "index,follow"
+      ],
+      "x_robots_tag": null,
+      "old_host_status": 301,
+      "old_host_location": "https://whereday.com/blog/record-iphone-route-gpx/",
+      "indexed_state": "discovered, currently not indexed",
+      "google_index_crawl": null,
+      "declared_canonical": "https://whereday.com/blog/record-iphone-route-gpx/",
+      "google_selected_canonical": "not determined; page not indexed",
+      "google_live_test": {
+        "status": "URL is available to Google",
+        "tested_at_ui": "Oct 26, 2026, 8:14:29 PM",
+        "crawler": "Google Inspection Tool smartphone",
+        "crawl_allowed": true,
+        "fetch": "successful",
+        "indexing_allowed": true,
+        "valid_breadcrumbs": 1
+      }
+    }
+  ],
+  "indexing_requests": 0,
+  "production_changes": false,
+  "interpretation": "Homepage confirmed indexed; sampled articles discovered and live-fetchable. No sitewide indexed count or ranking effect inferred."
+}
