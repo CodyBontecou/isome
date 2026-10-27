@@ -7,6 +7,8 @@ Start tracking to record your own routes and detect visits, then review the day 
 
 [  Download free ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8) [See how it works](https://whereday.com/#inside)
 
+Whereday is currently listed as iso.me in the U.S. App Store.
+
 Free download and free tracking. Lifetime export access is $19.99 Individual or $39.99 with Apple Family Sharing in the U.S. App Store; local prices reflect purchasing power.
 
 Free
@@ -201,6 +203,8 @@ Recording and review are free. File export uses an optional lifetime purchase; s
 ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
 
 [Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
+
+Whereday is currently listed as iso.me in the U.S. App Store.
 
 § 02 Why people install it
 
@@ -402,6 +406,8 @@ Individual Lifetime. Family Lifetime is $39.99, and the later Family Upgrade is 
 - Apple paymentsHandled by App Store
 
 [Get Whereday on the App Store](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
+
+Whereday is currently listed as iso.me in the U.S. App Store.
 
 § 06 FAQ
 

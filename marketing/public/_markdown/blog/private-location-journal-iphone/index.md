@@ -6,6 +6,8 @@ To keep a private location journal on iPhone, enable recording in Whereday, chec
 
 [Start the checklist](https://whereday.com/blog/private-location-journal-iphone/#setup) [Get Whereday](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 
+Whereday is currently listed as iso.me in the U.S. App Store.
+
 Private journal setup
 
 Local-first
@@ -194,6 +196,8 @@ Used that way, a private location journal is quietly valuable. It gives you the 
 ## Start with a local journal.
 
 Download Whereday, keep your working location history on your iPhone, and export when you need a portable copy.
+
+Whereday is currently listed as iso.me in the U.S. App Store.
 
 [Get Whereday](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-private-journal&mt=8)
 

@@ -25,6 +25,11 @@ its generator. Edit the newer articles and comparison in `content/`, with their
 metadata in `scripts/build_seo_pages.py`, then rebuild. Do not patch only the
 generated versions.
 
+The four measured acquisition pages carry a temporary `store-listing-note`
+while Apple's public US listing still uses iso.me. Remove those notes only
+after the public listing is verified as Whereday, then rebuild HTML/Markdown.
+See [the handoff record](../docs/qa/seo-whereday-store-handoff-2026-10-26.md).
+
 Content review dates are explicit. When materially updating a page, update its
 visible date and structured data, plus the corresponding date entries in the
 build scripts. Do not refresh every page's date to signal activity.

@@ -10,6 +10,8 @@ Choose a location journal by the way you record, review, and keep a copy of your
 
 By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed October 26, 2026
 
+Whereday is currently listed as iso.me in the U.S. App Store.
+
 ## An alternative for your next recorded day
 
 Whereday is an iPhone location journal for people who want to record their own visits and routes without a Google account. Recording is free. A one-time purchase unlocks file exports, scheduled exports, and webhooks.

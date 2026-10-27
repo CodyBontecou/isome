@@ -10,6 +10,8 @@ Start tracking in Whereday, stop after your trip, then select Points and GPX in 
 
 By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed October 26, 2026
 
+Whereday is currently listed as iso.me in the U.S. App Store.
+
 ## Record first, then export the points
 
 To record an iPhone route as GPX with Whereday, start tracking before your trip, stop when you finish, then choose Points and GPX in Export. Select the right date range, preview the result, and save the file to Files or share it with a compatible route viewer.

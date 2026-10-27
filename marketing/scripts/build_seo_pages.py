@@ -238,6 +238,11 @@ def render(page):
     webpage = {"@type": "WebPage", "@id": url, "url": url, "name": page["title"], "description": page["description"], "inLanguage": "en", "dateModified": REVIEWED, "author": {"@type": "Person", "name": "Cody Bontecou", "url": "https://isolated.tech"}}
     if is_article:
         webpage.update({"@type": "BlogPosting", "headline": page["headline"], "datePublished": REVIEWED, "mainEntityOfPage": url, "image": image, "publisher": {"@type": "Organization", "name": "isolated.tech", "url": "https://isolated.tech"}})
+    # Remove this temporary handoff note only after the public listing is verified
+    # as Whereday. The editable App Store draft is not release evidence.
+    store_notice = ('<p class="source-note store-listing-note">Whereday is currently listed as '
+                    '<strong>iso.me</strong> in the U.S. App Store.</p>') if path in {
+                        '/compare/google-maps-timeline/', '/blog/record-iphone-route-gpx/'} else ''
     schema = json.dumps({"@context": "https://schema.org", "@graph": [webpage, breadcrumb]}, ensure_ascii=False, indent=2)
     nav_crumbs = "".join(f'<li>{escape(name)}</li>' if target == path else f'<li><a href="{target}">{escape(name)}</a></li>' for name, target in crumbs)
     # Preserve the site's existing production-host and analytics-gate behavior.
@@ -277,7 +282,7 @@ def render(page):
   <main id="main">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol>{nav_crumbs}</ol></nav>
     {'<article aria-labelledby="article-title">' if is_article else ''}
-    <header><p class="eyebrow">{'Practical iPhone guides' if is_article else 'iPhone location journals'}</p><h1 id="article-title">{escape(page["headline"])}</h1><p class="lede">{escape(page["lede"])}</p><p class="byline">By <a href="https://isolated.tech">Cody Bontecou</a>, Whereday’s developer · Reviewed <time datetime="{REVIEWED}">October 26, 2026</time></p></header>
+    <header><p class="eyebrow">{'Practical iPhone guides' if is_article else 'iPhone location journals'}</p><h1 id="article-title">{escape(page["headline"])}</h1><p class="lede">{escape(page["lede"])}</p><p class="byline">By <a href="https://isolated.tech">Cody Bontecou</a>, Whereday’s developer · Reviewed <time datetime="{REVIEWED}">October 26, 2026</time></p>{store_notice}</header>
     {content}
     {'</article>' if is_article else ''}
     {related_navigation(path)}

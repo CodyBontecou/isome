@@ -29,6 +29,15 @@ old-host redirects pass for all four. This is a four-page sample, not a
 sitewide indexed count or a traffic result. No production change or indexing
 request was made. See [the crawl record](qa/seo-whereday-google-crawl-2026-10-26.md).
 
+## Whereday download identity during the rename
+
+Apple's public US listing still uses iso.me 1.7.16. The homepage, original
+journal, Google comparison, and GPX guide now explain that naming difference
+beside download paths. Campaigns, app identity, pricing, and Whereday canonicals
+remain unchanged. All four fit 320/390 px and have all-100 local mobile/desktop
+Lighthouse results. Remove the temporary note only after verifying the public
+listing's new name. See [the handoff record](qa/seo-whereday-store-handoff-2026-10-26.md).
+
 ## Deployed
 
 Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `9b4b2698` ([snapshot](https://9b4b2698.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.
