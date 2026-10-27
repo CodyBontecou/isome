@@ -8,6 +8,16 @@ See [the migration audit](qa/seo-whereday-host-migration-2026-10-26.md).
 
 October 26, 2026. Implements the available first release of [the prioritized plan](isome-seo-priorities-2026-10-26.md). Later product releases, physical workflow checks, and traffic observation remain separate gates; this does not claim the full 60-day plan is finished.
 
+## Whereday Search Console migration
+
+Ownership of the Whereday domain property is verified by manual DNS TXT.
+Google processed the new-host sitemap successfully and discovered all 31 pages.
+The old product subdomain's Change of Address checks passed and the move to
+Whereday is confirmed on both properties. Indexing and performance reports
+remain processing; no completed index migration or traffic improvement is
+claimed. Keep the DNS proof and direct old-host redirects. See
+[the Search Console record](qa/seo-whereday-search-console-2026-10-26.md).
+
 ## Deployed
 
 Production: **https://isome.isolated.tech/**. Cloudflare Pages project: `spotted`. Final deployment: `9b4b2698` ([snapshot](https://9b4b2698.spotted-8ez.pages.dev)). Prior production before this batch: `9770175a`. The site now has 28 sitemap pages plus its excluded 404 template.

@@ -1,0 +1,36 @@
+{
+  "checked_on_local": "2026-10-26",
+  "timezone": "America/Puerto_Rico",
+  "observed_at_utc": "2026-10-27T00:09:53Z",
+  "source_property": "https://isome.isolated.tech/",
+  "destination_property": "sc-domain:whereday.com",
+  "ownership": {
+    "status": "verified",
+    "method": "manual DNS TXT",
+    "dns_ttl": "Auto",
+    "dns_account_delegation_to_google": false
+  },
+  "sitemap": {
+    "url": "https://whereday.com/sitemap.xml",
+    "status": "processed successfully",
+    "discovered_pages": 31,
+    "discovered_videos": 0,
+    "submissions": 1,
+    "last_read_ui": "10/26/26"
+  },
+  "move": {
+    "status": "started",
+    "required_checks": [
+      "homepage 301 redirect",
+      "verification for both sites"
+    ],
+    "google_started_date_ui": "October 27, 2026",
+    "source_notice_confirmed": true,
+    "destination_notice_confirmed": true
+  },
+  "indexing_status": "reports processing; indexed count unavailable",
+  "performance_status": "reports processing",
+  "individual_indexing_requests": 0,
+  "site_deployment": false,
+  "app_submission_or_release": false
+}

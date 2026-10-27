@@ -60,3 +60,11 @@ Apple's US public lookup still reports iso.me 1.7.16, released at
 The prepared Google import article stays gated until a supporting public build
 and its import workflow are verified. Physical GPX/restore/Watch and mobile or
 scheduled integration checks remain open.
+
+## Search Console follow-up
+
+The subsequent owner-requested migration verified Whereday by DNS, processed
+the sitemap with 31 discovered pages, and started the Change of Address from
+the old product subdomain. Both properties display the accepted move. See
+[the Search Console record](seo-whereday-search-console-2026-10-26.md).
+Indexing and performance data remain processing.
