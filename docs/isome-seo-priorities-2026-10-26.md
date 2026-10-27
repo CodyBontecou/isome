@@ -1,5 +1,11 @@
 # iso.me SEO priorities after the first guide release
 
+**Current operating base:** Whereday at https://whereday.com. The owner approved
+PR #85, now merged on main as `1482f80`. Old-host URLs redirect with paths and
+queries preserved. The earlier host/product references below are historical
+plan and deployment records. Use Whereday main for all future website work.
+See [the migration audit](qa/seo-whereday-host-migration-2026-10-26.md).
+
 Reviewed October 26, 2026. This supersedes the outstanding-work list in [the original plan](isome-seo-plan-2026-10-26.md). The audit below is the pre-implementation assessment. See [implementation and release results](seo-implementation-2026-10-26.md) for deployed changes, verified release facts, and the remaining gates.
 
 ## Decision

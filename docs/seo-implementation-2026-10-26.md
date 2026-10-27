@@ -1,5 +1,11 @@
 # SEO implementation and release results
 
+**Current operating base:** Whereday at https://whereday.com. The owner approved
+PR #85, now merged on main as `1482f80`. Old-host URLs redirect with paths and
+queries preserved. The earlier host/product references below are historical
+plan and deployment records. Use Whereday main for all future website work.
+See [the migration audit](qa/seo-whereday-host-migration-2026-10-26.md).
+
 October 26, 2026. Implements the available first release of [the prioritized plan](isome-seo-priorities-2026-10-26.md). Later product releases, physical workflow checks, and traffic observation remain separate gates; this does not claim the full 60-day plan is finished.
 
 ## Deployed

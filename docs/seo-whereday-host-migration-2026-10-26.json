@@ -1,0 +1,537 @@
+{
+  "checked_at": "2026-10-26T23:57:35.854985+00:00",
+  "pages": [
+    {
+      "path": "/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true,
+        "home_languages": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/about",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/back-up-iphone-location-history/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/iphone-location-journal-obsidian/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/iphone-location-tracking-battery/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/missing-location-history-iphone/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/private-location-journal-iphone/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/record-iphone-route-gpx/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/track-days-in-country-iphone/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/blog/view-location-history-iphone/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/compare/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/compare/google-maps-timeline/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/contact",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/apple-watch/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/automatic-exports/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/export-import/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/getting-started/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/photos/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/places/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/privacy-data/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/siri-shortcuts/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/timeline-outings/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/tracking/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/docs/webhooks/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/integrations/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/integrations/dawarich/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/privacy",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/terms",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true
+      },
+      "failed": []
+    },
+    {
+      "path": "/zh-hans/",
+      "checks": {
+        "html_200": true,
+        "self_canonical": true,
+        "one_h1": true,
+        "markdown_200": true,
+        "markdown_type": true,
+        "markdown_source": true,
+        "no_old_markdown_links": true,
+        "old_301": true,
+        "direct_destination": true,
+        "download_link_present": true,
+        "home_languages": true
+      },
+      "failed": []
+    }
+  ],
+  "redirect_probes": [
+    {
+      "path": "/blog/record-iphone-route-gpx/?migration_probe=seo",
+      "status": 301,
+      "location": "https://whereday.com/blog/record-iphone-route-gpx/?migration_probe=seo",
+      "passed": true
+    },
+    {
+      "path": "/samples/synthetic-ui-export.gpx",
+      "status": 301,
+      "location": "https://whereday.com/samples/synthetic-ui-export.gpx",
+      "passed": true
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 301,
+      "location": "https://whereday.com/sitemap.xml",
+      "passed": true
+    },
+    {
+      "path": "/robots.txt",
+      "status": 301,
+      "location": "https://whereday.com/robots.txt",
+      "passed": true
+    },
+    {
+      "path": "/api/v1/product",
+      "status": 301,
+      "location": "https://whereday.com/api/v1/product",
+      "passed": true
+    }
+  ],
+  "robots_sitemap": true,
+  "failures": []
+}
