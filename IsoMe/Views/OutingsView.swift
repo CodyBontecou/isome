@@ -7,6 +7,7 @@ struct OutingsView: View {
     @Bindable var viewModel: LocationViewModel
     let onShowOnMap: () -> Void
 
+    @State private var calendarDraft: CalendarEventDraft?
     @State private var selectedDate = Date()
     @State private var hasLoadedSessions = false
     @State private var hasAutoSelectedInitialTimelineDate = false
@@ -150,6 +151,9 @@ struct OutingsView: View {
                         .tracking(3)
                         .foregroundStyle(TE.textMuted)
                 }
+            }
+            .sheet(item: $calendarDraft) { draft in
+                CalendarEventEditor(draft: draft)
             }
             .task {
                 refreshTimelineData()
@@ -380,6 +384,11 @@ struct OutingsView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button("Add Event to Calendar", systemImage: "calendar.badge.plus") {
+                                calendarDraft = CalendarEventDraft(session: session)
+                            }
+                        }
 
                     case .visit(let visit):
                         NavigationLink {
@@ -388,6 +397,11 @@ struct OutingsView: View {
                             TimelineVisitCard(visit: visit, isCurrent: viewModel.isCurrentVisit(visit))
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button("Add Event to Calendar", systemImage: "calendar.badge.plus") {
+                                calendarDraft = CalendarEventDraft(visit: visit)
+                            }
+                        }
                     }
                 }
             }
@@ -1469,6 +1483,9 @@ private struct RecordingSessionDetailView: View {
             .padding(.horizontal, 16)
 
             VStack(spacing: 10) {
+                AddEventToCalendarButton { CalendarEventDraft(session: session) }
+                    .tint(TE.accent)
+
                 Button {
                     showPhotoMarkersOnMap = true
                     viewModel.focusMap(on: session)
