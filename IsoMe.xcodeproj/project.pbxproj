@@ -156,6 +156,8 @@
 		76AB00000000000000000022 /* ManualVisitRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000021 /* ManualVisitRoute.swift */; };
 		76AB00000000000000000032 /* ManualVisitAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000031 /* ManualVisitAutomationTests.swift */; };
 		76CE00000000000000000002 /* manual-visit-shortcuts.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 76CE00000000000000000001 /* manual-visit-shortcuts.mp4 */; };
+		CA1E00860000000000000001 /* CalendarEventEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1E00860000000000000002 /* CalendarEventEditor.swift */; };
+		CA1E00860000000000000003 /* CalendarEventDraftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1E00860000000000000004 /* CalendarEventDraftTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -373,6 +375,8 @@
 		76AB00000000000000000021 /* ManualVisitRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitRoute.swift; sourceTree = "<group>"; };
 		76AB00000000000000000031 /* ManualVisitAutomationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitAutomationTests.swift; sourceTree = "<group>"; };
 		76CE00000000000000000001 /* manual-visit-shortcuts.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "manual-visit-shortcuts.mp4"; sourceTree = "<group>"; };
+		CA1E00860000000000000002 /* CalendarEventEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventEditor.swift; sourceTree = "<group>"; };
+		CA1E00860000000000000004 /* CalendarEventDraftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventDraftTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -585,6 +589,7 @@
 				A100000C212F00000000000C /* SettingsView.swift */,
 				2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */,
 				CC1090010000000000000002 /* MyselfClaimView.swift */,
+				CA1E00860000000000000002 /* CalendarEventEditor.swift */,
 				A100000D212F00000000000D /* VisitDetailView.swift */,
 				9DE47A9C94C8FC4C2E32835B /* SessionPathMapView.swift */,
 				59397DEAA02FEF6A5B6FA476 /* PaywallView.swift */,
@@ -683,6 +688,7 @@
 				A06500000000000000000001 /* PhotoMapMarkerTests.swift */,
 				C0DE0304212F000000000304 /* CountryDayTests.swift */,
 				C0DE04020000000000000001 /* WatchLocationSyncTests.swift */,
+				CA1E00860000000000000004 /* CalendarEventDraftTests.swift */,
 				E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */,
 				EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */,
 				3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */,
@@ -978,6 +984,7 @@
 				A100000C212F00010000000C /* SettingsView.swift in Sources */,
 				2CC3A28B9A3146D59DF28C11 /* ImportPreviewView.swift in Sources */,
 				CC1090010000000000000001 /* MyselfClaimView.swift in Sources */,
+				CA1E00860000000000000001 /* CalendarEventEditor.swift in Sources */,
 				A100000D212F00010000000D /* VisitDetailView.swift in Sources */,
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
 				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,
@@ -1063,6 +1070,7 @@
 				A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */,
 				C0DE0304212F000100000304 /* CountryDayTests.swift in Sources */,
 				C0DE04020000000000000002 /* WatchLocationSyncTests.swift in Sources */,
+				CA1E00860000000000000003 /* CalendarEventDraftTests.swift in Sources */,
 				34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */,
 				A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */,
 				54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */,
@@ -1283,7 +1291,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1316,7 +1324,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1348,7 +1356,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday Widget";
@@ -1375,7 +1383,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday Widget";
@@ -1402,7 +1410,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
@@ -1431,7 +1439,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
@@ -1460,7 +1468,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
@@ -1489,7 +1497,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
