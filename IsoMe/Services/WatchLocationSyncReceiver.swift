@@ -9,9 +9,17 @@ final class WatchLocationSyncReceiver: NSObject, ObservableObject {
     private let decoder = JSONDecoder()
     private var modelContext: ModelContext?
     private var isActivated = false
+    private var visitObservers: [NSObjectProtocol] = []
 
     func configure(modelContainer: ModelContainer, activatesConnectivity: Bool = true) {
         modelContext = modelContainer.mainContext
+        if visitObservers.isEmpty {
+            for name in [Notification.Name.manualVisitsChanged, .watchLocationDataImported, .appDidBecomeActive] {
+                visitObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                    Task { @MainActor in self?.publishManualVisitSnapshot() }
+                })
+            }
+        }
         #if DEBUG && targetEnvironment(simulator)
         if ProcessInfo.processInfo.arguments.contains("--watch-sync-replay") {
             replaySimulatorSnapshot()
@@ -211,6 +219,44 @@ final class WatchLocationSyncReceiver: NSObject, ObservableObject {
         return importPayload(payload)
     }
 
+    func manualVisitReplyData(_ data: Data) -> Data? {
+        guard let command = try? decoder.decode(WatchVisitCommand.self, from: data) else { return nil }
+        guard let modelContext else {
+            return try? encoder.encode(WatchVisitReply(result: WatchVisitCommandResult(commandID: command.id,
+                deviceID: command.deviceID, outcome: .retryable,
+                message: String(localized: "The iPhone data store is not ready yet."))))
+        }
+        let processor = WatchVisitCommandProcessor(context: ModelContext(modelContext.container))
+        let result = processor.process(command)
+        return try? encoder.encode(WatchVisitReply(result: result, snapshot: try? processor.snapshot()))
+    }
+
+    private func manualVisitSnapshotData() -> Data? {
+        guard let modelContext, let snapshot = try? WatchVisitCommandProcessor(context: ModelContext(modelContext.container)).snapshot() else { return nil }
+        var shared = SharedLocationData.load() ?? .empty
+        shared.manualVisitStatus = snapshot.status
+        shared.save()
+        return try? encoder.encode(snapshot)
+    }
+
+    func publishManualVisitSnapshot() {
+        guard WCSession.isSupported(), WCSession.default.activationState == .activated,
+              WCSession.default.isWatchAppInstalled, let data = manualVisitSnapshotData() else { return }
+        var applicationContext = WCSession.default.applicationContext
+        applicationContext[WatchVisitTransport.snapshotKey] = data
+        try? WCSession.default.updateApplicationContext(applicationContext)
+    }
+
+    private func sendManualVisitReply(_ data: Data) {
+        guard WCSession.isSupported(), WCSession.default.activationState == .activated,
+              WCSession.default.isWatchAppInstalled else { return }
+        WCSession.default.transferUserInfo([WatchVisitTransport.replyKey: data])
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessageData(data, replyHandler: nil, errorHandler: nil)
+        }
+        publishManualVisitSnapshot()
+    }
+
     private func sendAck(_ ack: WatchLocationSyncAck) {
         guard ack.succeeded else { return }
         guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
@@ -255,7 +301,7 @@ final class WatchLocationSyncReceiver: NSObject, ObservableObject {
 
 extension WatchLocationSyncReceiver: WCSessionDelegate {
     nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        // No-op; receiving queued userInfo after activation drives imports.
+        Task { @MainActor [weak self] in self?.publishManualVisitSnapshot() }
     }
 
     nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
@@ -266,22 +312,44 @@ extension WatchLocationSyncReceiver: WCSessionDelegate {
 
     nonisolated func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
         Task { @MainActor [weak self] in
-            guard let ack = self?.importPayloadData(messageData) else { return }
-            self?.sendAck(ack)
+            guard let self else { return }
+            if let reply = manualVisitReplyData(messageData) { sendManualVisitReply(reply); return }
+            guard let ack = importPayloadData(messageData) else { return }
+            sendAck(ack)
         }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessageData messageData: Data, replyHandler: @escaping (Data) -> Void) {
         Task { @MainActor [weak self] in
-            guard let self,
-                  let ack = importPayloadData(messageData),
+            guard let self else { return }
+            if let reply = manualVisitReplyData(messageData) { replyHandler(reply); sendManualVisitReply(reply); return }
+            guard let ack = importPayloadData(messageData),
                   let ackData = try? encoder.encode(ack) else { return }
             replyHandler(ackData)
             sendAck(ack)
         }
     }
 
+    nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        guard message[WatchVisitTransport.snapshotRequestKey] as? Bool == true else { replyHandler([:]); return }
+        Task { @MainActor [weak self] in
+            guard let data = self?.manualVisitSnapshotData() else { replyHandler([:]); return }
+            replyHandler([WatchVisitTransport.snapshotKey: data])
+        }
+    }
+
     nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        if let command = userInfo[WatchVisitTransport.commandKey] as? Data {
+            Task { @MainActor [weak self] in
+                guard let self, let reply = manualVisitReplyData(command) else { return }
+                sendManualVisitReply(reply)
+            }
+            return
+        }
+        if userInfo[WatchVisitTransport.snapshotRequestKey] as? Bool == true {
+            Task { @MainActor [weak self] in self?.publishManualVisitSnapshot() }
+            return
+        }
         guard let data = userInfo[WatchLocationSyncTransport.payloadUserInfoKey] as? Data else { return }
         Task { @MainActor [weak self] in
             guard let ack = self?.importPayloadData(data) else { return }

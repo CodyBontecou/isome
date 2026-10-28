@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 enum IntentSupport {
     /// A dedicated container for intent-side reads. Uses the same on-disk store as the app.
     static let modelContainer: ModelContainer = {
-        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, CountryStay.self])
+        let schema = Schema([Visit.self, LocationPoint.self, RecordingSession.self, PhotoMoment.self, SavedPlace.self, WatchVisitCommandReceipt.self, CountryStay.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
         do {
             return try ModelContainer(for: schema, configurations: [config])

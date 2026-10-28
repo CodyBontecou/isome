@@ -36,7 +36,8 @@ final class ManualVisitStore {
         arrivedAt: Date,
         departedAt: Date?,
         placeSource: VisitPlaceSource = .userEntered,
-        allowOverlap: Bool = false
+        allowOverlap: Bool = false,
+        id: UUID = UUID(), beforeSave: ((Visit) -> Void)? = nil
     ) -> Visit? {
         visitMutationError = nil
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -51,7 +52,7 @@ final class ManualVisitStore {
 
         let now = Date()
         let visit = Visit(
-            latitude: coordinate.latitude,
+            id: id, latitude: coordinate.latitude,
             longitude: coordinate.longitude,
             arrivedAt: arrivedAt,
             departedAt: departedAt,
@@ -65,6 +66,7 @@ final class ManualVisitStore {
             placeSource: placeSource
         )
         modelContext.insert(visit)
+        beforeSave?(visit)
         do {
             try modelContext.save()
         } catch {
@@ -73,6 +75,7 @@ final class ManualVisitStore {
             return nil
         }
         refreshSharedVisitCount()
+        NotificationCenter.default.post(name: .manualVisitsChanged, object: nil)
         return visit
     }
 
@@ -138,7 +141,7 @@ final class ManualVisitStore {
         _ visit: Visit,
         arrivedAt: Date,
         departedAt: Date?,
-        allowOverlap: Bool = false
+        allowOverlap: Bool = false, beforeSave: (() -> Void)? = nil
     ) -> Bool {
         visitMutationError = nil
         guard validateVisitTimes(
@@ -153,6 +156,7 @@ final class ManualVisitStore {
         visit.departedAt = departedAt
         visit.countryDepartureIsInferred = false
         visit.updatedAt = Date()
+        beforeSave?()
         do {
             try modelContext.save()
         } catch {
@@ -160,11 +164,12 @@ final class ManualVisitStore {
             visitMutationError = .persistence
             return false
         }
+        NotificationCenter.default.post(name: .manualVisitsChanged, object: nil)
         return true
     }
 
     @discardableResult
-    func checkoutVisit(_ visit: Visit, at date: Date = Date()) -> Bool {
+    func checkoutVisit(_ visit: Visit, at date: Date = Date(), beforeSave: (() -> Void)? = nil) -> Bool {
         visitMutationError = nil
         guard visit.source == .manual, visit.departedAt == nil,
               date >= visit.arrivedAt, date <= Date() else {
@@ -173,7 +178,7 @@ final class ManualVisitStore {
         }
         // Closing an existing visit cannot add an overlap, even if the user chose
         // to save overlapping records earlier.
-        return updateVisitTimes(visit, arrivedAt: visit.arrivedAt, departedAt: date, allowOverlap: true)
+        return updateVisitTimes(visit, arrivedAt: visit.arrivedAt, departedAt: date, allowOverlap: true, beforeSave: beforeSave)
     }
 
 }

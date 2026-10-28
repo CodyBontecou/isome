@@ -14,6 +14,7 @@ struct SharedLocationData: Codable {
     var trackingStartTime: Date?
     var stopAfterHours: Double?
     var usesMetricDistanceUnits: Bool? = nil
+    var manualVisitStatus: WatchManualVisitStatus? = nil
 
     static let appGroupIdentifier = "group.com.bontecou.isome"
     private static let userDefaultsKey = "sharedLocationData"

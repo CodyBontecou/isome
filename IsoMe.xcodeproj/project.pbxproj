@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75CA00000000000000009902 /* WatchManualVisitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000009901 /* WatchManualVisitTests.swift */; };
 		F2DCEC8ADF4641F4AFEBB1BA /* TimelineImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */; };
 		2CC3A28B9A3146D59DF28C11 /* ImportPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */; };
 		D4F646027F3544B28CA1C8ED /* TimelineImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF988D99D664DF8A3F3B0B4 /* TimelineImportService.swift */; };
@@ -156,6 +157,12 @@
 		76AB00000000000000000022 /* ManualVisitRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000021 /* ManualVisitRoute.swift */; };
 		76AB00000000000000000032 /* ManualVisitAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AB00000000000000000031 /* ManualVisitAutomationTests.swift */; };
 		76CE00000000000000000002 /* manual-visit-shortcuts.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 76CE00000000000000000001 /* manual-visit-shortcuts.mp4 */; };
+		75CA00000000000000000002 /* WatchVisitCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000001 /* WatchVisitCommands.swift */; };
+		75CA00000000000000000003 /* WatchVisitCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000001 /* WatchVisitCommands.swift */; };
+		75CA00000000000000000004 /* WatchVisitCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000001 /* WatchVisitCommands.swift */; };
+		75CA00000000000000000102 /* WatchVisitCommandProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000101 /* WatchVisitCommandProcessor.swift */; };
+		75CA00000000000000000202 /* WatchManualVisitClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000201 /* WatchManualVisitClient.swift */; };
+		75CA00000000000000000302 /* WatchManualVisitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CA00000000000000000301 /* WatchManualVisitView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -226,6 +233,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		75CA00000000000000009901 /* WatchManualVisitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManualVisitTests.swift; sourceTree = "<group>"; };
 		8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportTests.swift; sourceTree = "<group>"; };
 		2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPreviewView.swift; sourceTree = "<group>"; };
 		4EF988D99D664DF8A3F3B0B4 /* TimelineImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportService.swift; sourceTree = "<group>"; };
@@ -373,6 +381,10 @@
 		76AB00000000000000000021 /* ManualVisitRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitRoute.swift; sourceTree = "<group>"; };
 		76AB00000000000000000031 /* ManualVisitAutomationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualVisitAutomationTests.swift; sourceTree = "<group>"; };
 		76CE00000000000000000001 /* manual-visit-shortcuts.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "manual-visit-shortcuts.mp4"; sourceTree = "<group>"; };
+		75CA00000000000000000001 /* WatchVisitCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchVisitCommands.swift; sourceTree = "<group>"; };
+		75CA00000000000000000101 /* WatchVisitCommandProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchVisitCommandProcessor.swift; sourceTree = "<group>"; };
+		75CA00000000000000000201 /* WatchManualVisitClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManualVisitClient.swift; sourceTree = "<group>"; };
+		75CA00000000000000000301 /* WatchManualVisitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManualVisitView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -566,6 +578,7 @@
 				D6000001212F000000000001 /* PushRegistrationManager.swift */,
 				E4E900BDC375415EB884300D /* WebhookManager.swift */,
 				C0DE0206212F000000000206 /* WatchLocationSyncReceiver.swift */,
+				75CA00000000000000000101 /* WatchVisitCommandProcessor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -643,6 +656,8 @@
 				A3000002212F000000000002 /* WatchContentView.swift */,
 				A3000101212F000000000101 /* WatchLocationTracker.swift */,
 				C0DE0204212F000000000204 /* WatchLocationSyncClient.swift */,
+				75CA00000000000000000301 /* WatchManualVisitView.swift */,
+				75CA00000000000000000201 /* WatchManualVisitClient.swift */,
 				A3000003212F000000000003 /* WatchAssets.xcassets */,
 				A3000004212F000000000004 /* WatchInfo.plist */,
 				A3000005212F000000000005 /* IsoMeWatch.entitlements */,
@@ -669,6 +684,7 @@
 			isa = PBXGroup;
 			children = (
 				A100001C212F00000000001C /* SharedLocationData.swift */,
+				75CA00000000000000000001 /* WatchVisitCommands.swift */,
 				A100001D212F00000000001E /* DistanceFormatter.swift */,
 				C0DE0201212F000000000201 /* WatchLocationSyncPayload.swift */,
 				C0DE04010000000000000001 /* WatchLocationSyncState.swift */,
@@ -700,6 +716,7 @@
 				AB000001212F0BB000000B2 /* RenameIntentsTests.swift */,
 				6A1234567890ABCDEF000001 /* LocationViewModelPointScalingTests.swift */,
 				76AB00000000000000000031 /* ManualVisitAutomationTests.swift */,
+				75CA00000000000000009901 /* WatchManualVisitTests.swift */,
 				D2A10003212F000000000003 /* RemotePastVisitTests.swift */,
 				8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */,
 				A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */,
@@ -982,10 +999,12 @@
 				A100001A212F00010000001A /* LocationActivityAttributes.swift in Sources */,
 				A100001B212F00010000001B /* LiveActivityManager.swift in Sources */,
 				A100001C212F00010000001C /* SharedLocationData.swift in Sources */,
+				75CA00000000000000000002 /* WatchVisitCommands.swift in Sources */,
 				A100001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 				C0DE0202212F000100000202 /* WatchLocationSyncPayload.swift in Sources */,
 				C0DE04010000000000000002 /* WatchLocationSyncState.swift in Sources */,
 				C0DE0207212F000100000207 /* WatchLocationSyncReceiver.swift in Sources */,
+				75CA00000000000000000102 /* WatchVisitCommandProcessor.swift in Sources */,
 				90802146303082A8BE935D64 /* SessionPathMapView.swift in Sources */,
 				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
 				AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */,
@@ -1038,7 +1057,10 @@
 				A3000002212F000100000002 /* WatchContentView.swift in Sources */,
 				A3000101212F000100000101 /* WatchLocationTracker.swift in Sources */,
 				C0DE0205212F000100000205 /* WatchLocationSyncClient.swift in Sources */,
+				75CA00000000000000000302 /* WatchManualVisitView.swift in Sources */,
+				75CA00000000000000000202 /* WatchManualVisitClient.swift in Sources */,
 				A3000004212F000100000004 /* SharedLocationData.swift in Sources */,
+				75CA00000000000000000003 /* WatchVisitCommands.swift in Sources */,
 				A300001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 				C0DE0203212F000100000203 /* WatchLocationSyncPayload.swift in Sources */,
 				C0DE04010000000000000003 /* WatchLocationSyncState.swift in Sources */,
@@ -1052,6 +1074,7 @@
 				A4000001212F000100000001 /* IsoMeWatchWidgetBundle.swift in Sources */,
 				A4000002212F000100000002 /* IsoMeWatchWidget.swift in Sources */,
 				A4000003212F000100000003 /* SharedLocationData.swift in Sources */,
+				75CA00000000000000000004 /* WatchVisitCommands.swift in Sources */,
 				A400001E212F00010000001E /* DistanceFormatter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1082,6 +1105,7 @@
 				AB000001212F0BB100000B2 /* RenameIntentsTests.swift in Sources */,
 				6A1234567890ABCDEF000002 /* LocationViewModelPointScalingTests.swift in Sources */,
 				76AB00000000000000000032 /* ManualVisitAutomationTests.swift in Sources */,
+				75CA00000000000000009902 /* WatchManualVisitTests.swift in Sources */,
 				D2A10003212F000100000003 /* RemotePastVisitTests.swift in Sources */,
 				F2DCEC8ADF4641F4AFEBB1BA /* TimelineImportTests.swift in Sources */,
 				A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */,
