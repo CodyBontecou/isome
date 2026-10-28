@@ -4,9 +4,9 @@ Thanks for your interest in contributing! Whereday is open source under the [AGP
 
 ## Ways to contribute
 
-- **Pick up a [good first issue](https://github.com/CodyBontecou/isome/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)** — these are scoped and labelled to be approachable.
+- **Pick up a [good first issue](https://github.com/CodyBontecou/whereday/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)** — these are scoped and labelled to be approachable.
 - **File a bug** — open an issue with reproduction steps, iOS version, and device.
-- **Propose a feature** — start a thread in [GitHub Discussions](https://github.com/CodyBontecou/isome/discussions) before opening a large PR, so we can align on scope.
+- **Propose a feature** — start a thread in [GitHub Discussions](https://github.com/CodyBontecou/whereday/discussions) before opening a large PR, so we can align on scope.
 - **Improve docs** — typo fixes and clearer explanations are always appreciated.
 - **Hang out** — join the [Isolated Tech Discord](https://discord.gg/jNRWSSSz4N) for app discussions and support.
 
@@ -21,7 +21,7 @@ Thanks for your interest in contributing! Whereday is open source under the [AGP
 ### Clone and open
 
 ```bash
-git clone https://github.com/CodyBontecou/isome.git whereday
+git clone https://github.com/CodyBontecou/whereday.git whereday
 cd whereday
 open IsoMe.xcodeproj
 ```

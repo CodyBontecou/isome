@@ -6,7 +6,7 @@ import re
 from urllib.parse import urlencode
 from check_site import PUBLIC, page_url, BASE
 
-APP = 'https://apps.apple.com/us/app/iso-me/id6761960794'
+APP = 'https://apps.apple.com/app/id6761960794'
 CONFIG = PUBLIC.parent / 'content/acquisition.json'
 
 

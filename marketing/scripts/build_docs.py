@@ -640,7 +640,7 @@ SHELL = """<!DOCTYPE html>
         <a href="/#pricing">Pricing</a>
         <a href="/docs/" aria-current="page">Docs</a>
         <a href="/terms">Terms</a>
-        <a href="https://apps.apple.com/us/app/iso-me/id6761960794" class="btn">Download</a>
+        <a href="https://apps.apple.com/app/id6761960794" class="btn">Download</a>
       </div>
     </div>
   </nav>

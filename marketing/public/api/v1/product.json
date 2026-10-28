@@ -2,8 +2,8 @@
   "name": "Whereday",
   "summary": "An open source location journal for iPhone and Apple Watch, with on-device visits, GPS routes, and optional portable export.",
   "homepage": "https://whereday.com/",
-  "appStore": "https://apps.apple.com/us/app/iso-me/id6761960794",
-  "sourceRepository": "https://github.com/CodyBontecou/isome",
+  "appStore": "https://apps.apple.com/app/id6761960794",
+  "sourceRepository": "https://github.com/CodyBontecou/whereday",
   "platforms": [
     "iOS 17 or later",
     "watchOS 10 or later"

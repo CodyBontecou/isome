@@ -6,7 +6,7 @@ iPhone · Apple Watch · 位置日记
 
 开始追踪后，记录路线并检测到访地点，在 iPhone 上回顾每天的行程。无需账户，Whereday 不运营存储你位置历史的服务器。
 
-[在 App Store 查看](https://apps.apple.com/us/app/iso-me/id6761960794)[阅读使用指南（英文）](https://whereday.com/docs/)
+[在 App Store 查看](https://apps.apple.com/app/id6761960794)[阅读使用指南（英文）](https://whereday.com/docs/)
 
 下载和追踪免费。导出功能提供可选的终身购买。
 
@@ -66,7 +66,7 @@ iPhone · Apple Watch · 位置日记
 
 下载和追踪免费。导出功能提供可选的终身购买。
 
-[在 App Store 查看](https://apps.apple.com/us/app/iso-me/id6761960794)
+[在 App Store 查看](https://apps.apple.com/app/id6761960794)
 
 本页为简体中文产品介绍，功能说明按已核实的 1.7.16 版本编写。详细文档和隐私政策目前提供英文版本；应用语言与地区可用性请查看各产品的商店页面或发行说明。
 

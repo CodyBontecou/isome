@@ -18,7 +18,7 @@ You can ask for help without sending your location records, precise coordinates,
 
 ## Public project conversations
 
-Report reproducible bugs in the [GitHub issue tracker](https://github.com/CodyBontecou/isome/issues). For feature ideas and general project questions, use [GitHub Discussions](https://github.com/CodyBontecou/isome/discussions). Posts there are public, so remove sensitive information before posting.
+Report reproducible bugs in the [GitHub issue tracker](https://github.com/CodyBontecou/whereday/issues). For feature ideas and general project questions, use [GitHub Discussions](https://github.com/CodyBontecou/whereday/discussions). Posts there are public, so remove sensitive information before posting.
 
 For setup and product questions, start with the [documentation](https://whereday.com/docs/). The [privacy policy](https://whereday.com/privacy) explains data handling, and the [terms](https://whereday.com/terms) describe purchases and use of the app. App Store purchases and refunds are processed through Apple; do not send payment credentials by email.
 

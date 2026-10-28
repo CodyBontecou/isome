@@ -142,7 +142,7 @@ Then trust a longer day.
 
 Recording and reviewing history are free. Check one finished session before relying on a new setup for a long trip.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 Reviewed October 26, 2026 against Whereday 1.7.16 (46) release-source recording and export filters, the checked empty-outing example, Watch-sync source, and Apple’s linked Location Services guidance. This is a diagnostic checklist, not a guarantee of recovering deleted or unrecorded movement. Controls can vary by version.
 

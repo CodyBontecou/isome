@@ -158,7 +158,7 @@ Add your own context.
 
 Try free recording and Markdown preview. See [current pricing](https://whereday.com/#pricing) for the optional file-export unlock.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 Reviewed October 26, 2026 against Whereday’s Markdown exporter and Obsidian’s linked documentation. A synthetic note was rendered in a temporary desktop vault. Mobile handoff and scheduled vault delivery remain untested.
 

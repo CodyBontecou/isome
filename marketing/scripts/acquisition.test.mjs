@@ -66,7 +66,7 @@ async function browser({ track = true, fail = false, gpc = false, host = 'whered
   };
   vm.runInNewContext(client, context);
   await new Promise(resolve => setImmediate(resolve));
-  const link = { href: 'https://apps.apple.com/us/app/iso-me/id6761960794', dataset: {}, closest: () => null };
+  const link = { href: 'https://apps.apple.com/app/id6761960794', dataset: {}, closest: () => null };
   click?.({ target: { closest: () => link } });
   await new Promise(resolve => setImmediate(resolve));
   return calls;

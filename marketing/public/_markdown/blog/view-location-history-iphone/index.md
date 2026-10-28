@@ -120,7 +120,7 @@ Start recording before you go.
 
 Try Whereday’s free recording, then review the route and visits on your iPhone.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 Reviewed October 26, 2026 against the linked Apple iOS 26 and current Maps guidance, Google’s iPhone Timeline help, and Whereday’s verified release source. Apple and Google steps follow their linked help pages; menus may vary by version and region. The screenshot illustrates Whereday.
 

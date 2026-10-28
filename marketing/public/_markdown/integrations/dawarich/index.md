@@ -75,7 +75,7 @@ Choose its destination.
 
 Recording and review are free. Webhook delivery requires the optional unlock; see [current pricing](https://whereday.com/#pricing).
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 ## Read next
 

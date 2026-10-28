@@ -7,7 +7,7 @@ from pathlib import Path
 MARKETING = Path(__file__).resolve().parent.parent
 PUBLIC = MARKETING / "public"
 BASE = "https://whereday.com"
-APP = "https://apps.apple.com/us/app/iso-me/id6761960794"
+APP = "https://apps.apple.com/app/id6761960794"
 REVIEWED = "2026-10-26"
 PAGES = [
     {

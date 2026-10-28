@@ -167,7 +167,7 @@ Check the copy.
 
 Try free recording and export preview. See [current pricing](https://whereday.com/#pricing) for the optional file-export unlock.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 Reviewed October 26, 2026 against Whereday’s export, import, and scheduling behavior, including a 1.7.16 release-source disk import and JSON re-export check. Importing restores supported records; it is not a promise to reproduce every app setting or edited view.
 

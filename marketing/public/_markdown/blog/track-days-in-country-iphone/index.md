@@ -96,7 +96,7 @@ Keep the dates behind the count.
 
 Start a free local journal and review Country Days on your iPhone.
 
-[Download free for iPhone](https://apps.apple.com/us/app/iso-me/id6761960794)
+[Download free for iPhone](https://apps.apple.com/app/id6761960794)
 
 Reviewed October 26, 2026 against the source used for App Store 1.7.16 build 46, including CountryDaysView, CountryDayCalculator, and CountryDayResolver. The checked CSV is generated from invented inputs using the released calculator. It does not represent a physical travel test or verification of the geocoding service.
 
