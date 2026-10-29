@@ -39,15 +39,11 @@ struct PaywallView: View {
                     .padding(.bottom, 8)
                     if managing {
                         Text(storeManager.activePurchaseOption?.title ?? String(localized: "Active purchase")).font(.headline)
-                        if storeManager.activePurchaseOption?.isSubscription == true {
-                            Button("Manage subscription") { showSubscriptionManagement = true }
-                        }
                         if storeManager.canBuyFamilyUpgrade {
                             Text("Add Apple Family Sharing to your lifetime purchase.")
                             if let product = storeManager.product(for: .familyUpgrade) {
                                 Text("\(product.displayPrice), one-time purchase").font(.headline)
                             }
-                            purchaseButton(.familyUpgrade)
                         }
                     } else {
                         Picker("Who is this for?", selection: $family) {
@@ -63,7 +59,6 @@ struct PaywallView: View {
                                 planRow(option)
                             }
                         }
-                        purchaseButton(selectedOption)
                         if let product = storeManager.product(for: selectedOption) {
                             VStack(spacing: 4) {
                                 Text(PaywallCopy.disclosure(for: selectedOption, displayPrice: product.displayPrice, hasTrial: hasTrial))
@@ -110,6 +105,9 @@ struct PaywallView: View {
                 .padding(.horizontal, 24).padding(.top, isRequired ? 52 : 24).padding(.bottom, 24)
                 .frame(maxWidth: 560).frame(maxWidth: .infinity)
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                purchaseFooter
+            }
             .background {
                 InkJournalBackground()
             }
@@ -123,6 +121,7 @@ struct PaywallView: View {
             }
             .manageSubscriptionsSheet(isPresented: $showSubscriptionManagement)
         }
+        .modifier(JournalFlowPresentation())
         .interactiveDismissDisabled(isRequired)
         .onChange(of: family) { _, value in
             switch selectedOption {
@@ -145,6 +144,32 @@ struct PaywallView: View {
                 analytics.trackPaywallShown(context: context)
             }
             await storeManager.loadProducts()
+        }
+    }
+
+    @ViewBuilder
+    private var purchaseFooter: some View {
+        if !managing || storeManager.canBuyFamilyUpgrade || storeManager.activePurchaseOption?.isSubscription == true {
+            VStack(spacing: 0) {
+                if !managing {
+                    purchaseButton(selectedOption)
+                } else if storeManager.canBuyFamilyUpgrade {
+                    purchaseButton(.familyUpgrade)
+                } else {
+                    Button("Manage subscription") { showSubscriptionManagement = true }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .foregroundStyle(paper)
+                        .background(ink, in: RoundedRectangle(cornerRadius: 12))
+                        .buttonStyle(PaywallInkPressStyle())
+                }
+            }
+            .frame(maxWidth: 512)
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity)
+            .background(paper.ignoresSafeArea(edges: .bottom))
         }
     }
 
@@ -210,6 +235,7 @@ struct PaywallView: View {
                 .background(ink, in: RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(PaywallInkPressStyle())
+        .accessibilityIdentifier("paywall-purchase")
         .opacity(storeManager.product(for: option) == nil || storeManager.isLoading ? 0.5 : 1)
         .disabled(storeManager.product(for: option) == nil || storeManager.isLoading)
     }

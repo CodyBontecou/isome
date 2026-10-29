@@ -175,27 +175,27 @@ private struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            LocationMapView(viewModel: viewModel)
+            journalWorkspace(mapIsPrimary: true)
                 .tabItem {
                     Label("Map", systemImage: "map.fill")
                 }
                 .tag(0)
 
-            OutingsView(viewModel: viewModel) {
-                selectedTab = 0
-            }
+            journalWorkspace(mapIsPrimary: false)
             .tabItem {
                 Label("Timeline", systemImage: "calendar")
             }
             .tag(3)
 
             ExportView(viewModel: viewModel)
+                .modifier(JournalFlowPresentation())
                 .tabItem {
                     Label("Export", systemImage: "square.and.arrow.up")
                 }
                 .tag(1)
 
             SettingsView(viewModel: viewModel)
+                .modifier(JournalFlowPresentation())
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
@@ -223,6 +223,19 @@ private struct MainTabView: View {
         .isoMeReleaseNotesSheet()
     }
 
+    @ViewBuilder
+    private func journalWorkspace(mapIsPrimary: Bool) -> some View {
+        if #available(iOS 27.1, *) {
+            DuoJournalWorkspace(viewModel: viewModel, mapIsPrimary: mapIsPrimary) {
+                selectedTab = 0
+            }
+        } else if mapIsPrimary {
+            LocationMapView(viewModel: viewModel)
+        } else {
+            OutingsView(viewModel: viewModel) { selectedTab = 0 }
+        }
+    }
+
     private static func initialTabFromLaunchArguments() -> Int {
         #if DEBUG
         let prefix = "--default-tab="
@@ -234,6 +247,104 @@ private struct MainTabView: View {
         #endif
         return 0
     }
+}
+
+
+/// System arrangements retain the primary screen while the inner display gains a companion.
+/// They also keep each page clear of the active hinge without device-name or orientation checks.
+@available(iOS 27.1, *)
+private struct DuoJournalWorkspace: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    let viewModel: LocationViewModel
+    let mapIsPrimary: Bool
+    let onShowOnMap: () -> Void
+    @State private var focusedVisit: Visit?
+    @State private var inspectedVisit: Visit?
+    @State private var hasUsedCompanion = false
+    @State private var coverInspector: Visit?
+
+    private var hasCompanion: Bool { horizontalSizeClass == .regular }
+
+    var body: some View {
+        ArrangementView {
+            if mapIsPrimary {
+                LocationMapView(
+                    viewModel: viewModel,
+                    focusedVisit: focusedVisit,
+                    onSelectVisit: hasCompanion || hasUsedCompanion ? { visit in
+                        focusedVisit = visit
+                        inspectedVisit = visit
+                        if !hasCompanion { coverInspector = visit }
+                    } : nil
+                )
+            } else {
+                timeline
+            }
+        } secondary: {
+            if mapIsPrimary {
+                ZStack {
+                    timeline
+                        .opacity(inspectedVisit == nil ? 1 : 0)
+                        .allowsHitTesting(inspectedVisit == nil)
+                        .accessibilityHidden(inspectedVisit != nil)
+                    if let inspectedVisit {
+                        NavigationStack {
+                            VisitDetailView(visit: inspectedVisit, viewModel: viewModel, showsMap: false)
+                                .toolbar {
+                                    ToolbarItem(placement: .topBarLeading) {
+                                        Button("Timeline", systemImage: "chevron.left") {
+                                            self.inspectedVisit = nil
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                }
+                .overlay(alignment: .leading) { Rectangle().fill(TE.border).frame(width: 1).allowsHitTesting(false) }
+            } else {
+                LocationMapView(viewModel: viewModel, focusedVisit: focusedVisit)
+            }
+        }
+        .arrangementViewStyle(.split.axes(hasCompanion ? Axis.Set.horizontal.union(.vertical) : Axis.Set()))
+        .onChange(of: hasCompanion, initial: true) { _, expanded in
+            // Keep a single presentation owner while crossing to the cover display.
+            if expanded {
+                hasUsedCompanion = true
+                coverInspector = nil
+            } else {
+                coverInspector = inspectedVisit
+            }
+        }
+        .onChange(of: inspectedVisit?.id) { _, _ in
+            if !hasCompanion { coverInspector = inspectedVisit }
+        }
+        .sheet(item: $coverInspector) { visit in
+            NavigationStack {
+                VisitDetailView(visit: visit, viewModel: viewModel)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") {
+                                inspectedVisit = nil
+                                coverInspector = nil
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    private var timeline: some View {
+        OutingsView(
+            viewModel: viewModel,
+            usesCompanionMap: hasCompanion,
+            onVisitOpened: { visit in focusedVisit = visit },
+            onShowOnMap: {
+                if !hasCompanion { onShowOnMap() }
+            }
+        )
+    }
+
+
 }
 
 private struct OnboardingView: View {
@@ -310,6 +421,7 @@ private struct OnboardingView: View {
                 }
             }
         }
+        .modifier(JournalFlowPresentation())
         .tint(OnboardingPalette.accent)
         .onAppear {
             trackOnboardingStartedIfNeeded()

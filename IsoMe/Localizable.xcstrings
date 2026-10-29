@@ -1,6 +1,77 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Day & recording options": {
+      "comment": "Field notes journal interface heading or recording-options disclosure label.",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خيارات اليوم والتسجيل"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "দিন ও রেকর্ডিংয়ের বিকল্প"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day & recording options"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opciones de día y grabación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options du jour et d’enregistrement"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दिन और रिकॉर्डिंग के विकल्प"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日付と記録のオプション"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcje dnia i rejestrowania"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opções de dia e gravação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки дня и записи"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日期与记录选项"
+          }
+        }
+      }
+    },
     "A life of places.\nYours to keep.": {
       "comment": "Illustrated paywall headline. Warm travel-journal voice; places become a personal history to keep. Adapt the line break naturally.",
       "localizations": {
