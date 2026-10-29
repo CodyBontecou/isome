@@ -1,12 +1,12 @@
 # Field Notes redesign QA — October 29, 2026
 
-**Duo hardware remains unverified.** The redesign is already on `main` in `d120326` (Bring Field Notes redesign and Duo layouts to Whereday). This follow-up records checks against that commit; it does not change app code or certify a release candidate.
+**Duo hardware remains unverified.** The redesign is already on `main` in `d120326` (Bring Field Notes redesign and Duo layouts to Whereday). UI checks and captures below are against that commit. The QA branch also includes the subsequent `25ba0c2` button-contrast update from main, and the full signed suite was rerun after that merge. This follow-up adds no app-code changes and does not certify a release candidate.
 
-## Verified on the current main build
+## Verification scope
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Signed regression suite, standard iPhone simulator, iOS 27.0 | 352 XCTest + 11 Swift Testing tests passed, zero failures | Local result bundle `/private/tmp/whereday-redesign-main-qa.xcresult` |
+| Signed regression suite, standard iPhone simulator, iOS 27.0 | 353 XCTest + 11 Swift Testing tests passed, zero failures after merging `25ba0c2` | Local result bundle `/private/tmp/whereday-redesign-contrast-qa.xcresult` |
 | Signed Duo simulator build, iOS 27.1 | Passed | Build product `/private/tmp/whereday-redesign-qa-sim/Build/Products/Debug-iphonesimulator/IsoMe.app` |
 | Open → half-open → cover → open | 10/10 replay steps passed | `duo-journal-folding` |
 | Paywall CTA and onboarding controls | 6/6 replay steps passed | `duo-flow-layouts` |
@@ -15,7 +15,7 @@
 | Name field focus and keyboard dismissal | Manual smoke check: field focused, keyboard and Done displayed; Done dismissed keyboard and retained Valencia Street Stop without typing | [Keyboard capture](inspector-keyboard.png), [landscape inspector](inspector-landscape.png) |
 | Regular physical iPhone, iPhone 13 Pro Max / iOS 27.0.1 | Signed Debug builds installed and launched; isolated QA app navigated welcome → features → permission setup | [Incomplete diagnostic trace](physical-onboarding-incomplete.yaml) |
 
-Duo tests use synthetic screenshot fixtures and tracking off. The keyboard capture is sideways because the screenshot orientation override did not match the new UI orientation; it records the visible keyboard state, not a polished product screenshot. The narrow portrait inspector wraps date labels heavily while the keyboard is visible; polish/recheck that state before release.
+The original `d120326` suite also passed (352 XCTest + 11 Swift Testing tests). Duo UI replays, manual checks, physical builds, and screenshots in this report were collected against `d120326`; they were not rerun after the contrast update. The final signed regression suite covers the updated QA branch. Duo tests use synthetic screenshot fixtures and tracking off. The keyboard capture is sideways because the screenshot orientation override did not match the new UI orientation; it records the visible keyboard state, not a polished product screenshot. The narrow portrait inspector wraps date labels heavily while the keyboard is visible; polish/recheck that state before release.
 
 The existing [Duo screenshots and earlier checks](../duo-interface-20261029/verification.json) cover dark mode and XXX-Large text. Those are historical evidence from the earlier redesign pass, not additional checks rerun here. Their old local/uncommitted status describes that earlier pass; the redesign has since landed on main.
 
