@@ -24,45 +24,16 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Resolve iPhone simulator
-        id: simulator
-        run: |
-          set -euo pipefail
-
-          SIMULATOR_UDID=$(xcrun simctl list devices available -j | jq -r '
-            [.devices
-              | to_entries[]
-              | select(.key | contains("iOS"))
-              | .value[]
-              | select(.isAvailable == true and (.name | startswith("iPhone")))]
-            | .[0].udid // empty
-          ')
-
-          if [[ -z "$SIMULATOR_UDID" ]]; then
-            echo "::error::No available iPhone simulator found on this runner."
-            xcrun simctl list devices available
-            exit 1
-          fi
-
-          echo "destination=platform=iOS Simulator,id=$SIMULATOR_UDID" >> "$GITHUB_OUTPUT"
-          echo "Using simulator: $SIMULATOR_UDID"
+      - name: Test iOS runner guardrails
+        run: python3 -m unittest discover -s scripts -p test_test_ios.py
 
       - name: Run IsoMe tests
-        run: |
-          set -euo pipefail
-          rm -rf TestResults
-          mkdir -p TestResults
-
-          xcodebuild test \
-            -project IsoMe.xcodeproj \
-            -scheme IsoMe \
-            -destination "${{ steps.simulator.outputs.destination }}" \
-            -resultBundlePath TestResults/IsoMe.xcresult
+        run: scripts/test-ios.sh --result-bundle-path artifacts/test-results/IsoMe.xcresult
 
       - name: Upload xcresult on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: IsoMe.xcresult
-          path: TestResults/IsoMe.xcresult
+          path: artifacts/test-results/IsoMe.xcresult
           if-no-files-found: ignore

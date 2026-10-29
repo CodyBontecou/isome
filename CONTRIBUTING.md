@@ -52,17 +52,22 @@ The app, widget, and watch app share data via an App Group. Update the App Group
 
 ### Run tests
 
-Pull requests run the shared `IsoMe` scheme's XCTest suite in GitHub Actions. To run the same gate locally against the first available iPhone simulator:
+Use the same test runner locally and in GitHub Actions:
 
 ```bash
-SIMULATOR_UDID=$(xcrun simctl list devices available -j | jq -r \
-  '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.isAvailable == true and (.name | startswith("iPhone")))] | .[0].udid')
-
-xcodebuild test \
-  -project IsoMe.xcodeproj \
-  -scheme IsoMe \
-  -destination "platform=iOS Simulator,id=$SIMULATOR_UDID"
+scripts/test-ios.sh
 ```
+
+The runner tests the `IsoMe` scheme in Debug, preferring a booted available iPhone simulator, and prints the `.xcresult` path under `artifacts/test-results/`. It requires Xcode and Python 3. Override the simulator or narrow the tests with:
+
+```bash
+scripts/test-ios.sh --destination 'platform=iOS Simulator,id=YOUR_SIMULATOR_UDID' \
+  -only-testing:IsoMeTests/WebhookManagerTests
+```
+
+Simulator Keychain tests require normal signing. The runner sets `CODE_SIGNING_ALLOWED=YES` and rejects signing overrides or a conflicting environment variable. It also requires `XCODE_XCCONFIG_FILE` to be unset (even if empty), because this environment override takes precedence over command-line build settings and can disable signing. `CODE_SIGNING_ALLOWED=NO` causes `errSecMissingEntitlement` (-34018), not credential-logic failures; WebhookManager test setup reports this explicitly. A local simulator signature does not require distribution credentials. Keep signing enabled when running tests from Xcode as well.
+
+Use `--result-bundle-path PATH` to choose a new result bundle location; existing bundles are never deleted. To test the runner's guardrails without building the app, run `python3 -m unittest discover -s scripts -p test_test_ios.py`.
 
 The current tests use isolated in-memory or system test state where possible. Tests that touch `UserDefaults` clean up their keys in `setUp`/`tearDown`, and Keychain tests write only to test-specific account names.
 
@@ -108,11 +113,7 @@ Use a release tag like `v1.4.4`. The workflow strips the leading `v`, sets `MARK
 
 ## Tests
 
-Run the iOS unit tests from the command line with:
-
-```bash
-xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
-```
+Use `scripts/test-ios.sh` as described in [Run tests](#run-tests).
 
 `IsoMeTests/WebhookManagerTests.swift` uses a custom `URLProtocol` fixture to mock webhook HTTP responses. Queue responses with `MockWebhookURLProtocol.enqueue(statusCode:)`, inject the matching ephemeral `URLSession` into `WebhookManager`, and keep retry tests fast by passing a `sleep` closure that records requested backoff delays instead of waiting.
 

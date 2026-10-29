@@ -177,8 +177,10 @@ Shared/                            # Shared code (App Group data sync)
 Run the app unit tests with:
 
 ```bash
-xcodebuild test -project IsoMe.xcodeproj -scheme IsoMe -destination 'platform=iOS Simulator,name=iPhone 17'
+scripts/test-ios.sh
 ```
+
+See [Contributing: Run tests](CONTRIBUTING.md#run-tests) for simulator selection, test filters, and signing requirements.
 
 Export round-trip coverage lives in `IsoMeTests/ExportRoundTripTests.swift`. It uses inline representative visit and route-point fixtures, renders JSON, CSV, Markdown, GeoJSON, GPX, OwnTracks, and Overland through `ExportService.render`, then parses each payload back into normalized records while asserting the emitted schema keys. OwnTracks and Overland are points-only protocols, so their cases verify route points and explicitly assert that visits are not emitted.
 

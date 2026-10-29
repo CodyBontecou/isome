@@ -1,3 +1,4 @@
+import Security
 import XCTest
 @testable import IsoMe
 
@@ -13,13 +14,33 @@ final class WebhookManagerTests: XCTestCase {
     private var defaults: UserDefaults!
     private var defaultsSuiteName: String!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         defaultsSuiteName = "WebhookManagerTests.\(UUID().uuidString)"
         defaults = UserDefaults(suiteName: defaultsSuiteName)!
         WebhookManager.keychainWriteString("", account: testAccount)
         UserDefaults.standard.removeObject(forKey: testLegacyKey)
         MockWebhookURLProtocol.reset()
+
+        // Fail in setup with the real Security error, rather than misleading nil-value assertions.
+        let probe: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "WebhookManagerTests.preflight",
+            kSecAttrAccount as String: UUID().uuidString,
+            kSecValueData as String: Data("probe".utf8),
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+        ]
+        let status = SecItemAdd(probe as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            let message = status == errSecMissingEntitlement
+                ? "Keychain setup failed: errSecMissingEntitlement (-34018). Run scripts/test-ios.sh with simulator signing enabled; CODE_SIGNING_ALLOWED=NO prevents Keychain access."
+                : "Keychain setup failed with OSStatus \(status). Check simulator Keychain availability before diagnosing credential assertions."
+            throw NSError(domain: "WebhookManagerTests.KeychainSetup", code: Int(status),
+                          userInfo: [NSLocalizedDescriptionKey: message])
+        }
+        var deleteProbe = probe
+        deleteProbe.removeValue(forKey: kSecValueData as String)
+        SecItemDelete(deleteProbe as CFDictionary)
     }
 
     override func tearDown() {
