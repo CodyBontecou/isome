@@ -28,7 +28,7 @@ struct SavedLocationsView: View {
                         Text("Add places you visit to reuse their names, including places missing from Maps.")
                     } actions: {
                         Button("Add Location") { sheet = .editor(SavedPlaceDraft()) }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                             .disabled(isReadingFile)
                     }
                 } else if filteredPlaces.isEmpty {

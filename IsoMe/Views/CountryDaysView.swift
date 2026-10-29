@@ -120,7 +120,7 @@ struct CountryDaysView: View {
                     Button("Analyze saved locations") {
                         Task { await resolver.resolveHistory(in: modelContext) }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(TEActionButtonStyle())
                 }
                 if let message = resolver.message {
                     Text(message).font(.footnote).foregroundStyle(TE.textMuted)

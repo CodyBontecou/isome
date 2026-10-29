@@ -46,6 +46,52 @@ enum TE {
 
 // MARK: - Reusable Components
 
+/// Export-style ink actions with explicit label colors, independent of ancestor foreground styles.
+struct TEActionButtonStyle: ButtonStyle {
+    enum Emphasis {
+        case primary, secondary, destructive
+    }
+
+    var emphasis: Emphasis = .secondary
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var ink: Color {
+        if !isEnabled { return TE.textMuted }
+        return emphasis == .destructive ? TE.inkRust : TE.accent
+    }
+
+    func makeBody(configuration: Configuration) -> some View {
+        let filled = emphasis == .primary && isEnabled
+
+        configuration.label
+            .font(TE.mono(.caption, weight: .bold))
+            .textCase(.uppercase)
+            .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 2)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, minHeight: filled ? 48 : 44)
+            .foregroundStyle(filled ? TE.surface : ink)
+            // Opaque paper keeps the decorative artwork from reducing label contrast.
+            .background {
+                ZStack {
+                    TE.surface
+                    filled ? ink : ink.opacity(0.08)
+                    if configuration.isPressed {
+                        filled ? Color.black.opacity(0.12) : ink.opacity(0.04)
+                    }
+                }
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 4)
+                    .strokeBorder(ink, lineWidth: 1)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+    }
+}
+
 /// Decorative ink is confined to its own layout space and never intercepts map gestures.
 struct FieldNotesArtwork: View {
     enum Subject: String {

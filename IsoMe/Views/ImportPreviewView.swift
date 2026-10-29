@@ -131,7 +131,7 @@ struct ImportPreviewView: View {
             } label: {
                 Text("Import Selected Records").frame(maxWidth: .infinity)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(TEActionButtonStyle(emphasis: .primary))
             .disabled(selectedCount(preview) == 0)
             .accessibilityIdentifier("confirm-import")
         }

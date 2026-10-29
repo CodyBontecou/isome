@@ -2076,6 +2076,8 @@ private struct CurrentPlaceCard: View {
                 .font(TE.mono(.caption2, weight: .bold))
                 .tracking(0.7)
                 .buttonStyle(.borderedProminent)
+                .tint(TE.accent)
+                .foregroundStyle(TE.surface)
                 .controlSize(.mini)
                 .accessibilityHint("Opens visit details prefilled with this place.")
 
@@ -2092,6 +2094,8 @@ private struct CurrentPlaceCard: View {
                 .font(TE.mono(.caption2, weight: .bold))
                 .tracking(0.7)
                 .buttonStyle(.bordered)
+                .tint(TE.accent)
+                .foregroundStyle(TE.accent)
                 .controlSize(.mini)
                 .accessibilityHint("Requests a fresh current location.")
         }
@@ -2740,6 +2744,7 @@ struct VisitQuickView: View {
                                 }
                                 .font(.caption.weight(.semibold))
                                 .buttonStyle(.bordered)
+                                .foregroundStyle(TE.accent)
                                 .controlSize(.small)
                                 .accessibilityHint("Restores the automatically detected visit name.")
                             }
@@ -2838,7 +2843,7 @@ struct VisitQuickView: View {
                             Label("Confirm Place", systemImage: "checkmark.seal")
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                     }
 
                     if visit.source == .manual, visit.departedAt == nil {
@@ -2850,7 +2855,7 @@ struct VisitQuickView: View {
                             Label("Check Out", systemImage: "rectangle.portrait.and.arrow.right")
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                         .disabled(visit.arrivedAt > Date())
                         .accessibilityHint("Ends this manual visit at the current time.")
                     }
@@ -2861,7 +2866,7 @@ struct VisitQuickView: View {
                         Label("More Details", systemImage: "info.circle")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(TEActionButtonStyle())
                 }
                 .padding()
             }

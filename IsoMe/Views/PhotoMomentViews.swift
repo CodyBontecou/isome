@@ -430,7 +430,7 @@ struct PhotoMomentMapMarker: View {
 
                 Image(systemName: "camera.fill")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(TE.surface)
                     .frame(width: 18, height: 18)
                     .background(Circle().fill(TE.accent))
                     .offset(x: 4, y: -4)
@@ -560,7 +560,7 @@ struct PhotoMomentClusterMapMarker: View {
 
                 Text(countText)
                     .font(TE.mono(.caption2, weight: .black))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(TE.surface)
                     .monospacedDigit()
                     .padding(.horizontal, 6)
                     .frame(minWidth: 22, minHeight: 22)
@@ -638,7 +638,7 @@ struct PhotoMomentClusterMapMarker: View {
 
             Text(countText)
                 .font(TE.mono(.caption2, weight: .black))
-                .foregroundStyle(.white)
+                .foregroundStyle(TE.surface)
                 .monospacedDigit()
                 .padding(.horizontal, 5)
                 .frame(minWidth: 20, minHeight: 20)
@@ -662,7 +662,7 @@ struct PhotoMomentMiniMarker: View {
 
             Image(systemName: "camera.fill")
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(TE.surface)
         }
         .frame(width: 32, height: 32)
         .accessibilityElement(children: .ignore)

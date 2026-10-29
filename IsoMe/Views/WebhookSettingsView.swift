@@ -76,15 +76,8 @@ struct WebhookSettingsView: View {
                 showingPaywall = true
             } label: {
                 Text("UNLOCK EXPORT")
-                    .font(TE.mono(.caption, weight: .bold))
-                    .tracking(2)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 28)
-                    .frame(height: 44)
-                    .background(TE.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(TEActionButtonStyle(emphasis: .primary))
         }
         .padding()
     }

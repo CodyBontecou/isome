@@ -538,7 +538,7 @@ struct SettingsView: View {
                     }
 
                     TERow(showDivider: false) {
-                        settingsButton("CLEAR ALL DATA", icon: "trash", color: TE.danger) {
+                        settingsButton("CLEAR ALL DATA", icon: "trash", color: TE.inkRust) {
                             showingClearConfirmation = true
                         }
                     }
