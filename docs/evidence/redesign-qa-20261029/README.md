@@ -1,12 +1,12 @@
 # Field Notes redesign QA — October 29, 2026
 
-**Duo hardware remains unverified.** The redesign is already on `main` in `d120326` (Bring Field Notes redesign and Duo layouts to Whereday). UI checks and captures below are against that commit. The QA branch also includes the subsequent `25ba0c2` button-contrast update from main, and the full signed suite was rerun after that merge. This follow-up adds no app-code changes and does not certify a release candidate.
+**Duo hardware remains unverified.** The redesign is already on `main` in `d120326` (Bring Field Notes redesign and Duo layouts to Whereday). UI checks and captures below are against that commit. The QA branch also includes the subsequent `25ba0c2` button-contrast update from main, and the full signed suite was rerun after that merge. This follow-up also adds compile-time guards around Duo arrangements: older compiler/SDK toolchains use the existing single-pane layout. Runtime availability checks remain in place for supported SDK builds. This does not certify a release candidate.
 
 ## Verification scope
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Signed regression suite, standard iPhone simulator, iOS 27.0 | 353 XCTest + 11 Swift Testing tests passed, zero failures after merging `25ba0c2` | Local result bundle `/private/tmp/whereday-redesign-contrast-qa.xcresult` |
+| Signed regression suite, standard iPhone simulator, iOS 27.0 | 353 XCTest + 11 Swift Testing tests passed, zero failures after merging `25ba0c2` and adding older-toolchain guards | Local result bundle `/private/tmp/whereday-sdk-guard-qa.xcresult` |
 | Signed Duo simulator build, iOS 27.1 | Passed | Build product `/private/tmp/whereday-redesign-qa-sim/Build/Products/Debug-iphonesimulator/IsoMe.app` |
 | Open → half-open → cover → open | 10/10 replay steps passed | `duo-journal-folding` |
 | Paywall CTA and onboarding controls | 6/6 replay steps passed | `duo-flow-layouts` |
@@ -41,3 +41,7 @@ The new rotation fragment checks inspector control availability, not exact pane 
 - Follow [subscription release readiness](../../subscription-release-readiness.md) before staging: confirm the first-paid build cutoff and unused build number, finish subscription/grandfathering QA, and prepare the legal/metadata/reviewer package.
 
 No TestFlight upload, App Review submission, release, or pricing change was performed. The existing explicit authorization requirements and live pricing hold remain in effect.
+
+## CI compatibility correction
+
+GitHub CI initially failed to compile `ArrangementView` using Xcode 26.6 / iOS 26.5 SDK. Runtime `#available` checks do not hide unknown SDK types from the compiler. Swift compiler guards now exclude the Duo-specific declarations and references on pre-6.4 toolchains and use the shared single-pane fallback. The local signed suite passed again after this correction (353 XCTest + 11 Swift Testing). GitHub CI exercises the older-toolchain branch; local Xcode exercises the Duo-capable branch.
