@@ -113,7 +113,7 @@ struct AddEventToCalendarButton: View {
             Label("Add Event to Calendar", systemImage: "calendar.badge.plus")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(TEActionButtonStyle())
         .sheet(item: $draft) { draft in
             CalendarEventEditor(draft: draft)
         }

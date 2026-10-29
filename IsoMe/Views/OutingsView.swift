@@ -1308,23 +1308,16 @@ private struct RecordingSessionDetailView: View {
                         if isSyncingPhotos {
                             ProgressView()
                                 .controlSize(.mini)
-                                .tint(.white)
+                                .tint(TE.textMuted)
                         } else {
                             Image(systemName: "photo.on.rectangle")
                                 .font(.caption.weight(.bold))
                         }
 
                         Text(isSyncingPhotos ? "SYNCING PHOTOS" : "CONNECT PHOTOS")
-                            .font(TE.mono(.caption, weight: .bold))
-                            .tracking(2)
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 42)
-                    .background(TE.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                 .disabled(isSyncingPhotos)
             }
         }
@@ -1482,16 +1475,9 @@ private struct RecordingSessionDetailView: View {
                         Image(systemName: "map.fill")
                             .font(.caption.weight(.bold))
                         Text("SHOW ON MAP")
-                            .font(TE.mono(.caption, weight: .bold))
-                            .tracking(2)
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(TE.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(TEActionButtonStyle(emphasis: .primary))
 
                 Button {
                     exportOuting()
@@ -1500,20 +1486,9 @@ private struct RecordingSessionDetailView: View {
                         Image(systemName: exportFolderManager.hasDefaultFolder && useDefaultExportFolder ? "square.and.arrow.down" : "square.and.arrow.up")
                             .font(.caption.weight(.bold))
                         Text(exportButtonTitle)
-                            .font(TE.mono(.caption, weight: .bold))
-                            .tracking(2)
                     }
-                    .foregroundStyle(storeManager.canExport ? TE.accent : TE.textMuted)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 46)
-                    .background(storeManager.canExport ? TE.accent.opacity(0.08) : TE.textMuted.opacity(0.08))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(storeManager.canExport ? TE.accent.opacity(0.5) : TE.textMuted.opacity(0.25), lineWidth: 1)
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(TEActionButtonStyle())
                 .accessibilityHint("Exports this outing in the selected format.")
 
                 Button(role: .destructive) {
@@ -1523,20 +1498,9 @@ private struct RecordingSessionDetailView: View {
                         Image(systemName: "trash")
                             .font(.caption.weight(.bold))
                         Text("DELETE OUTING")
-                            .font(TE.mono(.caption, weight: .bold))
-                            .tracking(2)
                     }
-                    .foregroundStyle(TE.danger)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 46)
-                    .background(TE.danger.opacity(0.08))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(TE.danger.opacity(0.5), lineWidth: 1)
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(TEActionButtonStyle(emphasis: .destructive))
                 .accessibilityHint("Deletes this outing and its GPS points after confirmation. Visits are kept.")
             }
             .padding(.horizontal, 16)

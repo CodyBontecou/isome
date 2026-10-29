@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA1E00870000000000000001 /* TEActionContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1E00870000000000000002 /* TEActionContrastTests.swift */; };
 		B05100000000000000000002 /* PaidTrackingMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05100000000000000000001 /* PaidTrackingMigration.swift */; };
 		B05100000000000000000003 /* PaidTrackingMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05100000000000000000001 /* PaidTrackingMigration.swift */; };
 		FA110004212F000100000004 /* IsoMe.storekit in Resources */ = {isa = PBXBuildFile; fileRef = FA110003212F000000000003 /* IsoMe.storekit */; };
@@ -234,6 +235,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CA1E00870000000000000002 /* TEActionContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEActionContrastTests.swift; sourceTree = "<group>"; };
 		B05100000000000000000001 /* PaidTrackingMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaidTrackingMigration.swift; sourceTree = "<group>"; };
 		8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportTests.swift; sourceTree = "<group>"; };
 		2BF3AA76C3AB454B8655127B /* ImportPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPreviewView.swift; sourceTree = "<group>"; };
@@ -701,6 +703,7 @@
 				C0DE0304212F000000000304 /* CountryDayTests.swift */,
 				C0DE04020000000000000001 /* WatchLocationSyncTests.swift */,
 				CA1E00860000000000000004 /* CalendarEventDraftTests.swift */,
+				CA1E00870000000000000002 /* TEActionContrastTests.swift */,
 				E5F99A7F3A434BE49BB81EF9 /* VisitMapOpenerTests.swift */,
 				EB20DB41562641EE9CE37203 /* SavedPlaceImportTests.swift */,
 				3F25E12BEE074B0EA5988F1D /* SavedPlaceManagementTests.swift */,
@@ -1100,6 +1103,7 @@
 				C0DE0304212F000100000304 /* CountryDayTests.swift in Sources */,
 				C0DE04020000000000000002 /* WatchLocationSyncTests.swift in Sources */,
 				CA1E00860000000000000003 /* CalendarEventDraftTests.swift in Sources */,
+				CA1E00870000000000000001 /* TEActionContrastTests.swift in Sources */,
 				34314394A69B4C38B941108A /* VisitMapOpenerTests.swift in Sources */,
 				A857B5F352054A2C9C6AEA1D /* SavedPlaceImportTests.swift in Sources */,
 				54EC7C2E1B7D4635BF1F1422 /* SavedPlaceManagementTests.swift in Sources */,

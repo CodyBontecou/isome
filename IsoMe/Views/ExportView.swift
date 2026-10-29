@@ -233,15 +233,8 @@ struct ExportView: View {
                 showingPaywall = true
             } label: {
                 Text("UNLOCK EXPORT")
-                    .font(TE.mono(.caption, weight: .bold))
-                    .tracking(2)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 28)
-                    .frame(height: 44)
-                    .background(TE.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(TEActionButtonStyle(emphasis: .primary))
 
             Button {
                 Task { await storeManager.restorePurchases() }
@@ -1102,24 +1095,9 @@ struct ExportView: View {
                     Image(systemName: "eye")
                         .font(.caption.weight(.bold))
                     Text(previewButtonLabel)
-                        .font(TE.mono(.caption, weight: .bold))
-                        .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 2)
                 }
-                .foregroundStyle(totalCount == 0 ? TE.textMuted : TE.accent)
-                .multilineTextAlignment(.center)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 44)
-                .background(totalCount == 0 ? TE.textMuted.opacity(0.08) : TE.accent.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(totalCount == 0 ? TE.textMuted.opacity(0.2) : TE.accent, lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 4))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(TEActionButtonStyle())
             .disabled(totalCount == 0)
             .accessibilityLabel("Preview Export")
             .accessibilityHint("Shows the files and contents that will be exported")
@@ -1128,19 +1106,8 @@ struct ExportView: View {
                 runExport()
             } label: {
                 Text(exportButtonLabel)
-                    .font(TE.mono(.caption, weight: .bold))
-                    .tracking(dynamicTypeSize.isAccessibilitySize ? 0.5 : 2)
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 0)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 48)
-                    .background(totalCount == 0 ? TE.textMuted.opacity(0.3) : TE.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(TEActionButtonStyle(emphasis: .primary))
             .disabled(totalCount == 0)
         }
         .padding(.horizontal, 16)

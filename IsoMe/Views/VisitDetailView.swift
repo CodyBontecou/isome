@@ -129,6 +129,7 @@ struct VisitDetailView: View {
                     }
                     .font(.caption.weight(.semibold))
                     .buttonStyle(.bordered)
+                    .foregroundStyle(TE.accent)
                     .controlSize(.small)
                     .accessibilityHint("Restores the automatically detected visit name.")
                 }
@@ -240,7 +241,7 @@ struct VisitDetailView: View {
                     Label("Save Time Changes", systemImage: "clock.badge.checkmark")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                 .disabled(timeValidationMessage != nil)
                 .padding()
             }
@@ -306,7 +307,7 @@ struct VisitDetailView: View {
                     Label("Check Out", systemImage: "rectangle.portrait.and.arrow.right")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                 .disabled(visit.arrivedAt > Date())
                 .accessibilityHint("Ends this manual visit at the current time.")
             }
@@ -322,7 +323,7 @@ struct VisitDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(TEActionButtonStyle(emphasis: .primary))
                 .accessibilityHint("Marks this visit as reviewed and correct.")
             }
 
@@ -338,7 +339,7 @@ struct VisitDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(TEActionButtonStyle())
                 .accessibilityHint("Restores the originally detected visit location.")
             }
 
@@ -353,7 +354,7 @@ struct VisitDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(TEActionButtonStyle())
             .accessibilityLabel("Open visit in Maps")
             .accessibilityValue(visit.displayName)
             .accessibilityHint("Opens this location in your default navigation app when supported.")
@@ -369,8 +370,7 @@ struct VisitDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
-            .tint(.red)
+            .buttonStyle(TEActionButtonStyle(emphasis: .destructive))
             .accessibilityHint("Deletes this visit after confirmation.")
         }
     }
