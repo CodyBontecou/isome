@@ -1483,7 +1483,7 @@ private struct RecordingSessionDetailView: View {
             .padding(.horizontal, 16)
 
             VStack(spacing: 10) {
-                AddEventToCalendarButton { CalendarEventDraft(session: session) }
+                AddEventToCalendarButton { CalendarEventDraft(session: session, notes: notesText) }
                     .tint(TE.accent)
 
                 Button {

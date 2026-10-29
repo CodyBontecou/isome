@@ -259,7 +259,7 @@ struct VisitDetailView: View {
 
     private var actionsSection: some View {
         VStack(spacing: 12) {
-            AddEventToCalendarButton { CalendarEventDraft(visit: visit) }
+            AddEventToCalendarButton { CalendarEventDraft(visit: visit, notes: notesText) }
 
             if visit.source == .manual, visit.departedAt == nil {
                 Button {

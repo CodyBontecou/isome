@@ -73,6 +73,58 @@ final class CalendarEventDraftTests: XCTestCase {
         XCTAssertNil(session.endedAt)
     }
 
+    func testVisitAndOutingNotesPreserveMultilineContentWithoutSaving() {
+        let notes = "  Lunch with Johnny\n\nDiscussed the next trip.\n "
+        let visit = Visit(latitude: 0, longitude: 0, arrivedAt: start, notes: notes)
+        let stored = RecordingSession(startedAt: start, notes: notes)
+        let drafts = [CalendarEventDraft(visit: visit), CalendarEventDraft(session: summary(stored: stored))]
+
+        // A draft is a snapshot, not a live link to the source notes.
+        visit.notes = "Updated later"
+        stored.notes = "Updated later"
+        for draft in drafts {
+            let event = draft.makeEvent(in: EKEventStore())
+            XCTAssertEqual(draft.notes, notes)
+            XCTAssertEqual(event.notes, notes)
+            XCTAssertTrue(event.isNew)
+            XCTAssertNil(event.eventIdentifier)
+        }
+        XCTAssertEqual(visit.notes, "Updated later")
+        XCTAssertEqual(stored.notes, "Updated later")
+    }
+
+    func testNilEmptyAndWhitespaceOnlyNotesAreOmitted() {
+        let blankNotes: [String?] = [nil, "", " \t\n\r "]
+        for notes in blankNotes {
+            let visit = Visit(latitude: 0, longitude: 0, arrivedAt: start, notes: notes)
+            let stored = RecordingSession(startedAt: start, notes: notes)
+            let drafts = [CalendarEventDraft(visit: visit), CalendarEventDraft(session: summary(stored: stored))]
+            for draft in drafts {
+                XCTAssertNil(draft.notes)
+                XCTAssertNil(draft.makeEvent(in: EKEventStore()).notes)
+            }
+        }
+        XCTAssertNil(CalendarEventDraft(session: summary(inferred: true)).notes)
+    }
+
+    func testDetailScreenTextOverridesStoredNotesIncludingClearedText() {
+        let visit = Visit(latitude: 0, longitude: 0, arrivedAt: start, notes: "Old visit notes")
+        let stored = RecordingSession(startedAt: start, notes: "Old outing notes")
+        let session = summary(stored: stored)
+
+        // The detail screens pass the TextField state, even before focus loss saves it.
+        for text in ["New notes\nStill editing", "", " \n\t"] {
+            let expected: String? = text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : text
+            let drafts = [CalendarEventDraft(visit: visit, notes: text),
+                          CalendarEventDraft(session: session, notes: text)]
+            for draft in drafts {
+                XCTAssertEqual(draft.makeEvent(in: EKEventStore()).notes, expected)
+            }
+        }
+        XCTAssertEqual(visit.notes, "Old visit notes")
+        XCTAssertEqual(stored.notes, "Old outing notes")
+    }
+
     private func summary(stored: RecordingSession? = nil, end: Date? = nil,
                          points: [LocationPoint] = [], inferred: Bool = false,
                          active: Bool = false) -> RecordingSessionSummary {

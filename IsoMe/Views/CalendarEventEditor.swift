@@ -11,21 +11,32 @@ struct CalendarEventDraft: Identifiable {
     let endDate: Date
     let location: String?
     let coordinate: CLLocationCoordinate2D?
+    let notes: String?
 
-    init(visit: Visit, now: Date = Date()) {
+    // Detail screens pass their current text so export does not depend on focus-loss saving.
+    init(visit: Visit, now: Date = Date(), notes: String? = nil) {
         title = visit.displayName
+        self.notes = Self.nonblankNotes(notes ?? visit.notes)
         startDate = visit.arrivedAt
         endDate = max(visit.arrivedAt, visit.departedAt ?? now)
         coordinate = visit.coordinate
         location = Self.locationName(address: visit.address, name: visit.locationName, coordinate: visit.coordinate)
     }
 
-    init(session: RecordingSessionSummary, now: Date = Date()) {
+    init(session: RecordingSessionSummary, now: Date = Date(), notes: String? = nil) {
         title = session.title
+        self.notes = Self.nonblankNotes(notes ?? session.storedSession?.notes)
         startDate = session.startedAt
         endDate = max(session.startedAt, session.isActive ? now : session.effectiveEndDate)
         coordinate = session.startPoint?.coordinate
         location = coordinate.map { Self.coordinateText($0) }
+    }
+
+    private static func nonblankNotes(_ notes: String?) -> String? {
+        guard let notes, !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+        return notes
     }
 
     private static func locationName(address: String?, name: String?, coordinate: CLLocationCoordinate2D) -> String {
@@ -47,6 +58,7 @@ struct CalendarEventDraft: Identifiable {
         event.startDate = startDate
         event.endDate = endDate
         event.location = location
+        event.notes = notes
         if let coordinate {
             let structuredLocation = EKStructuredLocation(title: location ?? "")
             structuredLocation.geoLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
