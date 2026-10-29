@@ -1,0 +1,44 @@
+# Diagnostic trace only. NOT a passing/replayable regression test.
+# The permission-dialog wait failed; subsequent device interaction was paused.
+steps:
+  - launch:
+      native: com.bontecou.isome.redesignqa
+      ios:
+        app: com.bontecou.isome.redesignqa
+        args:
+          - -webhook.enabled
+          - NO
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        identifier: onboarding-next
+      timeoutMs: 10000
+  - tap:
+      text: Next
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: "The shape\nof your day."
+      timeoutMs: 10000
+  - tap:
+      text: Next
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: "Your places,\nautomatically."
+      timeoutMs: 10000
+  - tap:
+      text: Continue
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: Allow While Using App
+      timeoutMs: 10000
+  - echo: Permission prompt did not appear after the first Continue tap. Retry the
+      same visible control once; preserve the failed wait as QA evidence.
+  - tap:
+      text: Continue
