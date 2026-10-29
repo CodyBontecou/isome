@@ -37,6 +37,26 @@ enum TE {
     }
 }
 
+// MARK: - Illustrated onboarding and purchase flow
+
+/// Kept separate from TE so the rest of the app retains its existing appearance.
+enum InkPaperPalette {
+    static let ink = TE.adaptive(
+        UIColor(red: 0.14, green: 0.27, blue: 0.62, alpha: 1),
+        UIColor(red: 0.58, green: 0.70, blue: 1, alpha: 1)
+    )
+    static let paper = TE.adaptive(
+        UIColor(red: 0.98, green: 0.97, blue: 0.94, alpha: 1),
+        UIColor(red: 0.09, green: 0.11, blue: 0.15, alpha: 1)
+    )
+    static let pencil = TE.adaptive(
+        UIColor(red: 0.39, green: 0.39, blue: 0.38, alpha: 1),
+        UIColor(red: 0.72, green: 0.73, blue: 0.76, alpha: 1)
+    )
+    static let wash = ink.opacity(0.045)
+    static let border = ink.opacity(0.24)
+}
+
 // MARK: - Reusable Components
 
 /// TE-styled section header: uppercase, tracked, monospaced.
@@ -198,6 +218,46 @@ enum AppAppearance: String, CaseIterable, Identifiable {
         case .system: "System"
         case .light: "Light"
         case .dark: "Dark"
+        }
+    }
+}
+
+
+/// Decorative ink sketches sit behind the flow, never reserving header space.
+struct InkJournalBackground: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                InkPaperPalette.paper
+                VStack(spacing: 0) {
+                    sketch("JournalClouds")
+                        .frame(height: min(geometry.size.height * 0.38, 320))
+                        .opacity(dynamicTypeSize.isAccessibilitySize ? 0.15 : 0.30)
+                        .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
+                    Spacer(minLength: 0)
+                    sketch("JournalStreet")
+                        .frame(height: min(geometry.size.height * 0.48, 400))
+                        .opacity(dynamicTypeSize.isAccessibilitySize ? 0.16 : 0.42)
+                }
+                InkPaperGrain(ink: InkPaperPalette.ink)
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private func sketch(_ name: String) -> some View {
+        GeometryReader { geometry in
+            Image(decorative: name)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFill()
+                .foregroundStyle(InkPaperPalette.ink)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
         }
     }
 }

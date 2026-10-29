@@ -83,11 +83,15 @@ test("accepts onboarding events and stores coarse columns", async () => {
   assert.equal(JSON.parse(payloadJson).properties.onboardingStep, "permissions");
 });
 
-test("accepts paywall and purchase events for every lifetime plan", async () => {
+test("accepts paywall and purchase events for every supported plan", async () => {
   const productIds = [
     "com.bontecou.isome.lifetime.individual",
     "com.bontecou.isome.lifetime",
     "com.bontecou.isome.lifetime.family.upgrade",
+    "com.bontecou.isome.individual.weekly",
+    "com.bontecou.isome.individual.yearly",
+    "com.bontecou.isome.family.weekly",
+    "com.bontecou.isome.family.yearly",
   ];
 
   for (const [index, productId] of productIds.entries()) {

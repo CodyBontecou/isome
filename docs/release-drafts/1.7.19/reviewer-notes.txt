@@ -1,0 +1,35 @@
+Whereday 1.7.19: new-user tracking subscriptions
+Intended build: 51. No Whereday account or demo login is required for tracking. Purchases and trials use Apple's purchase confirmation.
+
+This update introduces four auto-renewable subscriptions in one group, Whereday Tracking (22526448):
+- Individual Weekly: com.bontecou.isome.individual.weekly ($0.99/week in the U.S.)
+- Individual Yearly: com.bontecou.isome.individual.yearly ($29.99/year in the U.S.)
+- Family Weekly: com.bontecou.isome.family.weekly ($1.99/week in the U.S.)
+- Family Yearly: com.bontecou.isome.family.yearly ($49.99/year in the U.S.)
+Eligible subscriptions offer a 7-day free trial, then renew at the selected price and interval unless canceled. Apple determines eligibility within the group. There is no monthly plan. Family Sharing is enabled for Family products only, for up to five other family members. Journals are not shared between family members.
+
+First-time users:
+1. Use a fresh installation and Apple purchase history that first obtains Whereday with this update, then complete onboarding.
+2. The required paywall appears before tracking can begin. Select Individual or Family, then Weekly, Yearly, or Lifetime. The selected price and billing interval come from StoreKit. An eligible subscription offers a 7-day free trial; otherwise the action is Subscribe. Lifetime is a one-time purchase without a subscription trial.
+3. Confirm the purchase with Apple, allow location access, and start recording. Tracking needs the corresponding location permission; purchasing does not grant that permission. Canceling or leaving a purchase pending does not unlock tracking.
+4. Restore Purchases, Privacy, and Terms remain accessible on the required paywall. Existing valid Apple Family Sharing access can be restored by an eligible family member.
+
+Existing users:
+Users whose original verified app build is 50 or earlier keep free tracking, including after reinstall or on another device. Existing free users retain the previous paid-export requirement. All earlier lifetime purchases remain recognized; the original lifetime unlock retains Family Sharing. An existing user's retained access may mean the required paywall is not shown. No subscription is needed to retain that access. Deleting and reinstalling with the same Apple purchase history does not make that person a new user.
+
+Expiration and management:
+Users who joined under the subscription model can view and export existing records after the trial/subscription expires, but cannot start new recording or add manual visits without active access. Expiration does not delete their history. Canceling auto-renewal is separate from entitlement expiration. In Settings, Purchases & Family shows an active plan and subscription management; users without active access can choose a plan and restore purchases. Apple Account subscription settings control cancellation.
+
+Existing non-consumable IDs are unchanged:
+com.bontecou.isome.lifetime.individual
+com.bontecou.isome.lifetime
+com.bontecou.isome.lifetime.family.upgrade
+This submission does not request a lifetime price increase. The current U.S. prices remain $19.99 Individual Lifetime, $39.99 Family Lifetime, and $19.99 Family Upgrade. Local prices and Apple's confirmation sheet control the actual purchase.
+
+Location history remains on-device. Optional exports and limited technical services follow the Privacy Policy; Family Sharing shares access, not location data. No private travel history is needed to review purchase access.
+
+Privacy: https://whereday.com/privacy
+Terms: https://whereday.com/terms
+Support: https://whereday.com/contact
+
+Please keep manual developer release after approval.

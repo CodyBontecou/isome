@@ -64,6 +64,10 @@ const PRODUCT_IDS = new Set([
   "com.bontecou.isome.lifetime.individual",
   "com.bontecou.isome.lifetime",
   "com.bontecou.isome.lifetime.family.upgrade",
+  "com.bontecou.isome.individual.weekly",
+  "com.bontecou.isome.individual.yearly",
+  "com.bontecou.isome.family.weekly",
+  "com.bontecou.isome.family.yearly",
 ]);
 const PURCHASE_OUTCOMES = new Set([
   "started",

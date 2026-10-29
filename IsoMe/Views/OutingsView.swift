@@ -1516,13 +1516,13 @@ private struct RecordingSessionDetailView: View {
                             .font(TE.mono(.caption, weight: .bold))
                             .tracking(2)
                     }
-                    .foregroundStyle(storeManager.isPurchased ? TE.accent : TE.textMuted)
+                    .foregroundStyle(storeManager.canExport ? TE.accent : TE.textMuted)
                     .frame(maxWidth: .infinity)
                     .frame(height: 46)
-                    .background(storeManager.isPurchased ? TE.accent.opacity(0.08) : TE.textMuted.opacity(0.08))
+                    .background(storeManager.canExport ? TE.accent.opacity(0.08) : TE.textMuted.opacity(0.08))
                     .overlay {
                         RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(storeManager.isPurchased ? TE.accent.opacity(0.5) : TE.textMuted.opacity(0.25), lineWidth: 1)
+                            .strokeBorder(storeManager.canExport ? TE.accent.opacity(0.5) : TE.textMuted.opacity(0.25), lineWidth: 1)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
@@ -1572,7 +1572,7 @@ private struct RecordingSessionDetailView: View {
     }
 
     private var exportButtonTitle: String {
-        if !storeManager.isPurchased { return String(localized: "UNLOCK EXPORT") }
+        if !storeManager.canExport { return String(localized: "UNLOCK EXPORT") }
         let formatName = outingExportFormat.displayName.uppercased()
         if exportFolderManager.hasDefaultFolder && useDefaultExportFolder {
             return String(localized: "EXPORT \(formatName)")
@@ -1642,7 +1642,7 @@ private struct RecordingSessionDetailView: View {
     }
 
     private func exportOuting() {
-        guard storeManager.isPurchased else {
+        guard storeManager.canExport else {
             showingPaywall = true
             return
         }

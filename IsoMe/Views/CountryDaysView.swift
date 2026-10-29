@@ -217,7 +217,7 @@ struct CountryDaysView: View {
     }
 
     private func export() {
-        guard storeManager.isPurchased else { showingPaywall = true; return }
+        guard storeManager.canExport else { showingPaywall = true; return }
         exportDocument = CountryDaysCSVDocument(text: CountryDayCalculator.csv(summaries))
         showingExport = true
     }

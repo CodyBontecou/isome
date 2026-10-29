@@ -1,0 +1,23 @@
+steps:
+  - echo: "Photos: skip optional photo sync and tap Next at (0.6, 0.912); expect
+      Ready. Same documented SwiftUI AX/native coordinate exception as
+      ink-onboarding-navigation."
+  - tap: { x: 0.6, y: 0.912 }
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: "Ready for your\nnext chapter."
+  - await: { idle: true }
+  - echo: "Ready: tap Back at (0.14, 0.912); expect Photos with its optional toggle
+      still off. Same documented coordinate exception."
+  - tap: { x: 0.14, y: 0.912 }
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: "Your places.\nYour photographs."
+  - await: { idle: true }
+executionPrerequisite: English illustrated onboarding Photos page visible on a
+  portrait iPhone 18 Pro with default text size; photos and location not
+  requested. Leaves both unchanged.

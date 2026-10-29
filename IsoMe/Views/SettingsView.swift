@@ -129,7 +129,7 @@ struct SettingsView: View {
                         }
                     } else {
                         TERow {
-                            settingsButton("UNLOCK EXPORT", icon: "lock.open.fill") {
+                            settingsButton(storeManager.hasLegacyTrackingAccess ? "UNLOCK EXPORT" : "CHOOSE A PLAN", icon: "lock.open.fill") {
                                 showingPaywall = true
                             }
                         }
@@ -145,9 +145,11 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
 
             if storeManager.isPurchased {
-                TESectionFooter(text: "Export is unlocked forever. Manage your plan or Apple Family Sharing here.")
+                TESectionFooter(text: "Manage your plan or Apple Family Sharing here.")
             } else {
-                TESectionFooter(text: "Tracking is free and unlimited. Choose an Individual or Family one-time purchase for data export.")
+                TESectionFooter(text: storeManager.hasLegacyTrackingAccess
+                    ? "Your existing free tracking access is preserved. Choose a plan to unlock export."
+                    : "Choose a plan to track. Your existing records remain available to view and export.")
             }
         }
     }
@@ -166,13 +168,7 @@ struct SettingsView: View {
     }
 
     private var currentPurchasePlanName: String {
-        if storeManager.isFamilyUnlocked {
-            return String(localized: "Family Lifetime").uppercased()
-        }
-        if storeManager.isIndividualUnlocked {
-            return String(localized: "Individual Lifetime").uppercased()
-        }
-        return String(localized: "Lifetime Export active").uppercased()
+        (storeManager.activePurchaseOption?.title ?? String(localized: "No active plan")).uppercased()
     }
 
     private var appearanceSection: some View {

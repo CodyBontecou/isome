@@ -1,0 +1,35 @@
+# Portrait iPhone 18 Pro, default text size, English; onboarding incomplete and
+# location access not yet requested. Leaves permissions and onboarding unchanged.
+# Coordinate exceptions: SwiftUI AX labels/ids are missing from Argent's UIView
+# projection. Both id=onboarding-next and text=Next probes failed on a connected tree.
+steps:
+  - launch:
+      ios:
+        app: com.bontecou.isome
+        args: [--use-storekit]
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector: { identifier: onboarding-next }
+  - await: { idle: true }
+  - echo: 'Welcome: tap Next at (0.5, 0.912). Verified AX-to-native projection coordinate exception; expect Core Features.'
+  - tap: { x: 0.5, y: 0.912 }
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector: { text: "The shape\nof your day." }
+  - await: { idle: true }
+  - echo: 'Core Features: tap Next at (0.6, 0.912). Same SwiftUI coordinate exception; expect Permission Setup.'
+  - tap: { x: 0.6, y: 0.912 }
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector: { text: "Your places,\nautomatically." }
+  - await: { idle: true }
+  - echo: 'Permission Setup: leave permissions untouched and tap centered Back at (0.5, 0.912). Same SwiftUI coordinate exception; expect Core Features.'
+  - tap: { x: 0.5, y: 0.912 }
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector: { text: "The shape\nof your day." }
+  - await: { idle: true }

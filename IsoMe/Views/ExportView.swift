@@ -181,7 +181,7 @@ struct ExportView: View {
             .onAppear {
                 ensurePointDataIfNeeded()
             }
-            .onChange(of: storeManager.isPurchased) { _, _ in ensurePointDataIfNeeded() }
+            .onChange(of: storeManager.canExport) { _, _ in ensurePointDataIfNeeded() }
             .onChange(of: options) { _, _ in persistExportPreferences() }
             .onChange(of: options.dataKind.rawValue) { _, _ in ensurePointDataIfNeeded() }
             .onChange(of: selectedFormatTokensKey) { _, _ in
@@ -199,7 +199,7 @@ struct ExportView: View {
             dataKindSection
             webhookSection
             exportFolderSection
-            if exportFolderManager.hasDefaultFolder && storeManager.isPurchased {
+            if exportFolderManager.hasDefaultFolder && storeManager.canExport {
                 dailyExportSection
             }
             filenameSection
@@ -227,7 +227,7 @@ struct ExportView: View {
                 .tracking(2)
                 .foregroundStyle(TE.textPrimary)
 
-            Text("Tracking is free and unlimited. Unlock data export with a one-time purchase.")
+            Text("Your existing free tracking access is preserved. Choose a plan to unlock data export.")
                 .font(TE.mono(.caption2, weight: .medium))
                 .foregroundStyle(TE.textMuted)
                 .multilineTextAlignment(.center)
@@ -1091,8 +1091,8 @@ struct ExportView: View {
 
     private var exportFooter: some View {
         VStack(spacing: 8) {
-            if !storeManager.isPurchased && totalCount > 0 {
-                Text("Preview is free. Unlock export with a one-time purchase.")
+            if !storeManager.canExport && totalCount > 0 {
+                Text("Preview is free. Choose a plan to unlock export.")
                     .font(TE.mono(.caption2, weight: .medium))
                     .foregroundStyle(TE.textMuted)
                     .multilineTextAlignment(.center)
@@ -1173,7 +1173,7 @@ struct ExportView: View {
 
     private var exportButtonLabel: LocalizedStringKey {
         if totalCount == 0 { return "NOTHING TO EXPORT" }
-        if !storeManager.isPurchased { return "UNLOCK EXPORT" }
+        if !storeManager.canExport { return "UNLOCK EXPORT" }
         let n = splitFileCount
         if n == 0 { return "NOTHING TO EXPORT" }
         if n == 1 { return "EXPORT 1 FILE" }
@@ -1232,7 +1232,7 @@ struct ExportView: View {
     // MARK: - Actions
 
     private func runExport() {
-        guard storeManager.isPurchased else {
+        guard storeManager.canExport else {
             showingPaywall = true
             return
         }
