@@ -8,7 +8,7 @@ Two onboarding launch unit tests passed. Simulator walkthroughs covered export f
 
 Release metadata is in `metadata/whereday/version/1.8.1/`. The nine existing listing localizations were copied from distributed 1.8; only What's New and reviewer notes were updated. App Store screenshots and contact details were inherited. No purchase products, prices, availability, or regional overrides were changed by this task.
 
-Private archive, IPA, validation, and App Store receipts are under `.asc/artifacts/release-1.8.1-57/`. Submission status will be recorded after readback.
+Private archive, IPA, validation, and App Store receipts are under `.asc/artifacts/release-1.8.1-57/`. Submitted October 30, 2026 at 08:40:56 America/Puerto_Rico (12:40:56 UTC). App Store Connect readback confirms **WAITING_FOR_REVIEW**, with **MANUAL** release.
 
 ## Candidate qualification
 
@@ -18,4 +18,17 @@ The final SDK-matched test run executed 355 XCTest cases: 354 passed and one Sto
 
 The first full-run attempt hit a full-disk SQLite I/O failure; that environment failure is not counted as a credential or app regression. Rebuildable project caches were cleared before the final run. The analytics-removal checks (2), release-copy checks (6), retired-worker tests (3), and worker typecheck passed.
 
-App Store processing and readiness validation are being checked before review submission.
+Apple processed build 57 successfully. Final IPA-aware App Store readiness validation returned **0 errors, 0 blocking findings**, four optional subscription promotional-image warnings, and two informational notices. The prepared listing inherited its screenshots and previously published App Privacy settings.
+
+## Review submission
+
+- App version: `5f65a38c-ee53-4b8e-8824-1e273236cad2` / **1.8.1**.
+- Build: `cc2bf600-ac6c-42b1-b74f-daa03c8ed934` / **57**, processed VALID.
+- Submission: `c9406336-22cb-4007-8939-396c17d79b73`.
+- Submitted: **October 30, 2026, 08:40:56 America/Puerto_Rico**.
+- Version state: **WAITING_FOR_REVIEW**.
+- Release type: **MANUAL**. This task submitted for review; it did not release the update.
+
+The submission tool created the correct app-version submission and left two unrelated stale draft submissions intact. Exact upload, build-attachment, validation, and submission/readback receipts are retained in the private artifact directory.
+
+After reporting the complete test results, Xcode stalled during result finalization and was stopped; console logs are retained. The unchanged StoreKit cancellation test failure remains a known qualification limitation, not an all-green suite claim.
