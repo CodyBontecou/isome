@@ -34,7 +34,7 @@ class IOSTestRunnerTests(unittest.TestCase):
                     {"name": "iPhone booted", "udid": "booted", "isAvailable": True, "state": "Booted"}],
             }}),
         })
-        self.tool("xcrun", 'import os\nprint(os.environ["DEVICES"])\n')
+        self.tool("xcrun", 'import os, sys\nprint(os.environ.get("SDK_VERSION", "26.5") if "--show-sdk-version" in sys.argv else os.environ["DEVICES"])\n')
         self.tool("xcodebuild", 'import json, os, sys\n'
                   'with open(os.environ["CAPTURE"], "w") as f:\n'
                   '    json.dump({"args": sys.argv[1:], "cwd": os.getcwd()}, f)\n'
@@ -72,6 +72,22 @@ class IOSTestRunnerTests(unittest.TestCase):
         self.env["DEVICES"] = json.dumps(devices)
         self.assertEqual(self.run_runner().returncode, 0)
         self.assertIn("platform=iOS Simulator,id=shutdown", self.invocation()["args"])
+
+    def test_older_booted_runtime_does_not_override_sdk_match(self):
+        devices = json.loads(self.env["DEVICES"])
+        devices["devices"]["com.apple.CoreSimulator.SimRuntime.iOS-26-4-1"] = [
+            {"name": "iPhone old", "udid": "old", "isAvailable": True, "state": "Booted"}]
+        self.env["DEVICES"] = json.dumps(devices)
+        result = self.run_runner()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("platform=iOS Simulator,id=booted", self.invocation()["args"])
+
+    def test_missing_sdk_runtime_does_not_fall_back_to_older_runtime(self):
+        self.env["SDK_VERSION"] = "26.6"
+        result = self.run_runner()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("matching iOS SDK 26.6", result.stderr)
+        self.assertFalse(self.capture.exists())
 
     def test_explicit_destination_and_filters_are_preserved(self):
         self.env["DEVICES"] = "not JSON"  # Explicit destination must bypass discovery.

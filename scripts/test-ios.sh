@@ -37,16 +37,22 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$DESTINATION" ]]; then
+    SDK_VERSION="$(xcrun --sdk iphonesimulator --show-sdk-version)"
     DEVICE_JSON="$(xcrun simctl list devices available -j)"
     UDID="$(printf '%s' "$DEVICE_JSON" | python3 -c '
 import json, sys
+def version(value, separator):
+    parts = tuple(int(part) for part in value.split(separator))
+    return parts + (0,) * (3 - len(parts))
+sdk = version(sys.argv[1], ".")
 candidates = [device for runtime, devices in json.load(sys.stdin)["devices"].items()
-              if ".iOS-" in runtime for device in devices
+              if ".iOS-" in runtime and version(runtime.split(".iOS-", 1)[1], "-") == sdk
+              for device in devices
               if device.get("isAvailable") and device["name"].startswith("iPhone")]
 candidates.sort(key=lambda device: device.get("state") != "Booted")
 print(candidates[0]["udid"] if candidates else "")
-')"
-    [[ -n "$UDID" ]] || fail "No available iPhone simulator. Install an iOS runtime in Xcode or pass --destination for an existing simulator."
+' "$SDK_VERSION")"
+    [[ -n "$UDID" ]] || fail "No available iPhone simulator matching iOS SDK $SDK_VERSION. Install the matching runtime in Xcode or pass --destination explicitly."
     DESTINATION="platform=iOS Simulator,id=$UDID"
 fi
 [[ "$DESTINATION" == "platform=iOS Simulator,"* ]] || fail "--destination must target platform=iOS Simulator"
