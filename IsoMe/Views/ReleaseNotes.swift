@@ -98,13 +98,14 @@ enum IsoMeReleaseNotes {
                             symbolSystemName: "hand.tap",
                             title: "Easier photo selection",
                             description: "Open the photo you intended, even when nearby dots or route markers overlap."
-                        ),
+                        )
+                    ] + (MyselfClaimFeature.isEnabled ? [
                         .init(
                             symbolSystemName: "gift",
                             title: "Claim your myself.md access",
                             description: "Existing purchasers can verify their purchase in Settings and sign in to myself.md to claim complimentary lifetime access."
                         )
-                    ]
+                    ] : [])
                 )
             ]
         ),

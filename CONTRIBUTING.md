@@ -58,7 +58,7 @@ Use the same test runner locally and in GitHub Actions:
 scripts/test-ios.sh
 ```
 
-The runner tests the `IsoMe` scheme in Debug, preferring a booted available iPhone simulator, and prints the `.xcresult` path under `artifacts/test-results/`. It requires Xcode and Python 3. Override the simulator or narrow the tests with:
+The runner tests the `IsoMe` scheme in Debug, requiring an available iPhone simulator matching the selected Xcode iOS SDK and preferring a booted device within that runtime, and prints the `.xcresult` path under `artifacts/test-results/`. It requires Xcode and Python 3. Override the simulator or narrow the tests with:
 
 ```bash
 scripts/test-ios.sh --destination 'platform=iOS Simulator,id=YOUR_SIMULATOR_UDID' \

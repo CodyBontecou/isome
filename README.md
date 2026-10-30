@@ -1,12 +1,14 @@
 # Whereday
 
+The unpublished candidate removes custom in-app analytics, installation-linked event uploads, and advertising attribution. Upgrades erase retired local analytics state. Essential purchase, scheduling, provider and user-requested services remain; myself.md purchase claims stay disabled. Earlier released versions and retained server data require a separate approved retirement. Website measurement is a separate surface and is not removed by this app change.
+
 > **Open source location journaling for iPhone and Apple Watch, with your working history stored on your device.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B%20%7C%20watchOS%2010%2B-lightgrey)](#tech-stack)
 [![Swift](https://img.shields.io/badge/swift-5-orange)](#tech-stack)
 
-Whereday is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No Whereday account or server-side location archive. Apple geocoding and Maps services, default-on first-party onboarding telemetry, and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://whereday.com/privacy).
+Whereday is a location tracking app for iOS and watchOS. It automatically records the places you visit throughout the day, tracks routes with continuous GPS logging, and **stores your working location journal on-device**. No Whereday account or server-side location archive. Apple geocoding and Maps services, first-party onboarding telemetry in earlier releases (disabled in the intended 1.8 release), and optional exports/webhooks have specific network behavior explained in the [privacy policy](https://whereday.com/privacy).
 
 **[🌐 whereday.com](https://whereday.com)** · **[📲 Download on the App Store](https://apps.apple.com/app/id6761960794)** · **[🛠 Contribute](CONTRIBUTING.md)** · **[💬 Discussions](https://github.com/CodyBontecou/whereday/discussions)** · **[👥 Discord](https://discord.gg/jNRWSSSz4N)** · **[⭐ Star this repo](https://github.com/CodyBontecou/whereday)**
 
@@ -92,7 +94,7 @@ The next release introduces paid tracking for **new users only**. Target US pric
 
 **Live pricing is on hold:** Individual Lifetime remains $19.99, Family Lifetime $39.99, and Family Upgrade $19.99 in the U.S. Apply the new lifetime targets only after the subscriptions are approved, the subscription-enabled app is live, and the user authorizes the price changes. No future increase is scheduled.
 
-Weekly and yearly subscriptions offer a 7-day free trial to eligible subscribers, then renew automatically. Lifetime is a one-time purchase without a trial. Viewing and exporting existing records remain available after subscription expiration; new tracking and manual check-ins require access.
+Weekly and yearly subscriptions offer a 7-day free trial to eligible subscribers, then renew automatically. Lifetime is a one-time purchase without a trial. For users joining under the subscription model, viewing and exporting existing records remain available after subscription expiration; new tracking and manual check-ins require access. Deleting the app or buying Lifetime does not cancel an existing subscription. Family Sharing shares access, not a location journal.
 
 Existing users retain free tracking and their previous export purchase requirement. Every existing lifetime purchase remains valid, including the original `com.bontecou.isome.lifetime` Family Sharing unlock. See the [paid-tracking rollout checklist](docs/paid-tracking-rollout.md) before releasing or updating public pricing.
 

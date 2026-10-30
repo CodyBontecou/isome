@@ -1,6 +1,11 @@
 import SwiftUI
 import StoreKit
 
+/// Build-time rollout switch. Keep the claim implementation available for a future release.
+enum MyselfClaimFeature {
+    static let isEnabled = false
+}
+
 /// Sends purchase proof only after the user chooses to claim access. No health or location data is sent.
 struct MyselfClaimView: View {
     let app: String
@@ -42,6 +47,7 @@ struct MyselfClaimView: View {
 
     @MainActor
     private func claim() async {
+        guard MyselfClaimFeature.isEnabled else { return }
         busy = true
         errorMessage = nil
         defer { busy = false }

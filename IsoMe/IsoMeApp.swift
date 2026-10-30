@@ -13,6 +13,7 @@ struct IsoMeApp: App {
     @State private var manualVisitRouter = ManualVisitRouter()
 
     init() {
+        RetiredAnalyticsCleanup.run()
         #if DEBUG && os(iOS)
         DebugSelfie.install()
         #endif
@@ -102,6 +103,7 @@ struct IsoMeApp: App {
 
         if url.host == "myself", url.path == "/claim", url.user == nil,
            url.password == nil, url.port == nil, url.query == nil, url.fragment == nil {
+            guard MyselfClaimFeature.isEnabled else { return }
             showingMyselfClaim = true
             return
         }

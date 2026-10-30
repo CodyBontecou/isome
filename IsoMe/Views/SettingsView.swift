@@ -45,7 +45,9 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         purchaseSection
-                        myselfClaimSection
+                        if MyselfClaimFeature.isEnabled {
+                            myselfClaimSection
+                        }
                         appearanceSection
                         trackingSection
                         inferredOutingsSection

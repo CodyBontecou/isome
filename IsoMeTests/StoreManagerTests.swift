@@ -245,8 +245,8 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertEqual(store.productsByID.count, 7)
         let prices: [IsoMePurchaseOption: Decimal] = [
             .individualWeekly: Decimal(string: "0.99")!, .individualYearly: Decimal(string: "29.99")!,
-            .individual: Decimal(string: "49.99")!, .familyWeekly: Decimal(string: "1.99")!,
-            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "89.99")!
+            .individual: Decimal(string: "19.99")!, .familyWeekly: Decimal(string: "1.99")!,
+            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "39.99")!
         ]
         for (option, price) in prices {
             let product = try XCTUnwrap(store.product(for: option))
@@ -254,8 +254,11 @@ final class StoreManagerTests: XCTestCase {
             XCTAssertEqual(product.isFamilyShareable, option.isFamilyPlan)
         }
         XCTAssertTrue(store.trialEligibleProductIDs.contains(IsoMePurchaseOption.individualWeekly.productID))
-        let result = await store.purchase(.individualWeekly)
-        XCTAssertEqual(result, .succeeded)
+        // Exercise real StoreKit transactions without purchase-sheet presentation,
+        // which requires a foreground scene unavailable in hosted test runners.
+        let trial = try await session.buyProduct(identifier: IsoMePurchaseOption.individualWeekly.productID)
+        XCTAssertEqual(trial.productID, IsoMePurchaseOption.individualWeekly.productID)
+        await trial.finish()
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isPurchased { break }
@@ -274,8 +277,9 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertFalse(store.isPurchased)
         XCTAssertTrue(store.hasPurchasedBefore)
         XCTAssertTrue(store.canExport)
-        let lifetime = await store.purchase(.family)
-        XCTAssertEqual(lifetime, .succeeded)
+        let lifetime = try await session.buyProduct(identifier: IsoMePurchaseOption.family.productID)
+        XCTAssertEqual(lifetime.productID, IsoMePurchaseOption.family.productID)
+        await lifetime.finish()
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isFamilyUnlocked { break }
@@ -285,9 +289,4 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertNil(store.trackingExpiration)
     }
 
-    func testAnalyticsProductIDsMatchStoreKitProductIDs() {
-        for option in IsoMePurchaseOption.allCases {
-            XCTAssertEqual(option.analyticsProductID.rawValue, option.productID)
-        }
-    }
 }

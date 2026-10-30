@@ -1,6 +1,8 @@
 # Complimentary myself.md access
 
-Settings now includes **Claim myself.md access**. The user explicitly agrees to submit purchase evidence, the myself.md service verifies it, and a short-lived browser link lets them sign in and claim lifetime access for one account. No health or location data is sent.
+The claim flow is currently hidden behind the build-time `MyselfClaimFeature.isEnabled` flag in `IsoMe/Views/MyselfClaimView.swift` (default `false`). This hides the Settings section and release-note mention, ignores claim deep links, and prevents purchase verification. Set it to `true` to restore the flow in a future build after completing the validation below.
+
+When enabled, Settings includes **Claim myself.md access**. The user explicitly agrees to submit purchase evidence, the myself.md service verifies it, and a short-lived browser link lets them sign in and claim lifetime access for one account. No health or location data is sent.
 
 iso.me retains its existing purchase and export policies. Base Individual and Family lifetime purchasers qualify. Family-shared recipients and upgrade-only products cannot claim separately. Health.md also honors its existing original-download cutoff of April 26, 2026, 00:00 UTC. Health.md Google Play purchasers qualify through `health_md_premium_lifetime`; F-Droid and the free Mac companion do not prove a paid purchase.
 
