@@ -258,6 +258,7 @@ final class StoreManagerTests: XCTestCase {
         // which requires a foreground scene unavailable in hosted test runners.
         let trial = try await session.buyProduct(identifier: IsoMePurchaseOption.individualWeekly.productID)
         XCTAssertEqual(trial.productID, IsoMePurchaseOption.individualWeekly.productID)
+        await trial.finish()
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isPurchased { break }
@@ -278,6 +279,7 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertTrue(store.canExport)
         let lifetime = try await session.buyProduct(identifier: IsoMePurchaseOption.family.productID)
         XCTAssertEqual(lifetime.productID, IsoMePurchaseOption.family.productID)
+        await lifetime.finish()
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isFamilyUnlocked { break }
