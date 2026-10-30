@@ -1,5 +1,7 @@
 # Whereday 1.8 subscription release
 
+**Submitted:** app 1.8/build 52 and all four subscription versions are **IN_REVIEW**, with **MANUAL** release. See [the verified current record](../../subscription-staging-1.8.md). The uploaded frozen binary disables analytics; newer concurrent source-only removal work is not included and requires another unused build number if selected for a replacement.
+
 > Later unpublished source revision: custom app analytics are now removed in all build configurations, including Debug. The source/build freeze and prior disable-only behavior recorded below are historical evidence and do not qualify the current edited source. No new archive, upload, submission, policy publication or release was performed for the removal. Use privacy-review.md for the current proposal; build and requalify a fresh candidate after review.
 
 This candidate supersedes the unsubmitted 1.7.19/build 51 draft. The existing ASC app-version record was renamed to **1.8**, preserving **MANUAL** developer release. New distribution build: **52**; old build 51 remains unchanged.
@@ -47,4 +49,4 @@ Apple Business page readback: Free Apps and Paid Apps agreements **Active**, thr
 - `terms-proposed.md`: retained local drafting input; published authoritative text is in `marketing/public/terms.html`, not this file's proposal preamble.
 - Screenshots: nine-locale iPhone/iPad refresh and held-price subscription review captures under the private artifacts. Watch screenshots are inherited; the Watch UI did not change in this candidate.
 
-Read the final staging record for the actual submission state. **READY_FOR_REVIEW alone is an unsubmitted draft, not Apple review or approval.** Physical multi-account Family Sharing and real-device release acceptance should be checked before manual developer release, even if App Review approves first.
+Read the [current submission record](../../subscription-staging-1.8.md) for the actual parent submission state; individual review-item flags can remain READY_FOR_REVIEW even while the parent is WAITING_FOR_REVIEW. Eighty refreshed storefront images were delivered; one optional Hindi iPad permissions image was withheld after stalling in Apple processing, leaving three complete images for that locale/device. Physical multi-account Family Sharing and real-device release acceptance should be checked before manual developer release, even if App Review approves first.

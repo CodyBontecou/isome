@@ -13,7 +13,7 @@ By [Cody Bontecou](https://isolated.tech), Whereday’s developer · Reviewed Oc
 
 Whereday records the places you visit and the routes you choose to track, then lets you review that history on your iPhone. It is an independent, open source project built by [Cody Bontecou at isolated.tech](https://isolated.tech). The goal is a useful personal journal with portable files and understandable controls.
 
-The app requires no account. Your journal stays on your device; Whereday does not operate a server archive of your location history. Apple geocoding and Maps services, optional webhook delivery, first-party onboarding analytics, and export scheduling have specific network behavior described in the [privacy policy](https://whereday.com/privacy).
+The app requires no account. Your journal stays on your device; Whereday does not operate a server archive of your location history. Apple geocoding and Maps services, optional webhook delivery, earlier-version earlier-version first-party onboarding analytics, and export scheduling have specific network behavior described in the [privacy policy](https://whereday.com/privacy).
 
 ## What you can use
 

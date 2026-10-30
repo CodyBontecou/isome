@@ -1,4 +1,4 @@
-"""Offline integrity checks for the local 1.7.19 subscription copy drafts."""
+"""Offline integrity checks for the current 1.8 subscription copy drafts."""
 
 import json
 from pathlib import Path
@@ -6,7 +6,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "1.7.19"
+VERSION = "1.8"
 LISTINGS = ROOT / "metadata" / "whereday" / "version" / VERSION
 BASELINE = LISTINGS.parent / "1.7.18"
 DOCUMENTS = ROOT / "docs" / "release-drafts" / VERSION
@@ -46,6 +46,7 @@ class SubscriptionReleaseDraftTests(unittest.TestCase):
                 self.assertIn("https://whereday.com/terms", listing["description"])
                 self.assertIn("https://whereday.com/privacy", listing["description"])
                 self.assertIn("EULA", listing["description"])
+                self.assertIn("https://www.apple.com/legal/internet-services/itunes/dev/stdeula/", listing["description"])
                 for field in ["description", "promotionalText", "whatsNew"]:
                     self.assertNotRegex(listing[field], r"\$\d|\bUSD\b|19\.99|39\.99|49\.99|89\.99|40\.00")
                     self.assertIn("7", listing[field])
@@ -75,7 +76,8 @@ class SubscriptionReleaseDraftTests(unittest.TestCase):
         notes = (DOCUMENTS / "reviewer-notes.txt").read_text()
         self.assertLessEqual(len(notes), 4000)
         self.assertIn(VERSION, notes)
-        self.assertIn("Intended build: 51", notes)
+        self.assertIn("Intended build: 52", notes)
+        self.assertIn("disables onboarding/purchase analytics", notes)
         for product_id in PRODUCT_IDS:
             self.assertIn(product_id, notes)
         self.assertIn("50 or earlier", notes)

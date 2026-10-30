@@ -30,7 +30,7 @@ Choose the action for your task
 | Fix a stop already in your journal | Open that visit and confirm or correct it.
 | Add a stop from an earlier day | Map → + → Add past visit.
 
-New-user recording requires active access. Existing free users retain tracking and their previous export requirement; new-cohort users keep viewing/export of existing records after expiration. See see [current pricing](https://whereday.com/#pricing).
+New-user recording requires active access. Existing free users retain tracking and their previous export requirement; new-cohort users keep viewing/export of existing records after expiration. See [current pricing](https://whereday.com/#pricing).
 
 ## Manage reusable saved locations
 

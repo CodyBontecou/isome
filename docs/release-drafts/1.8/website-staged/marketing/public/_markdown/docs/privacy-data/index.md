@@ -42,7 +42,7 @@ The photo feature reads your library on-device to match pictures to places. Phot
 ## Deleting your data
 
 - Everything, in-app: Settings → Data → Clear all data permanently removes every visit, point, outing, photo match, and saved place.
-- Everything, bluntly: deleting the app removes your entire journal and the local analytics install ID from that device.
+- Uninstalling: removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the [Privacy Policy](https://whereday.com/privacy) for technical-record retention and privacy requests.
 - Single items: delete any visit or outing from its detail page.
 
 ## Backups are your job (by design)
