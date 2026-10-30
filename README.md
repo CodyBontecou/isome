@@ -84,7 +84,7 @@ iOS lock screen widget via Live Activities and watchOS complications for quick t
 
 ## Pricing
 
-The next release introduces paid tracking for **new users only**. Target US prices for that release (subscription drafts are ready to submit; no build or subscription has been submitted):
+Version 1.8 introduces paid tracking for **new users only**. Build 52 and the four subscriptions were submitted; the app is now `IN_REVIEW`, with manual release. The current working checkout contains newer, unsubmitted changes; qualify a new candidate before replacing build 52. See [release status](docs/subscription-staging-1.8.md). Weekly/yearly subscriptions are the rollout choice; Android is outside this rollout. The table below contains future Lifetime targets, not current Lifetime prices:
 
 | Plan | Individual | Apple Family Sharing |
 |---|---:|---:|

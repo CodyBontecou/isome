@@ -1,6 +1,8 @@
 # Local subscription copy drafts for 1.7.19
 
-Nothing in this package has been uploaded, published, submitted, or released. No App Store Connect request or website deployment was made while drafting it. The intended build is 51; version/build availability must be reconfirmed before any separately authorized staging.
+> **Historical package:** superseded by [1.8](../1.8/README.md), now submitted with build 52 and all four subscriptions for App Review with MANUAL release. See [the current record](../../subscription-staging-1.8.md). The build-51 staging narrative below is preserved as historical evidence.
+
+The nine app-version localizations and reviewer notes were subsequently staged, with user authorization, against uploaded **1.7.19/build 51** from pinned commit `d120326`. They remain an **unsubmitted draft**, not a published/released update or approved wording. The proposed extra subscription localizations and terms are still local; no website content or EULA selection was changed. See the [staging record](../../subscription-staging-1.7.19.md) for verified IDs and remaining approvals. Build 51 is now used; any replacement binary needs an unused build number.
 
 The [live pricing hold](../../paid-tracking-rollout.md#live-pricing-hold--latest-instruction) remains mandatory. Do not change prices or schedule an increase when reviewing or staging this copy.
 
@@ -42,9 +44,9 @@ Public listing drafts contain no fixed dollar amounts. Apple supplies the actual
 
 The target IAP prices must not be applied until all four subscriptions are approved, the subscription-enabled app is live, and the user separately authorizes changing prices. No date-based increase is scheduled by this package. Preserve regional overrides again whenever a later price change is authorized.
 
-## Review required before use
+## Review required before submission
 
-1. Owner review of the policy, reviewer steps, plan names, and copy. The non-English text is draft translation, not certified or native-speaker-reviewed legal copy. Native-language review is still needed before staging. The legal proposal and reviewer instructions are in English only; do not assume the website terms have been localized.
+1. Owner review of the policy, reviewer steps, plan names, and copy. The non-English text is draft translation, not certified or native-speaker-reviewed legal copy. The version localizations have been staged as drafts; native-language approval is still needed before submission. The legal proposal and reviewer instructions are in English only; do not assume the website terms have been localized.
 2. Legal review of the proposed terms, trial/cancellation wording, consumer rights, and applicable Apple license. Confirm the existing App Store EULA selection. A website terms update does not set a custom EULA. The proposed copy flags the existing section 05 restrictions for reconciliation with the repository's AGPL license rather than silently changing license rights.
 3. Separately authorize and time the legal-page update so the app's existing `/terms` link explains the subscription model during review. The draft listing link currently resolves to the existing old-model terms; offline validation verifies the link's presence and syntax, not the proposed terms being live. No URL checks or network fetches were run for draft validation.
 4. Recheck the final distribution build, migration cutoff, sandbox eligibility, restore, expiry, Family Sharing, Watch, permissions, and UI paths. Reviewer steps are expected behavior to verify, not a claim that device QA has already passed.

@@ -1,6 +1,12 @@
 # Subscription release readiness — October 29, 2026
 
-> Current source/copy review: 1.8 intends a replacement build 52 with production onboarding analytics disabled. The uploaded build-51 record below describes a different binary. Keep the first-paid migration cutoff at 51. See [1.8 privacy review](release-drafts/1.8/privacy-review.md) and the [1.8 Terms proposal](release-drafts/1.8/terms-proposed.md). No submission, release, price change or privacy publication is authorized by this note.
+> **Latest verified app state:** **1.8/build 52 is IN_REVIEW**, with **MANUAL** release. It was submitted with all four subscription versions on October 30 at 00:04:38 UTC. The [current record](subscription-staging-1.8.md) supersedes the older staging/audit states below. Newer local source-only analytics removal is not in the frozen submitted binary; do not reuse build 52 for it. No release or lifetime price change has been authorized.
+
+> Current source/copy review: the working checkout removes the analytics collector in every configuration. That source is newer than submitted build 52 and requires a newly qualified binary with an unused build number. Keep the first-paid migration cutoff at 51. See [1.8 privacy review](release-drafts/1.8/privacy-review.md). The historical build-51 preparation below is provenance, not current release status. Qualification and copy reconciliation are authorized; public app release and Lifetime repricing remain separate steps.
+
+## Historical preparation record
+
+The sections below retain the original audit and build-51 staging sequence. Use the linked 1.8 record above for the current submission, legal-publication, and privacy state.
 
 **1.7.19/build 51 is now uploaded and staged, but not submitted or released.** The [staging record](subscription-staging-1.7.19.md) supersedes the original read-only audit below: the build is `VALID`, manual release is confirmed, and an unsubmitted review draft contains the app, subscription group, and four subscription versions. API validation has no blocking findings, but privacy/legal, screenshot, copy, and final-device-QA approvals remain. Live lifetime prices are unchanged.
 

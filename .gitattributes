@@ -1,2 +1,5 @@
 # Keep the checked native Country Days CSV bytes, including CRLF row endings.
 marketing/public/samples/synthetic-country-days.csv -text whitespace=trailing-space,space-before-tab,cr-at-eol
+
+# Unified patches contain intentional blank context lines.
+*.patch -whitespace

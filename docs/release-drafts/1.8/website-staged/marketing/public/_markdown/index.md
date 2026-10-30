@@ -72,7 +72,7 @@ Record hikes, road trips, neighborhood walks, and field visits with route lines,
 
 ### Private by default
 
-No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. First-party onboarding and purchase telemetry is on by default and is explained in the privacy policy.
+No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. This release removes custom onboarding and purchase telemetry. Earlier versions and retained technical records are described in the privacy policy.
 
 ● Local
 
@@ -306,13 +306,13 @@ On-device by design
 
 ## Your location history is not a growth dataset.
 
-Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. First-party onboarding telemetry is on by default; optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
+Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. This release removes custom onboarding telemetry; earlier versions may still send the technical events described in our policy. Optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
 
 Whereday location uploads None
 
 Account required No
 
-Onboarding telemetry On by default
+Onboarding telemetry Removed in this release
 
 Apple geocoding Optional
 

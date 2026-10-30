@@ -1,5 +1,9 @@
 # Paid tracking rollout
 
+> Source integration is authorized for main. App/website/Worker releases remain on hold. Keep current Lifetime prices unchanged; future price targets in historical proposals are not authorization to apply them. Physical-device and multi-account Family Sharing acceptance are deferred.
+
+> **Current remote state:** **1.8/build 52 and all four subscriptions are WAITING_FOR_REVIEW**, with **MANUAL** release. See [the verified submission record](subscription-staging-1.8.md). The frozen submitted binary disables analytics; newer local source-only removal work described below is not in that binary. Any replacement now needs another unused build number. Lifetime prices and the hold below are unchanged; neither release nor a price increase is authorized.
+
 > Unpublished candidate update: custom in-app analytics and attribution have been removed. Historical analytics below describe earlier builds/services. Essential services remain. Prices are unchanged; nothing is deployed, submitted, or released.
 
 > Current source/copy review: 1.8 intends a replacement build 52 with production onboarding analytics disabled. The uploaded build-51 record below describes a different binary. Keep the first-paid migration cutoff at 51. See [1.8 privacy review](release-drafts/1.8/privacy-review.md) and the [1.8 Terms proposal](release-drafts/1.8/terms-proposed.md). No submission, release, price change or privacy publication is authorized by this note.
