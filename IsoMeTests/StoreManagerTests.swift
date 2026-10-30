@@ -254,8 +254,10 @@ final class StoreManagerTests: XCTestCase {
             XCTAssertEqual(product.isFamilyShareable, option.isFamilyPlan)
         }
         XCTAssertTrue(store.trialEligibleProductIDs.contains(IsoMePurchaseOption.individualWeekly.productID))
-        let result = await store.purchase(.individualWeekly)
-        XCTAssertEqual(result, .succeeded)
+        // Exercise real StoreKit transactions without purchase-sheet presentation,
+        // which requires a foreground scene unavailable in hosted test runners.
+        let trial = try await session.buyProduct(identifier: IsoMePurchaseOption.individualWeekly.productID)
+        XCTAssertEqual(trial.productID, IsoMePurchaseOption.individualWeekly.productID)
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isPurchased { break }
@@ -274,8 +276,8 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertFalse(store.isPurchased)
         XCTAssertTrue(store.hasPurchasedBefore)
         XCTAssertTrue(store.canExport)
-        let lifetime = await store.purchase(.family)
-        XCTAssertEqual(lifetime, .succeeded)
+        let lifetime = try await session.buyProduct(identifier: IsoMePurchaseOption.family.productID)
+        XCTAssertEqual(lifetime.productID, IsoMePurchaseOption.family.productID)
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isFamilyUnlocked { break }
