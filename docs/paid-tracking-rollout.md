@@ -2,6 +2,9 @@
 
 > **October 30, 2026 launch update:** The owner explicitly authorized applying Lifetime prices immediately, overriding the earlier live-app prerequisite, and then releasing the approved app. ASC readback confirms **1.8/build 52 READY_FOR_DISTRIBUTION**, all four subscriptions APPROVED, and U.S. Lifetime prices of **$49.99 Individual / $89.99 Family / $40.00 Family Upgrade**. All existing non-U.S. manual price overrides were preserved. Evidence: `.asc/artifacts/lifetime-launch-20261030/`. The historical holds and pending-review states below are superseded. The separate phone QA build is not the distributed binary.
 
+> Earlier integration instruction (historical):
+> Source integration is authorized for main. App/website/Worker releases remain on hold. Keep current Lifetime prices unchanged; future price targets in historical proposals are not authorization to apply them. Physical-device and multi-account Family Sharing acceptance are deferred.
+
 > **Current remote state:** **1.8/build 52 and all four subscriptions are WAITING_FOR_REVIEW**, with **MANUAL** release. See [the verified submission record](subscription-staging-1.8.md). The frozen submitted binary disables analytics; newer local source-only removal work described below is not in that binary. Any replacement now needs another unused build number. Lifetime prices and the hold below are unchanged; neither release nor a price increase is authorized.
 
 > Unpublished candidate update: custom in-app analytics and attribution have been removed. Historical analytics below describe earlier builds/services. Essential services remain. Prices are unchanged; nothing is deployed, submitted, or released.

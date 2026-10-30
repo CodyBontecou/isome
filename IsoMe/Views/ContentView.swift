@@ -223,11 +223,23 @@ private struct MainTabView: View {
 
     @ViewBuilder
     private func journalWorkspace(mapIsPrimary: Bool) -> some View {
+        // The Duo SDK ships with Swift 6.4; older SDKs cannot resolve ArrangementView.
+        #if compiler(>=6.4)
         if #available(iOS 27.1, *) {
             DuoJournalWorkspace(viewModel: viewModel, mapIsPrimary: mapIsPrimary) {
                 selectedTab = 0
             }
-        } else if mapIsPrimary {
+        } else {
+            singlePaneJournalWorkspace(mapIsPrimary: mapIsPrimary)
+        }
+        #else
+        singlePaneJournalWorkspace(mapIsPrimary: mapIsPrimary)
+        #endif
+    }
+
+    @ViewBuilder
+    private func singlePaneJournalWorkspace(mapIsPrimary: Bool) -> some View {
+        if mapIsPrimary {
             LocationMapView(viewModel: viewModel)
         } else {
             OutingsView(viewModel: viewModel) { selectedTab = 0 }
@@ -247,6 +259,8 @@ private struct MainTabView: View {
     }
 }
 
+
+#if compiler(>=6.4)
 /// System arrangements retain the primary screen while the inner display gains a companion.
 /// They also keep each page clear of the active hinge without device-name or orientation checks.
 @available(iOS 27.1, *)
@@ -342,6 +356,8 @@ private struct DuoJournalWorkspace: View {
     }
 
 }
+
+#endif
 
 private struct OnboardingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion

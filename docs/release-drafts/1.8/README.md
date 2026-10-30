@@ -2,6 +2,9 @@
 
 **Submitted:** app 1.8/build 52 and all four subscription versions are **WAITING_FOR_REVIEW**, with **MANUAL** release. See [the verified current record](../../subscription-staging-1.8.md). The uploaded frozen binary disables analytics; newer concurrent source-only removal work is not included and requires another unused build number if selected for a replacement.
 
+Earlier review snapshot:
+**Submitted:** app 1.8/build 52 and all four subscription versions are **IN_REVIEW**, with **MANUAL** release. See [the verified current record](../../subscription-staging-1.8.md). The uploaded frozen binary disables analytics; newer concurrent source-only removal work is not included and requires another unused build number if selected for a replacement.
+
 > Later unpublished source revision: custom app analytics are now removed in all build configurations, including Debug. The source/build freeze and prior disable-only behavior recorded below are historical evidence and do not qualify the current edited source. No new archive, upload, submission, policy publication or release was performed for the removal. Use privacy-review.md for the current proposal; build and requalify a fresh candidate after review.
 
 This candidate supersedes the unsubmitted 1.7.19/build 51 draft. The existing ASC app-version record was renamed to **1.8**, preserving **MANUAL** developer release. New distribution build: **52**; old build 51 remains unchanged.

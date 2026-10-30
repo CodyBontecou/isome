@@ -133,29 +133,41 @@
  
 --- a/marketing/public/_markdown/docs/privacy-data/index.md
 +++ b/marketing/public/_markdown/docs/privacy-data/index.md
-@@ -30,7 +30,7 @@
+@@ -30,8 +30,9 @@
  | Where | What's sent | When | Off switch
  | Apple geocoding | Coordinates of a visit (to fetch its name/address) | When naming visits | Settings → Location names
  | Apple Maps | Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images) | When you use those features | Features are opt-in per use; road-matching toggle in map filters
--| Earlier-version Whereday analytics | Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — never coordinates, visits, routes, or anything you type | On by default in earlier versions; disabled in production version 1.8 | Updating to 1.8 stops sending and discards unsent events; it does not erase received records
+-| Whereday analytics (first-party, on by default) | Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — never coordinates, visits, routes, or anything you type | During onboarding and purchases | None in-app today; deleting the app removes the install ID
+-| Export scheduler | Time zone, schedule times, push token, random install ID — timing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off
 +| Earlier-version Whereday analytics | Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — never coordinates, visits, routes, or anything you type | On by default in earlier versions; removed in candidate version 1.8 (all build configurations) | Updating to the candidate erases retired local analytics state; previously received records need separate deletion
- | Export scheduler | Time zone, schedule times, push token, separate installation ID — timing/routing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain
- | Earlier-version myself.md purchase claims | Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption | Only after choosing to verify an eligible purchase; disabled in version 1.8 | Do not initiate a claim; account deletion and limited retained purchase-protection records follow the [Privacy Policy](https://whereday.com/privacy)
++| Export scheduler | Time zone, schedule times, push token, separate installation ID — timing/routing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain
++| Earlier-version myself.md purchase claims | Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption | Only after choosing to verify an eligible purchase; disabled in version 1.8 | Do not initiate a claim; account deletion and limited retained purchase-protection records follow the [Privacy Policy](https://whereday.com/privacy)
  | Your webhook | Location points and visits, in your chosen format | Only after you configure an endpoint | Disable webhooks (off by default)
+ 
+ ## Photos
+@@ -41,7 +42,7 @@
+ ## Deleting your data
+ 
+ - Everything, in-app: Settings → Data → Clear all data permanently removes every visit, point, outing, photo match, and saved place.
+-- Everything, bluntly: deleting the app removes your entire journal and the local analytics install ID from that device.
++- Uninstalling: removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the [Privacy Policy](https://whereday.com/privacy) for technical-record retention and privacy requests.
+ - Single items: delete any visit or outing from its detail page.
+ 
+ ## Backups are your job (by design)
 --- a/marketing/public/_markdown/index.md
 +++ b/marketing/public/_markdown/index.md
 @@ -3,17 +3,17 @@
  #  Remember where you went.
  Keep your history on your iPhone.
  
--Start tracking to record your own routes and detect visits, then review the day on your iPhone. No account. No Whereday location server. Existing users retain free recording. New users joining with version 1.8 choose a tracking plan; eligible subscriptions include a 7-day free trial.
+-Start tracking to record your own routes and detect visits, then review the day on your iPhone. No account. No Whereday location server. Recording is free; portable exports are an optional purchase.
 +Start tracking to record your own routes and detect visits, then review the day on your iPhone. No Whereday account or location server archive. New tracking requires active access; eligible subscriptions include a 7-day trial.
  
  [  Download free ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8) [See how it works](https://whereday.com/#inside)
  
  Whereday is currently listed as iso.me in the U.S. App Store.
  
--Free download. Version 1.8 introduces tracking plans for new users; existing users keep their access. Current U.S. Lifetime options remain $19.99 Individual or $39.99 Family.
+-Free download and free tracking. Lifetime export access is $19.99 Individual or $39.99 with Apple Family Sharing in the U.S. App Store; local prices reflect purchasing power.
 -
 -Free
 -
@@ -181,7 +193,7 @@
  
  ### Private by default
  
--No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. Version 1.8 disables onboarding and purchase telemetry. Earlier versions may still send the technical events described in the privacy policy.
+-No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. First-party onboarding and purchase telemetry is on by default and is explained in the privacy policy.
 +No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. This release removes custom onboarding and purchase telemetry. Earlier versions and retained technical records are described in the privacy policy.
  
  ● Local
@@ -190,7 +202,7 @@
  
  ### Try your own first recording
  
--Supported import is free. New users joining with version 1.8 choose a tracking plan; existing users retain their free tracking and prior purchase rights. See [access and pricing](https://whereday.com/#pricing).
+-Recording and review are free. File export uses an optional lifetime purchase; supported import is free.
 +New-user recording requires active access. Existing free users keep tracking and their prior export requirement. Subscription-cohort users can view/export saved records after expiration.
  
  [
@@ -199,7 +211,7 @@
  
  ## Your location history is not a growth dataset.
  
--Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. Production version 1.8 disables onboarding/purchase analytics; earlier versions can still send the technical events described in our policy. Optional exports and webhooks go to destinations you choose. [Read the network and storage details](https://whereday.com/privacy).
+-Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. First-party onboarding telemetry is on by default; optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
 +Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. This release removes custom onboarding telemetry; earlier versions may still send the technical events described in our policy. Optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
  
  Whereday location uploads None
@@ -215,41 +227,37 @@
  
  ## The full capability ledger.
  
--Access depends on cohort/plan
--Existing purchase rights preserved
+-Included · Free
+-Pro · One-time unlock
 +Weekly · Yearly
 +Lifetime · One-time purchase
  
  Daily timeline & outingsIncluded
  
-@@ -373,29 +373,29 @@
+@@ -373,16 +373,16 @@
  
  § 05 Pricing
  
--## New-user plans. Existing access protected.
+-## Free tracking. Pay once if you need export.
 -
--Subscription or Lifetime
+-No subscription
 +## Choose weekly, yearly, or Lifetime access.
 +
 +Eligible 7-day trial
  No ad business
  
--## Choose access that fits your journal.
+ ## Install it first. Unlock export only when it matters.
+ 
+-Whereday is free to download, and private visit and route tracking is free. Lifetime export access covers all eight formats, scheduled auto-exports, and webhook delivery. Choose Individual for $19.99 or Family Sharing for $39.99 in the U.S. App Store; Individual owners can upgrade later for $19.99. Local prices reflect purchasing power and applicable taxes.
 -
--Whereday is free to download. Beginning with version 1.8, new users choose Individual or Family access through a weekly or yearly subscription, or a separate Lifetime purchase. Eligible subscriptions offer a 7-day free trial, then renew at Apple's displayed price and interval unless canceled. Existing users retain free tracking, their previous export purchase requirements, and all prior lifetime rights. Current U.S. Lifetime prices remain $19.99 Individual and $39.99 Family; eligible Individual owners can upgrade to Family Sharing for $19.99. Storefront prices and taxes may vary. See our [purchase and cancellation terms](https://whereday.com/terms).
--
--- Existing tracking access remains protected
-+## Install it first. Unlock export only when it matters.
-+
+-- No subscription required for tracking
 +New users choose Individual or Apple Family Sharing weekly, yearly, or Lifetime access before recording. Eligible subscriptions include a 7-day trial, then renew automatically at the displayed price. Lifetime is charged once with no trial. Existing users keep free tracking and previous export requirements; existing purchases remain valid.
 +
 +- New-user tracking requires active access
  - No ads or ad targeting
  - No server-side location storage
  - No account wall before you can try it
- 
--WHEREDAY PRO ● Lifetime option
-+WHEREDAY PRO ● Optional unlock
+@@ -391,11 +391,11 @@
  
  $19.99
  
@@ -257,8 +265,8 @@
 +Existing lifetime prices remain unchanged. Apple displays the current local price before confirmation. Eligible lifetime owners can add Family Sharing; subscriptions alone do not qualify for that upgrade.
  
  - Download the appFree
--- New-user trackingTrial or active access
--- Existing-user trackingRetained free access
+-- Tracking, timeline & outingsFree
+-- Apple Watch, widgets, ShortcutsFree
 +- New-user trackingActive access
 +- Watch and Shortcut recordingActive access
  - Import from backupFree
@@ -268,39 +276,161 @@
  
  What is free and what is Pro?
  
--The download and supported import are free. New users joining with version 1.8 need an eligible trial, subscription, or Lifetime purchase to begin tracking. Existing users retain free tracking and their earlier export purchase requirements; prior lifetime purchases remain valid. Current U.S. Lifetime prices remain $19.99 Individual, $39.99 Family, and $19.99 for an eligible Family Upgrade. Apple shows local prices, trial eligibility, and renewal terms before confirmation. See [the complete terms](https://whereday.com/terms).
+-The app is free to download; tracking, the timeline, the Watch app, widgets, and import are free. Lifetime export access covers all eight formats, scheduled automatic exports, and webhook delivery. It costs $19.99 for Individual or $39.99 for Family in the U.S. App Store, with a $19.99 Family Upgrade available to Individual owners. Local prices reflect purchasing power and may vary by storefront.
 +New users need weekly, yearly, or Lifetime access before tracking. Eligible subscriptions include a 7-day trial. Existing free users retain tracking and their prior export purchase requirement. Existing lifetime purchases remain valid; Apple shows current local prices.
  
  Does Whereday work with OwnTracks, Overland, or Dawarich?
  
 --- a/marketing/public/_markdown/privacy.md
 +++ b/marketing/public/_markdown/privacy.md
-@@ -37,7 +37,7 @@
+@@ -8,7 +8,7 @@
+ 
+ Updated
+ 
+-October 26, 2026
++October 29, 2026
+ 
+ Scope
+ 
+@@ -37,9 +37,10 @@
  The App may make network requests in the following circumstances:
  
  - Apple system services (optional): if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy.
--- Earlier-version onboarding analytics: beginning with version 1.8, production builds disable onboarding/purchase analytics and discard queued unsent events. Earlier versions enable first-party analytics by default: onboarding steps, permission/tracking choices, paywall interactions, product IDs, purchase/restore outcomes, coarse technical errors, app version/build, and platform. Our Cloudflare-hosted service stores these with random installation/event IDs and receipt time. These are installation-linked records, not anonymous aggregate counts. Reports do not include coordinates, visits, routes, addresses, place names, photos, export contents, or text you enter. We use them to understand onboarding/purchases and diagnose failures, not cross-company targeted advertising or data-broker sharing.
+-- First-party onboarding analytics (on by default): the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to Whereday's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier.
 +- Earlier-version onboarding analytics: the candidate version 1.8 removes custom onboarding/purchase analytics, its installation identifiers and unsent queues in every build configuration. Earlier versions enable first-party analytics by default: onboarding steps, permission/tracking choices, paywall interactions, product IDs, purchase/restore outcomes, coarse technical errors, app version/build, and platform. Our Cloudflare-hosted service stores these with random installation/event IDs and receipt time. These are installation-linked records, not anonymous aggregate counts. Reports do not include coordinates, visits, routes, addresses, place names, photos, export contents, or text you enter. We use them to understand onboarding/purchases and diagnose failures, not cross-company targeted advertising or data-broker sharing.
  - Webhook delivery (off by default, Pro): if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; Whereday never sees your endpoint or your data.
- - Scheduled export wake-ups (only if enabled): our Cloudflare-hosted service stores a separate installation identifier, Apple push token, platform/bundle identifier, time zone, schedule settings, and service timing information so it can send scheduled wake-ups. It receives no location records, export contents, folder names, or file names. The scheduling identifier is stored in Keychain and may survive uninstalling the app.
- - Optional myself.md purchase claims in earlier versions: if you choose to verify an eligible lifetime purchase, Whereday sends signed App Store purchase proof to myself.md, which verifies eligibility with Apple and retains the purchase source and transaction reference. Redeeming while signed in associates the purchase with your myself.md account to grant access and prevent duplicate claims. The proof request sends neither location history nor payment-card details. This feature is disabled in version 1.8. The separate site describes account handling in its [Privacy Policy](https://myself.md/privacy).
-@@ -49,7 +49,7 @@
+-- Scheduled export wake-ups (only if enabled, Pro): if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with Whereday's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names.
++- Scheduled export wake-ups (only if enabled): our Cloudflare-hosted service stores a separate installation identifier, Apple push token, platform/bundle identifier, time zone, schedule settings, and service timing information so it can send scheduled wake-ups. It receives no location records, export contents, folder names, or file names. The scheduling identifier is stored in Keychain and may survive uninstalling the app.
++- Optional myself.md purchase claims in earlier versions: if you choose to verify an eligible lifetime purchase, Whereday sends signed App Store purchase proof to myself.md, which verifies eligibility with Apple and retains the purchase source and transaction reference. Redeeming while signed in associates the purchase with your myself.md account to grant access and prevent duplicate claims. The proof request sends neither location history nor payment-card details. This feature is disabled in version 1.8. The separate site describes account handling in its [Privacy Policy](https://myself.md/privacy).
+ - App Store: purchases are handled entirely by Apple's App Store. Whereday does not process or store payment information.
+ 
+ ## Data Export
+@@ -48,7 +49,7 @@
  
  ## Analytics and Tracking
  
--Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. Production version 1.8 disables optional onboarding/purchase telemetry. Earlier versions collect the installation-linked events described above. Scheduling and optional earlier-version purchase claims use the technical records described in this policy. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
+-Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
 +Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The candidate version 1.8 removes custom onboarding/purchase telemetry in all build configurations. Earlier versions collect the installation-linked events described above. Scheduling and optional earlier-version purchase claims use the technical records described in this policy. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.
  
  ## Third-Party Services
  
-@@ -63,7 +63,7 @@
+@@ -58,11 +59,23 @@
  
- ### Retention of technical records
+ ## Data Deletion
  
--Earlier-version analytics events have no configured automatic expiry in our analytics service. Version 1.8 stops sending these events and discards unsent queued events, but does not automatically erase events already received.
+-You can delete all locally stored data at any time from within the App's Settings. Deleting the App also removes all location history and the local analytics install identifier from that device, unless you exported or backed data up first. Already-delivered analytics events cannot be recalled, but they contain no location data and no identifiers beyond the now-deleted random install ID.
++You can delete locally stored journal data in Settings. Deleting local records or uninstalling the app does not itself delete server records, initiate myself.md account deletion, or remove copies you exported/backed up. Keychain-backed scheduling identity may remain after uninstalling.
++
++### Retention of technical records
++
 +Earlier-version analytics events have no configured automatic expiry in our analytics service. The candidate version 1.8 removes event collection and erases retired local analytics state, but does not automatically erase events already received. Server retirement and historical deletion require a separate approved cutover.
++
++After the scheduling service successfully receives a disable request, it deletes the active schedule. Device registrations have no age-based expiry; they are removed when Apple reports an invalid push token or a device-deletion request is processed. Turning scheduling off does not itself remove every device registration.
++
++Purchase-claim links are valid for 15 minutes. Expiry prevents use but does not immediately erase every stored claim row. A daily cleanup removes expired directory routing rows; expired purchase-object claim rows are removed when another claim is created for that purchase. An unused expired row has no guaranteed storage deadline. Redeemed grants have no automatic expiry. After myself.md account deletion completes successfully, the service removes the account link but retains purchase references without timed expiry to prevent duplicate claims. Use myself.md's account-deletion controls and check that cleanup completes.
++
++Cloudflare processes network requests to provide and secure these services. The myself.md service retains operational error logs; Cloudflare's Workers Logs store retains logs for up to seven days. This is not a maximum for every provider security record or backup. Database recovery history may retain earlier copies after live records change or are deleted. Live-record deletion does not immediately erase all recovery copies.
++
++For privacy or deletion questions about retained analytics/scheduling records, contact [cody.bontecou@gmail.com](mailto:cody.bontecou@gmail.com). We may need information to identify the relevant installation records and verify a request. Nothing in this policy limits deletion or other rights provided by applicable law.
  
- After the scheduling service successfully receives a disable request, it deletes the active schedule. Device registrations have no age-based expiry; they are removed when Apple reports an invalid push token or a device-deletion request is processed. Turning scheduling off does not itself remove every device registration.
+ ## Children's Privacy
+ 
+-Whereday does not knowingly collect information from children under 13. The data flows described in this policy, including first-party telemetry enabled by default, also apply to use of the App. Location records are not included in that telemetry.
++Whereday does not knowingly collect information from children under 13. The version-dependent data flows described in this policy also apply to use of the App. Location records are not included in that telemetry.
+ 
+ ## Changes to This Policy
+ 
+--- a/marketing/public/_markdown/terms.md
++++ b/marketing/public/_markdown/terms.md
+@@ -8,7 +8,7 @@
+ 
+ Updated
+ 
+-September 1, 2026
++October 29, 2026
+ 
+ Scope
+ 
+@@ -22,24 +22,54 @@
+ 
+ ## 02 — Description of Service
+ 
+-Whereday is a location-tracking application that records visit history and routes on your device. The App operates entirely on-device and does not require an account or internet connection for core functionality.
++Whereday is a location journal for iPhone and Apple Watch. It records visits and routes on your devices and lets you export saved records. No Whereday account is required for tracking, and Whereday does not operate a server archive of your location history. Purchases, restoration, subscription status, maps, and optional technical services may require a network connection.
++
++The App uses Apple's [Standard Licensed Application End User License Agreement](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/). These terms supplement that agreement for Whereday's services and purchases; they do not replace applicable open-source licenses or mandatory consumer rights.
+ 
+ ## 03 — Privacy
+ 
+-Your privacy is fundamental to Whereday. Location history is stored on your device and is never uploaded to an Whereday location server. Certain optional features can transmit data as you configure them — most notably webhook delivery to endpoints you choose — and the App's first-party onboarding analytics and export-scheduling services send limited technical metadata only, all as described in our [Privacy Policy](https://whereday.com/privacy). Please review it for full details.
++Your location history is stored on your devices, not in a Whereday location archive. Optional exports, Apple services, export scheduling, and technical services in earlier app versions have the behavior described in our [Privacy Policy](https://whereday.com/privacy). Version 1.8 disables onboarding/purchase analytics and the optional myself.md claim feature.
+ 
+-## 04 — Purchases
++## 04 — Access, Purchases, and Subscriptions
+ 
+-Whereday offers one-time Individual Lifetime and Family Lifetime in-app purchases to unlock data portability features: in-app export in all formats, scheduled automatic exports, and webhook delivery. Eligible Individual Lifetime owners may purchase a separate one-time Family Upgrade. Family products use Apple Family Sharing, subject to the purchaser's Apple Family and Purchase Sharing settings. Owners of Whereday's original lifetime unlock receive Family Lifetime access without an additional charge. Tracking, the timeline, the Apple Watch app, and importing a prior export remain free. The App Store purchase sheet controls the displayed product, price, currency, tax, account, and Family Sharing eligibility. All purchases are processed through Apple and are non-refundable except as required by law or Apple's refund policies.
++### Existing access
++
++Users who first obtained Whereday before the subscription update keep their existing free tracking access. Existing free users retain their previous export-purchase requirement. Earlier lifetime purchases remain valid, including Family Sharing on the original lifetime unlock. No subscription is required to preserve this access. Apple purchase history and existing installation records determine eligibility; restoration may require the original Apple Account and a network connection. Contact support if prior access is not recognized.
++
++### New-user access from version 1.8
++
++Users who first obtain Whereday with the subscription update or later need an eligible subscription trial or valid purchase before starting tracking or adding manual visits. Individual and Family access are available as weekly subscriptions, yearly subscriptions, or separate one-time Lifetime purchases. There is no monthly plan.
++
++### Trials, payment, and automatic renewal
++
++Eligible weekly and yearly subscriptions offer a 7-day free trial. Apple determines eligibility within the subscription group; switching plans does not guarantee another trial. A trial starts only after you confirm with Apple. Lifetime purchases have no subscription trial.
++
++Unless canceled, subscriptions renew automatically at the price and interval shown by Apple before confirmation. After the trial, Apple charges the selected weekly or yearly price to your Apple Account. Local currency, applicable taxes, offer details, and plan-change billing are shown by Apple. Your account may be charged for renewal within the 24 hours before the current period ends.
++
++Manage or cancel in your Apple Account subscription settings. To avoid the next charge, cancel at least 24 hours before the trial or subscription period ends, or follow any earlier deadline shown by Apple for your offer/storefront. Deleting the app, stopping tracking, or removing permissions does not cancel billing. Access follows Apple's entitlement, expiry, and revocation status. Refunds follow Apple's policies and applicable law.
++
++### Lifetime purchases and Family Sharing
++
++Lifetime access is a separate one-time non-consumable purchase and does not renew. Existing lifetime purchases continue to cover their purchased features. An eligible Individual Lifetime owner can buy a separate Family Lifetime Upgrade. Buying Lifetime does not cancel an existing subscription; cancel that subscription separately to avoid unwanted renewal.
++
++Family products share eligible access with up to five other members through Apple Family Sharing, subject to Apple's settings, eligibility, and supported storefronts. Individual products are not family-shareable. Sharing access does not share anyone's location journal.
++
++### After access expires
++
++Users who joined under the subscription model can still view and export existing records after trial/subscription expiry, but cannot start new recording or add manual visits without active access. Expiry alone does not delete their records. Existing users retain their free tracking and earlier export requirements. Restoring purchases restores access, not deleted journal data.
++
++### Prices and refunds
++
++The App Store confirmation controls the product, price, currency, tax, and renewal terms. These terms do not announce a future price increase or guarantee a price across storefronts. Apple handles payments and refunds; contact Whereday support for access-recognition problems. Nothing here limits mandatory consumer rights.
+ 
+ ## 05 — Acceptable Use
+ 
+ You agree to use Whereday only for lawful purposes. You may not:
+ 
+ - Use the App to track any person without their knowledge and consent
+-- Reverse-engineer, decompile, or disassemble the App
+-- Redistribute or resell the App or any part of it
+ - Use the App in any way that violates applicable laws or regulations
++
++These service terms do not restrict rights granted by an applicable open-source license, including AGPL-3.0 where applicable, or rights that cannot lawfully be restricted. See the [source license](https://github.com/CodyBontecou/whereday/blob/main/LICENSE).
+ 
+ ## 06 — Location Services
+ 
+@@ -47,7 +77,9 @@
+ 
+ ## 07 — Data and Backups
+ 
+-You are solely responsible for your data. Since all data is stored locally on your device, data loss due to device damage, loss, or App deletion is permanent. We recommend using the App's export feature to back up your data regularly. If you configure webhook delivery or automatic exports, your data and file outputs are transmitted only to destinations you choose, and you are responsible for the security and handling of those destinations.
++Your location journal is stored locally. Whereday does not provide a server copy to recover it after app deletion, device loss, or storage failure. Keep exported backups of records you need. Any device-backup recovery depends on your backup system; Whereday cannot guarantee that a usable backup exists. Purchase restoration restores eligible access, not deleted records. Ending a subscription does not itself delete local records or protect them from storage loss.
++
++Optional exports and webhooks send copies to destinations you choose. You are responsible for those copies and their security. Our [Privacy Policy](https://whereday.com/privacy) describes the separate technical metadata used by scheduling and earlier app versions.
+ 
+ ## 08 — Disclaimer of Warranties
+ 
+@@ -63,7 +95,7 @@
+ 
+ ## 11 — Termination
+ 
+-You may stop using Whereday at any time by deleting the App from your device. We reserve the right to discontinue the App or any feature at any time without notice.
++You may stop using Whereday at any time. Cancel auto-renewing subscriptions separately in your Apple Account subscription settings; deleting the app does not cancel billing. Any discontinuation or material change remains subject to applicable law and existing purchase rights. These terms do not remove the retained tracking access or earlier lifetime entitlements described above.
+ 
+ ## 12 — Governing Law
  
 --- a/marketing/public/about.html
 +++ b/marketing/public/about.html
@@ -418,22 +548,34 @@
  <ol>
 --- a/marketing/public/docs/privacy-data/index.html
 +++ b/marketing/public/docs/privacy-data/index.html
-@@ -364,7 +364,7 @@
+@@ -364,8 +364,9 @@
  <tr><th scope="col">Where</th><th scope="col">What's sent</th><th scope="col">When</th><th scope="col">Off switch</th></tr>
  <tr><td><strong>Apple geocoding</strong></td><td>Coordinates of a visit (to fetch its name/address)</td><td>When naming visits</td><td>Settings → Location names</td></tr>
  <tr><td><strong>Apple Maps</strong></td><td>Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images)</td><td>When you use those features</td><td>Features are opt-in per use; road-matching toggle in map filters</td></tr>
--<tr><td><strong>Earlier-version Whereday analytics</strong></td><td>Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>On by default in earlier versions; disabled in production version 1.8</td><td>Updating to 1.8 stops sending and discards unsent events; it does not erase received records</td></tr>
+-<tr><td><strong>Whereday analytics</strong> (first-party, on by default)</td><td>Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>During onboarding and purchases</td><td>None in-app today; deleting the app removes the install ID</td></tr>
+-<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, random install ID — <strong>timing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off</td></tr>
 +<tr><td><strong>Earlier-version Whereday analytics</strong></td><td>Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>On by default in earlier versions; removed in candidate version 1.8 (all build configurations)</td><td>Updating to the candidate erases retired local analytics state; previously received records need separate deletion</td></tr>
- <tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, separate installation ID — <strong>timing/routing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain</td></tr>
- <tr><td><strong>Earlier-version myself.md purchase claims</strong></td><td>Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption</td><td>Only after choosing to verify an eligible purchase; disabled in version 1.8</td><td>Do not initiate a claim; account deletion and limited retained purchase-protection records follow the <a href="/privacy">Privacy Policy</a></td></tr>
++<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, separate installation ID — <strong>timing/routing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain</td></tr>
++<tr><td><strong>Earlier-version myself.md purchase claims</strong></td><td>Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption</td><td>Only after choosing to verify an eligible purchase; disabled in version 1.8</td><td>Do not initiate a claim; account deletion and limited retained purchase-protection records follow the <a href="/privacy">Privacy Policy</a></td></tr>
  <tr><td><strong>Your webhook</strong></td><td>Location points and visits, in your chosen format</td><td>Only after you configure an endpoint</td><td>Disable webhooks (off by default)</td></tr>
+ </table>
+ </div>
+@@ -376,7 +377,7 @@
+ <h2>Deleting your data</h2>
+ <ul>
+ <li><strong>Everything, in-app:</strong> Settings → Data → <strong>Clear all data</strong> permanently removes every visit, point, outing, photo match, and saved place.</li>
+-<li><strong>Everything, bluntly:</strong> deleting the app removes your entire journal and the local analytics install ID from that device.</li>
++<li><strong>Uninstalling:</strong> removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the <a href="/privacy">Privacy Policy</a> for technical-record retention and privacy requests.</li>
+ <li><strong>Single items:</strong> delete any visit or outing from its detail page.</li>
+ </ul>
+ 
 --- a/marketing/public/index.html
 +++ b/marketing/public/index.html
 @@ -69,7 +69,7 @@
          "@type": "Offer",
          "price": "0",
          "priceCurrency": "USD",
--        "description": "Free download. Version 1.8 introduces tracking plans for new users, with eligible subscription trials or Lifetime purchases. Existing users retain their access."
+-        "description": "Free download and free tracking. Optional one-time Pro unlock for export is available in the app."
 +        "description": "Free download. New users need active trial, subscription or Lifetime access to track. Eligible subscriptions include a 7-day trial."
        },
        "featureList": [
@@ -442,7 +584,7 @@
            "name": "What is free and what is Pro?",
            "acceptedAnswer": {
              "@type": "Answer",
--            "text": "The download and supported import are free. With version 1.8, new users need an eligible trial, subscription, or Lifetime purchase to start tracking. Existing users retain free tracking and their previous export purchase requirements; prior lifetime purchases remain valid. Current U.S. Lifetime prices are $19.99 Individual, $39.99 Family, and $19.99 for an eligible Family Upgrade. Apple shows storefront prices and renewal terms before confirmation."
+-            "text": "The app is free to download; tracking, the timeline, the Watch app, widgets, and import are free. Lifetime export access is a one-time $19.99 Individual or $39.99 Family purchase in the U.S. App Store. Individual owners can upgrade to Family Sharing later for $19.99. Local prices reflect purchasing power and may vary by storefront."
 +            "text": "New users choose Individual or Family weekly, yearly, or Lifetime access before tracking. Eligible subscriptions include a 7-day trial, then auto-renew at the displayed price. Existing users retain free tracking and prior export purchase requirements. Existing purchases remain valid; Apple shows current local prices."
            }
          },
@@ -451,7 +593,7 @@
              Remember <span class="accent">where you went.</span><br>Keep your history on your iPhone.
            </h1>
            <p class="lede">
--            Start tracking to record your own routes and detect visits, then review the day on your iPhone. No account. No Whereday location server. Existing users retain free recording. New users joining with version 1.8 choose a tracking plan; eligible subscriptions include a 7-day free trial.
+-            Start tracking to record your own routes and detect visits, then review the day on your iPhone. No account. No Whereday location server. Recording is free; portable exports are an optional purchase.
 +            Start tracking to record your own routes and detect visits, then review the day on your iPhone. No Whereday account or location server archive. New tracking requires active access; eligible subscriptions include a 7-day trial.
            </p>
            <div class="hero-actions">
@@ -460,7 +602,7 @@
            </div>
            <p class="store-listing-note" style="font-size:14px;line-height:20px;margin-top:16px">Whereday is currently listed as <strong>iso.me</strong> in the U.S. App Store.</p>
            <p class="hero-note">
--            Free download. Version 1.8 introduces tracking plans for new users; existing users keep their access. Current U.S. Lifetime options remain $19.99 Individual or $39.99 Family.
+-            Free download and free tracking. Lifetime export access is $19.99 Individual or $39.99 with Apple Family Sharing in the U.S. App Store; local prices reflect purchasing power.
 +            Free download. New-user tracking requires weekly, yearly, or Lifetime access; eligible subscriptions include a 7-day trial. Existing purchases and retained free tracking remain valid.
            </p>
            <div class="hero-stats" aria-label="Whereday product facts">
@@ -485,7 +627,7 @@
              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
            </div>
            <h3>Private by default</h3>
--          <p>No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. Version 1.8 disables onboarding and purchase telemetry. Earlier versions may still send the technical events described in the privacy policy.</p>
+-          <p>No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. First-party onboarding and purchase telemetry is on by default and is explained in the privacy policy.</p>
 +          <p>No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. This release removes custom onboarding and purchase telemetry. Earlier versions and retained technical records are described in the privacy policy.</p>
            <div class="feature-tag">● Local</div>
          </div>
@@ -494,7 +636,7 @@
          </div>
          <aside aria-labelledby="install-iphone-title">
            <h3 id="install-iphone-title">Try your own first recording</h3>
--          <p>Supported import is free. New users joining with version 1.8 choose a tracking plan; existing users retain their free tracking and prior purchase rights. See <a href="#pricing">access and pricing</a>.</p>
+-          <p>Recording and review are free. File export uses an optional lifetime purchase; supported import is free.</p>
 +          <p>New-user recording requires active access. Existing free users keep tracking and their prior export requirement. Subscription-cohort users can view/export saved records after expiration.</p>
            <a data-placement="qr" href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-home&amp;mt=8"><img src="/assets/app-store-qr.png" width="160" height="160" alt="Scan with your iPhone camera to open Whereday in the App Store" loading="lazy" decoding="async"></a>
            <p><a data-placement="inline" href="https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&amp;ct=seo-home&amp;mt=8">Download free for iPhone</a></p>
@@ -503,7 +645,7 @@
              <span class="lcd-pill">On-device by design</span>
              <h2>Your location history is not a growth dataset.</h2>
              <p>
--              Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. Production version 1.8 disables onboarding/purchase analytics; earlier versions can still send the technical events described in our policy. Optional exports and webhooks go to destinations you choose. <a href="/privacy">Read the network and storage details</a>.
+-              Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. First-party onboarding telemetry is on by default; optional exports and webhooks send data only where you choose. <a href="/privacy">Read the network and storage details</a>.
 +              Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. This release removes custom onboarding telemetry; earlier versions may still send the technical events described in our policy. Optional exports and webhooks send data only where you choose. <a href="/privacy">Read the network and storage details</a>.
              </p>
            </div>
@@ -521,44 +663,38 @@
            <h2>The full capability ledger.</h2>
          </div>
          <div class="section-meta">
--          Access depends on cohort/plan<br>Existing purchase rights preserved
+-          Included · Free<br>Pro · One-time unlock
 +          Weekly · Yearly<br>Lifetime · One-time purchase
          </div>
        </div>
        <div class="cap-grid" role="list" aria-label="Feature availability">
-@@ -1718,21 +1718,21 @@
+@@ -1718,10 +1718,10 @@
        <div class="section-head">
          <div>
            <span class="eyebrow">§ 05 &nbsp;Pricing</span>
--          <h2>New-user plans. Existing access protected.</h2>
+-          <h2>Free tracking. Pay once if you need export.</h2>
 +          <h2>Choose weekly, yearly, or Lifetime access.</h2>
          </div>
          <div class="section-meta">
--          Subscription or Lifetime<br>No ad business
+-          No subscription<br>No ad business
 +          Eligible 7-day trial<br>No ad business
          </div>
        </div>
  
-       <div class="pricing-grid">
+@@ -1729,10 +1729,10 @@
          <div class="pricing-side">
--          <h2>Choose access that fits your journal.</h2>
-+          <h2>Install it first. Unlock export only when it matters.</h2>
+           <h2>Install it first. Unlock export only when it matters.</h2>
            <p>
--            Whereday is free to download. Beginning with version 1.8, new users choose Individual or Family access through a weekly or yearly subscription, or a separate Lifetime purchase. Eligible subscriptions offer a 7-day free trial, then renew at Apple's displayed price and interval unless canceled. Existing users retain free tracking, their previous export purchase requirements, and all prior lifetime rights. Current U.S. Lifetime prices remain $19.99 Individual and $39.99 Family; eligible Individual owners can upgrade to Family Sharing for $19.99. Storefront prices and taxes may vary. See our <a href="/terms">purchase and cancellation terms</a>.
+-            Whereday is free to download, and private visit and route tracking is free. Lifetime export access covers all eight formats, scheduled auto-exports, and webhook delivery. Choose Individual for $19.99 or Family Sharing for $39.99 in the U.S. App Store; Individual owners can upgrade later for $19.99. Local prices reflect purchasing power and applicable taxes.
 +            New users choose Individual or Apple Family Sharing weekly, yearly, or Lifetime access before recording. Eligible subscriptions include a 7-day trial, then renew automatically at the displayed price. Lifetime is charged once with no trial. Existing users keep free tracking and previous export requirements; existing purchases remain valid.
            </p>
            <ul class="anti-features">
--            <li>Existing tracking access remains protected</li>
+-            <li>No subscription required for tracking</li>
 +            <li>New-user tracking requires active access</li>
              <li>No ads or ad targeting</li>
              <li>No server-side location storage</li>
              <li>No account wall before you can try it</li>
-@@ -1742,16 +1742,16 @@
-         <div class="pricing-card">
-           <div class="pc-head">
-             <span class="pc-label">WHEREDAY PRO</span>
--            <span class="pc-badge">● Lifetime option</span>
-+            <span class="pc-badge">● Optional unlock</span>
+@@ -1746,12 +1746,12 @@
            </div>
            <div class="pc-price">
              <div class="amount"><sup>$</sup>19.99</div>
@@ -567,8 +703,8 @@
            </div>
            <ul class="pc-features">
              <li><span class="k">Download the app</span><span class="v">Free</span></li>
--            <li><span class="k">New-user tracking</span><span class="v">Trial or active access</span></li>
--            <li><span class="k">Existing-user tracking</span><span class="v">Retained free access</span></li>
+-            <li><span class="k">Tracking, timeline &amp; outings</span><span class="v">Free</span></li>
+-            <li><span class="k">Apple Watch, widgets, Shortcuts</span><span class="v">Free</span></li>
 +            <li><span class="k">New-user tracking</span><span class="v">Active access</span></li>
 +            <li><span class="k">Watch and Shortcut recording</span><span class="v">Active access</span></li>
              <li><span class="k">Import from backup</span><span class="v">Free</span></li>
@@ -578,7 +714,7 @@
            </details>
            <details>
              <summary>What is free and what is Pro?</summary>
--            <p>The download and supported import are free. New users joining with version 1.8 need an eligible trial, subscription, or Lifetime purchase to begin tracking. Existing users retain free tracking and their earlier export purchase requirements; prior lifetime purchases remain valid. Current U.S. Lifetime prices remain $19.99 Individual, $39.99 Family, and $19.99 for an eligible Family Upgrade. Apple shows local prices, trial eligibility, and renewal terms before confirmation. See <a href="/terms">the complete terms</a>.</p>
+-            <p>The app is free to download; tracking, the timeline, the Watch app, widgets, and import are free. Lifetime export access covers all eight formats, scheduled automatic exports, and webhook delivery. It costs $19.99 for Individual or $39.99 for Family in the U.S. App Store, with a $19.99 Family Upgrade available to Individual owners. Local prices reflect purchasing power and may vary by storefront.</p>
 +            <p>New users need weekly, yearly, or Lifetime access before tracking. Eligible subscriptions include a 7-day trial. Existing free users retain tracking and their prior export purchase requirement. Existing lifetime purchases remain valid; Apple shows current local prices.</p>
            </details>
            <details>
@@ -596,33 +732,56 @@
  
 --- a/marketing/public/privacy.html
 +++ b/marketing/public/privacy.html
-@@ -312,7 +312,7 @@
+@@ -282,7 +282,7 @@
+       </div>
+       <div>
+         <div class="k">Updated</div>
+-        <div class="v">October 26, 2026</div>
++        <div class="v">October 29, 2026</div>
+       </div>
+       <div>
+         <div class="k">Scope</div>
+@@ -312,9 +312,10 @@
        <p>The App may make network requests in the following circumstances:</p>
        <ul>
          <li><strong>Apple system services (optional):</strong> if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy.</li>
--        <li><strong>Earlier-version onboarding analytics:</strong> beginning with version 1.8, production builds disable onboarding/purchase analytics and discard queued unsent events. Earlier versions enable first-party analytics by default: onboarding steps, permission/tracking choices, paywall interactions, product IDs, purchase/restore outcomes, coarse technical errors, app version/build, and platform. Our Cloudflare-hosted service stores these with random installation/event IDs and receipt time. These are installation-linked records, not anonymous aggregate counts. Reports do not include coordinates, visits, routes, addresses, place names, photos, export contents, or text you enter. We use them to understand onboarding/purchases and diagnose failures, not cross-company targeted advertising or data-broker sharing.</li>
+-        <li><strong>First-party onboarding analytics (on by default):</strong> the App reports a limited allowlist of onboarding and purchase events — such as which onboarding step you viewed or whether a purchase succeeded — to Whereday's own analytics endpoint hosted on Cloudflare Workers. Each report includes a random install identifier, the app version, and coarse status such as your permission choice. Reports never include coordinates, visits, routes, addresses, place names, photos, or anything you type. Deleting the App removes the local install identifier.</li>
 +        <li><strong>Earlier-version onboarding analytics:</strong> the candidate version 1.8 removes custom onboarding/purchase analytics, its installation identifiers and unsent queues in every build configuration. Earlier versions enable first-party analytics by default: onboarding steps, permission/tracking choices, paywall interactions, product IDs, purchase/restore outcomes, coarse technical errors, app version/build, and platform. Our Cloudflare-hosted service stores these with random installation/event IDs and receipt time. These are installation-linked records, not anonymous aggregate counts. Reports do not include coordinates, visits, routes, addresses, place names, photos, export contents, or text you enter. We use them to understand onboarding/purchases and diagnose failures, not cross-company targeted advertising or data-broker sharing.</li>
          <li><strong>Webhook delivery (off by default, Pro):</strong> if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; Whereday never sees your endpoint or your data.</li>
-         <li><strong>Scheduled export wake-ups (only if enabled):</strong> our Cloudflare-hosted service stores a separate installation identifier, Apple push token, platform/bundle identifier, time zone, schedule settings, and service timing information so it can send scheduled wake-ups. It receives no location records, export contents, folder names, or file names. The scheduling identifier is stored in Keychain and may survive uninstalling the app.</li>
-         <li><strong>Optional myself.md purchase claims in earlier versions:</strong> if you choose to verify an eligible lifetime purchase, Whereday sends signed App Store purchase proof to myself.md, which verifies eligibility with Apple and retains the purchase source and transaction reference. Redeeming while signed in associates the purchase with your myself.md account to grant access and prevent duplicate claims. The proof request sends neither location history nor payment-card details. This feature is disabled in version 1.8. The separate site describes account handling in its <a href="https://myself.md/privacy">Privacy Policy</a>.</li>
-@@ -323,7 +323,7 @@
+-        <li><strong>Scheduled export wake-ups (only if enabled, Pro):</strong> if you enable automatic exports, the App registers a random install identifier, an Apple push token, your time zone, and your schedule time with Whereday's scheduling endpoint so the App can be woken at the right moment. This service stores timing metadata only — never location records, export contents, folder names, or file names.</li>
++        <li><strong>Scheduled export wake-ups (only if enabled):</strong> our Cloudflare-hosted service stores a separate installation identifier, Apple push token, platform/bundle identifier, time zone, schedule settings, and service timing information so it can send scheduled wake-ups. It receives no location records, export contents, folder names, or file names. The scheduling identifier is stored in Keychain and may survive uninstalling the app.</li>
++        <li><strong>Optional myself.md purchase claims in earlier versions:</strong> if you choose to verify an eligible lifetime purchase, Whereday sends signed App Store purchase proof to myself.md, which verifies eligibility with Apple and retains the purchase source and transaction reference. Redeeming while signed in associates the purchase with your myself.md account to grant access and prevent duplicate claims. The proof request sends neither location history nor payment-card details. This feature is disabled in version 1.8. The separate site describes account handling in its <a href="https://myself.md/privacy">Privacy Policy</a>.</li>
+         <li><strong>App Store:</strong> purchases are handled entirely by Apple's App Store. Whereday does not process or store payment information.</li>
+       </ul>
+ 
+@@ -322,7 +323,7 @@
        <p>You can export visits, route points, and outings at any time as JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, or Overland. Exported files are generated locally on your device. What you do with exported data is your responsibility.</p>
  
        <h2>Analytics and Tracking</h2>
--      <p>Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. Production version 1.8 disables optional onboarding/purchase telemetry. Earlier versions collect the installation-linked events described above. Scheduling and optional earlier-version purchase claims use the technical records described in this policy. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.</p>
+-      <p>Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The only telemetry is the first-party onboarding analytics described under Network Requests: a short allowlist of funnel events with a random install identifier and no location content. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.</p>
 +      <p>Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The candidate version 1.8 removes custom onboarding/purchase telemetry in all build configurations. Earlier versions collect the installation-linked events described above. Scheduling and optional earlier-version purchase claims use the technical records described in this policy. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.</p>
  
        <h2>Third-Party Services</h2>
        <ul>
-@@ -335,7 +335,7 @@
+@@ -332,10 +333,16 @@
+       </ul>
+ 
        <h2>Data Deletion</h2>
-       <p>You can delete locally stored journal data in Settings. Deleting local records or uninstalling the app does not itself delete server records, initiate myself.md account deletion, or remove copies you exported/backed up. Keychain-backed scheduling identity may remain after uninstalling.</p>
-       <h3>Retention of technical records</h3>
--      <p>Earlier-version analytics events have no configured automatic expiry in our analytics service. Version 1.8 stops sending these events and discards unsent queued events, but does not automatically erase events already received.</p>
+-      <p>You can delete all locally stored data at any time from within the App's Settings. Deleting the App also removes all location history and the local analytics install identifier from that device, unless you exported or backed data up first. Already-delivered analytics events cannot be recalled, but they contain no location data and no identifiers beyond the now-deleted random install ID.</p>
++      <p>You can delete locally stored journal data in Settings. Deleting local records or uninstalling the app does not itself delete server records, initiate myself.md account deletion, or remove copies you exported/backed up. Keychain-backed scheduling identity may remain after uninstalling.</p>
++      <h3>Retention of technical records</h3>
 +      <p>Earlier-version analytics events have no configured automatic expiry in our analytics service. The candidate version 1.8 removes event collection and erases retired local analytics state, but does not automatically erase events already received. Server retirement and historical deletion require a separate approved cutover.</p>
-       <p>After the scheduling service successfully receives a disable request, it deletes the active schedule. Device registrations have no age-based expiry; they are removed when Apple reports an invalid push token or a device-deletion request is processed. Turning scheduling off does not itself remove every device registration.</p>
-       <p>Purchase-claim links are valid for 15 minutes. Expiry prevents use but does not immediately erase every stored claim row. A daily cleanup removes expired directory routing rows; expired purchase-object claim rows are removed when another claim is created for that purchase. An unused expired row has no guaranteed storage deadline. Redeemed grants have no automatic expiry. After myself.md account deletion completes successfully, the service removes the account link but retains purchase references without timed expiry to prevent duplicate claims. Use myself.md's account-deletion controls and check that cleanup completes.</p>
-       <p>Cloudflare processes network requests to provide and secure these services. The myself.md service retains operational error logs; Cloudflare's Workers Logs store retains logs for up to seven days. This is not a maximum for every provider security record or backup. Database recovery history may retain earlier copies after live records change or are deleted. Live-record deletion does not immediately erase all recovery copies.</p>
++      <p>After the scheduling service successfully receives a disable request, it deletes the active schedule. Device registrations have no age-based expiry; they are removed when Apple reports an invalid push token or a device-deletion request is processed. Turning scheduling off does not itself remove every device registration.</p>
++      <p>Purchase-claim links are valid for 15 minutes. Expiry prevents use but does not immediately erase every stored claim row. A daily cleanup removes expired directory routing rows; expired purchase-object claim rows are removed when another claim is created for that purchase. An unused expired row has no guaranteed storage deadline. Redeemed grants have no automatic expiry. After myself.md account deletion completes successfully, the service removes the account link but retains purchase references without timed expiry to prevent duplicate claims. Use myself.md's account-deletion controls and check that cleanup completes.</p>
++      <p>Cloudflare processes network requests to provide and secure these services. The myself.md service retains operational error logs; Cloudflare's Workers Logs store retains logs for up to seven days. This is not a maximum for every provider security record or backup. Database recovery history may retain earlier copies after live records change or are deleted. Live-record deletion does not immediately erase all recovery copies.</p>
++      <p>For privacy or deletion questions about retained analytics/scheduling records, contact <a href="mailto:cody.bontecou@gmail.com">cody.bontecou@gmail.com</a>. We may need information to identify the relevant installation records and verify a request. Nothing in this policy limits deletion or other rights provided by applicable law.</p>
+ 
+       <h2>Children's Privacy</h2>
+-      <p>Whereday does not knowingly collect information from children under 13. The data flows described in this policy, including first-party telemetry enabled by default, also apply to use of the App. Location records are not included in that telemetry.</p>
++      <p>Whereday does not knowingly collect information from children under 13. The version-dependent data flows described in this policy also apply to use of the App. Location records are not included in that telemetry.</p>
+ 
+       <h2>Changes to This Policy</h2>
+       <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date.</p>
 --- a/marketing/public/terms.html
 +++ b/marketing/public/terms.html
 @@ -4,7 +4,7 @@
@@ -634,6 +793,77 @@
    <meta name="robots" content="index,follow">
    <link rel="canonical" href="https://whereday.com/terms">
    <link rel="icon" href="/favicon.ico" sizes="any">
+@@ -282,7 +282,7 @@
+       </div>
+       <div>
+         <div class="k">Updated</div>
+-        <div class="v">September 1, 2026</div>
++        <div class="v">October 29, 2026</div>
+       </div>
+       <div>
+         <div class="k">Scope</div>
+@@ -299,28 +299,44 @@
+       <p>By accessing or using Whereday, you agree to these Terms. If you do not agree, do not use the App.</p>
+ 
+       <h2>02 — Description of Service</h2>
+-      <p>Whereday is a location-tracking application that records visit history and routes on your device. The App operates entirely on-device and does not require an account or internet connection for core functionality.</p>
++      <p>Whereday is a location journal for iPhone and Apple Watch. It records visits and routes on your devices and lets you export saved records. No Whereday account is required for tracking, and Whereday does not operate a server archive of your location history. Purchases, restoration, subscription status, maps, and optional technical services may require a network connection.</p>
++      <p>The App uses Apple's <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Standard Licensed Application End User License Agreement</a>. These terms supplement that agreement for Whereday's services and purchases; they do not replace applicable open-source licenses or mandatory consumer rights.</p>
+ 
+       <h2>03 — Privacy</h2>
+-      <p>Your privacy is fundamental to Whereday. Location history is stored on your device and is never uploaded to an Whereday location server. Certain optional features can transmit data as you configure them — most notably webhook delivery to endpoints you choose — and the App's first-party onboarding analytics and export-scheduling services send limited technical metadata only, all as described in our <a href="/privacy">Privacy Policy</a>. Please review it for full details.</p>
+-
+-      <h2>04 — Purchases</h2>
+-      <p>Whereday offers one-time Individual Lifetime and Family Lifetime in-app purchases to unlock data portability features: in-app export in all formats, scheduled automatic exports, and webhook delivery. Eligible Individual Lifetime owners may purchase a separate one-time Family Upgrade. Family products use Apple Family Sharing, subject to the purchaser's Apple Family and Purchase Sharing settings. Owners of Whereday's original lifetime unlock receive Family Lifetime access without an additional charge. Tracking, the timeline, the Apple Watch app, and importing a prior export remain free. The App Store purchase sheet controls the displayed product, price, currency, tax, account, and Family Sharing eligibility. All purchases are processed through Apple and are non-refundable except as required by law or Apple's refund policies.</p>
++      <p>Your location history is stored on your devices, not in a Whereday location archive. Optional exports, Apple services, export scheduling, and technical services in earlier app versions have the behavior described in our <a href="/privacy">Privacy Policy</a>. Version 1.8 disables onboarding/purchase analytics and the optional myself.md claim feature.</p>
++
++      <h2>04 — Access, Purchases, and Subscriptions</h2>
++      <h3>Existing access</h3>
++      <p>Users who first obtained Whereday before the subscription update keep their existing free tracking access. Existing free users retain their previous export-purchase requirement. Earlier lifetime purchases remain valid, including Family Sharing on the original lifetime unlock. No subscription is required to preserve this access. Apple purchase history and existing installation records determine eligibility; restoration may require the original Apple Account and a network connection. Contact support if prior access is not recognized.</p>
++      <h3>New-user access from version 1.8</h3>
++      <p>Users who first obtain Whereday with the subscription update or later need an eligible subscription trial or valid purchase before starting tracking or adding manual visits. Individual and Family access are available as weekly subscriptions, yearly subscriptions, or separate one-time Lifetime purchases. There is no monthly plan.</p>
++      <h3>Trials, payment, and automatic renewal</h3>
++      <p>Eligible weekly and yearly subscriptions offer a 7-day free trial. Apple determines eligibility within the subscription group; switching plans does not guarantee another trial. A trial starts only after you confirm with Apple. Lifetime purchases have no subscription trial.</p>
++      <p>Unless canceled, subscriptions renew automatically at the price and interval shown by Apple before confirmation. After the trial, Apple charges the selected weekly or yearly price to your Apple Account. Local currency, applicable taxes, offer details, and plan-change billing are shown by Apple. Your account may be charged for renewal within the 24 hours before the current period ends.</p>
++      <p>Manage or cancel in your Apple Account subscription settings. To avoid the next charge, cancel at least 24 hours before the trial or subscription period ends, or follow any earlier deadline shown by Apple for your offer/storefront. Deleting the app, stopping tracking, or removing permissions does not cancel billing. Access follows Apple's entitlement, expiry, and revocation status. Refunds follow Apple's policies and applicable law.</p>
++      <h3>Lifetime purchases and Family Sharing</h3>
++      <p>Lifetime access is a separate one-time non-consumable purchase and does not renew. Existing lifetime purchases continue to cover their purchased features. An eligible Individual Lifetime owner can buy a separate Family Lifetime Upgrade. Buying Lifetime does not cancel an existing subscription; cancel that subscription separately to avoid unwanted renewal.</p>
++      <p>Family products share eligible access with up to five other members through Apple Family Sharing, subject to Apple's settings, eligibility, and supported storefronts. Individual products are not family-shareable. Sharing access does not share anyone's location journal.</p>
++      <h3>After access expires</h3>
++      <p>Users who joined under the subscription model can still view and export existing records after trial/subscription expiry, but cannot start new recording or add manual visits without active access. Expiry alone does not delete their records. Existing users retain their free tracking and earlier export requirements. Restoring purchases restores access, not deleted journal data.</p>
++      <h3>Prices and refunds</h3>
++      <p>The App Store confirmation controls the product, price, currency, tax, and renewal terms. These terms do not announce a future price increase or guarantee a price across storefronts. Apple handles payments and refunds; contact Whereday support for access-recognition problems. Nothing here limits mandatory consumer rights.</p>
+ 
+       <h2>05 — Acceptable Use</h2>
+       <p>You agree to use Whereday only for lawful purposes. You may not:</p>
+       <ul>
+         <li>Use the App to track any person without their knowledge and consent</li>
+-        <li>Reverse-engineer, decompile, or disassemble the App</li>
+-        <li>Redistribute or resell the App or any part of it</li>
+         <li>Use the App in any way that violates applicable laws or regulations</li>
+       </ul>
+ 
++      <p>These service terms do not restrict rights granted by an applicable open-source license, including AGPL-3.0 where applicable, or rights that cannot lawfully be restricted. See the <a href="https://github.com/CodyBontecou/whereday/blob/main/LICENSE">source license</a>.</p>
++
+       <h2>06 — Location Services</h2>
+       <p>Whereday requires access to your device's location services. You can control location permissions through your device settings at any time. The App's functionality depends on the level of location access you grant.</p>
+ 
+       <h2>07 — Data and Backups</h2>
+-      <p>You are solely responsible for your data. Since all data is stored locally on your device, data loss due to device damage, loss, or App deletion is permanent. We recommend using the App's export feature to back up your data regularly. If you configure webhook delivery or automatic exports, your data and file outputs are transmitted only to destinations you choose, and you are responsible for the security and handling of those destinations.</p>
++      <p>Your location journal is stored locally. Whereday does not provide a server copy to recover it after app deletion, device loss, or storage failure. Keep exported backups of records you need. Any device-backup recovery depends on your backup system; Whereday cannot guarantee that a usable backup exists. Purchase restoration restores eligible access, not deleted records. Ending a subscription does not itself delete local records or protect them from storage loss.</p>
++      <p>Optional exports and webhooks send copies to destinations you choose. You are responsible for those copies and their security. Our <a href="/privacy">Privacy Policy</a> describes the separate technical metadata used by scheduling and earlier app versions.</p>
+ 
+       <h2>08 — Disclaimer of Warranties</h2>
+       <p>Whereday is provided "as is" and "as available" without warranties of any kind, either express or implied. We do not guarantee that the App will be error-free, uninterrupted, or that location data will be perfectly accurate.</p>
+@@ -332,7 +348,7 @@
+       <p>We reserve the right to modify these Terms at any time. Changes will be posted on this page with an updated effective date. Continued use of the App after changes constitutes acceptance of the revised Terms.</p>
+ 
+       <h2>11 — Termination</h2>
+-      <p>You may stop using Whereday at any time by deleting the App from your device. We reserve the right to discontinue the App or any feature at any time without notice.</p>
++      <p>You may stop using Whereday at any time. Cancel auto-renewing subscriptions separately in your Apple Account subscription settings; deleting the app does not cancel billing. Any discontinuation or material change remains subject to applicable law and existing purchase rights. These terms do not remove the retained tracking access or earlier lifetime entitlements described above.</p>
+ 
+       <h2>12 — Governing Law</h2>
+       <p>These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to conflict of law provisions.</p>
 --- a/marketing/scripts/build_agentic.py
 +++ b/marketing/scripts/build_agentic.py
 @@ -18,7 +18,7 @@
@@ -674,15 +904,27 @@
  <p>Install the Watch app and allow its location request. The phone app is needed to review transferred records in its journal and use its export workflow. Controls can vary by version; if a control described below is missing, check the available app update.</p>
  
  <h2>Before your first route</h2>
-@@ -582,7 +582,7 @@
+@@ -582,8 +582,9 @@
  <tr><th scope="col">Where</th><th scope="col">What's sent</th><th scope="col">When</th><th scope="col">Off switch</th></tr>
  <tr><td><strong>Apple geocoding</strong></td><td>Coordinates of a visit (to fetch its name/address)</td><td>When naming visits</td><td>Settings → Location names</td></tr>
  <tr><td><strong>Apple Maps</strong></td><td>Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images)</td><td>When you use those features</td><td>Features are opt-in per use; road-matching toggle in map filters</td></tr>
--<tr><td><strong>Earlier-version Whereday analytics</strong></td><td>Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>On by default in earlier versions; disabled in production version 1.8</td><td>Updating to 1.8 stops sending and discards unsent events; it does not erase received records</td></tr>
+-<tr><td><strong>Whereday analytics</strong> (first-party, on by default)</td><td>Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>During onboarding and purchases</td><td>None in-app today; deleting the app removes the install ID</td></tr>
+-<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, random install ID — <strong>timing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off</td></tr>
 +<tr><td><strong>Earlier-version Whereday analytics</strong></td><td>Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>On by default in earlier versions; removed in candidate version 1.8 (all build configurations)</td><td>Updating to the candidate erases retired local analytics state; previously received records need separate deletion</td></tr>
- <tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, separate installation ID — <strong>timing/routing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain</td></tr>
- <tr><td><strong>Earlier-version myself.md purchase claims</strong></td><td>Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption</td><td>Only after choosing to verify an eligible purchase; disabled in version 1.8</td><td>Do not initiate a claim; account deletion and limited retained purchase-protection records follow the <a href="/privacy">Privacy Policy</a></td></tr>
++<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, separate installation ID — <strong>timing/routing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain</td></tr>
++<tr><td><strong>Earlier-version myself.md purchase claims</strong></td><td>Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption</td><td>Only after choosing to verify an eligible purchase; disabled in version 1.8</td><td>Do not initiate a claim; account deletion and limited retained purchase-protection records follow the <a href="/privacy">Privacy Policy</a></td></tr>
  <tr><td><strong>Your webhook</strong></td><td>Location points and visits, in your chosen format</td><td>Only after you configure an endpoint</td><td>Disable webhooks (off by default)</td></tr>
+ </table>
+ </div>
+@@ -594,7 +595,7 @@
+ <h2>Deleting your data</h2>
+ <ul>
+ <li><strong>Everything, in-app:</strong> Settings → Data → <strong>Clear all data</strong> permanently removes every visit, point, outing, photo match, and saved place.</li>
+-<li><strong>Everything, bluntly:</strong> deleting the app removes your entire journal and the local analytics install ID from that device.</li>
++<li><strong>Uninstalling:</strong> removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the <a href="/privacy">Privacy Policy</a> for technical-record retention and privacy requests.</li>
+ <li><strong>Single items:</strong> delete any visit or outing from its detail page.</li>
+ </ul>
+ 
 --- a/marketing/scripts/build_seo_pages.py
 +++ b/marketing/scripts/build_seo_pages.py
 @@ -78,7 +78,7 @@
