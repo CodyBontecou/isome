@@ -1,0 +1,24 @@
+# Dedicated Duo simulator only; uses existing synthetic visit selection.
+# Keep AX-service waits raw: Duo native hierarchy auto-targeting is ambiguous.
+steps:
+  - tool: rotate
+    args:
+      orientation: LandscapeLeft
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: Nearby businesses
+      timeoutMs: 10000
+  - tool: rotate
+    args:
+      orientation: Portrait
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: Nearby businesses
+      timeoutMs: 10000
+executionPrerequisite: Dedicated iPhone Duo simulator, synthetic screenshot
+  data, tracking off; open Map with Valencia Street Stop inspector in the
+  companion pane. No real records.

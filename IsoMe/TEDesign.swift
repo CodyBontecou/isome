@@ -411,6 +411,8 @@ struct JournalFlowPresentation: ViewModifier {
 
     @ViewBuilder
     func body(content: Content) -> some View {
+        // Runtime availability alone cannot hide a type from an older SDK.
+        #if compiler(>=6.4)
         if #available(iOS 27.1, *) {
             ArrangementView {
                 content
@@ -435,5 +437,8 @@ struct JournalFlowPresentation: ViewModifier {
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
