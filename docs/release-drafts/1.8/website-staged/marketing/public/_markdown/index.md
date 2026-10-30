@@ -1,0 +1,466 @@
+Reviewed October 2026 · iOS & Apple Watch
+
+#  Remember where you went.
+Keep your history on your iPhone.
+
+Start tracking to record your own routes and detect visits, then review the day on your iPhone. No Whereday account or location server archive. New tracking requires active access; eligible subscriptions include a 7-day trial.
+
+[  Download free ](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8) [See how it works](https://whereday.com/#inside)
+
+Whereday is currently listed as iso.me in the U.S. App Store.
+
+Free download. New-user tracking requires weekly, yearly, or Lifetime access; eligible subscriptions include a 7-day trial. Existing purchases and retained free tracking remain valid.
+
+7 days
+
+Eligible subscription trial
+
+0
+
+Accounts
+
+$19.99 / $39.99
+
+Weekly, yearly, or Lifetime
+
+ROUTES · 03
+
+![Whereday route detail screen](https://whereday.com/screenshots/routes-480.webp)
+
+MAP · LIVE
+
+![Whereday map screen showing visits and routes](https://whereday.com/screenshots/map-480.webp)
+
+EXPORT · 04
+
+![Whereday export screen](https://whereday.com/screenshots/export-480.webp)
+
+On-device journal
+
+No account required
+
+Visit saved locally
+
+Export when needed
+
+Private location journal Google Timeline alternative No accounts No Whereday location servers Daily timeline & outings Eight export formats Independent Apple Watch tracking Optional Apple geocoding Scheduled auto-exports Private location journal Google Timeline alternative No accounts No Whereday location servers Daily timeline & outings Eight export formats Independent Apple Watch tracking Optional Apple geocoding Scheduled auto-exports
+
+§ 01 What you get
+
+## A location history you can actually trust.
+
+Newly launched
+Actively maintained
+
+01
+
+### Automatic visit journal
+
+While tracking is on, Whereday monitors arrivals and departures alongside GPS route recording. Always location permission allows background recording.
+
+● While tracking
+
+02
+
+### Routes when detail matters
+
+Record hikes, road trips, neighborhood walks, and field visits with route lines, start points, and end points.
+
+● Map
+
+03
+
+### Private by default
+
+No Whereday account, no server-side location archive, no ads, and no third-party analytics SDKs. First-party onboarding and purchase telemetry is on by default and is explained in the privacy policy.
+
+● Local
+
+04
+
+### Battery-aware controls
+
+Use Start and Stop, distance filters, and auto-stop timers so precision sessions do not run longer than intended.
+
+● Control
+
+05
+
+### [Export and import](https://whereday.com/docs/export-import/)
+
+Export visits, points, and outings as JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, or Overland — split per day, named by template, or scheduled to run automatically. Importing a prior export is free.
+
+● Portable
+
+06
+
+### [Record with Apple Watch](https://whereday.com/docs/apple-watch/)
+
+The Watch app records routes on its own — even without your phone nearby — while Live Activity with a live map snapshot, Dynamic Island, watch complications, and Shortcuts actions keep status glanceable.
+
+● iOS
+
+07
+
+### Daily timeline & outings
+
+Visits and movement sessions merge into one day view. Infer outings from older GPS data, rename them, add notes, and replay any route with a scrubber and moving playhead.
+
+● Timeline
+
+08
+
+### Correct and curate
+
+Confirm or correct detected visits with nearby-business suggestions, undo any change, and save places that automatically name future visits.
+
+● Control
+
+09
+
+### Photos on the map
+
+Optionally connect your Photos library to place geotagged pictures on the map and link them to visits and outings. Photo files never leave your library.
+
+● Opt-in
+
+Practical guides
+
+## Start with what you need.
+
+01
+
+### [Keep a private location journal](https://whereday.com/blog/private-location-journal-iphone/)
+
+Set permissions, record your first route, review the timeline, and keep a portable copy.
+
+02
+
+### [Compare Whereday and Google Timeline](https://whereday.com/compare/google-maps-timeline/)
+
+Understand the differences in accounts, storage, backups, formats, and moving your history.
+
+03
+
+### [Record a route and export GPX](https://whereday.com/blog/record-iphone-route-gpx/)
+
+Choose GPS points, preview a route file, and inspect a synthetic app export in gpx.studio.
+
+04
+
+### [Find your iPhone location history](https://whereday.com/blog/view-location-history-iphone/)
+
+Check Apple Maps, Google Timeline, and your existing recordings before starting a new journal.
+
+05
+
+### [Back up your location history](https://whereday.com/blog/back-up-iphone-location-history/)
+
+Keep separate visits and points, verify the saved files, and restore supported records later.
+
+06
+
+### [Record without your iPhone nearby](https://whereday.com/docs/apple-watch/)
+
+Use Apple Watch GPS recording and transfer the queued points to your phone when it reconnects.
+
+07
+
+### [Track days spent in each country](https://whereday.com/blog/track-days-in-country-iphone/)
+
+Review local dates, account for travel days, and add a manual stay when a trip was not recorded.
+
+08
+
+### [Use your records in another tool](https://whereday.com/integrations/)
+
+Choose Markdown for Obsidian or Overland for Dawarich. Each walkthrough includes a checked synthetic example.
+
+09
+
+### [Save places and correct visits](https://whereday.com/docs/places/)
+
+Manage reusable pins, correct a visit, or add a past stop. Includes a tested saved locations CSV.
+
+## Inspect the files before you start.
+
+These walkthroughs include downloadable examples, screenshots, and the result of each check. They use invented records in an isolated test app or vault.
+
+- [Follow a GPX export into Files and gpx.studio](https://whereday.com/blog/record-iphone-route-gpx/#checked-ui-export). Three stored points become one file; compare the preview with the saved track.
+- [See imported records survive an app restart](https://whereday.com/blog/back-up-iphone-location-history/#checked-picker). The simulator check retains one visit and three points after import and reconciliation.
+- [Inspect the Markdown in Obsidian Maps](https://whereday.com/blog/iphone-location-journal-obsidian/#map-plugin). The desktop plugin displays two synthetic visit markers and their popups.
+
+Checked October 26, 2026. These examples do not verify a physical recording, a transfer between phones, or scheduled delivery.
+
+### Try your own first recording
+
+New-user recording requires active access. Existing free users keep tracking and their prior export requirement. Subscription-cohort users can view/export saved records after expiration.
+
+[
+
+![Scan with your iPhone camera to open Whereday in the App Store](https://whereday.com/assets/app-store-qr.png)
+
+](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
+
+[Download free for iPhone](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
+
+Whereday is currently listed as iso.me in the U.S. App Store.
+
+§ 02 Why people install it
+
+## For the moments you want to remember, not share.
+
+Trips
+Archives
+Personal timeline
+
+Trips
+
+### Keep a map of where the day actually went.
+
+Save restaurants, trailheads, hotels, overlooks, and the route between them without making a social post.
+
+Private timeline
+
+### Answer “when was I there?” without a cloud account.
+
+Reconstruct errands, client visits, commutes, photo walks, and routines from a local timeline on your phone.
+
+Export
+
+### Own a portable copy of your location history.
+
+Export JSON for tools, GPX or GeoJSON for maps, CSV for spreadsheets, or Markdown for a human-readable travel and place journal.
+
+Alternative
+
+### A calmer Google Timeline alternative.
+
+Record visits and routes without a Google account. [Compare storage, backups, exports, and tradeoffs](https://whereday.com/compare/google-maps-timeline/).
+
+§ 03 Inside the app
+
+## Built like an instrument, not a feed.
+
+Tactile UI
+Local-first workflow
+
+▌ MAP · 01
+
+### Visits and routes, drawn together.
+
+The map view gives you one calm picture of your significant places and recorded paths. It is built for recall: where you stopped, how long you stayed, and how you moved between places.
+
+- Place markers for meaningful stops
+- Route lines for intentional recordings
+- A private map that stays on your device
+
+MAP · 01
+
+![Whereday map screen](https://whereday.com/screenshots/map-480.webp)
+
+▌ ROUTES · 02
+
+### Save the path, not just the pin.
+
+For walks, hikes, bike rides, road trips, and site visits, routes help preserve the shape of the day instead of reducing it to a single dot.
+
+- High-accuracy sessions for detailed paths
+- Distance and duration context
+- Useful for travel logs and personal archives
+
+ROUTES · 02
+
+![Whereday routes screen showing recorded path details](https://whereday.com/screenshots/routes-480.webp)
+
+▌ EXPORT · 03
+
+### Take your history with you.
+
+Your location journal should not be trapped in an app. Export visits, route points, or both, then keep a backup, analyze it privately, or turn it into a written travel log.
+
+- Eight formats, from JSON and CSV to GPX and OwnTracks
+- Filters for dates, times, fields, and accuracy
+- Per-day files, name templates, and scheduled runs
+- Free import for restoring an export
+
+EXPORT · 03
+
+![Whereday export screen with JSON CSV and Markdown options](https://whereday.com/screenshots/export-480.webp)
+
+▌ SETTINGS · 04
+
+### Control the tradeoffs.
+
+Location apps should be explicit about power and privacy. Whereday puts recording, distance filtering, place naming, and auto-stop controls in one place. Check them before starting a session.
+
+- GPS recording with a distance filter
+- Per-session auto-shutoff options
+- Optional Apple geocoding for readable names
+
+SETTINGS · 04
+
+![Whereday settings screen with tracking controls](https://whereday.com/screenshots/settings-480.webp)
+
+On-device by design
+
+## Your location history is not a growth dataset.
+
+Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. First-party onboarding telemetry is on by default; optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
+
+Whereday location uploads None
+
+Account required No
+
+Onboarding telemetry On by default
+
+Apple geocoding Optional
+
+Local storage On device
+
+Export ownership Yours
+
+§ 03 Everything in the box
+
+## The full capability ledger.
+
+Weekly · Yearly
+Lifetime · One-time purchase
+
+Daily timeline & outingsIncluded
+
+Route replay & road-matched pathsIncluded
+
+Visit correction, undo & saved placesIncluded
+
+Photo moments on the map (opt-in)Included
+
+Manual & past visit entryIncluded
+
+Live Activity with live map snapshotIncluded
+
+Independent Apple Watch trackingIncluded
+
+Watch complications — four familiesIncluded
+
+Siri & Shortcuts actionsIncluded
+
+Import a prior exportFree
+
+Export — eight formats incl. GPX & OwnTracksPro
+
+Per-day files & filename templatesPro
+
+Scheduled auto-exports — daily or 1–23 hPro
+
+Webhooks — OwnTracks · Overland formatsPro
+
+§ 04 Trust and support
+
+## Built by Cody Bontecou at isolated.tech.
+
+Whereday is an independent, open source app. Inspect the [checked export and restore examples](https://whereday.com/#checked-examples), read the [privacy policy](https://whereday.com/privacy) for storage and network behavior, or ask the developer about your workflow.
+
+Need help, want to report a bug, or have a question before installing? Email [cody.bontecou@gmail.com](mailto:cody.bontecou@gmail.com).
+
+Creator Cody / isolated.tech
+
+Freshness Reviewed October 2026
+
+Ratings claim Not fabricated
+
+Support Email available
+
+§ 05 Pricing
+
+## Choose weekly, yearly, or Lifetime access.
+
+Eligible 7-day trial
+No ad business
+
+## Install it first. Unlock export only when it matters.
+
+New users choose Individual or Apple Family Sharing weekly, yearly, or Lifetime access before recording. Eligible subscriptions include a 7-day trial, then renew automatically at the displayed price. Lifetime is charged once with no trial. Existing users keep free tracking and previous export requirements; existing purchases remain valid.
+
+- New-user tracking requires active access
+- No ads or ad targeting
+- No server-side location storage
+- No account wall before you can try it
+
+WHEREDAY PRO ● Optional unlock
+
+$19.99
+
+Existing lifetime prices remain unchanged. Apple displays the current local price before confirmation. Eligible lifetime owners can add Family Sharing; subscriptions alone do not qualify for that upgrade.
+
+- Download the appFree
+- New-user trackingActive access
+- Watch and Shortcut recordingActive access
+- Import from backupFree
+- Export — all eight formatsPro
+- Scheduled auto-exportsPro
+- Webhook deliveryPro
+- Individual Lifetime$19.99 once
+- Family Lifetime$39.99 once
+- Individual → Family upgrade$19.99 once
+- Apple paymentsHandled by App Store
+
+[Get Whereday on the App Store](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
+
+Whereday is currently listed as iso.me in the U.S. App Store.
+
+§ 06 FAQ
+
+## Practical answers before you hand over location permission.
+
+Location apps ask for meaningful trust. These answers keep the boundaries clear: what stays local, what Apple handles, what costs money, and how to leave with your data.
+
+Will Whereday drain my battery?
+
+Whereday uses iOS location services and gives you controls such as Start and Stop, distance filters, and auto-stop timers. High-accuracy route recording uses more battery, so use it for intentional sessions like trips, walks, hikes, or site visits.
+
+Where is my location data stored?
+
+Your visits and routes are stored locally on your iPhone. Whereday does not require an account and does not store your location history on Whereday servers.
+
+Does Whereday use Apple geocoding?
+
+It can, if you choose features that turn coordinates into readable place names or addresses. Those geocoding requests go through Apple's system service and are governed by Apple's privacy policies, not an Whereday location database.
+
+Can I delete my location history?
+
+Yes. Delete data from the app settings. Since Whereday does not keep a server copy, deleting the app also removes the local data from that device unless you exported or backed it up first.
+
+Can I export or import my history?
+
+Yes. Export supports JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, and Overland for visits, route points, and outings. Import can restore a prior export, and importing is free.
+
+Does Whereday work with Apple Watch?
+
+Yes — and the Watch app records independently. It keeps its own GPS session, works without your iPhone nearby, and queues routes offline until it can sync them back. Watch complications also show today's visits, distance, and tracking status.
+
+Does Whereday sync with iCloud?
+
+No. Whereday stores your journal locally and does not sync through iCloud. Export and import are the portable backup path, and the Apple Watch syncs directly with your iPhone rather than through the cloud.
+
+What is free and what is Pro?
+
+New users need weekly, yearly, or Lifetime access before tracking. Eligible subscriptions include a 7-day trial. Existing free users retain tracking and their prior export purchase requirement. Existing lifetime purchases remain valid; Apple shows current local prices.
+
+Does Whereday work with OwnTracks, Overland, or Dawarich?
+
+Whereday can POST GPS points to a configured receiver. An Overland batch sent by the released native webhook code was stored in Dawarich 1.18.0 and survived a receiver and database restart. Physical recording and unattended delivery remain separate checks. Webhooks require Pro and are off by default. [Follow the checked Dawarich setup](https://whereday.com/integrations/dawarich/), or [choose another records workflow](https://whereday.com/integrations/).
+
+What can Siri and Shortcuts do?
+
+Start and stop tracking, read saved visits and outings, rename journal records, ask for today's stats, or export a chosen date range as a file. Use Whereday actions in Shortcuts; built-in Siri phrases cover recording, stats, renaming, and Export Data. Test a shortcut manually before scheduling it. See the [action list and export recipe](https://whereday.com/docs/siri-shortcuts/).
+
+Can exports run automatically?
+
+Yes. Auto Export saves your day to a folder you pick, once daily or as often as every hour, keeping one consistent dated file per day. Wake-ups are best effort: background refresh plus a scheduling service that sends timing-only pushes and never sees your location.
+
+Is Whereday a Google Timeline alternative?
+
+Yes. Whereday records your own visits and routes without a Google account. Google Timeline also stores history on your device and offers encrypted backup; Whereday differs in account requirements, export formats, and recording workflow. It does not import Google Timeline archives. [Read the comparison](https://whereday.com/compare/google-maps-timeline/).
+
+Source: https://whereday.com/

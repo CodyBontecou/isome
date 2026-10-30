@@ -245,8 +245,8 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertEqual(store.productsByID.count, 7)
         let prices: [IsoMePurchaseOption: Decimal] = [
             .individualWeekly: Decimal(string: "0.99")!, .individualYearly: Decimal(string: "29.99")!,
-            .individual: Decimal(string: "49.99")!, .familyWeekly: Decimal(string: "1.99")!,
-            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "89.99")!
+            .individual: Decimal(string: "19.99")!, .familyWeekly: Decimal(string: "1.99")!,
+            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "39.99")!
         ]
         for (option, price) in prices {
             let product = try XCTUnwrap(store.product(for: option))
@@ -285,9 +285,4 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertNil(store.trackingExpiration)
     }
 
-    func testAnalyticsProductIDsMatchStoreKitProductIDs() {
-        for option in IsoMePurchaseOption.allCases {
-            XCTAssertEqual(option.analyticsProductID.rawValue, option.productID)
-        }
-    }
 }

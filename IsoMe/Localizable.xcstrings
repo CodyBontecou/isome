@@ -79317,6 +79317,36 @@
           }
         }
       }
+    },
+    "Deleting the app or buying Lifetime does not cancel an existing subscription. Manage it in Apple Account settings." : {
+      "localizations" : {
+        "en": {"stringUnit":{"state":"translated","value":"Deleting the app or buying Lifetime does not cancel an existing subscription. Manage it in Apple Account settings."}},
+        "ar": {"stringUnit":{"state":"translated","value":"لا يؤدي حذف التطبيق أو شراء مدى الحياة إلى إلغاء الاشتراك الحالي. قم بإدارته في إعدادات Apple Account ."}},
+        "bn": {"stringUnit":{"state":"translated","value":"অ্যাপ মুছে ফেলা বা লাইফটাইম কেনা একটি বিদ্যমান সাবস্ক্রিপশন বাতিল করে না। Apple Account সেটিংসে এটি পরিচালনা করুন।"}},
+        "es": {"stringUnit":{"state":"translated","value":"Eliminar la aplicación o comprar Lifetime no cancela una suscripción existente. Administrelo en la configuración Apple Account ."}},
+        "fr": {"stringUnit":{"state":"translated","value":"La suppression de l'application ou l'achat de Lifetime n'annule pas un abonnement existant. Gérez-le dans les paramètres Apple Account ."}},
+        "hi": {"stringUnit":{"state":"translated","value":"ऐप को हटाने या लाइफटाइम खरीदने से मौजूदा सदस्यता रद्द नहीं होती है। इसे Apple Account सेटिंग में प्रबंधित करें।"}},
+        "ja": {"stringUnit":{"state":"translated","value":"アプリを削除したり、ライフタイムを購入したりしても、既存のサブスクリプションはキャンセルされません。 Apple Account設定で管理します。"}},
+        "pl": {"stringUnit":{"state":"translated","value":"Usunięcie aplikacji lub zakup Lifetime nie powoduje anulowania istniejącej subskrypcji. Zarządzaj nim w ustawieniach Apple Account ."}},
+        "pt-BR": {"stringUnit":{"state":"translated","value":"Excluir o aplicativo ou comprar o Lifetime não cancela uma assinatura existente. Gerencie-o nas configurações Apple Account ."}},
+        "ru": {"stringUnit":{"state":"translated","value":"Удаление приложения или покупка Lifetime не отменяет существующую подписку. Управляйте этим в настройках Apple Account ."}},
+        "zh-Hans": {"stringUnit":{"state":"translated","value":"删除应用程序或购买终身不会取消现有订阅。在Apple Account设置中进行管理。"}}
+      }
+    },
+    "Family Sharing shares access, not your location journal." : {
+      "localizations" : {
+        "en": {"stringUnit":{"state":"translated","value":"Family Sharing shares access, not your location journal."}},
+        "ar": {"stringUnit":{"state":"translated","value":"Family Sharing تشارك الوصول، وليس دفتر يومية موقعك."}},
+        "bn": {"stringUnit":{"state":"translated","value":"Family Sharing অ্যাক্সেস শেয়ার করে, আপনার লোকেশন জার্নাল নয়।"}},
+        "es": {"stringUnit":{"state":"translated","value":"Family Sharing comparte el acceso, no tu diario de ubicación."}},
+        "fr": {"stringUnit":{"state":"translated","value":"Family Sharing partage l'accès, pas votre journal de localisation."}},
+        "hi": {"stringUnit":{"state":"translated","value":"Family Sharing एक्सेस साझा करता है, न कि आपका स्थान जर्नल।"}},
+        "ja": {"stringUnit":{"state":"translated","value":"Family Sharing 、位置情報ジャーナルではなく、アクセスを共有します。"}},
+        "pl": {"stringUnit":{"state":"translated","value":"Family Sharing udostępnia dostęp, a nie dziennik lokalizacji."}},
+        "pt-BR": {"stringUnit":{"state":"translated","value":"Family Sharing compartilha o acesso, não seu diário de localização."}},
+        "ru": {"stringUnit":{"state":"translated","value":"Family Sharing предоставляет общий доступ, а не журнал вашего местоположения."}},
+        "zh-Hans": {"stringUnit":{"state":"translated","value":"Family Sharing共享访问权限，而不是您的位置日志。"}}
+      }
     }
   },
   "version": "1.0"

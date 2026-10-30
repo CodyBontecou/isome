@@ -1,0 +1,76 @@
+{
+  "draftOnly": true,
+  "release": "1.8",
+  "group": {
+    "referenceName": "Whereday Tracking",
+    "localizations": [
+      {"locale": "en-US", "name": "Whereday"},
+      {"locale": "ar-SA", "name": "Whereday"},
+      {"locale": "es-ES", "name": "Whereday"},
+      {"locale": "fr-FR", "name": "Whereday"},
+      {"locale": "hi", "name": "Whereday"},
+      {"locale": "ja", "name": "Whereday"},
+      {"locale": "pt-BR", "name": "Whereday"},
+      {"locale": "ru", "name": "Whereday"},
+      {"locale": "zh-Hans", "name": "Whereday"}
+    ]
+  },
+  "products": [
+    {
+      "productId": "com.bontecou.isome.individual.weekly",
+      "localizations": [
+        {"locale": "en-US", "name": "Individual Weekly", "description": "Private tracking and export. Billed weekly."},
+        {"locale": "ar-SA", "name": "فردي أسبوعي", "description": "تسجيل خاص وتصدير. فوترة أسبوعية."},
+        {"locale": "es-ES", "name": "Individual semanal", "description": "Registro privado y exportación. Cobro semanal."},
+        {"locale": "fr-FR", "name": "Individuel hebdomadaire", "description": "Suivi privé et export. Facturation hebdomadaire."},
+        {"locale": "hi", "name": "Individual साप्ताहिक", "description": "निजी रिकॉर्डिंग और एक्सपोर्ट। साप्ताहिक बिलिंग।"},
+        {"locale": "ja", "name": "個人向け週額", "description": "プライベートな記録と書き出し。週ごとのお支払い。"},
+        {"locale": "pt-BR", "name": "Individual semanal", "description": "Registro privado e exportação. Cobrança semanal."},
+        {"locale": "ru", "name": "Индивидуальный на неделю", "description": "Личная запись и экспорт. Оплата каждую неделю."},
+        {"locale": "zh-Hans", "name": "个人周订阅", "description": "私人记录与导出。每周付费。"}
+      ]
+    },
+    {
+      "productId": "com.bontecou.isome.individual.yearly",
+      "localizations": [
+        {"locale": "en-US", "name": "Individual Yearly", "description": "Private tracking and export. Billed yearly."},
+        {"locale": "ar-SA", "name": "فردي سنوي", "description": "تسجيل خاص وتصدير. فوترة سنوية."},
+        {"locale": "es-ES", "name": "Individual anual", "description": "Registro privado y exportación. Cobro anual."},
+        {"locale": "fr-FR", "name": "Individuel annuel", "description": "Suivi privé et export. Facturation annuelle."},
+        {"locale": "hi", "name": "Individual वार्षिक", "description": "निजी रिकॉर्डिंग और एक्सपोर्ट। वार्षिक बिलिंग।"},
+        {"locale": "ja", "name": "個人向け年額", "description": "プライベートな記録と書き出し。年ごとのお支払い。"},
+        {"locale": "pt-BR", "name": "Individual anual", "description": "Registro privado e exportação. Cobrança anual."},
+        {"locale": "ru", "name": "Индивидуальный на год", "description": "Личная запись и экспорт. Оплата каждый год."},
+        {"locale": "zh-Hans", "name": "个人年订阅", "description": "私人记录与导出。每年付费。"}
+      ]
+    },
+    {
+      "productId": "com.bontecou.isome.family.weekly",
+      "localizations": [
+        {"locale": "en-US", "name": "Family Weekly", "description": "Tracking and export with Family Sharing. Billed weekly."},
+        {"locale": "ar-SA", "name": "عائلي أسبوعي", "description": "تسجيل وتصدير مع المشاركة العائلية. فوترة أسبوعية."},
+        {"locale": "es-ES", "name": "Familiar semanal", "description": "Registro y exportación con En familia. Cobro semanal."},
+        {"locale": "fr-FR", "name": "Familial hebdomadaire", "description": "Suivi et export en famille. Facturation hebdomadaire."},
+        {"locale": "hi", "name": "Family साप्ताहिक", "description": "Family Sharing सहित रिकॉर्डिंग और एक्सपोर्ट। हर सप्ताह।"},
+        {"locale": "ja", "name": "ファミリー向け週額", "description": "ファミリー共有で記録と書き出し。週ごとのお支払い。"},
+        {"locale": "pt-BR", "name": "Família semanal", "description": "Registro e exportação em família. Cobrança semanal."},
+        {"locale": "ru", "name": "Семейный на неделю", "description": "Запись и экспорт с семейным доступом. Оплата за неделю."},
+        {"locale": "zh-Hans", "name": "家庭周订阅", "description": "记录与导出，支持家人共享。每周付费。"}
+      ]
+    },
+    {
+      "productId": "com.bontecou.isome.family.yearly",
+      "localizations": [
+        {"locale": "en-US", "name": "Family Yearly", "description": "Tracking and export with Family Sharing. Billed yearly."},
+        {"locale": "ar-SA", "name": "عائلي سنوي", "description": "تسجيل وتصدير مع المشاركة العائلية. فوترة سنوية."},
+        {"locale": "es-ES", "name": "Familiar anual", "description": "Registro y exportación con En familia. Cobro anual."},
+        {"locale": "fr-FR", "name": "Familial annuel", "description": "Suivi et export en famille. Facturation annuelle."},
+        {"locale": "hi", "name": "Family वार्षिक", "description": "Family Sharing सहित रिकॉर्डिंग और एक्सपोर्ट। हर वर्ष।"},
+        {"locale": "ja", "name": "ファミリー向け年額", "description": "ファミリー共有で記録と書き出し。年ごとのお支払い。"},
+        {"locale": "pt-BR", "name": "Família anual", "description": "Registro e exportação em família. Cobrança anual."},
+        {"locale": "ru", "name": "Семейный на год", "description": "Запись и экспорт с семейным доступом. Оплата за год."},
+        {"locale": "zh-Hans", "name": "家庭年订阅", "description": "记录与导出，支持家人共享。每年付费。"}
+      ]
+    }
+  ]
+}

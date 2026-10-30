@@ -13,6 +13,7 @@ struct IsoMeApp: App {
     @State private var manualVisitRouter = ManualVisitRouter()
 
     init() {
+        RetiredAnalyticsCleanup.run()
         #if DEBUG && os(iOS)
         DebugSelfie.install()
         #endif

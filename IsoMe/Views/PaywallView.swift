@@ -3,12 +3,11 @@ import StoreKit
 
 struct PaywallView: View {
     @ObservedObject var storeManager: StoreManager
-    var context: OnboardingAnalyticsPaywallContext = .export
+    var context: PaywallContext = .export
     var isRequired = false
     @Environment(\.dismiss) private var dismiss
     @State private var family = false
     @State private var selectedOption: IsoMePurchaseOption = .individualYearly
-    @State private var didTrackShown = false
     @State private var showSubscriptionManagement = false
     private var ink: Color { InkPaperPalette.ink }
     private var paper: Color { InkPaperPalette.paper }
@@ -19,7 +18,6 @@ struct PaywallView: View {
         family ? [.familyWeekly, .familyYearly, .family] : [.individualWeekly, .individualYearly, .individual]
     }
     private var hasTrial: Bool { storeManager.trialEligibleProductIDs.contains(selectedOption.productID) }
-    private var analytics: OnboardingAnalyticsClient { .shared }
 
     var body: some View {
         NavigationStack {
@@ -51,6 +49,8 @@ struct PaywallView: View {
                             Text("Family").tag(true)
                         }.pickerStyle(.segmented).frame(minHeight: 44)
                         if family {
+                            Text("Family Sharing shares access, not your location journal.")
+                                .font(.caption).foregroundStyle(pencil)
                             Label("Share with up to 5 family members using Apple Family Sharing", systemImage: "person.3.fill")
                                 .font(.subheadline).foregroundStyle(pencil)
                         }
@@ -97,7 +97,10 @@ struct PaywallView: View {
                     .font(.footnote)
                     .padding(.horizontal, 16)
                     .background(paper.opacity(0.96), in: Capsule())
-                    Text("Your existing records remain available to view and export if your subscription ends.")
+                    VStack(spacing: 8) {
+                        Text("Your existing records remain available to view and export if your subscription ends.")
+                        Text("Deleting the app or buying Lifetime does not cancel an existing subscription. Manage it in Apple Account settings.")
+                    }
                         .font(.caption).foregroundStyle(pencil).multilineTextAlignment(.center)
                         .padding(12)
                         .background(paper.opacity(0.96), in: RoundedRectangle(cornerRadius: 12))
@@ -139,10 +142,6 @@ struct PaywallView: View {
             #endif
         }
         .task {
-            if !didTrackShown {
-                didTrackShown = true
-                analytics.trackPaywallShown(context: context)
-            }
             await storeManager.loadProducts()
         }
     }
@@ -210,17 +209,8 @@ struct PaywallView: View {
 
     private func purchaseButton(_ option: IsoMePurchaseOption) -> some View {
         Button {
-            analytics.trackPurchaseStarted(context: context, productId: option.analyticsProductID)
             Task {
                 let result = await storeManager.purchase(option)
-                let outcome: OnboardingAnalyticsPurchaseOutcome
-                switch result {
-                case .succeeded: outcome = .succeeded
-                case .cancelled: outcome = .cancelled
-                case .pending: outcome = .pending
-                case .failed: outcome = .failed
-                }
-                analytics.trackPurchaseFinished(outcome: outcome, context: context, productId: option.analyticsProductID)
                 if result == .succeeded && !isRequired { dismiss() }
             }
         } label: {
@@ -241,10 +231,8 @@ struct PaywallView: View {
     }
 
     private func restore() {
-        analytics.trackRestoreStarted(context: context)
         Task {
             let result = await storeManager.restorePurchases()
-            analytics.trackRestoreFinished(outcome: result == .restored ? .restored : (result == .notFound ? .notFound : .failed), context: context)
             if result == .restored && !isRequired { dismiss() }
         }
     }

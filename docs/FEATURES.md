@@ -1,7 +1,13 @@
 # Whereday Feature Baseline
 
+> Candidate update: custom in-app analytics, collectors, queues and install identifiers have been removed. ANL-1 and analytics keys below are historical inventory only; the upgrade removes those keys. Essential location recording, scheduling and purchases remain.
+
 > **Status: canonical feature inventory — generated from a full source audit (all Swift/TS sources, 4 app targets + worker), Aug 2026.**
 > **Purpose:** single source of truth for every feature the app supports, used to structure and manage documentation. Every entry cites implementation files so docs can be traced back to code.
+
+## Current paid-access policy
+
+The feature-by-feature free/paid labels below are the August 2026 baseline. They do not define the subscription-enabled release. New users need an eligible store-backed trial, weekly/yearly subscription, or Lifetime purchase before recording visits/routes or manual check-ins. Existing free users retain tracking and their previous export purchase requirement. New-cohort users retain viewing/export of existing records after expiration. Family Sharing shares access, not journals. See [paid tracking rollout](paid-tracking-rollout.md) for current product IDs and migration rules. Lifetime prices remain on hold; no new price or release is authorized by this inventory.
 
 **Conventions**
 - Feature IDs are stable (`DOMAIN-NUMBER`). Reference them from docs, release notes, and issues.

@@ -8,16 +8,15 @@ nonisolated enum IsoMePurchaseOption: String, CaseIterable, Identifiable, Sendab
     case individualWeekly, individualYearly, familyWeekly, familyYearly
 
     var id: String { rawValue }
-    var productID: String { analyticsProductID.rawValue }
-    var analyticsProductID: OnboardingAnalyticsProductID {
+    var productID: String {
         switch self {
-        case .individual: return .individualLifetime
-        case .family: return .familyLifetime
-        case .familyUpgrade: return .familyLifetimeUpgrade
-        case .individualWeekly: return .individualWeekly
-        case .individualYearly: return .individualYearly
-        case .familyWeekly: return .familyWeekly
-        case .familyYearly: return .familyYearly
+        case .individual: return "com.bontecou.isome.lifetime.individual"
+        case .family: return "com.bontecou.isome.lifetime"
+        case .familyUpgrade: return "com.bontecou.isome.lifetime.family.upgrade"
+        case .individualWeekly: return "com.bontecou.isome.individual.weekly"
+        case .individualYearly: return "com.bontecou.isome.individual.yearly"
+        case .familyWeekly: return "com.bontecou.isome.family.weekly"
+        case .familyYearly: return "com.bontecou.isome.family.yearly"
         }
     }
     var isFamilyPlan: Bool { [.family, .familyUpgrade, .familyWeekly, .familyYearly].contains(self) }
