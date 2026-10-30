@@ -1,0 +1,11 @@
+Whereday 1.8.1, build 57
+
+This maintenance update refreshes onboarding with bundled fictional maps, interactive JSON/CSV/Markdown field previews, and clearer optional photo setup. The final Start tracking immediately switch is optional; Get Started can finish onboarding without starting recording.
+
+No Whereday account or demo login is required. Core location history remains on-device. Location permission and purchases are separate: purchasing never grants location permission. Photos remain in the Photos library and automatic photo matching is optional.
+
+Purchase behavior is the same as the released 1.8 version: new users see the required tracking paywall and can select Individual or Family, then Weekly, Yearly, or Lifetime. Apple controls purchase confirmation and trial eligibility. Restore Purchases, Privacy, and Terms are accessible. Existing verified original builds through 50 retain their legacy access; the eligibility cutoff remains 51. Existing Lifetime purchases remain valid. Expired new-cohort subscribers can still view and export existing records, while new recording requires active access. No product IDs or App Store price schedules are changed by this update.
+
+Custom onboarding and purchase analytics have been removed in every build configuration. Updating erases retired local analytics identifiers and unsent queues. Optional myself.md purchase claims remain disabled. Functional export scheduling and user-configured webhooks remain available.
+
+Please keep this version on manual developer release after approval.
