@@ -1,0 +1,102 @@
+{
+  "marketing/content/record-iphone-route-gpx.html": {
+    "before_sha256": "a02a18053faacab8e13854b1a22300dde66bb872c045d829a759b1834495d1e2",
+    "staged_sha256": "a5871dd1ea3d78bd4308b97abfb039739815b4ad7c10fe261e239215df3078f1"
+  },
+  "marketing/public/_markdown/about.md": {
+    "before_sha256": "36a857adbc0758b78eae92e3d4cb52d3861fe3a042ed78884048b56e1c12341e",
+    "staged_sha256": "0676afdae36cea38d038fd20c6b1683349ae46277996263331dda4431eec64fe"
+  },
+  "marketing/public/_markdown/blog/record-iphone-route-gpx/index.md": {
+    "before_sha256": "de413d5d7fb2f7aa3c56ef316d756b9961628b7fcafc64a3b44a033a61671335",
+    "staged_sha256": "3bc031e4174b4f55ab963eb2c7ec41b48ba99bed630387fe83b67d479fbc9241"
+  },
+  "marketing/public/_markdown/compare/google-maps-timeline/index.md": {
+    "before_sha256": "accf7f7688e098395afe8a703d4937c5e7b378ef4f82d21c5fa4fba197e12ec8",
+    "staged_sha256": "3f58fb172d765e3cbde0b4f9122cdee5adae0e0bed6f3e73a904cd29bf0525b2"
+  },
+  "marketing/public/_markdown/docs/apple-watch/index.md": {
+    "before_sha256": "97c6bc9a7373583dc526ba17fb588722189a6ab81b8c99c2c2d4b38cd52cc81a",
+    "staged_sha256": "e4f3d337bfdb43fe2446ba354ec82953b031ad75bee74d4f82bbf1230600d34f"
+  },
+  "marketing/public/_markdown/docs/automatic-exports/index.md": {
+    "before_sha256": "799627f8a4b2ada6a691ef8a43ba9fd5bf4f85994c0df56be03ecf1f9293f684",
+    "staged_sha256": "9d45f3df33659dae08a903135d6aed82d512082f611eb99a36e7de3975336fe4"
+  },
+  "marketing/public/_markdown/docs/places/index.md": {
+    "before_sha256": "8825b4b51d7da2423f6e6af90d0ec051c5898d6008df12a126c962cac7802f4e",
+    "staged_sha256": "e1d615856bcc02938af4524fae7f4c7cbb6b61f891308db32a2d34df6f33d1bb"
+  },
+  "marketing/public/_markdown/docs/privacy-data/index.md": {
+    "before_sha256": "76d0cdeaf049c56f048a4b22cb5a79612d951d9897354de72dfe474c0144e34c",
+    "staged_sha256": "0777048c9e2529d85b7c02107ea5c932620b827db6e1772041231ad666db8468"
+  },
+  "marketing/public/_markdown/index.md": {
+    "before_sha256": "d88d7bfc3a841ad4d6044223014728d34a89eda41cf000a26af5d00cb9019380",
+    "staged_sha256": "553f09f828c88ad6ebbf9a9825c092be077ba2fe26c1c412d56407c02f7a967a"
+  },
+  "marketing/public/_markdown/privacy.md": {
+    "before_sha256": "ca785efd2e6a169a55d8c6f04856748b56f16fb2fd826c82f3247963dc094228",
+    "staged_sha256": "cd29307bbd4830fbeebc128a8524e6808063e04a8d4ec560365f9e967b3afc20"
+  },
+  "marketing/public/_markdown/terms.md": {
+    "before_sha256": "b29d7ba96a0c0f325c0daec930a84d041983ad7b7c5dd82da943d51616774c83",
+    "staged_sha256": "b29d7ba96a0c0f325c0daec930a84d041983ad7b7c5dd82da943d51616774c83"
+  },
+  "marketing/public/about.html": {
+    "before_sha256": "cfe53146e40e16501e4a7ef4b245f080d8c97fd17ec94389ffe78c22914643d9",
+    "staged_sha256": "597c4e39a3f5ec0ff2deec9763e110a4e830d624d1c4bc2fedee0237e92b5687"
+  },
+  "marketing/public/blog/record-iphone-route-gpx/index.html": {
+    "before_sha256": "af4aa255d1c6c2e0c544c534a3542faa8599c567b4746a0b94d884c35ba71a7f",
+    "staged_sha256": "9998636f82c9f260e377331eecc86b87506cd9b5a41a7c0f25df58298de3b4c6"
+  },
+  "marketing/public/compare/google-maps-timeline/index.html": {
+    "before_sha256": "fb37194ecfa6609dd02e9b2fc05be379fdf88480637be39bc51801d05218a7f0",
+    "staged_sha256": "73f91dc3022231f9d1f07a1695dfc5a2ad650b3446d0d6cd3fd7f5ca5337b1de"
+  },
+  "marketing/public/docs/apple-watch/index.html": {
+    "before_sha256": "42d3f586292afe4ea9e33b623d59e65a762731c020536a88ee5ab10cdba35da5",
+    "staged_sha256": "6c829ee850b3a5ec509d209970b813622fb00939e17c4ab20d53d8880b39ec7a"
+  },
+  "marketing/public/docs/automatic-exports/index.html": {
+    "before_sha256": "7e10ff01194b7737752679d17ee09e6df9a2206735a15af6c8960af0dba1458b",
+    "staged_sha256": "a85980026cd44bd61f747392b218b2a88825905c9ff037c528393b19b0c310bc"
+  },
+  "marketing/public/docs/places/index.html": {
+    "before_sha256": "22bc9d613b6b866da4c10bf06369ad7feb59e372e9a89e97128605ca80142500",
+    "staged_sha256": "4e1cc098516f1f855a02696ed423a69f5e35d8abb5979216a0724b41c20c56f8"
+  },
+  "marketing/public/docs/privacy-data/index.html": {
+    "before_sha256": "a6b53ca0e11de0915307a33e4004f9fc0761623ad58ec8218ebbfa6bc08f1fab",
+    "staged_sha256": "105ad09f36f463d53fb6a3a18f621cecdc46db84bb6e3c01e4de5167eedf98fa"
+  },
+  "marketing/public/index.html": {
+    "before_sha256": "6165e26b14c1992257a58c9a9d8c6d7495d6ba68cddb6f8d9ff353cec612f1a3",
+    "staged_sha256": "24edb86ae915b9b8646073fd4aace815f5fb887762285a84143ae2447026a40b"
+  },
+  "marketing/public/llms.txt": {
+    "before_sha256": "e882625752eefad04c92759cf27ef9592422a4c3ae4c3120cc1907feec10f076",
+    "staged_sha256": "fa058d30a9707b91a0f36aaecb486ddf47f8d4d9e94dd8bd839a000c8c21a556"
+  },
+  "marketing/public/privacy.html": {
+    "before_sha256": "f3911a6f883f6ab0c8e0318f31577d7992363c46b2376dab1ea8673ac781bb12",
+    "staged_sha256": "c963a19207b647dbb66e3c028c1037334a9a08b7a728e6b02e9fed9d88e2067b"
+  },
+  "marketing/public/terms.html": {
+    "before_sha256": "9f17e885e089323380783c9d5746ea35b438a3c1d7c36e1ae33efefb84cda3ba",
+    "staged_sha256": "4fb9c4b4beb0ede5a3db5c7af7104ea69c58ee478e23f637e8a39d14a0318ea5"
+  },
+  "marketing/scripts/build_agentic.py": {
+    "before_sha256": "41a77a234a776a8217f3a1893f05c1bc2bb74ce0ef81f2b348e56a3454f2d0a9",
+    "staged_sha256": "c65084f2fca47d0f7c0b3deff46fe2956417aac0b79f11c60c82e7251da46841"
+  },
+  "marketing/scripts/build_docs.py": {
+    "before_sha256": "bc4dd19e478616e91e10b8a159631f2ee8702c08e4e8d0be5deea9cb94647a6b",
+    "staged_sha256": "5b9f12ebbf080aff8b6ed25e2f2060848423cfe09576fd26558d7330a7ecd842"
+  },
+  "marketing/scripts/build_seo_pages.py": {
+    "before_sha256": "285cb6f6492c7f9d7eaef1c0289ea9700792290f23edd88e682fd75a1a54f298",
+    "staged_sha256": "ed2797e35d6c7d6fb04fd32e6aa8ed699766b4cf893c6af1ad54b310f4e05be0"
+  }
+}

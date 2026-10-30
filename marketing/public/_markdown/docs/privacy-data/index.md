@@ -30,8 +30,9 @@ Data sharing and privacy controls
 | Where | What's sent | When | Off switch
 | Apple geocoding | Coordinates of a visit (to fetch its name/address) | When naming visits | Settings → Location names
 | Apple Maps | Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images) | When you use those features | Features are opt-in per use; road-matching toggle in map filters
-| Whereday analytics (first-party, on by default) | Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — never coordinates, visits, routes, or anything you type | During onboarding and purchases | None in-app today; deleting the app removes the install ID
-| Export scheduler | Time zone, schedule times, push token, random install ID — timing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off
+| Earlier-version Whereday analytics | Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — never coordinates, visits, routes, or anything you type | On by default in earlier versions; disabled in production version 1.8 | Updating to 1.8 stops sending and discards unsent events; it does not erase received records
+| Export scheduler | Time zone, schedule times, push token, separate installation ID — timing/routing metadata only, no location or file contents | Only if you enable Auto Export | Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain
+| Earlier-version myself.md purchase claims | Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption | Only after choosing to verify an eligible purchase; disabled in version 1.8 | Do not initiate a claim; account deletion and limited retained purchase-protection records follow the [Privacy Policy](https://whereday.com/privacy)
 | Your webhook | Location points and visits, in your chosen format | Only after you configure an endpoint | Disable webhooks (off by default)
 
 ## Photos
@@ -41,7 +42,7 @@ The photo feature reads your library on-device to match pictures to places. Phot
 ## Deleting your data
 
 - Everything, in-app: Settings → Data → Clear all data permanently removes every visit, point, outing, photo match, and saved place.
-- Everything, bluntly: deleting the app removes your entire journal and the local analytics install ID from that device.
+- Uninstalling: removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the [Privacy Policy](https://whereday.com/privacy) for technical-record retention and privacy requests.
 - Single items: delete any visit or outing from its detail page.
 
 ## Backups are your job (by design)

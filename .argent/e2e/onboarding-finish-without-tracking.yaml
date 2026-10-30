@@ -1,0 +1,28 @@
+steps:
+  - launch:
+      native: com.bontecou.isome
+      ios:
+        app: com.bontecou.isome
+        args:
+          - -hasCompletedOnboarding
+          - NO
+          - --onboarding-page=6
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        identifier: onboarding-next
+  - await: { idle: true }
+  - echo: Get Started at (0.5975,0.912), discovered from accessibility; native
+      id/text selectors are unavailable for the SwiftUI footer (see
+      onboarding-scrawl-formats). No tracking is requested. Completion must
+      remove onboarding.
+  - tool: gesture-tap
+    args:
+      x: 0.5975
+      y: 0.912
+  - tool: await-ui-element
+    args:
+      condition: hidden
+      selector:
+        identifier: onboarding-next

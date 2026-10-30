@@ -9,7 +9,7 @@ Start tracking to record your own routes and detect visits, then review the day 
 
 Whereday is currently listed as iso.me in the U.S. App Store.
 
-Free download and free tracking. Lifetime export access is $19.99 Individual or $39.99 with Apple Family Sharing in the U.S. App Store; local prices reflect purchasing power.
+Free download. Version 1.8 introduces tracking plans for new users; existing users keep their access. Current U.S. Lifetime options are $49.99 Individual or $89.99 Family.
 
 Free
 
@@ -19,7 +19,7 @@ Tracking
 
 Accounts
 
-$19.99 / $39.99
+$49.99 / $89.99
 
 Lifetime plans
 
@@ -194,7 +194,7 @@ Checked October 26, 2026. These examples do not verify a physical recording, a t
 
 ### Try your own first recording
 
-Recording and review are free. File export uses an optional lifetime purchase; supported import is free.
+Supported import is free. New users joining with version 1.8 choose a tracking plan; existing users retain their free tracking and prior purchase rights. See [access and pricing](https://whereday.com/#pricing).
 
 [
 
@@ -306,7 +306,7 @@ On-device by design
 
 ## Your location history is not a growth dataset.
 
-Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. First-party onboarding telemetry is on by default; optional exports and webhooks send data only where you choose. [Read the network and storage details](https://whereday.com/privacy).
+Your recorded visits and routes live on your iPhone, with no Whereday account or server archive of that history. Apple services provide place names and map features. Production version 1.8 disables onboarding/purchase analytics; earlier versions can still send the technical events described in our policy. Optional exports and webhooks go to destinations you choose. [Read the network and storage details](https://whereday.com/privacy).
 
 Whereday location uploads None
 
@@ -324,8 +324,8 @@ Export ownership Yours
 
 ## The full capability ledger.
 
-Included · Free
-Pro · One-time unlock
+Access depends on cohort/plan
+Existing purchase rights preserved
 
 Daily timeline & outingsIncluded
 
@@ -373,36 +373,36 @@ Support Email available
 
 § 05 Pricing
 
-## Free tracking. Pay once if you need export.
+## New-user plans. Existing access protected.
 
-No subscription
+Subscription or Lifetime
 No ad business
 
-## Install it first. Unlock export only when it matters.
+## Choose access that fits your journal.
 
-Whereday is free to download, and private visit and route tracking is free. Lifetime export access covers all eight formats, scheduled auto-exports, and webhook delivery. Choose Individual for $19.99 or Family Sharing for $39.99 in the U.S. App Store; Individual owners can upgrade later for $19.99. Local prices reflect purchasing power and applicable taxes.
+Whereday is free to download. Beginning with version 1.8, new users choose Individual or Family access through a weekly or yearly subscription, or a separate Lifetime purchase. Eligible subscriptions offer a 7-day free trial, then renew at Apple's displayed price and interval unless canceled. Existing users retain free tracking, their previous export purchase requirements, and all prior lifetime rights. Current U.S. Lifetime prices are $49.99 Individual and $89.99 Family; eligible Individual owners can upgrade to Family Sharing for $40.00. Storefront prices and taxes may vary. See our [purchase and cancellation terms](https://whereday.com/terms).
 
-- No subscription required for tracking
+- Existing tracking access remains protected
 - No ads or ad targeting
 - No server-side location storage
 - No account wall before you can try it
 
-WHEREDAY PRO ● Optional unlock
+WHEREDAY PRO ● Lifetime option
 
-$19.99
+$49.99
 
-Individual Lifetime. Family Lifetime is $39.99, and the later Family Upgrade is $19.99. One-time U.S. prices; regional pricing may vary.
+Individual Lifetime. Family Lifetime is $89.99, and the later Family Upgrade is $40.00. One-time U.S. prices; regional pricing may vary.
 
 - Download the appFree
-- Tracking, timeline & outingsFree
-- Apple Watch, widgets, ShortcutsFree
+- New-user trackingTrial or active access
+- Existing-user trackingRetained free access
 - Import from backupFree
 - Export — all eight formatsPro
 - Scheduled auto-exportsPro
 - Webhook deliveryPro
-- Individual Lifetime$19.99 once
-- Family Lifetime$39.99 once
-- Individual → Family upgrade$19.99 once
+- Individual Lifetime$49.99 once
+- Family Lifetime$89.99 once
+- Individual → Family upgrade$40.00 once
 - Apple paymentsHandled by App Store
 
 [Get Whereday on the App Store](https://apps.apple.com/app/apple-store/id6761960794?pt=126424970&ct=seo-home&mt=8)
@@ -445,7 +445,7 @@ No. Whereday stores your journal locally and does not sync through iCloud. Expor
 
 What is free and what is Pro?
 
-The app is free to download; tracking, the timeline, the Watch app, widgets, and import are free. Lifetime export access covers all eight formats, scheduled automatic exports, and webhook delivery. It costs $19.99 for Individual or $39.99 for Family in the U.S. App Store, with a $19.99 Family Upgrade available to Individual owners. Local prices reflect purchasing power and may vary by storefront.
+The download and supported import are free. New users joining with version 1.8 need an eligible trial, subscription, or Lifetime purchase to begin tracking. Existing users retain free tracking and their earlier export purchase requirements; prior lifetime purchases remain valid. Current U.S. Lifetime prices are $49.99 Individual, $89.99 Family, and $40.00 for an eligible Family Upgrade. Apple shows local prices, trial eligibility, and renewal terms before confirmation. See [the complete terms](https://whereday.com/terms).
 
 Does Whereday work with OwnTracks, Overland, or Dawarich?
 

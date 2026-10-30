@@ -1,6 +1,18 @@
 # Subscription release readiness — October 29, 2026
 
-**Not ready to approve/release the app update yet.** The four subscription products are configured and have no catalog validation errors, but there is no new app version/build staged for this feature. All App Store Connect access during this audit used `asc --read-only`; nothing was changed, submitted, or released.
+> **October 30, 2026 launch update:** The owner explicitly authorized applying Lifetime prices immediately, overriding the earlier live-app prerequisite, and then releasing the approved app. ASC readback confirms **1.8/build 52 READY_FOR_DISTRIBUTION**, all four subscriptions APPROVED, and U.S. Lifetime prices of **$49.99 Individual / $89.99 Family / $40.00 Family Upgrade**. All existing non-U.S. manual price overrides were preserved. Evidence: `.asc/artifacts/lifetime-launch-20261030/`. The historical holds and pending-review states below are superseded. The separate phone QA build is not the distributed binary.
+
+> **Latest verified app state:** **1.8/build 52 is IN_REVIEW**, with **MANUAL** release. It was submitted with all four subscription versions on October 30 at 00:04:38 UTC. The [current record](subscription-staging-1.8.md) supersedes the older staging/audit states below. Newer local source-only analytics removal is not in the frozen submitted binary; do not reuse build 52 for it. No release or lifetime price change has been authorized.
+
+> Current source/copy review: the working checkout removes the analytics collector in every configuration. That source is newer than submitted build 52 and requires a newly qualified binary with an unused build number. Keep the first-paid migration cutoff at 51. See [1.8 privacy review](release-drafts/1.8/privacy-review.md). The historical build-51 preparation below is provenance, not current release status. Qualification and copy reconciliation are authorized; public app release and Lifetime repricing remain separate steps.
+
+## Historical preparation record
+
+The sections below retain the original audit and build-51 staging sequence. Use the linked 1.8 record above for the current submission, legal-publication, and privacy state.
+
+**1.7.19/build 51 is now uploaded and staged, but not submitted or released.** The [staging record](subscription-staging-1.7.19.md) supersedes the original read-only audit below: the build is `VALID`, manual release is confirmed, and an unsubmitted review draft contains the app, subscription group, and four subscription versions. API validation has no blocking findings, but privacy/legal, screenshot, copy, and final-device-QA approvals remain. Live lifetime prices are unchanged.
+
+The original audit used only read-only App Store Connect access. Subsequent staging was explicitly authorized; no review submission or release was authorized or performed.
 
 The [live pricing hold](paid-tracking-rollout.md#live-pricing-hold--latest-instruction) remains in force. Readback confirmed U.S. prices of $19.99 Individual Lifetime, $39.99 Family Lifetime, and $19.99 Family Upgrade. Do not apply target prices or schedule increases until all subscriptions are approved, the subscription-enabled app is live, and the user explicitly authorizes changing prices.
 
@@ -14,13 +26,13 @@ The [live pricing hold](paid-tracking-rollout.md#live-pricing-hold--latest-instr
 
 ## Required before preparing the final release build
 
-### 1. Grandfathering/versioning — fixed locally, staging still gated
+### 1. Grandfathering/versioning — fixed and included in staged build 51
 
 App Store Connect now reports **1.7.18/build 50 already live**:
 
 - Version ID: `1fb126db-0b15-46e7-8d0d-adabc2d99d22`, `READY_FOR_DISTRIBUTION`.
 - Build ID: `5503e18c-86e0-4fc1-82af-9945aff40718`, build `50`, processing `VALID`, exempt encryption.
-- There are **no editable iOS versions**, and the latest uploaded build is 50.
+- At the original audit there were no editable iOS versions, and the latest upload was build 50. The subsequently staged 1.7.19/build 51 is recorded above.
 - At audit time, source defaults were 1.7.17/build 50, and both receipt cutoffs excluded original build 50. That local blocker has now been corrected; see below.
 
 That threshold must match the actual first paid-tracking release, not a build that has already shipped. Otherwise someone who originally downloaded build 50 before subscriptions launched may lose free tracking on reinstall/on another device, even though the local-install migration can preserve access during an in-place update.
@@ -52,7 +64,7 @@ No tests/builds were run during the original read-only audit. The subsequent mig
 
 ### 3. Prepare truthful subscription metadata, legal copy, and reviewer instructions
 
-A [local 1.7.19 draft package](release-drafts/1.7.19/README.md) is now prepared: nine canonical app-version localizations, 36 proposed subscription product localizations, proposed website terms/EULA-related changes, and reviewer notes. Listing drafts include both legal links and explain new-user-only subscriptions, retained existing-user access, and record access after expiration. Public listing copy avoids fixed dollar prices; reviewer notes retain the held live lifetime prices. Owner/legal/native-language review, the authorized legal-page update, screenshot refresh against held prices, and remote staging are still outstanding. No live metadata, terms, prices, or EULA selection was changed.
+A [local 1.7.19 draft package](release-drafts/1.7.19/README.md) is now prepared: nine canonical app-version localizations, 36 proposed subscription product localizations, proposed website terms/EULA-related changes, and reviewer notes. Listing drafts include both legal links and explain new-user-only subscriptions, retained existing-user access, and record access after expiration. Public listing copy avoids fixed dollar prices; reviewer notes retain the held live lifetime prices. The nine version localizations and reviewer notes have since been staged against 1.7.19 and verified by readback. Owner/legal/native-language review, the authorized legal-page update, and screenshot refresh against held prices are still outstanding before submission. Live-version metadata, terms, prices, and EULA selection were not changed.
 
 The live English description still says “Tracking is free and unlimited” and describes export as a one-time purchase. The current website/terms similarly say tracking remains free and discuss only lifetime export purchases. Keep current live-product messaging accurate while preparing new-version copy explaining the **new-user-only** policy and grandfathered users.
 
@@ -62,25 +74,17 @@ Existing review notes describe free tracking, only lifetime export purchases, an
 
 Prepare updated screenshots/release notes and a coordinated marketing-site change. Do not publish future pricing as current or change live pricing as part of metadata preparation.
 
-### 4. Stage a new version and the correct subscription-enabled build
+### 4. Version/build staging — completed, final approval outstanding
 
-After local fixes/QA and explicit authorization to stage/upload:
+The pinned `d120326` source passed 352 XCTest cases plus 11 Swift Testing tests, archived/exported as 1.7.19/build 51, and uploaded successfully. Build `69cf281a-4cfb-4720-8386-dc5b9768f038` is `VALID` and attached to version `676e5d10-dd42-4eb8-b860-bba89da97b20`. Manual developer release is confirmed. The nine listing localizations and reviewer notes match the pinned drafts by readback.
 
-- Create an editable iOS version and upload the intended signed Release build.
-- Wait for `VALID`, verify its version/build identity and feature content, and attach it to that version.
-- Stage the new metadata, screenshots (including iPad for this universal app), review notes, and any required compliance declarations.
-- Preserve manual release so approval does not automatically release the app.
-- Rerun full validation against the **new version**, optionally with its exact IPA for iPad screenshot checking.
+Full validation now targets the new version and its exact exported IPA, including iPad screenshot requirements: no API blocking findings. Existing iPhone/Watch/iPad screenshots were inherited, not refreshed; their current size/presence validation does not certify the new UI or held-price accuracy. Newer working-tree UI/contrast edits are not included in this candidate and require a new build if intended for release. See the [staging record](subscription-staging-1.7.19.md) for IDs, evidence, and approvals.
 
-The audit validated live 1.7.18 because no candidate version exists. Its only API blocking finding is `version.state.editable`: a live version cannot be resubmitted. This is not a verdict that the future subscription candidate is otherwise complete.
+### 5. First-review association — staged, not submitted
 
-### 5. Associate first-time subscriptions/group with the new app review
+Review draft `7f40896b-88c1-46da-8d92-794a6ec54589` contains the app version, Whereday Tracking group version, and all four subscription versions. API readback and the existing authenticated Pi browser both confirmed **Items Ready to Submit (6)**. State `READY_FOR_REVIEW` means an unsubmitted draft, not Apple review or approval. The Submit for Review button was not clicked. The two older empty review drafts were left untouched.
 
-The four subscription products are not approved yet. Their `READY_TO_SUBMIT` states are not approval. They need to be included in the first subscription-enabled app review, with the group version as required by Apple's current flow.
-
-First-of-type association must be checked on the app-version page/appropriate Apple web-session flow. The audit found two pre-existing empty `READY_FOR_REVIEW` review-submission shells, with zero items each; neither demonstrates a staged subscription review. They were left untouched.
-
-There is no cached authenticated Apple web session (`authenticated: false`). Deep validation therefore could not verify first-review attachment, App Privacy publication, or required agreement status. These are **unverified**, not asserted missing. Confirm them in App Store Connect or an explicitly authorized authenticated session; do not start a login, publish privacy changes, attach items, or submit as part of this audit.
+CLI deep validation still lacks an authenticated cached CLI web session, but the separate existing browser profile allowed read-only verification. **App Privacy is published as Data Not Collected**, while the pinned Release code enables install-ID/onboarding/purchase analytics. Resolve that disclosure/collection mismatch with owner approval before submitting. Required agreement status remains unverified. No privacy answer, agreement, website terms, EULA selection, or live price was changed. The [staging record](subscription-staging-1.7.19.md) lists the remaining decisions.
 
 ## Release ordering and pricing guard
 

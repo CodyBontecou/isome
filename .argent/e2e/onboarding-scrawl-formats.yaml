@@ -1,0 +1,47 @@
+steps:
+  - launch:
+      native: com.bontecou.isome
+      ios:
+        app: com.bontecou.isome
+        args:
+          - -hasCompletedOnboarding
+          - NO
+          - --onboarding-page=3
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: visits.json
+  - await: { idle: true }
+  - echo: Choose CSV and verify the preview filename and comma-separated fields
+      change.
+  - tap:
+      text: CSV
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: visits.csv
+  - await: { idle: true }
+  - echo: Choose Markdown and verify its filename and table syntax.
+  - tap:
+      text: Markdown
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: visits.md
+  - await: { idle: true }
+  - echo: Tap Next to open Photo moments; verify the Optional row remains fully
+      above the footer.
+  - echo: 'Next uses (0.5975, 0.912) on a 402x874 iPhone: the native hierarchy omits the SwiftUI button; strict onboarding-next and Next selectors both failed. Accessibility discovery supplies the point. The following photo title check verifies navigation.'
+  - tool: gesture-tap
+    args:
+      x: 0.5975
+      y: 0.912
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: Your photographs
+  - await: { idle: true }

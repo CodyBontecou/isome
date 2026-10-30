@@ -33,7 +33,7 @@ iPhone location history: accounts, recording, and portability
 | Recording | Start and Stop control GPS recording and visit monitoring together. Always permission allows background recording. | Visits and routes collected with Timeline enabled.
 | Files | JSON, CSV, Markdown, GPX, KML, GeoJSON, OwnTracks, and Overland. Paid export; free preview. | Location-history JSON export.
 | Moving existing history | App Store 1.7.16 imports Whereday JSON, CSV, and Markdown files. No Google Timeline import in that build. | Timeline backup can transfer history to another device.
-| Payment | Free recording. US lifetime unlock: $19.99 Individual or $39.99 Family. Regional prices vary. | Timeline is available within Google Maps.
+| Payment | Free recording. US lifetime unlock: $49.99 Individual or $89.99 Family. Regional prices vary. | Timeline is available within Google Maps.
 
 Google features: [Google’s Timeline help for iPhone](https://support.google.com/maps/answer/6258979?co=GENIE.Platform%3DiOS&hl=en), checked October 26, 2026. Whereday features are described in its [product documentation](https://whereday.com/docs/). This comparison is written by Whereday’s developer.
 

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Whereday</title>
+  <meta name="description" content="Whereday privacy policy: location history is stored on-device with no account and no server-side location archive. Optional Apple services, first-party onboarding analytics, user-configured webhooks, and export-scheduling metadata are disclosed in full.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://whereday.com/privacy">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #f5f4ef;
+      --paper-deep: #ecebe4;
+      --card: #ffffff;
+      --ink: #1f1f1f;
+      --ink-soft: #3a3a38;
+      --mute: #5f5d59;
+      --rule: #d2cfca;
+      --rule-soft: #e3e0db;
+      --accent: #1c57ca;
+      --lcd: #006f46;
+      --lcd-bg: #e0e6d9;
+      --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+      --display: -apple-system, system-ui, sans-serif;
+      --radius: 4px;
+    }
+    body {
+      font-family: var(--mono);
+      background: var(--paper); color: var(--ink);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    nav.top {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245, 244, 239, 0.92);
+      backdrop-filter: saturate(180%) blur(18px);
+      -webkit-backdrop-filter: saturate(180%) blur(18px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-inner {
+      max-width: 880px; margin: 0 auto;
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .brand img {
+      width: 26px; height: 26px;
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+    }
+    .brand-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lcd);
+      box-shadow: 0 0 6px rgba(0, 199, 115, 0.6);
+    }
+    .nav-links { display: flex; align-items: center; gap: 22px; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--ink); text-decoration: none; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px;
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      border: 1px solid var(--ink);
+      background: var(--ink); color: var(--paper) !important;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+    .doc-head {
+      max-width: 880px; margin: 0 auto;
+      padding: 70px 28px 30px;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mute);
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .eyebrow::before {
+      content: ''; width: 22px; height: 1px; background: var(--mute); display: inline-block;
+    }
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 14px;
+      color: var(--ink);
+    }
+    .meta-strip {
+      display: flex; gap: 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-top: 28px;
+    }
+    .meta-strip > div {
+      padding: 14px 18px;
+      border-right: 1px solid var(--rule);
+      flex: 1;
+    }
+    .meta-strip > div:last-child { border-right: 0; }
+    .meta-strip .k {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 4px;
+    }
+    .meta-strip .v {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--ink);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .content {
+      max-width: 880px; margin: 0 auto;
+      padding: 30px 28px 80px;
+    }
+    .doc-card {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 48px 44px;
+    }
+    .doc-card h2 {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin: 38px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .doc-card h2:first-child { margin-top: 0; }
+    .doc-card p, .doc-card li {
+      font-family: var(--mono);
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+    .doc-card strong { color: var(--ink); font-weight: 700; }
+    .doc-card ul {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 14px;
+    }
+    .doc-card li {
+      padding-left: 22px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .doc-card li::before {
+      content: '·';
+      color: var(--accent);
+      font-weight: 700;
+      position: absolute;
+      left: 8px;
+      top: -2px;
+      font-size: 1.4rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      background: var(--paper-deep);
+      padding: 32px 0;
+    }
+    .footer-inner {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-brand {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-brand .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--lcd);
+    }
+    .footer-links { display: flex; gap: 22px; }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .footer-links a:hover { color: var(--ink); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .doc-head { padding: 50px 20px 20px; }
+      .content { padding: 20px 20px 60px; }
+      .doc-card { padding: 28px 22px; }
+      .meta-strip { flex-direction: column; }
+      .meta-strip > div { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .meta-strip > div:last-child { border-bottom: 0; }
+      .nav-links a:not(.btn) { display: none; }
+      .nav-links .btn { padding: 8px 12px; font-size: 0.7rem; letter-spacing: 0.1em; }
+      .brand { font-size: 0.85rem; letter-spacing: 0.06em; }
+      .brand img { width: 22px; height: 22px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+    .skip-link { position: absolute; left: 16px; top: -80px; padding: 12px; background: white; z-index: 10; }
+    .skip-link:focus { top: 16px; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .doc-card a { text-decoration: underline; text-underline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="top">
+    <div class="nav-inner">
+      <a href="/" class="brand">
+        <img src="/app-icon-28.webp" srcset="/app-icon-28.webp 1x, /app-icon-84.webp 3x" alt="" width="26" height="26">
+        <span class="brand-dot"></span>
+        WHEREDAY
+      </a>
+      <div class="nav-links">
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/docs/">Docs</a>
+        <a href="/terms">Terms</a>
+        <a href="https://apps.apple.com/app/id6761960794" class="btn">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+  <header class="doc-head">
+    <span class="eyebrow">§ Legal · Document 01</span>
+    <h1>Privacy Policy</h1>
+    <div class="meta-strip">
+      <div>
+        <div class="k">Effective</div>
+        <div class="v">August 22, 2026</div>
+      </div>
+      <div>
+        <div class="k">Updated</div>
+        <div class="v">October 29, 2026</div>
+      </div>
+      <div>
+        <div class="k">Scope</div>
+        <div class="v">Whereday — iOS &amp; watchOS</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="doc-card">
+      <p>Whereday ("the App") is built with privacy as a core principle. This policy explains how the App handles your information.</p>
+
+      <h2>Data Collection and Storage</h2>
+      <p>By default, all location data — visits, routes, saved places, and photo associations — is stored exclusively on your device. There is no Whereday account, and no Whereday server keeps a copy of your location history.</p>
+      <p>A small set of optional or auxiliary features do communicate over the network. Each is listed under <strong>Network Requests</strong> below, together with exactly what is sent and where.</p>
+
+      <h2>Location Data</h2>
+      <p>The App uses your device's location services to:</p>
+      <ul>
+        <li>Automatically detect places you visit</li>
+        <li>Record detailed routes when tracking is enabled</li>
+        <li>Feed optional surfaces such as the Apple Watch app, widgets, and Live Activities</li>
+      </ul>
+      <p>Your location history stays on your device unless you deliberately enable a feature that sends it elsewhere. The only such feature is optional <strong>webhook delivery</strong> (see Network Requests), which posts your data to a destination you configure yourself.</p>
+
+      <h2>Network Requests</h2>
+      <p>The App may make network requests in the following circumstances:</p>
+      <ul>
+        <li><strong>Apple system services (optional):</strong> if readable place names are enabled, coordinates are sent to Apple's geocoding service. Place search, nearby-business suggestions, road-matched route lines, and lock-screen map snapshots also use Apple Maps services. These requests are handled by Apple and governed by Apple's privacy policy.</li>
+        <li><strong>Earlier-version onboarding analytics:</strong> the candidate version 1.8 removes custom onboarding/purchase analytics, its installation identifiers and unsent queues in every build configuration. Earlier versions enable first-party analytics by default: onboarding steps, permission/tracking choices, paywall interactions, product IDs, purchase/restore outcomes, coarse technical errors, app version/build, and platform. Our Cloudflare-hosted service stores these with random installation/event IDs and receipt time. These are installation-linked records, not anonymous aggregate counts. Reports do not include coordinates, visits, routes, addresses, place names, photos, export contents, or text you enter. We use them to understand onboarding/purchases and diagnose failures, not cross-company targeted advertising or data-broker sharing.</li>
+        <li><strong>Webhook delivery (off by default, Pro):</strong> if you configure a webhook, the App posts your location points and visits, in your chosen format, directly to the endpoint you specify. Credentials are stored in the iOS Keychain; Whereday never sees your endpoint or your data.</li>
+        <li><strong>Scheduled export wake-ups (only if enabled):</strong> our Cloudflare-hosted service stores a separate installation identifier, Apple push token, platform/bundle identifier, time zone, schedule settings, and service timing information so it can send scheduled wake-ups. It receives no location records, export contents, folder names, or file names. The scheduling identifier is stored in Keychain and may survive uninstalling the app.</li>
+        <li><strong>Optional myself.md purchase claims in earlier versions:</strong> if you choose to verify an eligible lifetime purchase, Whereday sends signed App Store purchase proof to myself.md, which verifies eligibility with Apple and retains the purchase source and transaction reference. Redeeming while signed in associates the purchase with your myself.md account to grant access and prevent duplicate claims. The proof request sends neither location history nor payment-card details. This feature is disabled in version 1.8. The separate site describes account handling in its <a href="https://myself.md/privacy">Privacy Policy</a>.</li>
+        <li><strong>App Store:</strong> purchases are handled entirely by Apple's App Store. Whereday does not process or store payment information.</li>
+      </ul>
+
+      <h2>Data Export</h2>
+      <p>You can export visits, route points, and outings at any time as JSON, CSV, Markdown, GeoJSON, GPX, KML, OwnTracks, or Overland. Exported files are generated locally on your device. What you do with exported data is your responsibility.</p>
+
+      <h2>Analytics and Tracking</h2>
+      <p>Whereday contains no third-party analytics SDKs, no advertising frameworks, and no trackers from other companies. The candidate version 1.8 removes custom onboarding/purchase telemetry in all build configurations. Earlier versions collect the installation-linked events described above. Scheduling and optional earlier-version purchase claims use the technical records described in this policy. This website (not the App) additionally uses Cloudflare Web Analytics, which does not use cookies and does not track you across other sites. After the existing analytics exclusion check allows measurement, the website also counts page loads and App Store link activations by public page, link placement, UTC day, and a coarse referrer category (search, internal, other, or direct). These counters use no cookies, browser storage, visitor identifiers, raw referrer URLs, query strings, or location files. They measure activations, not unique visitors, installs, or purchases. This collection is disabled when the browser sends Global Privacy Control or Do Not Track. Cloudflare hosts the aggregate counters. On selected acquisition pages, App Store download links also include a public campaign label and developer provider token so Apple can report campaign downloads and purchases subject to its reporting rules. These labels contain no personal information or location records.</p>
+
+      <h2>Third-Party Services</h2>
+      <ul>
+        <li><strong>Apple:</strong> geocoding, Maps search and directions, map snapshots, push notifications, and App Store purchases are Apple system services governed by Apple's privacy policy.</li>
+        <li><strong>Cloudflare:</strong> hosts Whereday's own analytics ingest and export-scheduling endpoints (as described above), plus this website. Cloudflare processes data as our infrastructure provider.</li>
+        <li><strong>Destinations you choose:</strong> webhook delivery and file exports go only to endpoints and folders you configure yourself.</li>
+      </ul>
+
+      <h2>Data Deletion</h2>
+      <p>You can delete locally stored journal data in Settings. Deleting local records or uninstalling the app does not itself delete server records, initiate myself.md account deletion, or remove copies you exported/backed up. Keychain-backed scheduling identity may remain after uninstalling.</p>
+      <h3>Retention of technical records</h3>
+      <p>Earlier-version analytics events have no configured automatic expiry in our analytics service. The candidate version 1.8 removes event collection and erases retired local analytics state, but does not automatically erase events already received. Server retirement and historical deletion require a separate approved cutover.</p>
+      <p>After the scheduling service successfully receives a disable request, it deletes the active schedule. Device registrations have no age-based expiry; they are removed when Apple reports an invalid push token or a device-deletion request is processed. Turning scheduling off does not itself remove every device registration.</p>
+      <p>Purchase-claim links are valid for 15 minutes. Expiry prevents use but does not immediately erase every stored claim row. A daily cleanup removes expired directory routing rows; expired purchase-object claim rows are removed when another claim is created for that purchase. An unused expired row has no guaranteed storage deadline. Redeemed grants have no automatic expiry. After myself.md account deletion completes successfully, the service removes the account link but retains purchase references without timed expiry to prevent duplicate claims. Use myself.md's account-deletion controls and check that cleanup completes.</p>
+      <p>Cloudflare processes network requests to provide and secure these services. The myself.md service retains operational error logs; Cloudflare's Workers Logs store retains logs for up to seven days. This is not a maximum for every provider security record or backup. Database recovery history may retain earlier copies after live records change or are deleted. Live-record deletion does not immediately erase all recovery copies.</p>
+      <p>For privacy or deletion questions about retained analytics/scheduling records, contact <a href="mailto:cody.bontecou@gmail.com">cody.bontecou@gmail.com</a>. We may need information to identify the relevant installation records and verify a request. Nothing in this policy limits deletion or other rights provided by applicable law.</p>
+
+      <h2>Children's Privacy</h2>
+      <p>Whereday does not knowingly collect information from children under 13. The version-dependent data flows described in this policy also apply to use of the App. Location records are not included in that telemetry.</p>
+
+      <h2>Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date.</p>
+
+      <h2>Contact</h2>
+      <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:cody.bontecou@gmail.com">cody.bontecou@gmail.com</a>.</p>
+    </div>
+  </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="dot"></span>
+        © 2026 WHEREDAY · BUILT WITH CARE
+      </div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+<!-- Cloudflare Web Analytics -->
+<script>
+(function () {
+  var productionHosts = {
+    'instareply.isolated.tech': true,
+    'voxboard.isolated.tech': true,
+    'healthmd.isolated.tech': true,
+    'whereday.com': true,
+    'gitsyncmd.isolated.tech': true,
+    'timemd.isolated.tech': true,
+    'imghost.isolated.tech': true
+  };
+
+  if (!productionHosts[window.location.hostname]) {
+    return;
+  }
+
+  function loadCloudflareBeacon() {
+    if (document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')) {
+      return;
+    }
+
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    script.setAttribute('data-cf-beacon', '{"token":"090f363070334cddad5c5cc1509b8807"}');
+    document.head.appendChild(script);
+  }
+
+  fetch('https://img-host.costream.workers.dev/analytics-gate', {
+    cache: 'no-store',
+    mode: 'cors',
+    credentials: 'omit'
+  })
+    .then(function (response) {
+      return response.ok ? response.json() : { track: false };
+    })
+    .then(function (gate) {
+      if (gate && gate.track) {
+        loadCloudflareBeacon();
+      }
+    })
+    .catch(function () {
+      // Fail closed so excluded IPs are not accidentally tracked.
+    });
+})();
+</script>
+<!-- End Cloudflare Web Analytics -->
+<script defer src="/assets/acquisition.js"></script>
+</body>
+</html>

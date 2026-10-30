@@ -224,6 +224,36 @@ final class StoreManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testStoreKitCancellationAndOfflineRestoreKeepFreshUserLocked() async throws {
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "IsoMe", withExtension: "storekit"))
+        let session = try SKTestSession(contentsOf: url)
+        session.resetToDefaultState()
+        session.disableDialogs = true
+        session.clearTransactions()
+        defer { session.clearTransactions(); session.resetToDefaultState() }
+        let suite = "StoreKitFaults.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.set(false, forKey: "tracking.cohort.legacy.v1")
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = StoreManager(defaults: defaults, forceStoreKit: true)
+        for _ in 0..<100 {
+            if store.productsByID.count == 7 && !store.isLoadingProducts { break }
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        XCTAssertEqual(store.productsByID.count, 7)
+        XCTAssertFalse(store.canTrack)
+        try await session.setSimulatedError(SKTestFailures.Purchase.generic(.userCancelled), forAPI: .purchase)
+        let cancelled = await store.purchase(.familyWeekly)
+        XCTAssertEqual(cancelled, .cancelled)
+        XCTAssertFalse(store.canTrack)
+        try await session.setSimulatedError(nil, forAPI: .purchase)
+        try await session.setSimulatedError(SKTestFailures.AppStoreSync.generic(.networkError(URLError(.notConnectedToInternet))), forAPI: .appStoreSync)
+        let failedRestore = await store.restorePurchases()
+        XCTAssertEqual(failedRestore, .failed)
+        XCTAssertFalse(store.canTrack)
+    }
+
+    @MainActor
     func testStoreKitCatalogTrialPurchaseExpirationAndLifetime() async throws {
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "IsoMe", withExtension: "storekit"))
         let session = try SKTestSession(contentsOf: url)
@@ -245,8 +275,8 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertEqual(store.productsByID.count, 7)
         let prices: [IsoMePurchaseOption: Decimal] = [
             .individualWeekly: Decimal(string: "0.99")!, .individualYearly: Decimal(string: "29.99")!,
-            .individual: Decimal(string: "49.99")!, .familyWeekly: Decimal(string: "1.99")!,
-            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "89.99")!
+            .individual: Decimal(string: "19.99")!, .familyWeekly: Decimal(string: "1.99")!,
+            .familyYearly: Decimal(string: "49.99")!, .family: Decimal(string: "39.99")!
         ]
         for (option, price) in prices {
             let product = try XCTUnwrap(store.product(for: option))
@@ -263,6 +293,14 @@ final class StoreManagerTests: XCTestCase {
         }
         XCTAssertTrue(store.isPurchased)
         XCTAssertNotNil(store.trackingExpiration)
+        let restoredSuite = "StoreKitRestore.\(UUID().uuidString)"
+        let restoredDefaults = UserDefaults(suiteName: restoredSuite)!
+        defer { restoredDefaults.removePersistentDomain(forName: restoredSuite) }
+        restoredDefaults.set(false, forKey: "tracking.cohort.legacy.v1")
+        let restoredStore = StoreManager(defaults: restoredDefaults, forceStoreKit: true)
+        let restoreResult = await restoredStore.restorePurchases()
+        XCTAssertEqual(restoreResult, .restored)
+        XCTAssertTrue(restoredStore.canTrack)
         let subscription = try XCTUnwrap(session.allTransactions().first { $0.productIdentifier == IsoMePurchaseOption.individualWeekly.productID })
         try session.disableAutoRenewForTransaction(identifier: subscription.identifier)
         try session.expireSubscription(productIdentifier: IsoMePurchaseOption.individualWeekly.productID)
@@ -275,7 +313,7 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertTrue(store.hasPurchasedBefore)
         XCTAssertTrue(store.canExport)
         let lifetime = await store.purchase(.family)
-        XCTAssertEqual(lifetime, .succeeded)
+        XCTAssertEqual(lifetime, .succeeded, store.purchaseError ?? "Lifetime purchase must succeed after fault reset")
         for _ in 0..<50 {
             await store.checkEntitlement()
             if store.isFamilyUnlocked { break }
@@ -285,9 +323,4 @@ final class StoreManagerTests: XCTestCase {
         XCTAssertNil(store.trackingExpiration)
     }
 
-    func testAnalyticsProductIDsMatchStoreKitProductIDs() {
-        for option in IsoMePurchaseOption.allCases {
-            XCTAssertEqual(option.analyticsProductID.rawValue, option.productID)
-        }
-    }
 }

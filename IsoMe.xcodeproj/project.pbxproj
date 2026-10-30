@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        CB1030000000000000000001 /* OnboardingLaunchConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1030000000000000000002 /* OnboardingLaunchConfigurationTests.swift */; };
+		CA1029B00000000000000001 /* RetiredAnalyticsCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1029A00000000000000001 /* RetiredAnalyticsCleanup.swift */; };
+		CA1029B00000000000000000 /* PaywallContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1029A00000000000000000 /* PaywallContext.swift */; };
 		CA1E00870000000000000001 /* TEActionContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1E00870000000000000002 /* TEActionContrastTests.swift */; };
 		B05100000000000000000002 /* PaidTrackingMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05100000000000000000001 /* PaidTrackingMigration.swift */; };
 		B05100000000000000000003 /* PaidTrackingMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05100000000000000000001 /* PaidTrackingMigration.swift */; };
@@ -19,11 +22,6 @@
 		A0660001212F000100000001 /* PhotoMomentMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */; };
 		A06500000000000000000002 /* PhotoMapMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* PhotoMapMarkerTests.swift */; };
 		CC1090010000000000000001 /* MyselfClaimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1090010000000000000002 /* MyselfClaimView.swift */; };
-		AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */; };
-		AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */; };
-		AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */; };
-		AA110004212F000100000004 /* OnboardingAnalyticsFunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */; };
-		AA110005212F000100000005 /* OnboardingAnalyticsTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */; };
 		C0DE0001212F000100000001 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0001212F000000000001 /* RecordingSession.swift */; };
 		C0DE0101212F000100000101 /* PhotoMoment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0101212F000000000101 /* PhotoMoment.swift */; };
 		C0DE0102212F000100000102 /* PhotoLibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0102212F000000000102 /* PhotoLibraryManager.swift */; };
@@ -235,6 +233,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        CB1030000000000000000002 /* OnboardingLaunchConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLaunchConfigurationTests.swift; sourceTree = "<group>"; };
+		CA1029A00000000000000001 /* RetiredAnalyticsCleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetiredAnalyticsCleanup.swift; sourceTree = "<group>"; };
+		CA1029A00000000000000000 /* PaywallContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallContext.swift; sourceTree = "<group>"; };
 		CA1E00870000000000000002 /* TEActionContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEActionContrastTests.swift; sourceTree = "<group>"; };
 		B05100000000000000000001 /* PaidTrackingMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaidTrackingMigration.swift; sourceTree = "<group>"; };
 		8E371E5863464D0AB0D58071 /* TimelineImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineImportTests.swift; sourceTree = "<group>"; };
@@ -245,11 +246,6 @@
 		A0660001212F000000000001 /* PhotoMomentMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMomentMembershipTests.swift; sourceTree = "<group>"; };
 		A06500000000000000000001 /* PhotoMapMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMapMarkerTests.swift; sourceTree = "<group>"; };
 		CC1090010000000000000002 /* MyselfClaimView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyselfClaimView.swift; sourceTree = "<group>"; };
-		AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareOnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
-		AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsClient.swift; sourceTree = "<group>"; };
-		AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsEvent.swift; sourceTree = "<group>"; };
-		AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsFunnel.swift; sourceTree = "<group>"; };
-		AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnalyticsTransport.swift; sourceTree = "<group>"; };
 		C0DE0001212F000000000001 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		C0DE0101212F000000000101 /* PhotoMoment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoMoment.swift; sourceTree = "<group>"; };
 		C0DE0102212F000000000102 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
@@ -436,18 +432,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AA110000212F000000000000 /* Analytics */ = {
-			isa = PBXGroup;
-			children = (
-				AA110001212F000000000001 /* CloudflareOnboardingAnalyticsTransport.swift */,
-				AA110002212F000000000002 /* OnboardingAnalyticsClient.swift */,
-				AA110003212F000000000003 /* OnboardingAnalyticsEvent.swift */,
-				AA110004212F000000000004 /* OnboardingAnalyticsFunnel.swift */,
-				AA110005212F000000000005 /* OnboardingAnalyticsTransport.swift */,
-			);
-			path = Analytics;
-			sourceTree = "<group>";
-		};
 		5D13E0A973DE83648CCDCF76 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -560,7 +544,6 @@
 			isa = PBXGroup;
 			children = (
 				C0DE0302212F000000000302 /* CountryDayResolver.swift */,
-				AA110000212F000000000000 /* Analytics */,
 				AF000001212F000000000001 /* DailyDistanceTracker.swift */,
 				A1000005212F000000000005 /* LocationManager.swift */,
 				A1000006212F000000000006 /* GeocodingService.swift */,
@@ -568,6 +551,8 @@
 				C0DE0102212F000000000102 /* PhotoLibraryManager.swift */,
 				A100001B212F00000000001B /* LiveActivityManager.swift */,
 				7A2C2BFF043232B2FF2E0BED /* StoreManager.swift */,
+				CA1029A00000000000000001 /* RetiredAnalyticsCleanup.swift */,
+				CA1029A00000000000000000 /* PaywallContext.swift */,
 				E1000002212F000000000002 /* LogManager.swift */,
 				AB000001212F000000000001 /* IsoMeIntents.swift */,
 				76AB00000000000000000021 /* ManualVisitRoute.swift */,
@@ -714,6 +699,7 @@
 				F1FE2A7AF0F63FFD8AE276F3 /* SharedLocationDataTests.swift */,
 				8F7F078A773745EF8CE42F37 /* WebhookManagerTests.swift */,
 				FA110001212F000000000001 /* StoreManagerTests.swift */,
+                CB1030000000000000000002 /* OnboardingLaunchConfigurationTests.swift */,
 				AB000001212F0EE0000000E2 /* IsoMeEntityQueryTests.swift */,
 				AB000001212F0DD0000000D2 /* ExportDataIntentTests.swift */,
 				AB000001212F0AA0000000A2 /* GetCurrentOutingNameIntentTests.swift */,
@@ -1027,6 +1013,8 @@
 				5F000001212F000100000001 /* ExportFolderManager.swift in Sources */,
 				AF000001212F000100000001 /* DailyDistanceTracker.swift in Sources */,
 				BC063EB88C436E8BF576E318 /* StoreManager.swift in Sources */,
+				CA1029B00000000000000001 /* RetiredAnalyticsCleanup.swift in Sources */,
+				CA1029B00000000000000000 /* PaywallContext.swift in Sources */,
 				DC2E3601C25B2712AD33AE98 /* PaywallView.swift in Sources */,
 				E1000001212F000100000001 /* AppInfo.swift in Sources */,
 				E1000002212F000100000002 /* LogManager.swift in Sources */,
@@ -1046,11 +1034,6 @@
 				5F000006212F000100000001 /* ScheduledExportMergeStrategies.swift in Sources */,
 				D6000002212F000100000002 /* DailyExportNotificationScheduler.swift in Sources */,
 				D6000001212F000100000001 /* PushRegistrationManager.swift in Sources */,
-				AA110001212F000100000001 /* CloudflareOnboardingAnalyticsTransport.swift in Sources */,
-				AA110002212F000100000002 /* OnboardingAnalyticsClient.swift in Sources */,
-				AA110003212F000100000003 /* OnboardingAnalyticsEvent.swift in Sources */,
-				AA110004212F000100000004 /* OnboardingAnalyticsFunnel.swift in Sources */,
-				AA110005212F000100000005 /* OnboardingAnalyticsTransport.swift in Sources */,
 				C5F68C85D33E49FB8E0846D5 /* WebhookManager.swift in Sources */,
 				B4BEE4EDDABA4EBEA161EC3D /* WebhookSettingsView.swift in Sources */,
 				9038E89D0D7D984DC89F365B /* DebugSelfie.swift in Sources */,
@@ -1116,6 +1099,7 @@
 				F3601C83F23A13A26444AD47 /* SharedLocationDataTests.swift in Sources */,
 				A1178698C9FA49F18135BC6B /* WebhookManagerTests.swift in Sources */,
 				FA110002212F000100000002 /* StoreManagerTests.swift in Sources */,
+                CB1030000000000000000001 /* OnboardingLaunchConfigurationTests.swift in Sources */,
 				AB000001212F0EE1000000E2 /* IsoMeEntityQueryTests.swift in Sources */,
 				AB000001212F0DD1000000D2 /* ExportDataIntentTests.swift in Sources */,
 				AB000001212F0AA1000000A2 /* GetCurrentOutingNameIntentTests.swift in Sources */,
@@ -1317,245 +1301,245 @@
 			name = Release;
 		};
 		A1000017212F000000000017 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = IsoMe/SimulatorDebug.entitlements;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMe/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Shows the debug selfie overlay bubble (debug builds only).";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Records audio with the debug selfie overlay (debug builds only).";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES" = YES;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMe/IsoMe.entitlements";
+		"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "IsoMe/SimulatorDebug.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"DEVELOPMENT_ASSET_PATHS" = "\"IsoMe/Preview Content\"";
+		"ENABLE_PREVIEWS" = YES;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMe/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.lifestyle";
+		"INFOPLIST_KEY_NSCameraUsageDescription" = "Shows the debug selfie overlay bubble (debug builds only).";
+		"INFOPLIST_KEY_NSMicrophoneUsageDescription" = "Records audio with the debug selfie overlay (debug builds only).";
+		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
+		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
+		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		A1000018212F000000000018 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = IsoMe/IsoMe.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				DEVELOPMENT_ASSET_PATHS = "\"IsoMe/Preview Content\"";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMe/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES" = YES;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMe/IsoMe.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"DEVELOPMENT_ASSET_PATHS" = "\"IsoMe/Preview Content\"";
+		"ENABLE_PREVIEWS" = YES;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMe/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.lifestyle";
+		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
+		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
+		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		A2000017212F000000000017 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday Widget";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME" = WidgetBackground;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWidget/IsoMeWidget.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWidget/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = "Whereday Widget";
+		"INFOPLIST_KEY_NSHumanReadableCopyright" = "";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.Widget";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		A2000018212F000000000018 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWidget/IsoMeWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday Widget";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.Widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME" = WidgetBackground;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWidget/IsoMeWidget.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWidget/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = "Whereday Widget";
+		"INFOPLIST_KEY_NSHumanReadableCopyright" = "";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.Widget";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		A3000017212F000000000017 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.isome;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWatch/IsoMeWatch.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWatch/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+		"INFOPLIST_KEY_WKCompanionAppBundleIdentifier" = "com.bontecou.isome";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.watchkitapp";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = watchos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = 4;
+		"WATCHOS_DEPLOYMENT_TARGET" = "10.0";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		A3000018212F000000000018 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWatch/IsoMeWatch.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bontecou.isome;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWatch/IsoMeWatch.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWatch/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+		"INFOPLIST_KEY_WKCompanionAppBundleIdentifier" = "com.bontecou.isome";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.watchkitapp";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = watchos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = 4;
+		"WATCHOS_DEPLOYMENT_TARGET" = "10.0";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		A4000017212F000000000017 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME" = WidgetBackground;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWatchWidget/IsoMeWatchWidget.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWatchWidget/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_NSHumanReadableCopyright" = "";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.watchkitapp.Widget";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = watchos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = 4;
+		"WATCHOS_DEPLOYMENT_TARGET" = "10.0";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		A4000018212F000000000018 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = IsoMeWatchWidget/IsoMeWatchWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 51;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = IsoMeWatchWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Whereday";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.7.19;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bontecou.isome.watchkitapp.Widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME" = WidgetBackground;
+		"CODE_SIGN_ENTITLEMENTS" = "IsoMeWatchWidget/IsoMeWatchWidget.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 57;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "IsoMeWatchWidget/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = Whereday;
+		"INFOPLIST_KEY_NSHumanReadableCopyright" = "";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.8.1";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.bontecou.isome.watchkitapp.Widget";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = watchos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = 4;
+		"WATCHOS_DEPLOYMENT_TARGET" = "10.0";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */

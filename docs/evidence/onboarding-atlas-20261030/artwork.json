@@ -1,0 +1,23 @@
+{
+  "generator": "Built-in image_gen tool",
+  "assets": [
+    {
+      "path": "IsoMe/Assets.xcassets/OnboardingAtlas.imageset/OnboardingAtlas.jpg",
+      "prompt": "Use case: illustration-story. Asset type: premium iPhone travel-journal onboarding map background, square composition. Create an exquisitely detailed flat top-down illustrated street map of a fictional Paris-inspired neighborhood. Sophisticated printed travel atlas aesthetic, fine precise cartographic linework over warm ivory paper (#faf7f0), soft desaturated sage-green garden parks, dusty pale-blue curving river winding along the far right edge, small irregular cream limestone building footprints with very subtle warm-gray outlines, elegant narrow winding streets and broad white boulevards. A large formal garden with tiny tree canopies and geometric paths sits in the upper right quarter; quieter dense residential blocks on left and bottom; one small garden in lower left. Streets should follow a natural organic European neighborhood rather than a regular rectangular grid. Restrained natural colors, airy, editorial, beautiful at small phone size. Perfect orthographic top-down view, no perspective, no 3D, no isometric buildings. Fine detail without visual noise. Map continues to all four image edges. NO words, NO text, NO lettering, NO labels, NO route overlays, NO pins, NO symbols, NO border, NO UI, NO device, NO shadows outside the map. It is a supporting illustration for native UI overlays, not a finished app screenshot."
+    },
+    {
+      "path": "IsoMe/Assets.xcassets/OnboardingCafe.imageset/OnboardingCafe.jpg",
+      "prompt": "Use case: photorealistic-natural. Asset type: sample photograph for a premium private travel-journal iPhone app. A beautiful candid travel photograph from a quiet Paris cafe: close foreground of a small round pale stone outdoor bistro table with one white ceramic cappuccino and a croissant on a white plate, soft natural morning sunlight and graceful shadows. Beyond it, softly focused elegant Luxembourg-style garden with green trees and cream Parisian architecture. Intimate, believable personal travel photography shot on a fine compact camera, soft warm filmic colors, realistic texture, delicate light, sophisticated natural composition, no people, no writing, no logos, no frames, no interface. Square image, table occupies lower-left and center, garden occupies upper-right."
+    },
+    {
+      "path": "IsoMe/Assets.xcassets/OnboardingGarden.imageset/OnboardingGarden.jpg",
+      "prompt": "Use case: photorealistic-natural. Asset type: sample travel photograph in a premium iPhone travel journal. A beautiful intimate personal photograph of a formal Paris garden on a quiet sunny morning: a pale blue-green circular fountain pool with reflected light, one classic green metal garden chair near the foreground, gracious cream limestone palace softly seen behind lush green tree canopies and pink flowerbeds. Candid composition from garden path level, natural warm film colors, subtle fine grain, authentic small-camera travel photography, soft sunlight. Square composition. No people, no text, no logos, no watermarks, no frame or UI. Harmonize with a warm sunlit Paris cafe photograph."
+    }
+  ],
+  "processing": "JPEG quality 88; photographs downsampled to 640 pixels; atlas retains original resolution.",
+  "verification": {
+    "ios_runner": "21 WebhookManagerTests passed with simulator signing enabled",
+    "localization": "4 onboarding localization checks passed",
+    "walkthrough": "24 steps passed; native runner cannot resolve SwiftUI identifiers, so recorded coordinate taps are followed by accessibility destination checks and idle waits. Coordinates target iPhone 18 Pro portrait."
+  }
+}

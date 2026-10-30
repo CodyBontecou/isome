@@ -53,7 +53,10 @@ def build():
     for url in sorted(page_url(path) for path in PUBLIC.rglob("*.html") if path.name != "404.html"):
         entry = ET.SubElement(sitemap, f"{{{namespace}}}url")
         ET.SubElement(entry, f"{{{namespace}}}loc").text = url
-        date = REVIEWED if url.removeprefix(BASE) in UPDATED_PATHS else dates.get(url)
+        path = url.removeprefix(BASE)
+        date = "2026-10-29" if path in {"/", "/privacy", "/terms", "/docs/privacy-data/"} else (
+            REVIEWED if path in UPDATED_PATHS else dates.get(url)
+        )
         if date:
             ET.SubElement(entry, f"{{{namespace}}}lastmod").text = date
     ET.indent(sitemap, space="  ")

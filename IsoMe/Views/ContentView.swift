@@ -128,7 +128,6 @@ struct ContentView: View {
                     await viewModel.syncPhotosAutomaticallyIfAuthorized()
                 }
             }
-            OnboardingAnalyticsClient.shared.flush()
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchLocationDataImported)) { _ in
             viewModel?.loadData()
@@ -139,7 +138,6 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            OnboardingAnalyticsClient.shared.flush()
 
             if let log = UserDefaults.standard.string(forKey: "lastCrashLog") {
                 crashLog = log
@@ -249,7 +247,6 @@ private struct MainTabView: View {
     }
 }
 
-
 /// System arrangements retain the primary screen while the inner display gains a companion.
 /// They also keep each page clear of the active hinge without device-name or orientation checks.
 @available(iOS 27.1, *)
@@ -344,7 +341,6 @@ private struct DuoJournalWorkspace: View {
         )
     }
 
-
 }
 
 private struct OnboardingView: View {
@@ -352,18 +348,17 @@ private struct OnboardingView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let viewModel: LocationViewModel
     let onComplete: (Bool) -> Void
-    private let analytics = OnboardingAnalyticsClient.shared
 
     @ObservedObject private var locationManager: LocationManager
 
     @State private var selectedPage: Int
     @State private var startTrackingWhenDone = false
     @State private var isConfiguringAutomaticPhotoSync = false
-    @State private var didTrackOnboardingStarted = false
-    @State private var trackedStepViews: Set<OnboardingAnalyticsStep> = []
     @AppStorage(LocationViewModel.automaticPhotoSyncEnabledKey) private var automaticPhotoSyncEnabled = false
 
-    private let pageCount = 5
+    private static let pageCount = 7
+    private var pageCount: Int { Self.pageCount }
+    private let permissionsPageIndex = 5
 
     init(viewModel: LocationViewModel, onComplete: @escaping (Bool) -> Void) {
         self.viewModel = viewModel
@@ -377,7 +372,7 @@ private struct OnboardingView: View {
         let prefix = "--onboarding-page="
         if let argument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
            let page = Int(argument.dropFirst(prefix.count)),
-           (0..<5).contains(page) {
+           (0..<Self.pageCount).contains(page) {
             return page
         }
         #endif
@@ -393,27 +388,22 @@ private struct OnboardingView: View {
                     welcomePage
                         .tag(0)
 
-                    featuresPage
-                        .tag(1)
-
-                    permissionsPage
-                        .tag(2)
-
-                    photosPage
-                        .tag(3)
-
-                    finishPage
-                        .tag(4)
+                    timelinePage.tag(1)
+                    routePage.tag(2)
+                    exportsPage.tag(3)
+                    photosPage.tag(4)
+                    permissionsPage.tag(5)
+                    finishPage.tag(6)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.84), value: selectedPage)
 
-                VStack(spacing: 16) {
+                VStack(spacing: 8) {
                     pageIndicators
                     controls
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 16)
+                .padding(.top, 8)
                 .padding(.bottom, 16)
                 .background {
                     LinearGradient(colors: [InkPaperPalette.paper.opacity(0), InkPaperPalette.paper, InkPaperPalette.paper], startPoint: .top, endPoint: .bottom)
@@ -423,28 +413,11 @@ private struct OnboardingView: View {
         }
         .modifier(JournalFlowPresentation())
         .tint(OnboardingPalette.accent)
-        .onAppear {
-            trackOnboardingStartedIfNeeded()
-            trackOnboardingStepViewed(for: selectedPage)
-        }
-        .onChange(of: selectedPage) { _, newPage in
-            trackOnboardingStepViewed(for: newPage)
-        }
-        .onChange(of: startTrackingWhenDone) { _, _ in
-            analytics.trackTrackingIntentChanged(
-                intent: trackingAnalyticsIntent,
-                authorizationStatus: currentAuthorizationAnalyticsStatus
-            )
-        }
         .onChange(of: locationManager.authorizationStatus) { _, newStatus in
-            if selectedPage == 2 {
-                analytics.trackLocationAuthorizationCompleted(status: analyticsStatus(for: newStatus))
-            }
-
-            guard selectedPage == 2 else { return }
+            guard selectedPage == permissionsPageIndex else { return }
             if newStatus == .authorizedAlways {
                 withAnimation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.85)) {
-                    selectedPage = 3
+                    selectedPage = permissionsPageIndex + 1
                 }
             }
         }
@@ -457,40 +430,43 @@ private struct OnboardingView: View {
             title: "Every day\nhas a story.",
             description: "A calm, private timeline of where your day takes you — always on-device and in your control."
         ) {
-            VStack(spacing: 10) {
-                OnboardingChecklistRow(icon: "mappin.and.ellipse", text: "Auto-detect places you visit")
-                OnboardingChecklistRow(icon: "point.topleft.down.to.point.bottomright.curvepath", text: "Capture detailed routes when needed")
-                OnboardingChecklistRow(icon: "lock.shield.fill", text: "Keep all location data on-device")
-            }
+            OnboardingMapPreview(style: .places)
+            Label("Keep all location data on-device", systemImage: "lock.shield.fill")
+                .font(.onboardingCaption)
+                .foregroundStyle(OnboardingPalette.textSecondary)
         }
     }
 
-    private var featuresPage: some View {
+    private var timelinePage: some View {
         LocationOnboardingPageView(
-            icon: "square.grid.2x2.fill",
-            eyebrow: "Core Features",
+            icon: "house.and.flag.fill",
+            eyebrow: "Visit timeline",
             title: "The shape\nof your day.",
-            description: "Glanceable, battery-aware, and deeply contextual when you need it."
+            description: "Arrivals, durations, and changes throughout your day."
         ) {
-            VStack(spacing: 12) {
-                OnboardingFeatureCard(
-                    icon: "house.and.flag.fill",
-                    title: "Visit timeline",
-                    description: "Arrivals, durations, and changes throughout your day."
-                )
+            OnboardingMapPreview(style: .timeline)
+        }
+    }
 
-                OnboardingFeatureCard(
-                    icon: "map.fill",
-                    title: "Path visualization",
-                    description: "Routes with start and end markers plus optional detail points."
-                )
+    private var routePage: some View {
+        LocationOnboardingPageView(
+            icon: "map.fill",
+            eyebrow: "Path visualization",
+            title: "Path visualization",
+            description: "Routes with start and end markers plus optional detail points."
+        ) {
+            OnboardingMapPreview(style: .route)
+        }
+    }
 
-                OnboardingFeatureCard(
-                    icon: "square.and.arrow.up",
-                    title: "Flexible exports",
-                    description: "JSON, CSV, or Markdown — whenever you need it."
-                )
-            }
+    private var exportsPage: some View {
+        LocationOnboardingPageView(
+            icon: "square.and.arrow.up",
+            eyebrow: "Flexible exports",
+            title: "Flexible exports",
+            description: "JSON, CSV, or Markdown — whenever you need it."
+        ) {
+            OnboardingExportPreview()
         }
     }
 
@@ -509,14 +485,14 @@ private struct OnboardingView: View {
                         .foregroundStyle(OnboardingPalette.textPrimary)
                         .multilineTextAlignment(.leading)
 
-                    Text("Background visit detection lets Whereday keep recording when the app is closed.")
+                    Text("Record your days around the clock, even when Whereday is closed. Allow Always location access for automatic background visit detection.")
                         .font(.onboardingBody)
                         .foregroundStyle(OnboardingPalette.textSecondary)
                         .multilineTextAlignment(.leading)
                         .lineSpacing(3)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 64)
+                .padding(.top, 40)
                 .padding(.bottom, 12)
 
                 VStack(spacing: 10) {
@@ -562,10 +538,6 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
-                    analytics.trackLocationAuthorizationRequested(
-                        requestKind: .whenInUse,
-                        status: currentAuthorizationAnalyticsStatus
-                    )
                     locationManager.requestWhenInUseAuthorization()
                 } label: {
                     Label("Continue", systemImage: "location.fill")
@@ -589,10 +561,6 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
-                    analytics.trackLocationAuthorizationRequested(
-                        requestKind: .always,
-                        status: currentAuthorizationAnalyticsStatus
-                    )
                     locationManager.requestAlwaysAuthorization()
                 } label: {
                     Label("Continue", systemImage: "arrow.up.forward.app.fill")
@@ -616,10 +584,6 @@ private struct OnboardingView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
-                    analytics.trackLocationAuthorizationRequested(
-                        requestKind: .settings,
-                        status: currentAuthorizationAnalyticsStatus
-                    )
                     openSettings()
                 } label: {
                     Label("Open iPhone Settings", systemImage: "gearshape.fill")
@@ -650,17 +614,23 @@ private struct OnboardingView: View {
     private var photosPage: some View {
         LocationOnboardingPageView(
             icon: "photo.on.rectangle.angled",
-            eyebrow: "Optional",
+            eyebrow: "Photo moments",
             title: "Your places.\nYour photographs.",
             description: "Let Whereday automatically show iPhone photos on your map and outings. Photos stay in your Photos library."
         ) {
-            VStack(spacing: 12) {
-                OnboardingStatusRow(
-                    title: "Photos access",
-                    subtitle: viewModel.photoLibraryAccessState.onboardingLabel,
-                    icon: viewModel.photoLibraryAccessState.onboardingIcon,
-                    color: viewModel.photoLibraryAccessState.onboardingColor
-                )
+            OnboardingMapPreview(style: .photos)
+
+            VStack(spacing: 10) {
+                HStack(spacing: 8) {
+                    Image(systemName: viewModel.photoLibraryAccessState.onboardingIcon)
+                        .foregroundStyle(viewModel.photoLibraryAccessState.onboardingColor)
+                    Text("Photos access")
+                    Spacer()
+                    Text(viewModel.photoLibraryAccessState.onboardingLabel)
+                        .foregroundStyle(OnboardingPalette.textSecondary)
+                }
+                .font(.onboardingCaption)
+                .onboardingCard(padding: 12)
 
                 VStack(alignment: .leading, spacing: 12) {
                     Toggle(isOn: Binding(
@@ -669,11 +639,11 @@ private struct OnboardingView: View {
                     )) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Auto-sync photo moments")
-                                .font(.onboardingBody)
+                                .font(.onboardingCaption)
                                 .fontWeight(.medium)
                                 .foregroundStyle(OnboardingPalette.textPrimary)
 
-                            Text("Uses photo GPS when available, otherwise matches timestamps to nearby route points or visits.")
+                            Text("Match photos to your visits and routes.")
                                 .font(.onboardingCaption)
                                 .foregroundStyle(OnboardingPalette.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -693,7 +663,7 @@ private struct OnboardingView: View {
                                 .foregroundStyle(OnboardingPalette.textSecondary)
                         }
                     } else if automaticPhotoSyncEnabled && viewModel.photoLibraryAccessState.canRead {
-                        Text("Enabled. Photo cards will appear automatically when Whereday can place them on your map.")
+                        Text("Photo moments are enabled.")
                             .font(.onboardingCaption)
                             .foregroundStyle(OnboardingPalette.success)
                             .fixedSize(horizontal: false, vertical: true)
@@ -713,13 +683,13 @@ private struct OnboardingView: View {
                             .buttonStyle(OnboardingSecondaryButtonStyle())
                         }
                     } else {
-                        Text("This is optional — skip it if you only want location visits and routes.")
+                        Text("Optional")
                             .font(.onboardingCaption)
                             .foregroundStyle(OnboardingPalette.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .onboardingCard(padding: 14, fill: OnboardingPalette.cardSoft)
+                .onboardingCard(padding: 12, fill: OnboardingPalette.cardSoft)
             }
         }
     }
@@ -778,16 +748,27 @@ private struct OnboardingView: View {
     private var pageIndicators: some View {
         HStack {
             Spacer(minLength: 0)
-            HStack(spacing: 8) {
+            HStack(spacing: 0) {
                 ForEach(0..<pageCount, id: \.self) { index in
-                    Circle()
-                        .fill(index <= selectedPage ? OnboardingPalette.accent : .clear)
-                        .frame(width: 7, height: 7)
-                        .overlay(Circle().stroke(OnboardingPalette.accent.opacity(0.5), lineWidth: 1))
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
+                            selectedPage = index
+                        }
+                    } label: {
+                        Circle()
+                            .fill(index == selectedPage ? OnboardingPalette.accent : .clear)
+                            .frame(width: 5, height: 5)
+                            .overlay(Circle().stroke(OnboardingPalette.accent.opacity(0.5), lineWidth: 1))
+                            .frame(width: 28, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Step \(index + 1) of \(pageCount)"))
+                    .accessibilityAddTraits(index == selectedPage ? .isSelected : [])
+                    .accessibilityIdentifier("onboarding-step-\(index)")
                 }
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Step \(selectedPage + 1) of \(pageCount)"))
+
             Spacer(minLength: 0)
         }
     }
@@ -834,7 +815,7 @@ private struct OnboardingView: View {
     }
 
     private var isAwaitingPermissionRequest: Bool {
-        selectedPage == 2 && locationManager.authorizationStatus == .notDetermined
+        selectedPage == permissionsPageIndex && locationManager.authorizationStatus == .notDetermined
     }
 
     private var primaryButtonTitle: String {
@@ -858,75 +839,7 @@ private struct OnboardingView: View {
 
     private func completeOnboarding() {
         let shouldStartTracking = startTrackingWhenDone && locationManager.hasLocationPermission
-        analytics.trackOnboardingCompleted(
-            authorizationStatus: currentAuthorizationAnalyticsStatus,
-            trackingIntent: trackingAnalyticsIntent
-        )
         onComplete(shouldStartTracking)
-    }
-
-    private func trackOnboardingStartedIfNeeded() {
-        guard !didTrackOnboardingStarted else { return }
-        didTrackOnboardingStarted = true
-        analytics.trackOnboardingStarted(
-            step: .welcome,
-            authorizationStatus: currentAuthorizationAnalyticsStatus
-        )
-    }
-
-    private func trackOnboardingStepViewed(for pageIndex: Int) {
-        guard let step = onboardingStep(for: pageIndex),
-              !trackedStepViews.contains(step) else { return }
-
-        trackedStepViews.insert(step)
-        analytics.trackOnboardingStepViewed(
-            step,
-            authorizationStatus: currentAuthorizationAnalyticsStatus,
-            trackingIntent: step == .ready ? trackingAnalyticsIntent : nil
-        )
-    }
-
-    private func onboardingStep(for pageIndex: Int) -> OnboardingAnalyticsStep? {
-        switch pageIndex {
-        case 0:
-            return .welcome
-        case 1:
-            return .features
-        case 2:
-            return .permissions
-        case 3:
-            return .photos
-        case 4:
-            return .ready
-        default:
-            return nil
-        }
-    }
-
-    private var currentAuthorizationAnalyticsStatus: OnboardingAnalyticsAuthorizationStatus {
-        analyticsStatus(for: locationManager.authorizationStatus)
-    }
-
-    private var trackingAnalyticsIntent: OnboardingAnalyticsTrackingIntent {
-        guard locationManager.hasLocationPermission else { return .unavailable }
-        return startTrackingWhenDone ? .startImmediately : .later
-    }
-
-    private func analyticsStatus(for status: CLAuthorizationStatus) -> OnboardingAnalyticsAuthorizationStatus {
-        switch status {
-        case .notDetermined:
-            return .notDetermined
-        case .authorizedWhenInUse:
-            return .whenInUse
-        case .authorizedAlways:
-            return .always
-        case .denied:
-            return .denied
-        case .restricted:
-            return .restricted
-        @unknown default:
-            return .unknown
-        }
     }
 
     private func handleAutomaticPhotoSyncToggle(_ isEnabled: Bool) {
@@ -990,7 +903,7 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
                     .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, 24)
-            .padding(.top, 64)
+            .padding(.top, 40)
             .padding(.bottom, 32)
             .frame(maxWidth: 560).frame(maxWidth: .infinity)
         }
@@ -998,33 +911,354 @@ private struct LocationOnboardingPageView<AccentContent: View>: View {
     }
 }
 
-private struct OnboardingFeatureCard: View {
-    let icon: String
-    let title: LocalizedStringKey
-    let description: LocalizedStringKey
+/// An illustrated, fictional day, bundled for an immediate offline preview.
+/// Coordinates refer to the atlas artwork, so every page retains the same geography.
+private struct OnboardingMapPreview: View {
+    enum Style { case places, timeline, route, photos }
+    let style: Style
+
+    private let ink = Color(red: 0.16, green: 0.29, blue: 0.56)
+    private let paper = Color(red: 0.995, green: 0.986, blue: 0.964)
+    private let stops: [CGPoint] = [
+        CGPoint(x: 0.22, y: 0.78), CGPoint(x: 0.465, y: 0.53), CGPoint(x: 0.685, y: 0.285)
+    ]
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(OnboardingPalette.accent)
+        VStack(spacing: 0) {
+            atlas
+                .frame(height: mapHeight)
+                .clipped()
+            if style == .timeline {
+                timeline
+            } else if style == .route {
+                routeSummary
+            }
+        }
+        .background(paper)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(ink.opacity(0.12), lineWidth: 0.75)
+        }
+        .shadow(color: ink.opacity(0.09), radius: 16, x: 0, y: 9)
+        // These are illustrations, not real user records or interactive map controls.
+        .dynamicTypeSize(.large)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("An example day"))
+        .accessibilityValue(Text(accessibilitySummary))
+    }
 
-                    Text(title)
-                        .font(.onboardingHeadline)
-                        .foregroundStyle(OnboardingPalette.textPrimary)
+    private var accessibilitySummary: LocalizedStringKey {
+        switch style {
+        case .places: "Auto-detect places you visit"
+        case .timeline: "Arrivals, durations, and changes throughout your day."
+        case .route: "Routes with start and end markers plus optional detail points."
+        case .photos: "Match photos to your visits and routes."
+        }
+    }
+
+    private var mapHeight: CGFloat {
+        switch style {
+        case .places: 310
+        case .timeline: 190
+        case .route: 270
+        case .photos: 180
+        }
+    }
+
+    private var atlas: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Image("OnboardingAtlas")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.width)
+                    .offset(y: cropOffset(in: geometry.size))
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                    .saturation(0.72)
+                    .overlay(paper.opacity(0.08))
+
+                route(in: geometry.size)
+                    .stroke(.white.opacity(0.95), style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                route(in: geometry.size)
+                    .stroke(ink.opacity(style == .places ? 0.65 : 1),
+                            style: StrokeStyle(lineWidth: 2.8, lineCap: .round, lineJoin: .round,
+                                               dash: style == .places ? [2, 6] : []))
+
+                if style == .photos {
+                    photoPin(asset: "OnboardingCafe", title: "Coffee", rotation: -7)
+                        .position(x: geometry.size.width * 0.30, y: geometry.size.height * 0.61)
+                    photoPin(asset: "OnboardingGarden", title: "Park", rotation: 6)
+                        .position(x: geometry.size.width * 0.72, y: geometry.size.height * 0.36)
+                } else {
+                    ForEach(stops.indices, id: \.self) { index in
+                        // The timeline's closer crop deliberately focuses on the last two visits.
+                        if style != .timeline || index > 0 {
+                            placePin(index: index)
+                                .position(point(stops[index], in: geometry.size))
+                        }
+                    }
                 }
 
-                Text(description)
-                    .font(.onboardingCaption)
-                    .foregroundStyle(OnboardingPalette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack {
+                    HStack {
+                        if style == .places {
+                            Label("Today", systemImage: "sun.max")
+                                .font(.system(size: 11, weight: .semibold))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(paper.opacity(0.97), in: Capsule())
+                                .overlay(Capsule().strokeBorder(ink.opacity(0.10), lineWidth: 0.5))
+                        }
+                        Spacer()
+                        compass
+                    }
+                    Spacer()
+                    if style == .places {
+                        HStack(spacing: 6) {
+                            Image(systemName: "mappin.and.ellipse")
+                            Text(3, format: .number)
+                            Text("Visits")
+                            Spacer()
+                            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                            Text(Measurement(value: 2.4, unit: UnitLength.kilometers),
+                                 format: .measurement(width: .abbreviated, usage: .road))
+                        }
+                        .font(.system(size: 11, weight: .medium))
+                        .padding(.horizontal, 13)
+                        .padding(.vertical, 11)
+                        .background(paper.opacity(0.97), in: Capsule())
+                        .overlay(Capsule().strokeBorder(ink.opacity(0.10), lineWidth: 0.5))
+                    }
+                }
+                .padding(16)
             }
-
-            Spacer(minLength: 0)
+            .foregroundStyle(ink)
         }
-        .onboardingCard(padding: 14, fill: OnboardingPalette.card)
+    }
+
+    private var compass: some View {
+        Image(systemName: "location.north.line.fill")
+            .font(.system(size: 13, weight: .regular))
+            .frame(width: 30, height: 30)
+            .background(paper.opacity(0.95), in: Circle())
+            .overlay(Circle().strokeBorder(ink.opacity(0.12), lineWidth: 0.5))
+    }
+
+    private func placePin(index: Int) -> some View {
+        let symbols = ["house.fill", "cup.and.saucer.fill", "tree.fill"]
+        return VStack(spacing: 0) {
+            Image(systemName: symbols[index])
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(index == 1 ? paper : ink)
+                .frame(width: 34, height: 34)
+                .background(index == 1 ? ink : paper, in: Circle())
+                .overlay(Circle().strokeBorder(paper, lineWidth: 2.5))
+                .shadow(color: ink.opacity(0.20), radius: 5, x: 0, y: 3)
+            Rectangle().fill(ink.opacity(0.6)).frame(width: 1, height: 9)
+            Circle().fill(ink).frame(width: 6, height: 6)
+                .overlay(Circle().stroke(paper, lineWidth: 1.5))
+        }
+        .offset(y: -20)
+    }
+
+    private func cropOffset(in size: CGSize) -> CGFloat {
+        style == .timeline ? size.width * 0.1 : 0
+    }
+
+    private func point(_ point: CGPoint, in size: CGSize) -> CGPoint {
+        CGPoint(x: point.x * size.width,
+                y: point.y * size.width - (size.width - size.height) / 2 + cropOffset(in: size))
+    }
+
+    private func route(in size: CGSize) -> Path {
+        let points: [CGPoint] = [
+            stops[0], CGPoint(x: 0.245, y: 0.73), CGPoint(x: 0.26, y: 0.67),
+            CGPoint(x: 0.295, y: 0.585), CGPoint(x: 0.345, y: 0.57),
+            CGPoint(x: 0.40, y: 0.555), stops[1], CGPoint(x: 0.49, y: 0.51),
+            CGPoint(x: 0.495, y: 0.46), CGPoint(x: 0.492, y: 0.40),
+            CGPoint(x: 0.48, y: 0.33), CGPoint(x: 0.478, y: 0.285),
+            CGPoint(x: 0.49, y: 0.23), CGPoint(x: 0.513, y: 0.18),
+            CGPoint(x: 0.53, y: 0.145), CGPoint(x: 0.565, y: 0.16),
+            CGPoint(x: 0.60, y: 0.18), CGPoint(x: 0.65, y: 0.22),
+            CGPoint(x: 0.68, y: 0.255), stops[2]
+        ].map { point($0, in: size) }
+        // Quadratic joins follow the boulevard without sharp schematic elbows.
+        return Path { path in
+            guard let first = points.first, let last = points.last else { return }
+            path.move(to: first)
+            for index in 1..<points.count - 1 {
+                let midpoint = CGPoint(x: (points[index].x + points[index + 1].x) / 2,
+                                       y: (points[index].y + points[index + 1].y) / 2)
+                path.addQuadCurve(to: midpoint, control: points[index])
+            }
+            path.addLine(to: last)
+        }
+    }
+
+    private var timeline: some View {
+        VStack(spacing: 0) {
+            visit(icon: "house.fill", title: "Home", time: "8:00", duration: "Morning", last: false)
+            visit(icon: "cup.and.saucer.fill", title: "Coffee", time: "9:15", duration: "45 min", last: false)
+            visit(icon: "tree.fill", title: "Park", time: "10:30", duration: "1 hr", last: true)
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+        .foregroundStyle(ink)
+    }
+
+    private func visit(icon: String, title: LocalizedStringKey, time: String,
+                       duration: LocalizedStringKey, last: Bool) -> some View {
+        HStack(spacing: 12) {
+            Text(verbatim: time)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(ink.opacity(0.55))
+                .frame(width: 36, alignment: .leading)
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .frame(width: 26, height: 26)
+                .background(ink.opacity(0.07), in: Circle())
+                .overlay(alignment: .bottom) {
+                    if !last {
+                        Rectangle().fill(ink.opacity(0.18)).frame(width: 1, height: 12).offset(y: 12)
+                    }
+                }
+            Text(title).font(.system(size: 12, weight: .medium))
+            Spacer(minLength: 4)
+            Text(duration).font(.system(size: 10)).foregroundStyle(ink.opacity(0.55))
+        }
+        .frame(height: 38)
+    }
+
+    private var routeSummary: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 24) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Distance").font(.system(size: 9, weight: .medium)).foregroundStyle(ink.opacity(0.55))
+                Text(Measurement(value: 2.4, unit: UnitLength.kilometers),
+                     format: .measurement(width: .abbreviated, usage: .road))
+                    .font(.system(size: 24, weight: .regular, design: .serif))
+            }
+            Rectangle().fill(ink.opacity(0.12)).frame(width: 1, height: 30)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Visits").font(.system(size: 9, weight: .medium)).foregroundStyle(ink.opacity(0.55))
+                Text(3, format: .number).font(.system(size: 24, weight: .regular, design: .serif))
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                .font(.system(size: 26, weight: .ultraLight))
+        }
+        .foregroundStyle(ink)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+    }
+
+    private func photoPin(asset: String, title: LocalizedStringKey, rotation: Double) -> some View {
+        VStack(spacing: 6) {
+            Image(asset)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 88, height: 82)
+                .clipped()
+            Text(title)
+                .font(.system(size: 10, weight: .regular, design: .serif))
+                .foregroundStyle(ink)
+        }
+        .padding(5)
+        .padding(.bottom, 3)
+        .background(paper)
+        .shadow(color: ink.opacity(0.22), radius: 8, x: 0, y: 5)
+        .rotationEffect(.degrees(rotation))
+    }
+}
+
+/// The same fictional visits in each format, kept separate from the user's records.
+private struct OnboardingExportPreview: View {
+    private enum Format: String, CaseIterable {
+        case json = "JSON", csv = "CSV", markdown = "Markdown"
+
+        var filename: String {
+            "visits." + (self == .markdown ? "md" : rawValue.lowercased())
+        }
+
+        // Short excerpts keep the structure readable on a phone.
+        var excerpt: String {
+            switch self {
+            case .json:
+                """
+                [
+                  {
+                    "locationName": "Home",
+                    "durationMinutes": 75
+                  },
+                  {
+                    "locationName": "Coffee",
+                    "durationMinutes": 45
+                  },
+                  {
+                    "locationName": "Park",
+                    "durationMinutes": 60
+                  }
+                ]
+                """
+            case .csv:
+                """
+                location_name,duration_minutes
+                Home,75
+                Coffee,45
+                Park,60
+                """
+            case .markdown:
+                """
+                # Visits
+
+                | Location | Duration |
+                | --- | --- |
+                | Home | 1h 15m |
+                | Coffee | 45m |
+                | Park | 1h |
+                """
+            }
+        }
+    }
+
+    @State private var selectedFormat: Format = .json
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Picker("Export format", selection: $selectedFormat) {
+                ForEach(Format.allCases, id: \.self) { format in
+                    Text(verbatim: format.rawValue).tag(format)
+                        .accessibilityIdentifier("onboarding-export-\(format.rawValue.lowercased())")
+                }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("onboarding-export-format")
+
+            VStack(alignment: .leading, spacing: 12) {
+                Label {
+                    Text(verbatim: selectedFormat.filename)
+                } icon: {
+                    Image(systemName: "doc.text")
+                }
+                .font(.onboardingCaption)
+                .foregroundStyle(OnboardingPalette.accent)
+
+                Divider()
+
+                ScrollView(.horizontal) {
+                    Text(verbatim: selectedFormat.excerpt)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(OnboardingPalette.textPrimary)
+                        .fixedSize(horizontal: true, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityIdentifier("onboarding-export-content")
+                }
+                .id(selectedFormat)
+                .scrollBounceBehavior(.basedOnSize)
+            }
+            .onboardingCard(padding: 18)
+        }
     }
 }
 

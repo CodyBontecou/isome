@@ -13,6 +13,10 @@ struct IsoMeApp: App {
     @State private var manualVisitRouter = ManualVisitRouter()
 
     init() {
+        #if DEBUG
+        OnboardingLaunchConfiguration.consumeOverride()
+        #endif
+        RetiredAnalyticsCleanup.run()
         #if DEBUG && os(iOS)
         DebugSelfie.install()
         #endif
@@ -117,6 +121,22 @@ struct IsoMeApp: App {
         }
     }
 }
+
+#if DEBUG
+/// Treat the QA launch preference as an initial value, not a session-long lock.
+/// Otherwise NSArgumentDomain masks writes made by Get Started and Settings.
+enum OnboardingLaunchConfiguration {
+    static func consumeOverride(defaults: UserDefaults = .standard) {
+        let key = "hasCompletedOnboarding"
+        var arguments = defaults.volatileDomain(forName: UserDefaults.argumentDomain)
+        guard arguments[key] != nil else { return }
+        let initialValue = defaults.bool(forKey: key)
+        arguments.removeValue(forKey: key)
+        defaults.setVolatileDomain(arguments, forName: UserDefaults.argumentDomain)
+        defaults.set(initialValue, forKey: key)
+    }
+}
+#endif
 
 // MARK: - App Store Review Prompt
 

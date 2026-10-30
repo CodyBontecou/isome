@@ -582,8 +582,9 @@ BODIES["privacy-data"] = """
 <tr><th scope="col">Where</th><th scope="col">What's sent</th><th scope="col">When</th><th scope="col">Off switch</th></tr>
 <tr><td><strong>Apple geocoding</strong></td><td>Coordinates of a visit (to fetch its name/address)</td><td>When naming visits</td><td>Settings → Location names</td></tr>
 <tr><td><strong>Apple Maps</strong></td><td>Search terms / route segment endpoints (place search, suggestions, road-matched lines, lock-screen map images)</td><td>When you use those features</td><td>Features are opt-in per use; road-matching toggle in map filters</td></tr>
-<tr><td><strong>Whereday analytics</strong> (first-party, on by default)</td><td>Which onboarding steps were viewed, permission choices, purchase outcomes, app version, and a random install ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>During onboarding and purchases</td><td>None in-app today; deleting the app removes the install ID</td></tr>
-<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, random install ID — <strong>timing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off</td></tr>
+<tr><td><strong>Earlier-version Whereday analytics</strong></td><td>Onboarding steps, permission choices, purchase outcomes, app version, and an installation-linked random ID — <strong>never</strong> coordinates, visits, routes, or anything you type</td><td>On by default in earlier versions; disabled in production version 1.8</td><td>Updating to 1.8 stops sending and discards unsent events; it does not erase received records</td></tr>
+<tr><td><strong>Export scheduler</strong></td><td>Time zone, schedule times, push token, separate installation ID — <strong>timing/routing metadata only</strong>, no location or file contents</td><td>Only if you enable Auto Export</td><td>Turn Auto Export off to remove the active schedule after a successful sync; device registrations may remain</td></tr>
+<tr><td><strong>Earlier-version myself.md purchase claims</strong></td><td>Signed purchase proof for eligibility; retained purchase reference and account linkage after redemption</td><td>Only after choosing to verify an eligible purchase; disabled in version 1.8</td><td>Do not initiate a claim; account deletion and limited retained purchase-protection records follow the <a href="/privacy">Privacy Policy</a></td></tr>
 <tr><td><strong>Your webhook</strong></td><td>Location points and visits, in your chosen format</td><td>Only after you configure an endpoint</td><td>Disable webhooks (off by default)</td></tr>
 </table>
 </div>
@@ -594,7 +595,7 @@ BODIES["privacy-data"] = """
 <h2>Deleting your data</h2>
 <ul>
 <li><strong>Everything, in-app:</strong> Settings → Data → <strong>Clear all data</strong> permanently removes every visit, point, outing, photo match, and saved place.</li>
-<li><strong>Everything, bluntly:</strong> deleting the app removes your entire journal and the local analytics install ID from that device.</li>
+<li><strong>Uninstalling:</strong> removes the app's local journal, subject to backups/restoration. It does not delete server records or exported copies, and a Keychain-backed scheduling ID may remain. See the <a href="/privacy">Privacy Policy</a> for technical-record retention and privacy requests.</li>
 <li><strong>Single items:</strong> delete any visit or outing from its detail page.</li>
 </ul>
 
