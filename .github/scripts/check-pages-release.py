@@ -93,13 +93,11 @@ def main():
         for tool in ('gpx-viewer', 'google-timeline-inspector'):
             for suffix in ('', '/', '/index.html'):
                 url = origin + '/tools/' + tool + suffix
-                req = Request(url, headers={'Accept': 'text/html'})
-                with urlopen(req, timeout=30) as r:
-                    body = r.read()
-                    if "connect-src 'none'" not in r.headers.get('Content-Security-Policy', ''):
-                        raise ValueError('Missing private-file network boundary: ' + url)
-                    if r.headers.get('Referrer-Policy') != 'no-referrer' or b'/assets/acquisition.js' in body:
-                        raise ValueError('Private-file tool privacy drift: ' + url)
+                headers, body = fetch(url)
+                if "connect-src 'none'" not in headers.get('Content-Security-Policy', ''):
+                    raise ValueError('Missing private-file network boundary: ' + url)
+                if headers.get('Referrer-Policy') != 'no-referrer' or b'/assets/acquisition.js' in body:
+                    raise ValueError('Private-file tool privacy drift: ' + url)
     print(f'Verified {len(urls)} canonical HTML pages, matching sitemap and {len(assets)} exact public assets over HTTPS.')
 
 
