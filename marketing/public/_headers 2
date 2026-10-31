@@ -1,0 +1,23 @@
+/samples/synthetic-app-export.gpx
+  Access-Control-Allow-Origin: https://gpx.studio
+
+/samples/synthetic-ui-export.gpx
+  Access-Control-Allow-Origin: https://gpx.studio
+
+/samples/synthetic-visits.json
+  Content-Disposition: attachment; filename="synthetic-visits.json"
+
+/samples/synthetic-points.json
+  Content-Disposition: attachment; filename="synthetic-points.json"
+
+/samples/synthetic-obsidian-export.md
+  Content-Disposition: attachment; filename="synthetic-obsidian-export.md"
+
+/samples/synthetic-overland-export.json
+  Content-Disposition: attachment; filename="synthetic-overland-export.json"
+
+/samples/synthetic-saved-locations.csv
+  Content-Disposition: attachment; filename="synthetic-saved-locations.csv"
+
+/samples/synthetic-country-days.csv
+  Content-Disposition: attachment; filename="synthetic-country-days.csv"
