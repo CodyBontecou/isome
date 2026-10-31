@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Render articles and comparisons as static, crawlable HTML."""
 from html import escape
+from datetime import date
 import json
 from pathlib import Path
 
@@ -65,7 +66,8 @@ PAGES = [
         "type": "BlogPosting",
         "title": "How to See Your Location History on iPhone — Whereday",
         "headline": "How to see your location history on iPhone",
-        "description": "Find iPhone location history in Apple Maps or Google Timeline, check Significant Locations settings, and preserve existing records before changing devices.",
+        "description": "Find iPhone location history in Apple Maps, Google Timeline or Whereday. Choose a download, check its dates and records, and keep the original before moving.",
+        "modified": "2026-10-31",
         "lede": "Find the app and date that hold your saved visits, distinguish iPhone location settings from recorded history, and check existing copies before changing your setup.",
         "source": "view-location-history-iphone.html",
     },
@@ -140,7 +142,7 @@ PAGES = [
 for page in PAGES:
     if page.get("source") in {
         "google-maps-timeline.html", "record-iphone-route-gpx.html",
-        "view-location-history-iphone.html", "back-up-iphone-location-history.html",
+        "back-up-iphone-location-history.html",
         "iphone-location-tracking-battery.html", "missing-location-history-iphone.html",
         "iphone-location-journal-obsidian.html", "dawarich.html",
         "track-days-in-country-iphone.html",
@@ -283,7 +285,8 @@ def render(page):
     # Apple public US lookup confirmed Whereday 1.8 on October 30, 2026.
     store_notice = ""
     modified = page.get("modified", REVIEWED)
-    reviewed_label = "October 30, 2026" if modified == "2026-10-30" else "October 26, 2026"
+    reviewed_date = date.fromisoformat(modified)
+    reviewed_label = f"{reviewed_date:%B} {reviewed_date.day}, {reviewed_date.year}"
     schema = json.dumps({"@context": "https://schema.org", "@graph": [webpage, breadcrumb]}, ensure_ascii=False, indent=2)
     nav_crumbs = "".join(f'<li>{escape(name)}</li>' if target == path else f'<li><a href="{target}">{escape(name)}</a></li>' for name, target in crumbs)
     # Preserve the site's existing production-host and analytics-gate behavior.
